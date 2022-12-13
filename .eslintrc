@@ -1,0 +1,12 @@
+{
+  "extends": ["@react-native-community"],
+  "rules": {
+    "react/react-in-jsx-scope": "off",
+    "semi": "off",
+    "prettier/prettier": 0,
+    "react/no-unstable-nested-components": "off",
+    "curly": "off",
+    "quotes": "off",
+    "react-native/no-inline-styles": "off"
+  }
+}
