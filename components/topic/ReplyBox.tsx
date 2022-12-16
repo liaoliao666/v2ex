@@ -111,44 +111,47 @@ const ReplyBox = forwardRef<
           />
         </View>
 
-        {isFocus && (
-          <View style={tw`py-2 px-4 flex-row justify-end bg-body-1`}>
-            <StyledButton
-              shape="rounded"
-              type="secondary"
-              size="small"
-              pressable={content.length > 2}
-              onPress={async () => {
-                validateLoginStatus()
+        <View
+          style={tw.style(
+            `py-2 px-4 flex-row justify-end bg-body-1`,
+            !isFocus && `hidden`
+          )}
+        >
+          <StyledButton
+            shape="rounded"
+            type="secondary"
+            size="small"
+            pressable={content.length > 2}
+            onPress={async () => {
+              validateLoginStatus()
 
-                if (isLoading) return
+              if (isLoading) return
 
-                try {
-                  await mutateAsync({
-                    once: once!,
-                    topicId,
-                    content,
-                  })
+              try {
+                await mutateAsync({
+                  once: once!,
+                  topicId,
+                  content,
+                })
 
-                  blur()
-                  setContent('')
-                  onSuccess()
-                  Toast.show({
-                    type: 'success',
-                    text1: '发送成功',
-                  })
-                } catch (error) {
-                  Toast.show({
-                    type: 'error',
-                    text1: '发送失败',
-                  })
-                }
-              }}
-            >
-              发送
-            </StyledButton>
-          </View>
-        )}
+                blur()
+                setContent('')
+                onSuccess()
+                Toast.show({
+                  type: 'success',
+                  text1: '发送成功',
+                })
+              } catch (error) {
+                Toast.show({
+                  type: 'error',
+                  text1: '发送失败',
+                })
+              }
+            }}
+          >
+            发送
+          </StyledButton>
+        </View>
       </KeyboardAvoidingView>
     </Fragment>
   )

@@ -1,6 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { InfiniteData } from '@tanstack/react-query'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
@@ -15,6 +14,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
@@ -31,7 +31,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
-import { Notice, PageData } from '@/servicies/types'
+import { Notice } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
@@ -208,10 +208,10 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
 
         const notifications = queryClient.getQueryData(
           useNotifications.getKey()
-        )
+        ) as inferData<typeof useNotifications>
 
         try {
-          queryClient.setQueryData<InfiniteData<PageData<Notice>>>(
+          queryClient.setQueryData<inferData<typeof useNotifications>>(
             useNotifications.getKey(),
             produce(draft => {
               for (const page of draft?.pages || []) {
@@ -229,7 +229,10 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
             once,
           })
         } catch (error) {
-          queryClient.setQueryData(useNotifications.getKey(), notifications)
+          queryClient.setQueryData<inferData<typeof useNotifications>>(
+            useNotifications.getKey(),
+            notifications
+          )
           Toast.show({
             type: 'error',
             text1: '操作失败',

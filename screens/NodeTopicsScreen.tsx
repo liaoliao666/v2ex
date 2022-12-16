@@ -1,5 +1,4 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { InfiniteData } from '@tanstack/react-query'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
@@ -7,6 +6,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Platform, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
@@ -23,7 +23,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useLikeNode, useNodeTopics, useNodes } from '@/servicies/node'
-import { Node, Topic } from '@/servicies/types'
+import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
@@ -305,7 +305,7 @@ function updateNode(
     stars: number
   }
 ) {
-  queryClient.setQueryData<InfiniteData<Node>>(
+  queryClient.setQueryData<inferData<typeof useNodeTopics>>(
     useNodeTopics.getKey({ name }),
     produce(data => {
       data?.pages.forEach(page => {

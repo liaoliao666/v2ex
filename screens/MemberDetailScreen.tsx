@@ -31,6 +31,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import Html from '@/components/Html'
 import LoadingIndicator from '@/components/LoadingIndicator'
@@ -717,7 +718,7 @@ function BlockMember({
 }
 
 function updateMember(member: Member) {
-  queryClient.setQueryData<Member>(
+  queryClient.setQueryData<inferData<typeof useMember>>(
     useMember.getKey({ username: member.username }),
     produce(data => {
       if (data) {

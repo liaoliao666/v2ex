@@ -2,13 +2,13 @@ import { useActionSheet } from '@expo/react-native-action-sheet'
 import { FontAwesome5, Octicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { InfiniteData } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import produce from 'immer'
 import { find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo } from 'react'
 import { Alert, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -17,7 +17,7 @@ import {
   useThankReply,
   useTopicDetail,
 } from '@/servicies/topic'
-import { Reply, Topic } from '@/servicies/types'
+import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
@@ -353,7 +353,7 @@ function MoreButton({
                     once: once!,
                   })
 
-                  queryClient.setQueryData<InfiniteData<Topic>>(
+                  queryClient.setQueryData<inferData<typeof useTopicDetail>>(
                     useTopicDetail.getKey({ id: topicId }),
                     produce(draft => {
                       if (!draft) return
@@ -391,7 +391,7 @@ function MoreButton({
 }
 
 function updateReply(topicId: number, reply: Partial<Reply>) {
-  queryClient.setQueryData<InfiniteData<Topic>>(
+  queryClient.setQueryData<inferData<typeof useTopicDetail>>(
     useTopicDetail.getKey({ id: topicId }),
     produce(data => {
       for (const topic of data?.pages || []) {

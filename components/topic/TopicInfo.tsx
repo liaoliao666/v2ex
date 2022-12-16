@@ -6,13 +6,13 @@ import {
 } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { InfiniteData } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import produce from 'immer'
 import { compact } from 'lodash-es'
 import { Fragment, memo } from 'react'
 import { Alert, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
@@ -476,7 +476,7 @@ function MoreButton({ topic }: { topic: Topic }) {
 }
 
 function updateTopicDetail(newTopic: Partial<Topic>) {
-  queryClient.setQueryData<InfiniteData<Topic>>(
+  queryClient.setQueryData<inferData<typeof useTopicDetail>>(
     useTopicDetail.getKey({ id: newTopic.id }),
     produce(data => {
       data?.pages.forEach(topic => {
