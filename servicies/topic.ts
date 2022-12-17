@@ -168,7 +168,7 @@ export const useWriteTopic = createMutation<
 export const useIgnoreTopic = createMutation<
   void,
   { id: number; once: string; type: 'ignore' | 'unignore' }
->(({ id, once }) => request.post(`/ignore/topic/${id}?once=${once}`))
+>(({ id, once }) => request.get(`/ignore/topic/${id}?once=${once}`))
 
 export const useIgnoreReply = createMutation<
   void,

@@ -15,6 +15,7 @@ declare global {
 }
 
 export type RootStackParamList = {
+  Root: undefined
   SortTabs: undefined
   NotFound: undefined
   MyNodes: undefined
