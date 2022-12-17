@@ -14,6 +14,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { Sov2exArgs } from '@/servicies/sov2ex'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export default function SearchOptionsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'SearchOptions'>>()
@@ -148,7 +149,8 @@ export default function SearchOptionsScreen() {
         </View>
       </View>
 
-      <View style={tw`flex-row py-4`}>
+      <SafeAreaView edges={["bottom"]}>
+      <View style={tw`flex-row p-4`}>
         <StyledButton
           style={tw`flex-1`}
           shape="rounded"
@@ -180,6 +182,7 @@ export default function SearchOptionsScreen() {
           提交
         </StyledButton>
       </View>
+      </SafeAreaView>
     </View>
   )
 }

@@ -49,19 +49,11 @@ export type RootStackParamList = {
   }
   WriteTopic: undefined
   NavNodes: undefined
+  GItHubMD: {
+    url: string
+    title: string
+  }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
   NativeStackScreenProps<RootStackParamList, Screen>
-
-export type RootTabParamList = {
-  tabTopics: undefined
-  TabTwo: undefined
-}
-
-export type RootTabScreenProps = RootTabParamList
-
-export type Option<V> = {
-  label: string
-  value: V
-}

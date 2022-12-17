@@ -54,12 +54,12 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
         // @ts-ignored
         <ErrorBoundary
           onReset={reset}
-          {...rest}
           FallbackComponent={
             !rest.fallback && !rest.fallbackRender && !rest.FallbackComponent
               ? FallbackComponent
               : undefined
           }
+          {...rest}
         >
           <Suspense fallback={<Loading />}>{children}</Suspense>
         </ErrorBoundary>

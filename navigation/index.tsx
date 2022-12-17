@@ -15,6 +15,7 @@ import { useMemo } from 'react'
 
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import GItHubMDScreen from '@/screens/GItHubMD'
 import HomeScreen from '@/screens/HomeScreen'
 import LoginScreen from '@/screens/LoginScreen'
 import MemberDetailScreen from '@/screens/MemberDetailScreen'
@@ -111,6 +112,8 @@ function StackNavigator() {
       <Stack.Screen name="MyFollowing" component={MyFollowingScreen} />
 
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
+
+      <Stack.Screen name="GItHubMD" component={GItHubMDScreen} />
 
       <Stack.Screen
         name="Search"

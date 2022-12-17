@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { Alert, Text, TouchableWithoutFeedback, View } from 'react-native'
+import BouncyCheckbox from 'react-native-bouncy-checkbox'
 import { z } from 'zod'
 
 import StyledImage from '@/components/StyledImage'
@@ -18,18 +19,23 @@ import NavBar from '../components/NavBar'
 import StyledButton from '../components/StyledButton'
 import StyledTextInput from '../components/StyledTextInput'
 
-export const SigninArgs = z.object({
+const SigninArgs = z.object({
   username: z.preprocess(stripString, z.string()),
   password: z.preprocess(stripString, z.string()),
   code: z.preprocess(stripString, z.string()),
+  agreeTerms: z.boolean().refine(val => !!val, {
+    message: '请勾选同意《用户协议》《隐私政策》后登录',
+  }),
 })
 
 export default function LoginScreen() {
-  const SigninInfoQuery = useSigninInfo()
+  const SigninInfoQuery = useSigninInfo({ enabled: false })
 
   const signinMutation = useSignin()
 
-  const { control, getValues } = useForm<z.infer<typeof SigninArgs>>({
+  const { control, getValues, handleSubmit } = useForm<
+    z.infer<typeof SigninArgs>
+  >({
     resolver: zodResolver(SigninArgs),
   })
 
@@ -143,7 +149,7 @@ export default function LoginScreen() {
             <StyledButton
               size="large"
               style={tw`w-full mt-4`}
-              onPress={async () => {
+              onPress={handleSubmit(async () => {
                 if (signinMutation.isLoading) return
                 if (!SigninInfoQuery.isSuccess) return
 
@@ -176,10 +182,56 @@ export default function LoginScreen() {
                     }
                   )
                 }
-              }}
+              })}
             >
               登录
             </StyledButton>
+
+            <FormControl
+              control={control}
+              name="agreeTerms"
+              render={({ field: { value, onChange } }) => (
+                <View style={tw`flex-row items-center mt-4`}>
+                  <BouncyCheckbox
+                    isChecked={value}
+                    onPress={() => {
+                      onChange(!value)
+                    }}
+                    size={16}
+                    fillColor={tw`text-secondary`.color as string}
+                    unfillColor={
+                      tw`dark:text-[#0f1419] text-white`.color as string
+                    }
+                  />
+                  <Text style={tw`text-body-6 text-tint-secondary -ml-2`}>
+                    我已阅读并同意
+                    <Text
+                      style={tw`text-tint-primary`}
+                      onPress={() => {
+                        navigation.navigate('GItHubMD', {
+                          url: 'https://github.com/liaoliao666/v2ex/blob/main/terms-and-conditions_zh.md',
+                          title: '用户协议',
+                        })
+                      }}
+                    >
+                      《用户协议》
+                    </Text>
+                    和
+                    <Text
+                      style={tw`text-tint-primary`}
+                      onPress={() => {
+                        navigation.navigate('GItHubMD', {
+                          url: 'https://github.com/liaoliao666/v2ex/blob/main/privacy-policy_zh.md',
+                          title: '隐私政策',
+                        })
+                      }}
+                    >
+                      《隐私政策》
+                    </Text>
+                  </Text>
+                </View>
+              )}
+            />
           </View>
         </View>
       )}
