@@ -16,9 +16,9 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
+      "supportsTablet": false,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.0.0.7"
+      "buildNumber": "1.0.0.8"
     },
     "android": {
       "adaptiveIcon": {
