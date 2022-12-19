@@ -2,7 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
-import { Alert, Text, TouchableWithoutFeedback, View } from 'react-native'
+import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
 import { z } from 'zod'
 
@@ -72,7 +72,7 @@ export default function LoginScreen() {
           </StyledButton>
         </View>
       ) : (
-        <View style={tw`flex-1`}>
+        <ScrollView style={tw`flex-1`}>
           <View style={tw`w-3/4 mx-auto mt-8`}>
             <FormControl
               control={control}
@@ -113,18 +113,19 @@ export default function LoginScreen() {
               label="你是机器人吗？"
               render={({ field: { onChange, onBlur, value } }) => (
                 <View>
-                  <TouchableWithoutFeedback
+                  <TouchableOpacity
                     onPress={() => {
                       if (!SigninInfoQuery.isFetching) {
                         SigninInfoQuery.refetch()
                       }
                     }}
+                    style={tw`aspect-4 mb-2 w-full`}
                   >
                     <StyledImage
-                      style={tw`w-full h-12 rounded-lg mb-2 bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
+                      style={tw`w-full h-full rounded-lg bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
                       source={{ uri: SigninInfoQuery.data?.captcha }}
                     />
-                  </TouchableWithoutFeedback>
+                  </TouchableOpacity>
 
                   <StyledTextInput
                     size="large"
@@ -233,7 +234,7 @@ export default function LoginScreen() {
               )}
             />
           </View>
-        </View>
+        </ScrollView>
       )}
     </View>
   )

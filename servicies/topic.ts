@@ -174,3 +174,8 @@ export const useIgnoreReply = createMutation<
   void,
   { id: number; once: string }
 >(({ id, once }) => request.post(`/ignore/reply/${id}?once=${once}`))
+
+export const useReportTopic = createMutation<
+  void,
+  { id: number; once: string }
+>(({ id, once }) => request.get(`/report/topic/${id}?once=${once}`))

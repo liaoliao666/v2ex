@@ -22,6 +22,7 @@ import {
   useIgnoreTopic,
   useLikeTopic,
   useRecentTopics,
+  useReportTopic,
   useTabTopics,
   useThankTopic,
   useTopicDetail,
@@ -396,15 +397,22 @@ function MoreButton({ topic }: { topic: Topic }) {
 
   const ignoreTopicMutation = useIgnoreTopic()
 
+  const reportTopicMutation = useReportTopic()
+
   return (
     <IconButton
       name="dots-horizontal"
       color={tw`text-tint-secondary`.color as string}
       activeColor={tw`text-tint-primary`.color as string}
       onPress={() => {
-        const options = [topic.ignored ? '取消忽略' : '忽略', '分享', '取消']
+        const options = [
+          topic.ignored ? '取消忽略' : '忽略',
+          '举报',
+          '分享',
+          '取消',
+        ]
         const destructiveButtonIndex = 0
-        const cancelButtonIndex = 2
+        const cancelButtonIndex = 3
 
         showActionSheetWithOptions(
           {
@@ -416,6 +424,29 @@ function MoreButton({ topic }: { topic: Topic }) {
           async selectedIndex => {
             switch (selectedIndex) {
               case 1:
+                validateLoginStatus()
+
+                if (reportTopicMutation.isLoading) return
+
+                try {
+                  await reportTopicMutation.mutateAsync({
+                    id: topic.id,
+                    once: topic.once!,
+                  })
+
+                  Toast.show({
+                    type: 'success',
+                    text1: '举报成功',
+                  })
+                } catch (error) {
+                  Toast.show({
+                    type: 'error',
+                    text1: '举报失败',
+                  })
+                }
+                break
+
+              case 2:
                 Share.share({
                   title: topic.title,
                   url: `${baseURL}/t/${topic.id}`,
