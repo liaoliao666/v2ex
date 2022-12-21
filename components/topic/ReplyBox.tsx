@@ -32,7 +32,7 @@ const ReplyBox = forwardRef<
 >(({ topicId, once, onSuccess }, ref) => {
   const replyMemberRef = useRef<string>()
 
-  const { content, setContent, initContent } = useContent({
+  const { getContent, setContent, initContent } = useContent({
     getReplyMember: () => replyMemberRef.current,
     topicId,
   })
@@ -90,7 +90,6 @@ const ReplyBox = forwardRef<
             )}
             multiline
             numberOfLines={3}
-            // value={isFocus ? content : ''}
             placeholder="发送你的评论"
             onChangeText={text => {
               if (isFocus) {
@@ -100,7 +99,7 @@ const ReplyBox = forwardRef<
             onFocus={() => {
               initContent()
               inputRef.current?.setNativeProps({
-                text: content,
+                text: getContent(),
               })
               setIsFocus(true)
             }}
@@ -121,7 +120,7 @@ const ReplyBox = forwardRef<
             shape="rounded"
             type="secondary"
             size="small"
-            pressable={content.length > 2}
+            pressable={getContent().length > 2}
             onPress={async () => {
               validateLoginStatus()
 
@@ -131,7 +130,7 @@ const ReplyBox = forwardRef<
                 await mutateAsync({
                   once: once!,
                   topicId,
-                  content,
+                  content: getContent(),
                 })
 
                 blur()
@@ -203,8 +202,12 @@ function useContent({
     update()
   }
 
+  function getContent() {
+    return cacheContent[getTextKey()]
+  }
+
   return {
-    content: cacheContent[getTextKey()],
+    getContent,
     setContent,
     initContent,
   } as const

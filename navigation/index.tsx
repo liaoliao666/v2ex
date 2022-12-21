@@ -12,6 +12,7 @@ import {
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
+import { Platform } from 'react-native'
 
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -87,6 +88,7 @@ function StackNavigator() {
       screenOptions={{
         headerShown: false,
         fullScreenGestureEnabled: true,
+        animation: Platform.OS === 'android' ? 'slide_from_right' : undefined,
       }}
     >
       <Stack.Screen name="Root" component={DrawerNavigator} />

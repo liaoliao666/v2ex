@@ -14,7 +14,7 @@ const StyledTextInput = forwardRef<
       placeholderTextColor={tw`text-tint-secondary`.color as string}
       {...props}
       style={tw.style(
-        `border-primary border border-solid h-9 px-3 rounded-lg text-tint-primary`,
+        `bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)] h-9 px-3 rounded-lg text-tint-primary`,
         size === 'large' ? `h-12` : `h-9`,
         props.style as TextStyle
       )}

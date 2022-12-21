@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "v2ex-native",
+    "name": "AwesomeV2ex",
     "slug": "v2ex",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -18,7 +18,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.0.0.8"
+      "buildNumber": "1.0.1.1"
     },
     "android": {
       "adaptiveIcon": {
