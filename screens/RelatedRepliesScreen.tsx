@@ -161,50 +161,48 @@ export default function RelatedRepliesScreen() {
             width: layout.width,
           }}
           renderTabBar={props => (
-            <View style={tw`pl-4`}>
-              <TabBar
-                {...props}
-                scrollEnabled
-                style={tw`bg-body-1 flex-row shadow-none border-b border-tint-border border-solid`}
-                tabStyle={tw`w-[100px] h-[${NAV_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
-                indicatorContainerStyle={tw`border-0`}
-                renderTabBarItem={({ route }) => {
-                  const active = currentRoute.key === route.key
+            <TabBar
+              {...props}
+              scrollEnabled
+              style={tw`bg-body-1 flex-row shadow-none border-b border-tint-border border-solid`}
+              tabStyle={tw`w-[100px] h-[${NAV_BAR_HEIGHT}px]`}
+              indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
+              indicatorContainerStyle={tw`border-0`}
+              renderTabBarItem={({ route }) => {
+                const active = currentRoute.key === route.key
 
-                  return (
-                    <Pressable
-                      key={route.key}
-                      style={({ pressed }) =>
-                        tw.style(
-                          `w-[100px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
-                          pressed && tw`bg-tab-press`
-                        )
-                      }
-                      onPress={() => {
-                        setIndex(findIndex(routes, { key: route.key }))
-                      }}
+                return (
+                  <Pressable
+                    key={route.key}
+                    style={({ pressed }) =>
+                      tw.style(
+                        `w-[100px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
+                        pressed && tw`bg-tab-press`
+                      )
+                    }
+                    onPress={() => {
+                      setIndex(findIndex(routes, { key: route.key }))
+                    }}
+                  >
+                    <StyledImage
+                      style={tw`w-5 h-5 rounded-full`}
+                      source={{ uri: route.avatar }}
+                    />
+                    <Text
+                      style={tw.style(
+                        `ml-2 text-body-5 flex-shrink`,
+                        active
+                          ? tw`text-tint-primary font-bold`
+                          : tw`text-tint-secondary font-medium`
+                      )}
+                      numberOfLines={1}
                     >
-                      <StyledImage
-                        style={tw`w-5 h-5 rounded-full`}
-                        source={{ uri: route.avatar }}
-                      />
-                      <Text
-                        style={tw.style(
-                          `ml-2 text-body-5 flex-shrink`,
-                          active
-                            ? tw`text-tint-primary font-bold`
-                            : tw`text-tint-secondary font-medium`
-                        )}
-                        numberOfLines={1}
-                      >
-                        {route.title}
-                      </Text>
-                    </Pressable>
-                  )
-                }}
-              />
-            </View>
+                      {route.title}
+                    </Text>
+                  </Pressable>
+                )
+              }}
+            />
           )}
         />
       )}

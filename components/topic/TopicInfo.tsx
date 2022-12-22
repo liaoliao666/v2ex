@@ -74,7 +74,7 @@ function TopicInfo({ topic, onReply }: { topic: Topic; onReply: () => void }) {
             </Text>
           </View>
 
-          <Separator style={tw`mt-1 flex-1`}>
+          <Separator style={tw`flex-1`}>
             {compact([
               topic.created && (
                 <Text key="created" style={tw`text-tint-secondary text-body-5`}>
@@ -101,38 +101,45 @@ function TopicInfo({ topic, onReply }: { topic: Topic; onReply: () => void }) {
       </Text>
 
       {!!topic.content && (
-        <View style={tw`py-2`}>
+        <View style={tw`pt-2`}>
           <Html source={{ html: topic.content }} />
         </View>
       )}
 
-      {topic.supplements?.map((supplement, i) => (
-        <View
-          key={supplement.created}
-          style={tw`border-t border-solid border-tint-border py-2`}
-        >
-          <Separator>
-            {[
-              <Text key="i" style={tw`text-tint-secondary text-body-5`}>
-                第{i + 1}条附言
-              </Text>,
-              <Text key="created" style={tw`text-tint-secondary text-body-5`}>
-                {supplement.created}
-              </Text>,
-            ]}
-          </Separator>
+      {!!topic.supplements?.length && (
+        <View style={tw`pt-2`}>
+          {topic.supplements.map((supplement, i) => (
+            <View
+              key={supplement.created}
+              style={tw`border-t border-solid border-tint-border py-2`}
+            >
+              <Separator>
+                {[
+                  <Text key="i" style={tw`text-tint-secondary text-body-5`}>
+                    第{i + 1}条附言
+                  </Text>,
+                  <Text
+                    key="created"
+                    style={tw`text-tint-secondary text-body-5`}
+                  >
+                    {supplement.created}
+                  </Text>,
+                ]}
+              </Separator>
 
-          <View style={tw`pt-1`}>
-            <Html
-              source={{
-                html: supplement.content,
-              }}
-            />
-          </View>
+              <View style={tw`pt-1`}>
+                <Html
+                  source={{
+                    html: supplement.content,
+                  }}
+                />
+              </View>
+            </View>
+          ))}
         </View>
-      ))}
+      )}
 
-      <View style={tw`flex-row items-center justify-between pt-2`}>
+      <View style={tw.style(`flex-row items-center justify-between pt-2`)}>
         <VoteButton topic={topic} />
 
         <Space style={tw`ml-4 mr-auto items-center`}>

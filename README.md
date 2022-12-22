@@ -1,9 +1,19 @@
 # V2EX APP
-> V2EX第三方客户端，原生 App，支持夜间模式。
 
-## Preview
+> V2EX 好看的第三方客户端，原生 App，支持夜间模式。
+
+## 预览
 
 ![Preview](https://files.catbox.moe/q6sy9n.gif)
+
+## 下载
+
+[iOS App Store](https://apps.apple.com/cn/app/awesomev2ex/id1659591551?l=en)
+[Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.0.1/application-4df3dc61-5a96-4478-9aae-9ed8151122b1.apk)
+
+## 本地运行
+
+[Expo 文档](https://docs.expo.dev/)
 
 ## Issues
 
@@ -18,7 +28,7 @@
 ### 💡 新功能建议
 
 请提交问题以建议新功能。 通过添加对功能请求进行投票
-一个👍。 这有助于作者确定工作的优先级。
+一个 👍。 这有助于作者确定工作的优先级。
 
 [**See Feature Requests**][requests]
 

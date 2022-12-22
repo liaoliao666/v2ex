@@ -124,14 +124,12 @@ function ReplyItem({
             </Text>
           </View>
 
-          <View style={tw`pt-1`}>
-            <Text style={tw`text-tint-secondary text-body-5`}>
-              {dayjs(reply.created).fromNow()}
-              {reply.via ? ` via ${reply.via}` : ``}
-            </Text>
-          </View>
+          <Text style={tw`text-tint-secondary text-body-6`}>
+            {dayjs(reply.created).fromNow()}
+            {reply.via ? ` via ${reply.via}` : ``}
+          </Text>
 
-          <View style={tw`pt-2`}>
+          <View style={tw`pt-0.5`}>
             <Html
               source={{ html: reply.content }}
               inModalScreen={inModalScreen}
