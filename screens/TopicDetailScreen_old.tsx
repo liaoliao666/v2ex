@@ -106,7 +106,12 @@ function TopicDetailScreen() {
         key={colorScheme}
         ref={flatList}
         data={flatedData}
-        initialScrollIndex={params.initialScrollIndex}
+        initialScrollIndex={
+          params.initialScrollIndex != null &&
+          params.initialScrollIndex < flatedData.length
+            ? params.initialScrollIndex
+            : undefined
+        }
         onScrollToIndexFailed={info => {
           sleep(500).then(() => {
             flatList.current?.scrollToIndex({
