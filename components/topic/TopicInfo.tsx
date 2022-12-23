@@ -96,7 +96,7 @@ function TopicInfo({ topic, onReply }: { topic: Topic; onReply: () => void }) {
         </View>
       </View>
 
-      <Text style={tw`text-tint-primary text-body-4 font-bold pt-2`}>
+      <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
         {topic.title}
       </Text>
 

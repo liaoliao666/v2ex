@@ -4,9 +4,12 @@ import type { ComponentType, FC, ReactNode } from 'react'
 import { Suspense } from 'react'
 import type { ErrorBoundaryProps, FallbackProps } from 'react-error-boundary'
 import { ErrorBoundary } from 'react-error-boundary'
-import { Text, View } from 'react-native'
+import { Alert, Text, View } from 'react-native'
 import { isObject } from 'twrnc/dist/esm/types'
 
+import { store } from '@/jotai/store'
+import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 
 import LoadingIndicator from './LoadingIndicator'
@@ -38,6 +41,40 @@ export function FallbackComponent({
         shape="rounded"
       >
         重试
+      </StyledButton>
+
+      <StyledButton
+        onPress={async () => {
+          await new Promise((resolve, reject) =>
+            Alert.alert(
+              `确认清除缓存吗？`,
+              `该动作会导致删除所有缓存数据`,
+              [
+                {
+                  text: '取消',
+                  onPress: reject,
+                  style: 'cancel',
+                },
+                {
+                  text: '确定',
+                  onPress: resolve,
+                },
+              ],
+              {
+                userInterfaceStyle: store.get(colorSchemeAtom),
+              }
+            )
+          )
+
+          queryClient.removeQueries()
+          resetErrorBoundary()
+        }}
+        style={tw`h-[52px] mt-7`}
+        ghost
+        size="large"
+        shape="rounded"
+      >
+        {`清除缓存(非必要勿点)`}
       </StyledButton>
     </View>
   )

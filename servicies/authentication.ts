@@ -4,7 +4,6 @@ import { createMutation, createQuery } from 'react-query-kit'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 
-// import { baseURL } from '@/utils/request/baseURL'
 import { isLogined } from './helper'
 
 export const useSignout = createMutation<void, { once: string }>(
@@ -60,13 +59,14 @@ export const useSignin = createMutation<string, Record<string, string>, Error>(
       {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
+          origin: baseURL,
           Referer: `${baseURL}/signin`,
         },
       }
     )
 
-    const cookie = headers['set-cookie']?.[0]
-    return cookie?.includes('expires')
+    const cookie = headers['set-cookie']?.[0] || ''
+    return cookie.length > 50
       ? Promise.resolve(cookie)
       : Promise.reject(
           new Error(

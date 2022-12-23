@@ -56,7 +56,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
             }}
           >
             <StyledImage
-              style={tw`w-12 h-12 rounded-full`}
+              style={tw`w-6 h-6 rounded-full`}
               source={{
                 uri: topic.member?.avatar,
               }}
@@ -85,31 +85,40 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
           </Text>
         </Space>
 
+        <Text
+          style={tw.style(
+            `text-body-5 pt-1`,
+            isFetched ? `text-tint-secondary` : `text-tint-primary`
+          )}
+        >
+          {topic.title}
+        </Text>
+
         <Separator style={tw`mt-1`}>
           {compact([
             !!topic.votes && (
-              <Text key="votes" style={tw`text-tint-secondary text-body-5`}>
+              <Text key="votes" style={tw`text-tint-secondary text-body-6`}>
                 {`${topic.votes} 赞同`}
               </Text>
             ),
             !!topic.reply_count && (
-              <Text key="replies" style={tw`text-tint-secondary text-body-5`}>
+              <Text key="replies" style={tw`text-tint-secondary text-body-6`}>
                 {`${topic.reply_count} 回复`}
               </Text>
             ),
             <Text
               key="last_touched"
-              style={tw`text-tint-secondary text-body-5`}
+              style={tw`text-tint-secondary text-body-6`}
             >
               {dayjs(topic.last_touched).fromNow()}
             </Text>,
             !!topic.last_reply_by && (
               <Text
                 key="last_reply_by"
-                style={tw`text-tint-primary text-body-5 flex-1`}
+                style={tw`text-tint-primary text-body-6 flex-1`}
                 numberOfLines={1}
               >
-                <Text style={tw`text-tint-secondary text-body-5`}>
+                <Text style={tw`text-tint-secondary text-body-6`}>
                   最后回复于
                 </Text>
                 {topic.last_reply_by}
@@ -117,15 +126,6 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
             ),
           ])}
         </Separator>
-
-        <Text
-          style={tw.style(
-            `text-body-5 pt-2`,
-            isFetched ? `text-tint-secondary` : `text-tint-primary`
-          )}
-        >
-          {topic.title}
-        </Text>
       </View>
     </Pressable>
   )

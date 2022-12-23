@@ -23,5 +23,11 @@ export function getNavigation() {
     }
   }
 
+  navigation.pop = (...args) => {
+    if (navigationRef.isReady()) {
+      navigationRef.dispatch((StackActions as any).pop(...args))
+    }
+  }
+
   return navigation
 }

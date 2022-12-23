@@ -93,12 +93,12 @@ export default function Html({
         baseStyle={tw`text-tint-primary text-body-5`}
         contentWidth={width}
         tagsStyles={{
-          h1: tw`text-body-1`,
-          h2: tw`text-body-2`,
-          h3: tw`text-body-3`,
-          h4: tw`text-body-4`,
-          h5: tw`text-body-5`,
-          h6: tw`text-body-6`,
+          h1: tw`text-body-3 border-b border-solid border-tint-border`,
+          h2: tw`text-body-4 border-b border-solid border-tint-border`,
+          h3: tw`text-body-4 border-b border-solid border-tint-border`,
+          h4: tw`text-body-4 border-b border-solid border-tint-border`,
+          h5: tw`text-body-4 border-b border-solid border-tint-border`,
+          h6: tw`text-body-4 border-b border-solid border-tint-border`,
           p: tw`text-body-5`,
           a: tw`text-tint-secondary no-underline`,
           hr: {

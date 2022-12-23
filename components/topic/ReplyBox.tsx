@@ -185,11 +185,17 @@ function useContent({
       })
     }
 
-    if (getReplyMember() && getReplyMember() !== cacheContent.username) {
-      Object.assign(cacheContent, {
-        replyMemberText: `@${getReplyMember()} `,
-        username: getReplyMember(),
-      })
+    if (getReplyMember()) {
+      if (getReplyMember() !== cacheContent.username) {
+        Object.assign(cacheContent, {
+          replyMemberText: `@${getReplyMember()} `,
+          username: getReplyMember(),
+        })
+      } else if (!getContent().includes(getReplyMember()!)) {
+        Object.assign(cacheContent, {
+          replyMemberText: `@${getReplyMember()} `,
+        })
+      }
     }
   }
 

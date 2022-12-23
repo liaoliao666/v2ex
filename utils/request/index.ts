@@ -14,6 +14,7 @@ import { baseURL } from './baseURL'
 export const request = axios.create({
   baseURL,
   headers: {
+    origin: baseURL,
     'Referrer-Policy': 'unsafe-url',
     'X-Requested-With': 'XMLHttpRequest',
   },
@@ -61,7 +62,7 @@ function updateProfile($: CheerioAPI) {
       isEqual(newProfile, prev) ? prev : newProfile
     )
   } else if (
-    $('#Rightbar a.super.normal.button').eq(0).attr('href')?.includes('signup')
+    $('#Top div.tools > a:nth-child(3)').attr('href')?.includes('signin')
   ) {
     store.set(profileAtom, RESET)
   }

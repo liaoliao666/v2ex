@@ -4,8 +4,6 @@ import { useAtomValue } from 'jotai'
 
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 
-let prevStatusBarStyle: StatusBarStyle
-
 export function useStatusBarStyle(statusBarStyle: StatusBarStyle) {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
@@ -17,9 +15,6 @@ export function useStatusBarStyle(statusBarStyle: StatusBarStyle) {
           : 'dark'
         : statusBarStyle
 
-    if (nextStatusBarStyle !== prevStatusBarStyle) {
-      prevStatusBarStyle = nextStatusBarStyle
-      setStatusBarStyle(nextStatusBarStyle)
-    }
+    setStatusBarStyle(nextStatusBarStyle)
   })
 }

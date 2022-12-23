@@ -76,7 +76,7 @@ function ReplyItem({
             }}
           >
             <StyledImage
-              style={tw`w-12 h-12 rounded-full`}
+              style={tw`w-6 h-6 rounded-full`}
               source={{
                 uri: reply.member?.avatar,
               }}
@@ -100,7 +100,7 @@ function ReplyItem({
                     size="mini"
                     type="primary"
                     pressable={false}
-                    style={tw.style(reply.op && `rounded-r-none`)}
+                    style={tw.style(`py-0`, reply.op && `rounded-r-none`)}
                   >
                     MOD
                   </StyledButton>
@@ -111,7 +111,7 @@ function ReplyItem({
                     size="mini"
                     pressable={false}
                     type="primary"
-                    style={tw.style(reply.mod && `rounded-l-none`)}
+                    style={tw.style(`py-0`, reply.mod && `rounded-l-none`)}
                   >
                     OP
                   </StyledButton>
@@ -225,76 +225,81 @@ function ThankReply({
   const { mutateAsync, isLoading } = useThankReply()
 
   return (
-    <View style={tw.style(`flex-row items-center`)}>
-      <IconButton
-        onPress={async () => {
-          validateLoginStatus()
+    <Pressable
+      onPress={async () => {
+        validateLoginStatus()
 
-          if (isLoading || reply.thanked) return
+        if (isLoading || reply.thanked) return
 
-          await new Promise((resolve, reject) =>
-            Alert.alert(
-              `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`,
-              ``,
-              [
-                {
-                  text: '取消',
-                  onPress: reject,
-                  style: 'cancel',
-                },
-                {
-                  text: '确定',
-                  onPress: resolve,
-                },
-              ],
+        await new Promise((resolve, reject) =>
+          Alert.alert(
+            `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`,
+            ``,
+            [
               {
-                userInterfaceStyle: store.get(colorSchemeAtom),
-              }
-            )
+                text: '取消',
+                onPress: reject,
+                style: 'cancel',
+              },
+              {
+                text: '确定',
+                onPress: resolve,
+              },
+            ],
+            {
+              userInterfaceStyle: store.get(colorSchemeAtom),
+            }
           )
+        )
 
-          try {
-            updateReply(topicId, {
-              id: reply.id,
-              thanked: !reply.thanked,
-              thanks: reply.thanks + 1,
-            })
+        try {
+          updateReply(topicId, {
+            id: reply.id,
+            thanked: !reply.thanked,
+            thanks: reply.thanks + 1,
+          })
 
-            await mutateAsync({
-              id: reply.id,
-              once: once!,
-            })
-          } catch (error) {
-            updateReply(topicId, {
-              id: reply.id,
-              thanked: reply.thanked,
-              thanks: reply.thanks,
-            })
+          await mutateAsync({
+            id: reply.id,
+            once: once!,
+          })
+        } catch (error) {
+          updateReply(topicId, {
+            id: reply.id,
+            thanked: reply.thanked,
+            thanks: reply.thanks,
+          })
 
-            Toast.show({
-              type: 'error',
-              text1: '发送感谢失败',
-            })
-          }
-        }}
-        size={16}
-        active={reply.thanked}
-        name={reply.thanked ? 'heart' : 'heart-outline'}
-        color={tw`text-tint-secondary`.color as string}
-        activeColor={'rgb(249,24,128)'}
-      />
+          Toast.show({
+            type: 'error',
+            text1: '发送感谢失败',
+          })
+        }
+      }}
+      style={tw.style(`flex-row items-center`)}
+    >
+      {({ pressed }) => (
+        <Fragment>
+          <IconButton
+            size={16}
+            active={reply.thanked}
+            name={reply.thanked ? 'heart' : 'heart-outline'}
+            color={tw`text-tint-secondary`.color as string}
+            activeColor={'rgb(249,24,128)'}
+            pressed={pressed}
+          />
 
-      {!!reply.thanks && (
-        <Text
-          style={tw.style(
-            'text-body-6 pl-0.5',
-            reply.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
-          )}
-        >
-          {reply.thanks}
-        </Text>
+          <Text
+            style={tw.style(
+              'text-body-6 pl-0.5',
+              reply.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
+            )}
+          >
+            {reply.thanks ? reply.thanks : '感谢'}
+          </Text>
+        </Fragment>
       )}
-    </View>
+    </Pressable>
   )
 }
 

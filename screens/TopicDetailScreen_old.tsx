@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { last, uniqBy } from 'lodash-es'
+import { isFinite, last, uniqBy } from 'lodash-es'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { FlatList, ListRenderItem, Text, View } from 'react-native'
 
@@ -107,18 +107,20 @@ function TopicDetailScreen() {
         ref={flatList}
         data={flatedData}
         initialScrollIndex={
-          params.initialScrollIndex != null &&
-          params.initialScrollIndex < flatedData.length
+          isFinite(params.initialScrollIndex) &&
+          params.initialScrollIndex! < flatedData.length
             ? params.initialScrollIndex
             : undefined
         }
         onScrollToIndexFailed={info => {
-          sleep(500).then(() => {
-            flatList.current?.scrollToIndex({
-              index: info.index,
-              animated: true,
+          if (info.index < flatedData.length) {
+            sleep(500).then(() => {
+              flatList.current?.scrollToIndex({
+                index: info.index,
+                animated: true,
+              })
             })
-          })
+          }
         }}
         refreshControl={
           <StyledRefreshControl

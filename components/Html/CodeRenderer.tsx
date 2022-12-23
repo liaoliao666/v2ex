@@ -42,16 +42,9 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     >
       <RenderHTML
         contentWidth={width}
-        baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] text-body-5`}
+        baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] text-[15px] leading-5`}
         tagsStyles={{
           code: tw`p-3`,
-          h1: tw`text-body-1`,
-          h2: tw`text-body-2`,
-          h3: tw`text-body-3`,
-          h4: tw`text-body-4`,
-          h5: tw`text-body-5`,
-          h6: tw`text-body-6`,
-          p: tw`text-body-5`,
         }}
         classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
         systemFonts={Constants.systemFonts}

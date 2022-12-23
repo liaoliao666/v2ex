@@ -33,6 +33,7 @@ import SearchOptionsScreen from '@/screens/SearchOptionsScreen'
 import SearchScreen from '@/screens/SearchScreen'
 import SortTabsScreen from '@/screens/SortTabsScreen'
 import TopicDetailScreen from '@/screens/TopicDetailScreen'
+import WebLoginScreen from '@/screens/WebLoginScreen'
 import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -116,6 +117,8 @@ function StackNavigator() {
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
 
       <Stack.Screen name="GItHubMD" component={GItHubMDScreen} />
+
+      <Stack.Screen name="WebLogin" component={WebLoginScreen} />
 
       <Stack.Screen
         name="Search"

@@ -1,6 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
@@ -11,6 +11,7 @@ import { cookieAtom } from '@/jotai/cookieAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useSignin, useSigninInfo } from '@/servicies/authentication'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
 
@@ -42,6 +43,8 @@ export default function LoginScreen() {
   const navigation = useNavigation()
 
   useAtomValue(colorSchemeAtom)
+
+  const setCookieAtom = useSetAtom(cookieAtom)
 
   return (
     <View style={tw`flex-1`}>
@@ -164,8 +167,9 @@ export default function LoginScreen() {
                     once: SigninInfoQuery.data.once!,
                   })
 
-                  store.set(cookieAtom, cookie)
+                  setCookieAtom(cookie)
                   navigation.goBack()
+                  queryClient.refetchQueries({ type: 'active' })
                 } catch (error) {
                   Alert.alert(
                     '登录失败',
@@ -233,6 +237,28 @@ export default function LoginScreen() {
                 </View>
               )}
             />
+
+            <TouchableOpacity
+              style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
+              onPress={async () => {
+                navigation.navigate('WebLogin')
+                // if (isLoading) return
+
+                // try {
+                //   await mutateAsync({ once })
+                // } catch (error) {}
+              }}
+            >
+              <StyledImage
+                source={{
+                  uri: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK4PQZCFUtcTcnrZPxzTznGkOKaTwcIMjth0k9lG_SFmhf5kYvCacJWkeSpA&s=10`,
+                }}
+                style={tw`w-5 h-5`}
+              />
+              <Text style={tw`text-body-5 text-tint-secondary ml-2`}>
+                Google 登录
+              </Text>
+            </TouchableOpacity>
           </View>
         </ScrollView>
       )}

@@ -20,7 +20,7 @@ export default function Money({
   return some([gold, silver, bronze], Boolean) ? (
     <Space style={tw.style(`items-center`, style)} gap={4}>
       {!!gold && (
-        <View style={tw`flex-row`}>
+        <View style={tw`flex-row items-center`}>
           <Text style={tw`text-tint-secondary text-body-6`}>{gold}</Text>
           <StyledImage
             style={tw`w-4 h-4 ml-0.5`}
@@ -29,7 +29,7 @@ export default function Money({
         </View>
       )}
       {!!silver && (
-        <View style={tw`flex-row`}>
+        <View style={tw`flex-row items-center`}>
           <Text style={tw`text-tint-secondary text-body-6`}>{silver}</Text>
           <StyledImage
             style={tw`w-4 h-4 ml-0.5`}
@@ -38,7 +38,7 @@ export default function Money({
         </View>
       )}
       {!!bronze && (
-        <View style={tw`flex-row`}>
+        <View style={tw`flex-row items-center`}>
           <Text style={tw`text-tint-secondary text-body-6`}>{bronze}</Text>
           <StyledImage
             style={tw`w-4 h-4 ml-0.5`}
