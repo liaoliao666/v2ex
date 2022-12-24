@@ -27,6 +27,7 @@ import NavNodesScreen from '@/screens/NavNodesScreen'
 import NodeTopicsScreen from '@/screens/NodeTopicsScreen'
 import NotFoundScreen from '@/screens/NotFoundScreen'
 import NotificationsScreen from '@/screens/NotificationsScreen'
+import RecentTopicScreen from '@/screens/RecentTopicScreen'
 import RelatedRepliesScreen from '@/screens/RelatedRepliesScreen'
 import SearchNodeScreen from '@/screens/SearchNodeScreen'
 import SearchOptionsScreen from '@/screens/SearchOptionsScreen'
@@ -119,6 +120,8 @@ function StackNavigator() {
       <Stack.Screen name="GItHubMD" component={GItHubMDScreen} />
 
       <Stack.Screen name="WebLogin" component={WebLoginScreen} />
+
+      <Stack.Screen name="RecentTopic" component={RecentTopicScreen} />
 
       <Stack.Screen
         name="Search"

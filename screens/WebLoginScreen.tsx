@@ -8,6 +8,7 @@ import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
 import { cookieAtom } from '@/jotai/cookieAtom'
 import { getNavigation } from '@/navigation/navigationRef'
+import { isValidCookie } from '@/utils/isValidCookie'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
@@ -46,7 +47,7 @@ export default function WebLoginScreen() {
           const cookie = event.nativeEvent.data
           if (
             isString(cookie) &&
-            cookie.length > 50 &&
+            isValidCookie(cookie) &&
             event.nativeEvent.url.startsWith(baseURL)
           ) {
             setCookieAtom(cookie)

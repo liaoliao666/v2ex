@@ -5,7 +5,7 @@ import {
 } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { omit, pick } from 'lodash-es'
 import { ReactNode, memo } from 'react'
@@ -24,7 +24,6 @@ import Space from '@/components/Space'
 import StyledImage from '@/components/StyledImage'
 import { cookieAtom } from '@/jotai/cookieAtom'
 import { profileAtom } from '@/jotai/profileAtom'
-import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { useSignout } from '@/servicies/authentication'
 import { RootStackParamList } from '@/types'
@@ -105,6 +104,20 @@ function Profile() {
       ),
       onPress: () => {
         navigation.navigate('Notifications')
+      },
+    },
+    {
+      label: '最近浏览',
+      value: 'RecentTopic',
+      icon: (
+        <MaterialCommunityIcons
+          color={tw`text-tint-primary`.color as string}
+          size={24}
+          name={'clock-check-outline'}
+        />
+      ),
+      onPress: () => {
+        navigation.navigate('RecentTopic')
       },
     },
   ]
@@ -283,6 +296,9 @@ function SignoutItem({ once }: { once: string }) {
     onError: () => {},
   })
 
+  const setCookieAtom = useSetAtom(cookieAtom)
+  const setProfileAtom = useSetAtom(profileAtom)
+
   async function logout() {
     try {
       if (isLoading) return
@@ -290,8 +306,10 @@ function SignoutItem({ once }: { once: string }) {
     } catch (error) {
       // empty
     } finally {
-      store.set(cookieAtom, RESET)
-      store.set(profileAtom, RESET)
+      setCookieAtom(RESET)
+      setProfileAtom(RESET)
+      // asyncStoragePersister.removeClient()
+      // queryClient.removeQueries()
     }
   }
 

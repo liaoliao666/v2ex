@@ -4,12 +4,12 @@
 
 ## 预览
 
-![Preview](https://files.catbox.moe/q6sy9n.gif)
+![Preview](https://files.catbox.moe/cfxbpo.gif)
 
 ## 下载
 
 - [iOS App Store](https://apps.apple.com/cn/app/awesomev2ex/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.0.2/application-0933835d-8af2-40bb-abbc-9d557610a595.apk)
+- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.0.3/application-46adf534-50b7-4792-9fb2-dafb957f7e1c.apk)
 
 ## 本地运行
 

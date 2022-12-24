@@ -18,7 +18,7 @@
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
     "@tanstack/query-async-storage-persister": "^4.19.1",
-    "@tanstack/react-query": "^4.19.1",
+    "@tanstack/react-query": "^4.20.4",
     "@tanstack/react-query-persist-client": "^4.19.1",
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.12",

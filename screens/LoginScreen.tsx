@@ -30,7 +30,7 @@ const SigninArgs = z.object({
 })
 
 export default function LoginScreen() {
-  const SigninInfoQuery = useSigninInfo({ enabled: false })
+  const SigninInfoQuery = useSigninInfo()
 
   const signinMutation = useSignin()
 

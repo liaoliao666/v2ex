@@ -53,6 +53,7 @@ export type RootStackParamList = {
     title: string
   }
   WebLogin: undefined
+  RecentTopic: undefined
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

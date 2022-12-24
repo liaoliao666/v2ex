@@ -6,28 +6,37 @@ import { isEqual } from 'lodash-es'
 import { cookieAtom } from '@/jotai/cookieAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { profileAtom } from '@/jotai/profileAtom'
+import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
 import { store } from '@/jotai/store'
-import { parseNavAtoms, parseProfile } from '@/servicies/helper'
+import {
+  parseNavAtoms,
+  parseProfile,
+  parseRecentTopics,
+} from '@/servicies/helper'
 
 import { baseURL } from './baseURL'
 
 export const request = axios.create({
   baseURL,
   headers: {
-    origin: baseURL,
     'Referrer-Policy': 'unsafe-url',
     'X-Requested-With': 'XMLHttpRequest',
+    'cache-control': 'max-age=0',
   },
 })
 
 request.interceptors.request.use(
   async config => {
+    const cookie = await store.get(cookieAtom)
+
     return {
       ...config,
       headers: {
         ...config.headers,
-        cookie: store.get(cookieAtom),
+        cookie,
       },
+      // https://github.com/facebook/react-native/issues/23185#issuecomment-1148130842
+      withCredentials: !!cookie,
     }
   },
   error => {
@@ -45,6 +54,7 @@ request.interceptors.response.use(
 
     updateProfile($)
     updateNavNodes($)
+    updateRecentTopics($)
 
     return response
   },
@@ -77,4 +87,10 @@ function updateNavNodes($: CheerioAPI) {
   store.set(navNodesAtom, prev =>
     isEqual(newNavAtoms, prev) ? prev : newNavAtoms
   )
+}
+
+function updateRecentTopics($: CheerioAPI) {
+  if ($(`#my-recent-topics`).length) {
+    store.set(recentTopicsAtom, parseRecentTopics($))
+  }
 }

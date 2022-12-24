@@ -1,6 +1,7 @@
 import { Cheerio, CheerioAPI, Element } from 'cheerio'
 import { defaultTo } from 'lodash-es'
 
+import { RecentTopic } from '@/jotai/recentTopicsAtom'
 import { invoke } from '@/utils/invoke'
 import { getURLSearchParams } from '@/utils/url'
 
@@ -16,11 +17,8 @@ export function parseVia(via: string) {
   return undefined
 }
 
-export function getNextPageParam(lastPage: {
-  page: number
-  last_page: number
-}) {
-  return lastPage.last_page > lastPage.page ? lastPage.page + 1 : undefined
+export function getNextPageParam(data: { page: number; last_page: number }) {
+  return data.last_page > data.page ? data.page + 1 : undefined
 }
 
 export function parseLastPage($: CheerioAPI) {
@@ -403,6 +401,27 @@ export function parseNavAtoms($: CheerioAPI) {
           .get()
           .filter(Boolean),
       }
+    })
+    .get()
+}
+
+export function parseRecentTopics($: CheerioAPI) {
+  return $(`#my-recent-topics .cell:not(:first-child)`)
+    .map((i, item) => {
+      const $item = $(item)
+      const $topic = $item.find('a').eq(1)
+
+      return {
+        member: invoke(() => {
+          const $avatar = $item.find('a:first-child img').eq(0)
+          return {
+            username: $avatar.attr('alt')!,
+            avatar: $avatar.attr('src')!,
+          }
+        }),
+        id: $topic.attr('href')!.match(/\d+/g)!.map(Number)[0],
+        title: $topic.text(),
+      } as RecentTopic
     })
     .get()
 }

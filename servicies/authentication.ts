@@ -1,6 +1,7 @@
 import { load } from 'cheerio'
 import { createMutation, createQuery } from 'react-query-kit'
 
+import { isValidCookie } from '@/utils/isValidCookie'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 
@@ -66,7 +67,7 @@ export const useSignin = createMutation<string, Record<string, string>, Error>(
     )
 
     const cookie = headers['set-cookie']?.[0] || ''
-    return cookie.length > 50
+    return isValidCookie(cookie)
       ? Promise.resolve(cookie)
       : Promise.reject(
           new Error(

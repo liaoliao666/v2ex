@@ -19,7 +19,6 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { sleep } from '@/utils/sleep'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -80,8 +79,6 @@ function TopicDetailScreen() {
 
   const [avatarVisible, setAvatarVisible] = useState(true)
 
-  const flatList = useRef<FlatList>(null)
-
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   return (
@@ -104,17 +101,7 @@ function TopicDetailScreen() {
 
       <FlatList
         key={colorScheme}
-        ref={flatList}
         data={flatedData}
-        initialScrollIndex={params.initialScrollIndex}
-        onScrollToIndexFailed={info => {
-          sleep(500).then(() => {
-            flatList.current?.scrollToIndex({
-              index: info.index,
-              animated: true,
-            })
-          })
-        }}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
