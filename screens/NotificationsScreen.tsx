@@ -132,7 +132,7 @@ const NoticeItem = memo(({ notice }: { notice: Notice }) => {
         }}
       >
         <StyledImage
-          style={tw`w-12 h-12 mr-3 rounded-full`}
+          style={tw`w-6 h-6 mr-3 rounded-full`}
           source={{
             uri: notice.member.avatar,
           }}

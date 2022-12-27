@@ -14,6 +14,7 @@ import tw from '@/utils/tw'
 
 import LoadingIndicator from './LoadingIndicator'
 import StyledButton from './StyledButton'
+import v2exMessage from './V2exWebview/v2exMessage'
 
 export type QuerySuspenseProps = Partial<ErrorBoundaryProps> & {
   Loading?: FC
@@ -24,6 +25,16 @@ export function FallbackComponent({
   error,
   resetErrorBoundary,
 }: FallbackProps) {
+  async function reset() {
+    try {
+      await v2exMessage.loadedV2exWebviewPromise
+    } catch {
+      v2exMessage.reload()
+    }
+
+    resetErrorBoundary()
+  }
+
   return (
     <View style={tw`flex-1 p-8`}>
       <Text style={tw`text-[31px] leading-9 font-extrabold text-tint-primary`}>
@@ -36,7 +47,7 @@ export function FallbackComponent({
       </Text>
       <StyledButton
         style={tw`h-[52px] mt-7`}
-        onPress={resetErrorBoundary}
+        onPress={reset}
         size="large"
         shape="rounded"
       >
@@ -67,7 +78,7 @@ export function FallbackComponent({
           )
 
           queryClient.removeQueries()
-          resetErrorBoundary()
+          reset()
         }}
         style={tw`h-[52px] mt-7`}
         ghost

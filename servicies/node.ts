@@ -30,15 +30,16 @@ export const useNodeTopics = createInfiniteQuery<
   { name: string }
 >(
   'useNodeTopics',
-  async ({ queryKey: [_, { name }], pageParam = 1, signal }) => {
-    const { data } = await request.get(`/go/${name}?p=${pageParam}`, {
+  async ({ queryKey: [_, { name }], pageParam, signal }) => {
+    const page = pageParam ?? 1
+    const { data } = await request.get(`/go/${name}?p=${page}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#TopicsNode .cell'),
       ...invoke(() => {

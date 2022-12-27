@@ -3,7 +3,6 @@ import { focusManager } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
-import { waitForAll } from 'jotai/utils'
 import { Suspense, useMemo } from 'react'
 import { AppStateStatus, Platform } from 'react-native'
 import 'react-native-gesture-handler'
@@ -15,7 +14,7 @@ import '@/utils/dayjsPlugins'
 
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
-import { cookieAtom } from './jotai/cookieAtom'
+import V2exWebview from './components/V2exWebview'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
@@ -47,9 +46,7 @@ export default function AppWithSuspense() {
 }
 
 function App() {
-  const [colorScheme] = useAtomValue(
-    waitForAll([colorSchemeAtom, cookieAtom, profileAtom])
-  )
+  const colorScheme = useAtomValue(colorSchemeAtom)
 
   useMemo(() => {
     tw.setColorScheme(colorScheme)
@@ -76,6 +73,8 @@ function App() {
           </SafeAreaProvider>
 
           <StyledToast />
+
+          <V2exWebview />
         </PersistQueryClientProvider>
       </Provider>
     </ActionSheetProvider>

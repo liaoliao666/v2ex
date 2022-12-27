@@ -22,7 +22,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Money from '@/components/Money'
 import Space from '@/components/Space'
 import StyledImage from '@/components/StyledImage'
-import { cookieAtom } from '@/jotai/cookieAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { useSignout } from '@/servicies/authentication'
@@ -33,6 +32,7 @@ import { openURL } from '@/utils/url'
 import Badge from './Badge'
 import { withQuerySuspense } from './QuerySuspense'
 import RadioButtonGroup from './RadioButtonGroup'
+import v2exMessage from './V2exWebview/v2exMessage'
 
 export default withQuerySuspense(memo(Profile))
 
@@ -296,7 +296,6 @@ function SignoutItem({ once }: { once: string }) {
     onError: () => {},
   })
 
-  const setCookieAtom = useSetAtom(cookieAtom)
   const setProfileAtom = useSetAtom(profileAtom)
 
   async function logout() {
@@ -306,8 +305,9 @@ function SignoutItem({ once }: { once: string }) {
     } catch (error) {
       // empty
     } finally {
-      setCookieAtom(RESET)
       setProfileAtom(RESET)
+      v2exMessage.clear()
+
       // asyncStoragePersister.removeClient()
       // queryClient.removeQueries()
     }

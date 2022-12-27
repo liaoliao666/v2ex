@@ -31,8 +31,9 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>(
 
 export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
   'useRecentTopics',
-  async ({ pageParam = 1, signal }) => {
-    const { data } = await request.get(`/recent?p=${pageParam}`, {
+  async ({ pageParam, signal }) => {
+    const page = pageParam ?? 1
+    const { data } = await request.get(`/recent?p=${page}`, {
       responseType: 'text',
       signal,
     })
@@ -40,7 +41,7 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
     }
@@ -55,15 +56,16 @@ export const useTopicDetail = createInfiniteQuery<
   { id: number }
 >(
   'useTopicDetail',
-  async ({ queryKey: [_, { id }], pageParam = 1, signal }) => {
-    const { data } = await request.get(`/t/${id}?p=${pageParam}`, {
+  async ({ queryKey: [_, { id }], pageParam, signal }) => {
+    const page = pageParam ?? 1
+    const { data } = await request.get(`/t/${id}?p=${page}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       id,
       ...parseTopic($),
@@ -105,15 +107,16 @@ export const useThankReply = createMutation<void, { id: number; once: string }>(
 
 export const useMyTopics = createInfiniteQuery<PageData<Topic>>(
   'useMyTopics',
-  async ({ pageParam = 1, signal }) => {
-    const { data } = await request.get(`/my/topics?p=${pageParam}`, {
+  async ({ pageParam, signal }) => {
+    const page = pageParam ?? 1
+    const { data } = await request.get(`/my/topics?p=${page}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
     }

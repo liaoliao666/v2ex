@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
+import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
-import { isValidCookie } from '@/utils/isValidCookie'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 
@@ -66,15 +66,17 @@ export const useSignin = createMutation<string, Record<string, string>, Error>(
       }
     )
 
-    const cookie = headers['set-cookie']?.[0] || ''
-    return isValidCookie(cookie)
+    const $ = load(data)
+
+    const cookie = isArray(headers['set-cookie'])
+      ? headers['set-cookie'].join(';')
+      : ''
+    return isLogined($)
       ? Promise.resolve(cookie)
       : Promise.reject(
           new Error(
-            load(data)(`#Main > div.box > div.problem > ul > li`)
-              .eq(0)
-              .text()
-              .trim() || '登录失败'
+            $(`#Main > div.box > div.problem > ul > li`).eq(0).text().trim() ||
+              '登录失败'
           )
         )
   }

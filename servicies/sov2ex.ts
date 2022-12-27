@@ -29,11 +29,12 @@ export const useSov2ex = createInfiniteQuery<
   z.infer<typeof Sov2exArgs>
 >(
   'useSov2ex',
-  async ({ queryKey: [, params], pageParam = 0, signal }) => {
+  async ({ queryKey: [, params], pageParam, signal }) => {
+    const page = pageParam ?? 0
     const { data } = await axios.get(`https://www.sov2ex.com/api/search`, {
       params: {
         ...params,
-        from: pageParam,
+        from: page,
         gte: params.gte ? dayjs(params.gte).valueOf() : undefined,
         lte: params.lte ? dayjs(params.lte).valueOf() : undefined,
       },
@@ -42,7 +43,7 @@ export const useSov2ex = createInfiniteQuery<
 
     return {
       ...data,
-      from: pageParam,
+      from: page,
       size: params.size,
     }
   },

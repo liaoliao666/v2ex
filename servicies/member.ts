@@ -48,9 +48,10 @@ export const useMemberTopics = createInfiniteQuery<
   { username: string }
 >(
   'useMemberTopics',
-  async ({ pageParam = 1, signal, queryKey: [, variables] }) => {
+  async ({ pageParam, signal, queryKey: [, variables] }) => {
+    const page = pageParam ?? 1
     const { data } = await request.get(
-      `/member/${variables.username}/topics?p=${pageParam}`,
+      `/member/${variables.username}/topics?p=${page}`,
       {
         responseType: 'text',
         signal,
@@ -59,7 +60,7 @@ export const useMemberTopics = createInfiniteQuery<
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
       hidden: $('#Main .box .topic_content')
@@ -78,9 +79,10 @@ export const useMemberReplies = createInfiniteQuery<
   { username: string }
 >(
   'useMemberReplies',
-  async ({ pageParam = 1, signal, queryKey: [, variables] }) => {
+  async ({ pageParam, signal, queryKey: [, variables] }) => {
+    const page = pageParam ?? 1
     const { data } = await request.get(
-      `/member/${variables.username}/replies?p=${pageParam}`,
+      `/member/${variables.username}/replies?p=${page}`,
       {
         responseType: 'text',
         signal,
@@ -89,7 +91,7 @@ export const useMemberReplies = createInfiniteQuery<
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       list: parseMemberReplies($),
     }
@@ -103,15 +105,16 @@ export const useMyFollowing = createInfiniteQuery<
   PageData<Topic> & { following: Member[] }
 >(
   'useMyFollowing',
-  async ({ pageParam = 1, signal }) => {
-    const { data } = await request.get(`/my/following?p=${pageParam}`, {
+  async ({ pageParam, signal }) => {
+    const page = pageParam ?? 1
+    const { data } = await request.get(`/my/following?p=${page}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
       following: $('#Rightbar .box')

@@ -9,15 +9,16 @@ import { Member, Notice, PageData, Topic } from './types'
 
 export const useNotifications = createInfiniteQuery<PageData<Notice>>(
   'useNotifications',
-  async ({ pageParam = 1, signal }) => {
-    const { data } = await request.get(`/notifications?p=${pageParam}`, {
+  async ({ pageParam, signal }) => {
+    const page = pageParam ?? 1
+    const { data } = await request.get(`/notifications?p=${page}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page: pageParam,
+      page,
       last_page: parseLastPage($),
       list: $('#notifications .cell')
         .map((i, cell) => {

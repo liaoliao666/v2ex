@@ -48,7 +48,7 @@ function TopicInfo({ topic, onReply }: { topic: Topic; onReply: () => void }) {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   return (
-    <View style={tw`py-3 px-4 border-b border-solid border-tint-border`}>
+    <View style={tw`py-3 px-4`}>
       <View style={tw`flex-row items-center`}>
         <View style={tw`mr-3`}>
           <Pressable

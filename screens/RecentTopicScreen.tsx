@@ -8,7 +8,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import NavBar from '@/components/NavBar'
 import StyledImage from '@/components/StyledImage'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
-import { useTopicDetail } from '@/servicies/topic'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
@@ -44,11 +43,6 @@ const RecentTopicItem = memo(
   ({ recentTopic }: { recentTopic: RecentTopic }) => {
     const navigation =
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
-    const { isFetched } = useTopicDetail({
-      variables: { id: recentTopic.id },
-      enabled: false,
-    })
 
     return (
       <Pressable
@@ -87,12 +81,7 @@ const RecentTopicItem = memo(
             {recentTopic.member?.username}
           </Text>
 
-          <Text
-            style={tw.style(
-              `text-body-5 pt-1`,
-              isFetched ? `text-tint-secondary` : `text-tint-primary`
-            )}
-          >
+          <Text style={tw.style(`text-body-5 pt-1 text-tint-primary`)}>
             {recentTopic.title}
           </Text>
         </View>

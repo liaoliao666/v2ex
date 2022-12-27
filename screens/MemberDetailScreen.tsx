@@ -58,7 +58,7 @@ import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
-import { useMount } from '@/utils/useMount'
+import useMount from '@/utils/useMount'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 const topBarBgCls = `bg-[#333344]`

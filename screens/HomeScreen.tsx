@@ -41,7 +41,6 @@ const MemoTabTopics = memo(withQuerySuspense(TabTopics))
 export default withQuerySuspense(HomeScreen)
 
 let isSwiping = false
-
 function isDisabledPress() {
   return isSwiping
 }

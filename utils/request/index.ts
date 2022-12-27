@@ -3,7 +3,7 @@ import { CheerioAPI, load } from 'cheerio'
 import { RESET } from 'jotai/utils'
 import { isEqual } from 'lodash-es'
 
-import { cookieAtom } from '@/jotai/cookieAtom'
+import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
@@ -23,26 +23,8 @@ export const request = axios.create({
     'X-Requested-With': 'XMLHttpRequest',
     'cache-control': 'max-age=0',
   },
+  adapter: v2exMessage.sendMessage,
 })
-
-request.interceptors.request.use(
-  async config => {
-    const cookie = await store.get(cookieAtom)
-
-    return {
-      ...config,
-      headers: {
-        ...config.headers,
-        cookie,
-      },
-      // https://github.com/facebook/react-native/issues/23185#issuecomment-1148130842
-      withCredentials: !!cookie,
-    }
-  },
-  error => {
-    return Promise.reject(error)
-  }
-)
 
 request.interceptors.response.use(
   response => {
@@ -52,9 +34,13 @@ request.interceptors.response.use(
 
     const $ = load(data)
 
-    updateProfile($)
-    updateNavNodes($)
-    updateRecentTopics($)
+    try {
+      updateProfile($)
+      updateNavNodes($)
+      updateRecentTopics($)
+    } catch (error) {
+      // empty
+    }
 
     return response
   },

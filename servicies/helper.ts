@@ -363,7 +363,9 @@ export function parseProfile($: CheerioAPI): Profile {
       .attr('href')
       ?.replace('/member/', '')
       .trim()!,
-    motto: $profile.find('.fade').eq(0).text() || undefined,
+    motto: $profile
+      .find('table:nth-child(1) > tbody > tr > td:nth-child(3) > span.fade')
+      .text(),
     avatar: $profile.find('img').eq(0).attr('src')!,
     my_notification: defaultTo(
       parseInt($('#money').prev().text().trim(), 10),

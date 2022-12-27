@@ -1,13 +1,12 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
 import { z } from 'zod'
 
 import StyledImage from '@/components/StyledImage'
-import { cookieAtom } from '@/jotai/cookieAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useSignin, useSigninInfo } from '@/servicies/authentication'
@@ -43,8 +42,6 @@ export default function LoginScreen() {
   const navigation = useNavigation()
 
   useAtomValue(colorSchemeAtom)
-
-  const setCookieAtom = useSetAtom(cookieAtom)
 
   return (
     <View style={tw`flex-1`}>
@@ -158,7 +155,7 @@ export default function LoginScreen() {
                 if (!SigninInfoQuery.isSuccess) return
 
                 try {
-                  const cookie = await signinMutation.mutateAsync({
+                  await signinMutation.mutateAsync({
                     [SigninInfoQuery.data.username_hash!]:
                       getValues('username'),
                     [SigninInfoQuery.data.password_hash!]:
@@ -167,7 +164,6 @@ export default function LoginScreen() {
                     once: SigninInfoQuery.data.once!,
                   })
 
-                  setCookieAtom(cookie)
                   navigation.goBack()
                   queryClient.refetchQueries({ type: 'active' })
                 } catch (error) {
@@ -189,7 +185,7 @@ export default function LoginScreen() {
                 }
               })}
             >
-              登录
+              {signinMutation.isLoading ? '登录中...' : '登录'}
             </StyledButton>
 
             <FormControl
@@ -242,11 +238,6 @@ export default function LoginScreen() {
               style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
               onPress={async () => {
                 navigation.navigate('WebLogin')
-                // if (isLoading) return
-
-                // try {
-                //   await mutateAsync({ once })
-                // } catch (error) {}
               }}
             >
               <StyledImage

@@ -60,7 +60,7 @@ function ReplyItem({
   return (
     <View
       style={tw.style(
-        `px-4 py-3 bg-body-1 border-b border-solid border-tint-border`,
+        `px-4 py-3 bg-body-1 border-t border-solid border-tint-border`,
         hightlight && `bg-[#f0f3f5] dark:bg-[#262626]`,
         isBoolean(related) && !related && `opacity-64`
       )}
@@ -98,7 +98,7 @@ function ReplyItem({
                 {reply.mod && (
                   <StyledButton
                     size="mini"
-                    type="primary"
+                    type="secondary"
                     pressable={false}
                     style={tw.style(`py-0`, reply.op && `rounded-r-none`)}
                   >
@@ -110,7 +110,7 @@ function ReplyItem({
                     ghost
                     size="mini"
                     pressable={false}
-                    type="primary"
+                    type="secondary"
                     style={tw.style(`py-0`, reply.mod && `rounded-l-none`)}
                   >
                     OP

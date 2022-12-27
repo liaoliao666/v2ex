@@ -1,6 +1,9 @@
-import { EffectCallback, useEffect } from 'react'
+import useEffectOnce from './useEffectOnce'
 
-export function useMount(effect: EffectCallback) {
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(effect, [])
+const useMount = (fn: () => void) => {
+  useEffectOnce(() => {
+    fn()
+  })
 }
+
+export default useMount
