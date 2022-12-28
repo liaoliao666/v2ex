@@ -14,7 +14,7 @@ import NavBar from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import { QuerySuspense } from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
-import Separator from '@/components/Separator'
+import Separator, { LineSeparator } from '@/components/Separator'
 import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
@@ -230,6 +230,7 @@ function SoV2exList({
           onRefresh={refetchByUser}
         />
       }
+      ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {
         if (hasNextPage) {
@@ -272,10 +273,7 @@ const HitItem = ({
   return (
     <StyledPressable
       style={({ pressed }) =>
-        tw.style(
-          `px-4 py-3 flex-row border-b border-solid border-tint-border bg-body-1`,
-          pressed && 'bg-message-press'
-        )
+        tw.style(`px-4 py-3 flex-row bg-body-1`, pressed && 'bg-message-press')
       }
       onPress={() => {
         navigation.push('TopicDetail', { id: topic.id })

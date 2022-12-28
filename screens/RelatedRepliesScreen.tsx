@@ -14,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
 import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
+import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
@@ -250,6 +251,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
         }
       }}
       onEndReachedThreshold={0.3}
+      ItemSeparatorComponent={LineSeparator}
       ListFooterComponent={
         <SafeAreaView edges={['bottom']}>
           {isFetchingNextPage ? (

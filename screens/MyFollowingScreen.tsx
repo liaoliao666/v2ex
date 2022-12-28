@@ -18,6 +18,7 @@ import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
@@ -168,6 +169,7 @@ function MyFollowing() {
           onRefresh={refetchByUser}
         />
       }
+      ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {
         if (hasNextPage) {
@@ -214,6 +216,7 @@ function MemberTopics({ username }: { username: string }) {
           onRefresh={refetchByUser}
         />
       }
+      ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {
         if (hasNextPage) {

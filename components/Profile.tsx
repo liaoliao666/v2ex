@@ -176,6 +176,7 @@ function Profile() {
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
           onPress={() => {
+            v2exMessage.clear()
             navigation.navigate('Login')
           }}
         >
@@ -307,9 +308,6 @@ function SignoutItem({ once }: { once: string }) {
     } finally {
       setProfileAtom(RESET)
       v2exMessage.clear()
-
-      // asyncStoragePersister.removeClient()
-      // queryClient.removeQueries()
     }
   }
 

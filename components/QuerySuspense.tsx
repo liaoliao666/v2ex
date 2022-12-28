@@ -27,7 +27,8 @@ export function FallbackComponent({
 }: FallbackProps) {
   async function reset() {
     try {
-      await v2exMessage.loadedV2exWebviewPromise
+      await v2exMessage.loadV2exWebviewPromise
+      if (v2exMessage.timeout) v2exMessage.reload()
     } catch {
       v2exMessage.reload()
     }

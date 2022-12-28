@@ -1,20 +1,29 @@
+import { Octicons } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
 import { useCallback, useMemo, useRef, useState } from 'react'
 import { FlatList, ListRenderItem, Text, View } from 'react-native'
 
+import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import RadioButtonGroup from '@/components/RadioButtonGroup'
+import { LineSeparator } from '@/components/Separator'
+import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
 import ReplyItem from '@/components/topic/ReplyItem'
-import TopicInfo from '@/components/topic/TopicInfo'
+import TopicInfo, {
+  LikeTopic,
+  ThankTopic,
+  VoteButton,
+} from '@/components/topic/TopicInfo'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
@@ -37,6 +46,8 @@ export default withQuerySuspense(TopicDetailScreen, {
   ),
 })
 
+type OrderBy = 'asc' | 'desc'
+
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
 
@@ -57,7 +68,23 @@ function TopicDetailScreen() {
     replyBoxRef.current?.replyFor(username)
   }, [])
 
-  const renderItem: ListRenderItem<Reply> = useCallback(
+  const [orderBy, setOrderBy] = useState<OrderBy>('asc')
+
+  const flatedData = useMemo(() => {
+    const result = uniqBy(
+      (data?.pages.map(page => page.replies).flat() || []).map(
+        (item, index) => ({
+          ...item,
+          index,
+        })
+      ),
+      'id'
+    )
+    if (orderBy === 'desc') result.reverse()
+    return result
+  }, [data?.pages, orderBy])
+
+  const renderItem: ListRenderItem<typeof flatedData[number]> = useCallback(
     ({ item, index }) => (
       <ReplyItem
         key={item.id}
@@ -65,16 +92,11 @@ function TopicDetailScreen() {
         topicId={lastPage.id}
         once={lastPage.once}
         hightlight={index === params.initialScrollIndex}
-        index={index}
+        index={item.index}
         onReply={handleReplyItem}
       />
     ),
     [lastPage.id, lastPage.once, params.initialScrollIndex, handleReplyItem]
-  )
-
-  const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.replies).flat(), 'id'),
-    [data?.pages]
   )
 
   const [avatarVisible, setAvatarVisible] = useState(true)
@@ -109,6 +131,7 @@ function TopicDetailScreen() {
           />
         }
         renderItem={renderItem}
+        ItemSeparatorComponent={LineSeparator}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage()
@@ -116,12 +139,56 @@ function TopicDetailScreen() {
         }}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
-          <TopicInfo
-            topic={lastPage}
-            onReply={useCallback(() => {
-              replyBoxRef.current?.replyFor()
-            }, [])}
-          />
+          <TopicInfo topic={lastPage}>
+            <View
+              style={tw.style(`flex-row items-center justify-between pt-2`)}
+            >
+              <Space style={tw`items-center`}>
+                <VoteButton topic={lastPage} />
+
+                <View style={tw.style(`flex-row items-center`)}>
+                  <IconButton
+                    color={tw`text-tint-secondary`.color as string}
+                    activeColor="rgb(245,158,11)"
+                    onPress={() => {
+                      replyBoxRef.current?.replyFor()
+                    }}
+                    size={21}
+                    icon={<Octicons name="comment" />}
+                  />
+
+                  {!!lastPage.reply_count && (
+                    <Text
+                      style={tw.style('text-body-6 pl-1 text-tint-secondary')}
+                    >
+                      {lastPage.reply_count}
+                    </Text>
+                  )}
+                </View>
+
+                <ThankTopic topic={lastPage} />
+
+                <LikeTopic topic={lastPage} />
+              </Space>
+
+              <RadioButtonGroup
+                options={
+                  [
+                    { label: '默认', value: 'asc' },
+                    { label: '最新', value: 'desc' },
+                  ] as {
+                    label: string
+                    value: OrderBy
+                  }[]
+                }
+                value={orderBy}
+                onChange={value => {
+                  setOrderBy(value)
+                  if (hasNextPage) fetchNextPage()
+                }}
+              />
+            </View>
+          </TopicInfo>
         }
         ListFooterComponent={
           isFetchingNextPage ? (

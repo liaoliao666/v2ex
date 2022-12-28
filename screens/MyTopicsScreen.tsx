@@ -10,6 +10,7 @@ import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
@@ -67,6 +68,7 @@ function MyTopicsScreen() {
             onRefresh={refetchByUser}
           />
         }
+        ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         onEndReached={() => {
           if (hasNextPage) {

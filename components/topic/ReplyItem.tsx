@@ -60,7 +60,7 @@ function ReplyItem({
   return (
     <View
       style={tw.style(
-        `px-4 py-3 bg-body-1 border-t border-solid border-tint-border`,
+        `px-4 py-3 bg-body-1`,
         hightlight && `bg-[#f0f3f5] dark:bg-[#262626]`,
         isBoolean(related) && !related && `opacity-64`
       )}

@@ -1,5 +1,4 @@
-// import CookieManager from '@react-native-cookies/cookies'
-import 'axios/dist/axios.min.js'
+import CookieManager from '@react-native-cookies/cookies'
 import { noop } from 'lodash-es'
 import { useEffect, useReducer, useRef } from 'react'
 import { View } from 'react-native'
@@ -8,12 +7,13 @@ import WebView from 'react-native-webview'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
 
+import { webviewUserAgent } from './helper'
 import v2exMessage from './v2exMessage'
 
 let outterResolve: () => void
 let outterReject: (error: Error) => void
 
-v2exMessage.loadedV2exWebviewPromise = new Promise((resolve, reject) => {
+v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
   outterResolve = resolve
   outterReject = reject
 })
@@ -28,11 +28,11 @@ export default function V2exWebview() {
 
   v2exMessage.clear = () => {
     webViewRef.current?.clearCache?.(true)
-    // CookieManager.clearAll(true)
+    CookieManager.clearAll(true)
   }
 
   v2exMessage.reload = () => {
-    v2exMessage.loadedV2exWebviewPromise = new Promise((resolve, reject) => {
+    v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
       outterResolve = resolve
       outterReject = reject
     })
@@ -106,7 +106,7 @@ export default function V2exWebview() {
             )
           }
         }}
-        userAgent={`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`}
+        userAgent={webviewUserAgent}
       />
     </View>
   )

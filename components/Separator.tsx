@@ -8,6 +8,16 @@ export type SeparatorProps = {
   style?: ViewStyle
 }
 
+export function DotSeparator() {
+  return (
+    <Text style={tw`w-4 text-tint-secondary text-center text-body-5`}>·</Text>
+  )
+}
+
+export function LineSeparator() {
+  return <View style={tw`border-t border-solid border-tint-border`} />
+}
+
 export default function Separator({ children, style }: SeparatorProps) {
   return (
     <View style={tw.style('flex-row items-center flex-wrap', style)}>
@@ -18,13 +28,7 @@ export default function Separator({ children, style }: SeparatorProps) {
           child != null && (
             <Fragment>
               {child}
-              {!isLast && (
-                <Text
-                  style={tw`w-4 text-tint-secondary text-center text-body-5`}
-                >
-                  ·
-                </Text>
-              )}
+              {!isLast && <DotSeparator />}
             </Fragment>
           )
         )

@@ -6,6 +6,7 @@ import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import NavBar from '@/components/NavBar'
+import { LineSeparator } from '@/components/Separator'
 import StyledImage from '@/components/StyledImage'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
 import { RootStackParamList } from '@/types'
@@ -25,6 +26,7 @@ export default function RecentTopicScreen() {
 
       <FlatList
         data={recentTopics}
+        ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         ListEmptyComponent={
@@ -48,7 +50,7 @@ const RecentTopicItem = memo(
       <Pressable
         style={({ pressed }) =>
           tw.style(
-            `px-4 py-3 flex-row border-b border-solid border-tint-border bg-body-1`,
+            `px-4 py-3 flex-row bg-body-1`,
             pressed && 'bg-message-press'
           )
         }

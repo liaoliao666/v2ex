@@ -36,7 +36,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
     <Pressable
       style={({ pressed }) =>
         tw.style(
-          `px-4 py-3 flex-row border-b border-solid border-tint-border bg-body-1`,
+          `px-4 py-3 flex-row bg-body-1`,
           pressed && !isDisabledPress?.() && 'bg-message-press'
         )
       }

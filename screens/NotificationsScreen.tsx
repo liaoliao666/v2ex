@@ -24,7 +24,7 @@ import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
-import Separator from '@/components/Separator'
+import Separator, { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
@@ -86,6 +86,7 @@ function NotificationsScreen() {
             onRefresh={refetchByUser}
           />
         }
+        ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         onEndReached={() => {
           if (hasNextPage) {
@@ -111,7 +112,7 @@ const NoticeItem = memo(({ notice }: { notice: Notice }) => {
 
   return (
     <Pressable
-      style={tw`flex-row flex-wrap p-4 border-b border-tint-border border-solid`}
+      style={tw`flex-row flex-wrap p-4`}
       onPress={() => {
         navigation.push('TopicDetail', {
           id: notice.topic.id,

@@ -4,6 +4,10 @@ import WebView from 'react-native-webview'
 
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
+import {
+  checkIsLoginedScript,
+  webviewUserAgent,
+} from '@/components/V2exWebview/helper'
 import { getNavigation } from '@/navigation/navigationRef'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
@@ -38,11 +42,7 @@ export default function WebLoginScreen() {
         decelerationRate="normal"
         sharedCookiesEnabled={true}
         startInLoadingState={true}
-        injectedJavaScript={`
-        ReactNativeWebView.postMessage(
-          ( !!$('#Top > div > div > div.tools > a:last').attr('onclick') || '').includes('signout')
-         )
-        `}
+        injectedJavaScript={checkIsLoginedScript}
         scalesPageToFit={true}
         // cacheEnabled={false}
         // cacheMode="LOAD_NO_CACHE"
@@ -56,8 +56,8 @@ export default function WebLoginScreen() {
             queryClient.refetchQueries({ type: 'active' })
           }
         }}
-        // userAgent={`Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`}
-        userAgent={`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`}
+        // userAgent={}
+        userAgent={webviewUserAgent}
       />
     </View>
   )

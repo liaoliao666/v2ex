@@ -1,15 +1,11 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import {
-  FontAwesome,
-  MaterialCommunityIcons,
-  Octicons,
-} from '@expo/vector-icons'
+import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import dayjs from 'dayjs'
 import produce from 'immer'
 import { compact } from 'lodash-es'
-import { Fragment, memo } from 'react'
+import { Fragment, ReactElement, memo } from 'react'
 import { Alert, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
@@ -38,17 +34,22 @@ import tw from '@/utils/tw'
 import Html from '../Html'
 import IconButton from '../IconButton'
 import Separator from '../Separator'
-import Space from '../Space'
 import StyledImage from '../StyledImage'
 
 export default memo(TopicInfo)
 
-function TopicInfo({ topic, onReply }: { topic: Topic; onReply: () => void }) {
+function TopicInfo({
+  topic,
+  children,
+}: {
+  topic: Topic
+  children: ReactElement
+}) {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   return (
-    <View style={tw`py-3 px-4`}>
+    <View style={tw`py-3 px-4 border-b border-solid border-tint-border`}>
       <View style={tw`flex-row items-center`}>
         <View style={tw`mr-3`}>
           <Pressable
@@ -94,6 +95,8 @@ function TopicInfo({ topic, onReply }: { topic: Topic; onReply: () => void }) {
             ])}
           </Separator>
         </View>
+
+        <MoreButton topic={topic} />
       </View>
 
       <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
@@ -139,38 +142,12 @@ function TopicInfo({ topic, onReply }: { topic: Topic; onReply: () => void }) {
         </View>
       )}
 
-      <View style={tw.style(`flex-row items-center justify-between pt-2`)}>
-        <VoteButton topic={topic} />
-
-        <Space style={tw`ml-4 mr-auto items-center`}>
-          <View style={tw.style(`flex-row items-center`)}>
-            <IconButton
-              color={tw`text-tint-secondary`.color as string}
-              activeColor="rgb(245,158,11)"
-              onPress={onReply}
-              size={21}
-              icon={<Octicons name="comment" />}
-            />
-
-            {!!topic.reply_count && (
-              <Text style={tw.style('text-body-6 pl-1 text-tint-secondary')}>
-                {topic.reply_count}
-              </Text>
-            )}
-          </View>
-
-          <ThankTopic topic={topic} />
-
-          <LikeTopic topic={topic} />
-        </Space>
-
-        <MoreButton topic={topic} />
-      </View>
+      {children}
     </View>
   )
 }
 
-function LikeTopic({ topic }: { topic: Topic }) {
+export function LikeTopic({ topic }: { topic: Topic }) {
   const { mutateAsync, isLoading } = useLikeTopic()
 
   return (
@@ -231,7 +208,7 @@ function LikeTopic({ topic }: { topic: Topic }) {
   )
 }
 
-function ThankTopic({ topic }: { topic: Topic }) {
+export function ThankTopic({ topic }: { topic: Topic }) {
   const { mutateAsync, isLoading } = useThankTopic()
 
   return (
@@ -307,7 +284,7 @@ function ThankTopic({ topic }: { topic: Topic }) {
   )
 }
 
-function VoteButton({ topic }: { topic: Topic }) {
+export function VoteButton({ topic }: { topic: Topic }) {
   const { mutateAsync, isLoading } = useVoteTopic()
 
   return (

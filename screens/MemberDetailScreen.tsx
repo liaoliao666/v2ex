@@ -38,7 +38,7 @@ import LoadingIndicator from '@/components/LoadingIndicator'
 import Money from '@/components/Money'
 import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
-import Separator from '@/components/Separator'
+import Separator, { LineSeparator } from '@/components/Separator'
 import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
@@ -461,6 +461,7 @@ const MemberTopics = forwardRef<
           progressViewOffset={contentContainerStyle.paddingTop as number}
         />
       }
+      ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {
         if (hasNextPage) {
@@ -531,6 +532,7 @@ const MemberReplies = forwardRef<
         />
       }
       renderItem={renderItem}
+      ItemSeparatorComponent={LineSeparator}
       onEndReached={() => {
         if (hasNextPage) {
           fetchNextPage()
@@ -572,10 +574,7 @@ const MemberReply = memo(
       <Pressable
         key={topic.id}
         style={({ pressed }) =>
-          tw.style(
-            `px-4 py-3 border-b border-solid border-tint-border bg-body-1`,
-            pressed && 'bg-message-press'
-          )
+          tw.style(`px-4 py-3 bg-body-1`, pressed && 'bg-message-press')
         }
         onPress={() => {
           navigation.push('TopicDetail', { id: topic.id })

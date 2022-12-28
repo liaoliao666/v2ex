@@ -16,6 +16,7 @@ import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
@@ -143,6 +144,7 @@ function NodeTopicsScreen() {
             </Text>
           </View>
         }
+        ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         onEndReached={() => {
           if (hasNextPage) {

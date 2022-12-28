@@ -21,6 +21,7 @@ import IconButton from '@/components/IconButton'
 import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
+import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
@@ -181,6 +182,7 @@ function RecentTopics() {
           onRefresh={refetchByUser}
         />
       }
+      ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {
         if (hasNextPage) {
@@ -223,6 +225,7 @@ function TabTopics({ tab }: { tab: string }) {
           onRefresh={refetchByUser}
         />
       }
+      ItemSeparatorComponent={LineSeparator}
       ListFooterComponent={<SafeAreaView edges={['bottom']} />}
       renderItem={renderItem}
       ListEmptyComponent={

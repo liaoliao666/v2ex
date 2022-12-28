@@ -1,11 +1,11 @@
+import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { noop, pick, uniqueId } from 'lodash-es'
 
-import { timeout } from '@/utils/timeout'
-
 class V2exMessage {
   linsteners: Map<string, (response: any) => void> = new Map()
-  loadedV2exWebviewPromise: Promise<void> = Promise.resolve()
+  loadV2exWebviewPromise: Promise<void> = Promise.resolve()
+  timeout: boolean = false
   inject: (arg: { id: string; config: AxiosRequestConfig }) => void = noop
   clear: () => void = noop
   reload: () => void = noop
@@ -17,11 +17,11 @@ class V2exMessage {
   async sendMessage(
     config: AxiosRequestConfig
   ): Promise<AxiosResponse<any, any>> {
-    await this.loadedV2exWebviewPromise
+    await this.loadV2exWebviewPromise
 
     const id = uniqueId()
 
-    return timeout(
+    return Promise.race([
       new Promise<AxiosResponse<any, any>>(async resolve => {
         const pickedConfig = pick(config, [
           'timeout',
@@ -40,9 +40,17 @@ class V2exMessage {
           id,
           config: pickedConfig,
         })
-      }).finally(() => this.linsteners.delete(id)),
-      10 * 1000
-    )
+      })
+        .then(res => {
+          this.timeout = false
+          return res
+        })
+        .finally(() => this.linsteners.delete(id)),
+      sleep(10 * 1000).then(() => {
+        this.timeout = true
+        throw new Error('Timeout')
+      }),
+    ])
   }
 }
 
