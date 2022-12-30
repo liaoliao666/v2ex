@@ -43,9 +43,9 @@ export default function SearchNodeScreen() {
 
   const navigation = useNavigation()
 
-  const handleNodeItemPress = useCallback((node: Node) => {
+  const handlePressNodeItem = useCallback((node: Node) => {
     navigation.goBack()
-    params.onNodeItemPress(node)
+    params.onPressNodeItem(node)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -54,10 +54,10 @@ export default function SearchNodeScreen() {
       <NodeItem
         key={`${item.title}_${item.name}`}
         node={item}
-        onNodeItemPress={handleNodeItemPress}
+        onPressNodeItem={handlePressNodeItem}
       />
     ),
-    [handleNodeItemPress]
+    [handlePressNodeItem]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)

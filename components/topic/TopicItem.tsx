@@ -69,7 +69,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
           {!!topic.node?.title && (
             <StyledButton
               size="mini"
-              type="primary"
+              type="tag"
               onPress={() => {
                 navigation.push('NodeTopics', { name: topic.node?.name! })
               }}
@@ -78,7 +78,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
             </StyledButton>
           )}
           <Text
-            style={tw`text-tint-primary text-body-5 font-bold flex-1`}
+            style={tw`text-tint-primary text-body-5 flex-1`}
             numberOfLines={1}
           >
             {topic.member?.username}
@@ -87,7 +87,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
 
         <Text
           style={tw.style(
-            `text-body-5 pt-1`,
+            `text-body-5 pt-1 font-medium`,
             isFetched ? `text-tint-secondary` : `text-tint-primary`
           )}
         >

@@ -1,8 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigation } from '@react-navigation/native'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { compact } from 'lodash-es'
 import { useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
+import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { z } from 'zod'
@@ -13,8 +15,10 @@ import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
-import { useWriteTopic } from '@/servicies/topic'
+import { useEditTopic, useTopicDetail, useWriteTopic } from '@/servicies/topic'
+import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
 
@@ -31,19 +35,28 @@ const WriteTopicArgs = z.object({
 })
 
 export default function WriteTopicScreen() {
+  const {
+    params: { topic },
+  } = useRoute<RouteProp<RootStackParamList, 'WriteTopic'>>()
+
+  const isEdit = !!topic
+
   const { control, handleSubmit } = useForm<z.infer<typeof WriteTopicArgs>>({
     resolver: zodResolver(WriteTopicArgs),
+    defaultValues: topic,
   })
 
   const navigation = useNavigation()
 
-  const { mutateAsync, isLoading } = useWriteTopic()
+  const writeTopicMutation = useWriteTopic()
+
+  const editTopicMutation = useEditTopic()
 
   return (
     <View style={tw`bg-body-1 flex-1`}>
-      <NavBar title="创作新主题" />
+      <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
 
-      <View style={tw`flex-1 p-4`}>
+      <ScrollView style={tw`flex-1 p-4`} keyboardShouldPersistTaps="handled">
         <FormControl
           control={control}
           name="node"
@@ -51,9 +64,11 @@ export default function WriteTopicScreen() {
           render={({ field: { value, onChange } }) => (
             <Pressable
               onPress={() => {
-                navigation.navigate('SearchNode', {
-                  onNodeItemPress: onChange,
-                })
+                if (!topic || topic.editable) {
+                  navigation.navigate('SearchNode', {
+                    onPressNodeItem: onChange,
+                  })
+                }
               }}
             >
               <StyledTextInput
@@ -88,11 +103,12 @@ export default function WriteTopicScreen() {
           control={control}
           name="content"
           label="正文"
-          render={({ field: { onChange, onBlur } }) => (
+          render={({ field: { value, onChange, onBlur } }) => (
             <StyledTextInput
               placeholder="标题如果能够表达完整内容，则正文可以为空"
               onChangeText={onChange}
               onBlur={onBlur}
+              defaultValue={value}
               multiline
               numberOfLines={5}
               style={tw`h-32 py-2`}
@@ -108,25 +124,44 @@ export default function WriteTopicScreen() {
                 try {
                   validateLoginStatus()
 
-                  if (isLoading) return
+                  if (
+                    writeTopicMutation.isLoading ||
+                    editTopicMutation.isLoading
+                  )
+                    return
 
-                  await mutateAsync({
-                    title: values.title,
-                    content: values.content,
-                    node_name: values.node.name,
-                    once: store.get(profileAtom)?.once!,
-                  })
+                  if (isEdit) {
+                    await editTopicMutation.mutateAsync({
+                      title: values.title.trim(),
+                      content: values.content?.trim(),
+                      node_name: values.node.name,
+                      prevTopic: topic,
+                    })
+
+                    await sleep(1000)
+
+                    queryClient.refetchQueries(
+                      useTopicDetail.getKey({ id: topic?.id })
+                    )
+                  } else {
+                    await writeTopicMutation.mutateAsync({
+                      title: values.title.trim(),
+                      content: values.content?.trim(),
+                      node_name: values.node.name,
+                      once: store.get(profileAtom)?.once!,
+                    })
+                  }
 
                   Toast.show({
                     type: 'success',
-                    text1: '发帖成功',
+                    text1: isEdit ? `编辑成功` : '发帖成功',
                   })
 
                   navigation.goBack()
                 } catch (error) {
                   Toast.show({
                     type: 'error',
-                    text1: '发帖失败',
+                    text1: isEdit ? `编辑失败` : '发帖失败',
                   })
                 }
               })()
@@ -134,10 +169,10 @@ export default function WriteTopicScreen() {
             shape="rounded"
             size="large"
           >
-            发布主题
+            {isEdit ? '保存' : '发布主题'}
           </StyledButton>
         </SafeAreaView>
-      </View>
+      </ScrollView>
     </View>
   )
 }

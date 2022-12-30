@@ -2,12 +2,11 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
-import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
 import { z } from 'zod'
 
 import StyledImage from '@/components/StyledImage'
-import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useSignin, useSigninInfo } from '@/servicies/authentication'
 import { queryClient } from '@/utils/query'
@@ -72,7 +71,7 @@ export default function LoginScreen() {
           </StyledButton>
         </View>
       ) : (
-        <ScrollView style={tw`flex-1`}>
+        <ScrollView style={tw`flex-1`} keyboardShouldPersistTaps="handled">
           <View style={tw`w-3/4 mx-auto mt-8`}>
             <FormControl
               control={control}
@@ -157,31 +156,17 @@ export default function LoginScreen() {
                 try {
                   await signinMutation.mutateAsync({
                     [SigninInfoQuery.data.username_hash!]:
-                      getValues('username'),
+                      getValues('username').trim(),
                     [SigninInfoQuery.data.password_hash!]:
-                      getValues('password'),
-                    [SigninInfoQuery.data.code_hash!]: getValues('code'),
+                      getValues('password').trim(),
+                    [SigninInfoQuery.data.code_hash!]: getValues('code').trim(),
                     once: SigninInfoQuery.data.once!,
                   })
 
                   navigation.goBack()
                   queryClient.refetchQueries({ type: 'active' })
                 } catch (error) {
-                  Alert.alert(
-                    '登录失败',
-                    ``,
-                    [
-                      {
-                        text: '确定',
-                        onPress: () => {
-                          SigninInfoQuery.refetch()
-                        },
-                      },
-                    ],
-                    {
-                      userInterfaceStyle: store.get(colorSchemeAtom),
-                    }
-                  )
+                  SigninInfoQuery.refetch()
                 }
               })}
             >
@@ -237,7 +222,10 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
               onPress={async () => {
-                navigation.navigate('WebLogin')
+                if (!SigninInfoQuery.data?.once) return
+                navigation.navigate('GoogleSignin', {
+                  once: SigninInfoQuery.data.once,
+                })
               }}
             >
               <StyledImage

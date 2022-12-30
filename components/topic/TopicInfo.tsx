@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import produce from 'immer'
 import { compact } from 'lodash-es'
 import { Fragment, ReactElement, memo } from 'react'
-import { Alert, Pressable, Share, Text, View } from 'react-native'
+import { Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
@@ -27,6 +27,7 @@ import {
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
+import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
@@ -40,9 +41,11 @@ export default memo(TopicInfo)
 
 function TopicInfo({
   topic,
+  onAppend,
   children,
 }: {
   topic: Topic
+  onAppend: () => void
   children: ReactElement
 }) {
   const navigation =
@@ -96,7 +99,7 @@ function TopicInfo({
           </Separator>
         </View>
 
-        <MoreButton topic={topic} />
+        <MoreButton topic={topic} onAppend={onAppend} />
       </View>
 
       <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
@@ -223,26 +226,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 
           if (isLoading || topic.thanked) return
 
-          await new Promise((resolve, reject) =>
-            Alert.alert(
-              '你确定要向本主题创建者发送谢意？',
-              '',
-              [
-                {
-                  text: '取消',
-                  onPress: reject,
-                  style: 'cancel',
-                },
-                {
-                  text: '确定',
-                  onPress: resolve,
-                },
-              ],
-              {
-                userInterfaceStyle: store.get(colorSchemeAtom),
-              }
-            )
-          )
+          await confirm('你确定要向本主题创建者发送谢意？')
 
           try {
             updateTopicDetail({
@@ -288,9 +272,11 @@ export function VoteButton({ topic }: { topic: Topic }) {
   const { mutateAsync, isLoading } = useVoteTopic()
 
   return (
-    <View style={tw`py-1 flex-row items-center`}>
+    <View
+      style={tw`py-1 flex-row items-center border-tint-border border-solid border rounded-full`}
+    >
       <Pressable
-        style={tw`px-1 flex-row items-center`}
+        style={tw`px-2 flex-row items-center`}
         onPress={async () => {
           validateLoginStatus()
 
@@ -337,7 +323,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
       <View style={tw`w-px h-3/4 border-tint-border border-l border-solid`} />
 
       <Pressable
-        style={tw`px-1`}
+        style={tw`px-2`}
         onPress={async () => {
           validateLoginStatus()
 
@@ -374,7 +360,13 @@ export function VoteButton({ topic }: { topic: Topic }) {
   )
 }
 
-function MoreButton({ topic }: { topic: Topic }) {
+function MoreButton({
+  topic,
+  onAppend,
+}: {
+  topic: Topic
+  onAppend: () => void
+}) {
   const { showActionSheetWithOptions } = useActionSheet()
 
   const navigation = useNavigation()
@@ -389,14 +381,17 @@ function MoreButton({ topic }: { topic: Topic }) {
       color={tw`text-tint-secondary`.color as string}
       activeColor={tw`text-tint-primary`.color as string}
       onPress={() => {
-        const options = [
+        const options = compact([
           topic.ignored ? '取消忽略' : '忽略',
           '举报',
           '分享',
+          topic.editable && '编辑',
+          topic.appendable && '附言',
           '取消',
-        ]
+        ] as const)
+
         const destructiveButtonIndex = 0
-        const cancelButtonIndex = 3
+        const cancelButtonIndex = options.indexOf('取消')
 
         showActionSheetWithOptions(
           {
@@ -442,6 +437,8 @@ function MoreButton({ topic }: { topic: Topic }) {
 
                 if (ignoreTopicMutation.isLoading) return
 
+                await confirm('确定忽略该主题么?')
+
                 try {
                   await ignoreTopicMutation.mutateAsync({
                     id: topic.id,
@@ -479,6 +476,14 @@ function MoreButton({ topic }: { topic: Topic }) {
                 }
                 break
               }
+
+              case options.indexOf('编辑'):
+                navigation.navigate('WriteTopic', { topic })
+                break
+
+              case options.indexOf('附言'):
+                onAppend()
+                break
 
               case cancelButtonIndex:
               // Canceled

@@ -31,9 +31,9 @@ module.exports = {
           'text-body-4': 'text-[17px] leading-[26px]',
           'text-body-5': 'text-[15px] leading-[24px]',
           'text-body-6': 'text-[13px] leading-[22px]',
-          'bg-body-1': 'bg-white dark:bg-[#0f0f0f]',
-          'bg-body-1-invert': 'dark:bg-white bg-[#0f0f0f]',
-          'bg-body-2': 'bg-[#f0f3f5] dark:bg-[#1a1a1a]',
+          'bg-body-1': 'bg-white dark:bg-[#1a1a1a]',
+          'bg-body-1-invert': 'dark:bg-white bg-[#1a1a1a]',
+          'bg-body-2': 'bg-[#f0f3f5] dark:bg-[#262626]',
           'bg-mask': 'bg-[rgba(0,0,0,0.4)] dark:bg-[rgba(91,112,131,0.4)]',
           'bg-message-press':
             'bg-[rgba(230,236,240,0.7)] dark:bg-[rgba(18,21,23,0.7)]',

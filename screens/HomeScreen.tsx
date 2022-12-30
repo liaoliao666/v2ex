@@ -276,7 +276,7 @@ function TopNavBar() {
           color={tw`text-tint-secondary`.color as string}
           activeColor={tw`text-tint-primary`.color as string}
           onPress={() => {
-            navigation.navigate('WriteTopic')
+            navigation.navigate('WriteTopic', {})
           }}
         />
       }

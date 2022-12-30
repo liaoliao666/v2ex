@@ -36,6 +36,7 @@ export default function IconButton({
             `w-[${blurSize}px] h-[${blurSize}px] -m-[${
               (blurSize - size) / 2
             }px] rounded-full overflow-hidden absolute`,
+
             pressed && `bg-[${activeColor}] bg-opacity-20`
           )}
         />

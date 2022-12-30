@@ -1,5 +1,6 @@
 import { Cheerio, CheerioAPI, Element } from 'cheerio'
 import { defaultTo } from 'lodash-es'
+import { isString } from 'twrnc/dist/esm/types'
 
 import { RecentTopic } from '@/jotai/recentTopicsAtom'
 import { invoke } from '@/utils/invoke'
@@ -230,6 +231,17 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
         ignored: $topicButtons.eq(2).attr('href')?.includes('unignore'),
       }
     }),
+    ...invoke(() => {
+      const opHrefs = $('.header .op')
+        .map((_i, op) => $(op).attr('href'))
+        .get()
+        .filter(isString)
+
+      return {
+        editable: opHrefs.some(href => href.includes('/edit/topic')),
+        appendable: opHrefs.some(href => href.includes('/append/topic')),
+      }
+    }),
     title: $('h1').text(),
     created: parseTimestamp($('small.gray > span').attr('title')!),
     content: $('.topic_content').html()!,
@@ -271,6 +283,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
             avatar: $avatar.attr('src')!,
           },
           id,
+          no: +$reply.find('.no').text(),
           created: parseTimestamp($reply.find('.ago').attr('title')!),
           via: parseVia($reply.find('.ago').text()),
           content,
@@ -278,7 +291,9 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
           thanked: !!$reply.find('.thanked').length,
           op: !!$reply.find('.badge.op').length,
           mod: !!$reply.find('.badge.mod').length,
-          hasRelatedReplies: !!RegExp('<a href="/member/(.*?)">').exec(content),
+          has_related_replies: !!RegExp('<a href="/member/(.*?)">').exec(
+            content
+          ),
         } as Reply
       })
       .get()

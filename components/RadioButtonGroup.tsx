@@ -16,9 +16,9 @@ export default function RadioButtonGroup<
   return (
     <View style={tw`flex-row`}>
       <View
-        style={tw`flex-row border-tint-border border border-solid rounded overflow-hidden`}
+        style={tw`flex-row p-0.5 rounded-lg bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)]`}
       >
-        {options.map((item, index) => {
+        {options.map(item => {
           const active = value === item.value
 
           return (
@@ -28,17 +28,14 @@ export default function RadioButtonGroup<
                 onChange(item.value)
               }}
               style={tw.style(
-                `px-1.5 flex-row items-center`,
-                active && `bg-primary-focus`,
-                index !== 0 &&
-                  !active &&
-                  `border-l border-tint-border border-solid`
+                `px-1.5 flex-row items-center rounded-lg`,
+                active && `bg-white dark:bg-black`
               )}
             >
               <Text
                 style={tw.style(
                   `text-body-5`,
-                  active ? `text-white` : `text-tint-primary`
+                  active ? `text-tint-primary` : `text-tint-secondary`
                 )}
               >
                 {item.label}

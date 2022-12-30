@@ -583,7 +583,7 @@ const MemberReply = memo(
         <Space style={tw`items-center`}>
           <StyledButton
             size="mini"
-            type="primary"
+            type="tag"
             onPress={() => {
               navigation.push('NodeTopics', { name: topic.node?.name! })
             }}

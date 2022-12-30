@@ -154,9 +154,7 @@ function Profile() {
           </View>
 
           <Space style={tw`items-center pt-2`}>
-            <Text
-              style={tw`text-tint-primary text-[20px] leading-6 font-extrabold`}
-            >
+            <Text style={tw`text-tint-primary text-[20px] leading-6 font-bold`}>
               {profile?.username}
             </Text>
 
@@ -176,7 +174,7 @@ function Profile() {
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
           onPress={() => {
-            v2exMessage.clear()
+            v2exMessage.clearWebviewCache()
             navigation.navigate('Login')
           }}
         >
@@ -283,7 +281,7 @@ function ProfileItem({
     >
       {icon}
 
-      <Text style={tw`ml-6 text-[20px] font-bold text-tint-primary mr-auto`}>
+      <Text style={tw`ml-6 text-[20px] font-medium text-tint-primary mr-auto`}>
         {label}
       </Text>
 
@@ -307,7 +305,7 @@ function SignoutItem({ once }: { once: string }) {
       // empty
     } finally {
       setProfileAtom(RESET)
-      v2exMessage.clear()
+      v2exMessage.clearWebviewCache()
     }
   }
 

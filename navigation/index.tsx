@@ -17,6 +17,7 @@ import { Platform } from 'react-native'
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import GItHubMDScreen from '@/screens/GItHubMD'
+import GoogleSigninScreen from '@/screens/GoogleSigninScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import LoginScreen from '@/screens/LoginScreen'
 import MemberDetailScreen from '@/screens/MemberDetailScreen'
@@ -31,10 +32,10 @@ import RecentTopicScreen from '@/screens/RecentTopicScreen'
 import RelatedRepliesScreen from '@/screens/RelatedRepliesScreen'
 import SearchNodeScreen from '@/screens/SearchNodeScreen'
 import SearchOptionsScreen from '@/screens/SearchOptionsScreen'
+import SearchReplyMemberScreen from '@/screens/SearchReplyMemberScreen'
 import SearchScreen from '@/screens/SearchScreen'
 import SortTabsScreen from '@/screens/SortTabsScreen'
 import TopicDetailScreen from '@/screens/TopicDetailScreen'
-import WebLoginScreen from '@/screens/WebLoginScreen'
 import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -105,6 +106,14 @@ function StackNavigator() {
         component={RelatedRepliesScreen}
       />
 
+      <Stack.Screen
+        name="SearchReplyMember"
+        options={{
+          presentation: 'modal',
+        }}
+        component={SearchReplyMemberScreen}
+      />
+
       <Stack.Screen name="NodeTopics" component={NodeTopicsScreen} />
 
       <Stack.Screen name="MemberDetail" component={MemberDetailScreen} />
@@ -119,7 +128,7 @@ function StackNavigator() {
 
       <Stack.Screen name="GItHubMD" component={GItHubMDScreen} />
 
-      <Stack.Screen name="WebLogin" component={WebLoginScreen} />
+      <Stack.Screen name="GoogleSignin" component={GoogleSigninScreen} />
 
       <Stack.Screen name="RecentTopic" component={RecentTopicScreen} />
 
@@ -144,7 +153,6 @@ function StackNavigator() {
         name="SearchNode"
         options={{
           presentation: 'modal',
-          orientation: 'portrait',
         }}
         component={SearchNodeScreen}
       />

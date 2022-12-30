@@ -4,11 +4,10 @@ import type { ComponentType, FC, ReactNode } from 'react'
 import { Suspense } from 'react'
 import type { ErrorBoundaryProps, FallbackProps } from 'react-error-boundary'
 import { ErrorBoundary } from 'react-error-boundary'
-import { Alert, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 import { isObject } from 'twrnc/dist/esm/types'
 
-import { store } from '@/jotai/store'
-import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 
@@ -28,9 +27,9 @@ export function FallbackComponent({
   async function reset() {
     try {
       await v2exMessage.loadV2exWebviewPromise
-      if (v2exMessage.timeout) v2exMessage.reload()
+      if (v2exMessage.timeout) v2exMessage.reloadWebview()
     } catch {
-      v2exMessage.reload()
+      v2exMessage.reloadWebview()
     }
 
     resetErrorBoundary()
@@ -57,29 +56,13 @@ export function FallbackComponent({
 
       <StyledButton
         onPress={async () => {
-          await new Promise((resolve, reject) =>
-            Alert.alert(
-              `确认清除缓存吗？`,
-              `该动作会导致删除所有缓存数据`,
-              [
-                {
-                  text: '取消',
-                  onPress: reject,
-                  style: 'cancel',
-                },
-                {
-                  text: '确定',
-                  onPress: resolve,
-                },
-              ],
-              {
-                userInterfaceStyle: store.get(colorSchemeAtom),
-              }
-            )
-          )
-
-          queryClient.removeQueries()
-          reset()
+          try {
+            await confirm(`确认清除缓存吗？`, `该动作会导致删除所有缓存数据`)
+            queryClient.removeQueries()
+            reset()
+          } catch {
+            // empty
+          }
         }}
         style={tw`h-[52px] mt-7`}
         ghost

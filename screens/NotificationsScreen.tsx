@@ -4,14 +4,7 @@ import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo } from 'react'
-import {
-  Alert,
-  FlatList,
-  ListRenderItem,
-  Pressable,
-  Text,
-  View,
-} from 'react-native'
+import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
@@ -28,12 +21,12 @@ import Separator, { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
-import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
 import { Notice } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
+import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -116,11 +109,11 @@ const NoticeItem = memo(({ notice }: { notice: Notice }) => {
       onPress={() => {
         navigation.push('TopicDetail', {
           id: notice.topic.id,
-          initialScrollIndex: [
+          hightlightReplyNo: [
             notice.prev_action_text,
             notice.next_action_text,
           ].some(text => text?.includes('回复'))
-            ? notice.topic.reply_count - 1
+            ? notice.topic.reply_count
             : undefined,
         })
       }}
@@ -186,26 +179,7 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
 
         if (isLoading) return
 
-        await new Promise((resolve, reject) =>
-          Alert.alert(
-            `确认删除这条提醒么？`,
-            ``,
-            [
-              {
-                text: '取消',
-                onPress: reject,
-                style: 'cancel',
-              },
-              {
-                text: '确定',
-                onPress: resolve,
-              },
-            ],
-            {
-              userInterfaceStyle: store.get(colorSchemeAtom),
-            }
-          )
-        )
+        await confirm(`确认删除这条提醒么？`)
 
         const notifications = queryClient.getQueryData(
           useNotifications.getKey()
@@ -236,7 +210,7 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
           )
           Toast.show({
             type: 'error',
-            text1: '操作失败',
+            text1: '删除失败',
           })
         }
       }}

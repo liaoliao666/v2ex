@@ -20,7 +20,7 @@ export default function StyledButton({
   pressable = true,
 }: {
   size?: 'middle' | 'large' | 'small' | 'mini'
-  type?: 'default' | 'secondary' | 'primary'
+  type?: 'default' | 'secondary' | 'primary' | 'tag'
   shape?: 'default' | 'rounded' | 'rectangular'
   onPress?: PressableProps['onPress']
   children?: string
@@ -68,6 +68,14 @@ export default function StyledButton({
       activeColor: `rgb(26,140,216)`,
       activeDarkColor: `rgb(26,140,216)`,
     },
+    tag: {
+      color: `rgb(239,243,244)`,
+      darkColor: `rgb(32,35,39)`,
+      textColor: '#536471',
+      darkTextColor: '#71767b',
+      activeColor: `rgba(239,243,244,0.5)`,
+      activeDarkColor: `rgba(32,35,39,0.5)`,
+    },
   }[type]
 
   return (
@@ -78,7 +86,7 @@ export default function StyledButton({
             middle: tw`h-9 px-4`,
             large: tw`h-[52px] px-8`,
             small: tw`h-7 px-3`,
-            mini: tw`px-1 py-px`,
+            mini: tw`px-1 py-0.5`,
           }[size],
           {
             default: size === 'mini' ? tw`rounded-sm` : tw`rounded-lg`,

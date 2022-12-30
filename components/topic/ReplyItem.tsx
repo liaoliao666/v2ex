@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import produce from 'immer'
 import { find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo } from 'react'
-import { Alert, Pressable, Share, Text, View } from 'react-native'
+import { Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
@@ -20,6 +20,7 @@ import {
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { validateLoginStatus } from '@/utils/authentication'
+import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
 import { sleep } from '@/utils/sleep'
@@ -28,7 +29,6 @@ import tw from '@/utils/tw'
 import Html from '../Html'
 import IconButton from '../IconButton'
 import Space from '../Space'
-import StyledButton from '../StyledButton'
 import StyledImage from '../StyledImage'
 
 export default memo(ReplyItem)
@@ -40,7 +40,6 @@ function ReplyItem({
   hightlight,
   onReply,
   hideViewRelatedReplies,
-  index,
   related,
   inModalScreen,
 }: {
@@ -50,7 +49,6 @@ function ReplyItem({
   hightlight?: boolean
   onReply: (username: string) => void
   hideViewRelatedReplies?: boolean
-  index: number
   related?: boolean
   inModalScreen?: boolean
 }) {
@@ -89,39 +87,36 @@ function ReplyItem({
             <Space style={tw`mr-auto items-center`}>
               <Text
                 key="username"
-                style={tw`text-tint-primary text-body-5 font-bold`}
+                style={tw`text-tint-primary text-body-5 font-medium`}
               >
                 {reply.member?.username}
               </Text>
 
               <View style={tw`flex-row items-center`}>
                 {reply.mod && (
-                  <StyledButton
-                    size="mini"
-                    type="secondary"
-                    pressable={false}
-                    style={tw.style(`py-0`, reply.op && `rounded-r-none`)}
+                  <View
+                    style={tw.style(
+                      `px-1 bg-secondary border-secondary border border-solid rounded-sm`,
+                      reply.op && `rounded-r-none`
+                    )}
                   >
-                    MOD
-                  </StyledButton>
+                    <Text style={tw`text-white`}>MOD</Text>
+                  </View>
                 )}
                 {reply.op && (
-                  <StyledButton
-                    ghost
-                    size="mini"
-                    pressable={false}
-                    type="secondary"
-                    style={tw.style(`py-0`, reply.mod && `rounded-l-none`)}
+                  <View
+                    style={tw.style(
+                      `px-1 border-secondary border border-solid rounded-sm`,
+                      reply.mod && `rounded-l-none`
+                    )}
                   >
-                    OP
-                  </StyledButton>
+                    <Text style={tw`text-secondary`}>OP</Text>
+                  </View>
                 )}
               </View>
             </Space>
 
-            <Text style={tw`text-body-6 text-tint-secondary`}>
-              #{index + 1}
-            </Text>
+            <Text style={tw`text-body-6 text-tint-secondary`}>#{reply.no}</Text>
           </View>
 
           <Text style={tw`text-tint-secondary text-body-6`}>
@@ -167,11 +162,11 @@ function ReplyItem({
                 )}
               </Pressable>
 
-              {reply.hasRelatedReplies && !hideViewRelatedReplies && (
+              {reply.has_related_replies && !hideViewRelatedReplies && (
                 <Pressable
                   onPress={() => {
                     navigation.navigate('RelatedReplies', {
-                      replyIndex: index,
+                      replyId: reply.id,
                       topicId,
                       onReply: username => {
                         navigation.goBack()
@@ -200,12 +195,7 @@ function ReplyItem({
               )}
             </Space>
 
-            <MoreButton
-              once={once}
-              index={index}
-              reply={reply}
-              topicId={topicId}
-            />
+            <MoreButton once={once} reply={reply} topicId={topicId} />
           </View>
         </View>
       </View>
@@ -231,25 +221,8 @@ function ThankReply({
 
         if (isLoading || reply.thanked) return
 
-        await new Promise((resolve, reject) =>
-          Alert.alert(
-            `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`,
-            ``,
-            [
-              {
-                text: '取消',
-                onPress: reject,
-                style: 'cancel',
-              },
-              {
-                text: '确定',
-                onPress: resolve,
-              },
-            ],
-            {
-              userInterfaceStyle: store.get(colorSchemeAtom),
-            }
-          )
+        await confirm(
+          `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`
         )
 
         try {
@@ -305,13 +278,11 @@ function ThankReply({
 
 function MoreButton({
   topicId,
-  index,
   reply,
   once,
 }: {
   topicId: number
   reply: Reply
-  index: number
   once?: string
 }) {
   const { showActionSheetWithOptions } = useActionSheet()
@@ -342,13 +313,17 @@ function MoreButton({
                 Share.share({
                   title: reply.content,
                   url: `${baseURL}/t/${topicId}?p=${Math.ceil(
-                    index + 1 / 100
+                    reply.no / 100
                   )}#r_${reply.id}`,
                 })
                 break
 
               case destructiveButtonIndex: {
                 validateLoginStatus()
+
+                if (ignoreReplyMutation.isLoading) return
+
+                await confirm('确定忽略该回复么?')
 
                 try {
                   await ignoreReplyMutation.mutateAsync({

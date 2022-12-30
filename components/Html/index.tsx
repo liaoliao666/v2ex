@@ -6,7 +6,11 @@ import { useSetAtom } from 'jotai'
 import { findIndex, first, isString } from 'lodash-es'
 import { useMemo } from 'react'
 import { useWindowDimensions } from 'react-native'
-import RenderHtml, { RenderHTMLProps } from 'react-native-render-html'
+import RenderHtml, {
+  HTMLContentModel,
+  HTMLElementModel,
+  RenderHTMLProps,
+} from 'react-native-render-html'
 
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { RootStackParamList } from '@/types'
@@ -16,6 +20,7 @@ import { openURL, resolveUrl } from '@/utils/url'
 
 import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
+import IFrameRenderer from './IFrameRenderer'
 import ImageRenderer from './ImageRenderer'
 
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
@@ -36,7 +41,14 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   renderers: {
     pre: CodeRenderer,
     img: ImageRenderer,
-    iframe: () => null,
+    iframe: IFrameRenderer,
+  },
+
+  customHTMLElementModels: {
+    iframe: HTMLElementModel.fromCustomModel({
+      tagName: 'iframe',
+      contentModel: HTMLContentModel.block,
+    }),
   },
 
   defaultTextProps: {

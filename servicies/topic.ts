@@ -8,6 +8,7 @@ import {
 import { isObject } from 'twrnc/dist/esm/types'
 
 import { request } from '@/utils/request'
+import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
 import {
   getNextPageParam,
@@ -130,17 +131,11 @@ export const useReply = createMutation<
   void,
   { content: string; once: string; topicId: number }
 >(({ topicId, ...args }) => {
-  return request.post(
-    `/t/${topicId}`,
-    Object.entries(args)
-      .map(([key, val]) => `${key}=${encodeURI(val)}`)
-      .join('&'),
-    {
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-    }
-  )
+  return request.post(`/t/${topicId}`, paramsSerializer(args), {
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+    },
+  })
 })
 
 export const useWriteTopic = createMutation<
@@ -151,22 +146,90 @@ export const useWriteTopic = createMutation<
     node_name: string
     once: string
   }
->(args => {
-  return request.post(
+>(args =>
+  request.post(
     `/write`,
-    Object.entries({
+    paramsSerializer({
       ...args,
       syntax: 'default',
-    })
-      .map(([key, val]) => `${key}=${encodeURI(val)}`)
-      .join('&'),
+    }),
     {
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
       },
     }
   )
+)
+
+export const useEditTopic = createMutation<
+  void,
+  {
+    title: string
+    content?: string
+    node_name: string
+    prevTopic: Topic
+  }
+>(async ({ prevTopic, ...args }) => {
+  const promises = []
+
+  if (args.node_name !== prevTopic.node?.name) {
+    promises.push(
+      request.post(
+        `/move/topic/${prevTopic.id}`,
+        paramsSerializer({
+          destination: args.node_name,
+        }),
+        {
+          headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+          },
+        }
+      )
+    )
+  }
+
+  if (args.title !== prevTopic.title || args.content !== prevTopic.content) {
+    promises.push(
+      request.post(
+        `/edit/topic/${prevTopic.id}`,
+        paramsSerializer({
+          title: args.title,
+          content: args.content,
+          syntax: 0,
+        }),
+        {
+          headers: {
+            'content-type': 'application/x-www-form-urlencoded',
+          },
+        }
+      )
+    )
+  }
+
+  Promise.all(promises)
 })
+
+export const useAppendTopic = createMutation<
+  void,
+  {
+    content?: string
+    once: string
+    topicId: number
+  }
+>(({ topicId, ...args }) =>
+  request.post(
+    `/append/topic/${topicId}`,
+    paramsSerializer({
+      ...args,
+      syntax: 'default',
+    }),
+    {
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+      },
+    }
+  )
+)
 
 export const useIgnoreTopic = createMutation<
   void,

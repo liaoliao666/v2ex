@@ -71,7 +71,7 @@ export default function SearchScreen() {
       <NodeItem
         key={`${item.title}_${item.name}`}
         node={item}
-        onNodeItemPress={handleClickNode}
+        onPressNodeItem={handleClickNode}
       />
     ),
     [handleClickNode]
@@ -284,7 +284,7 @@ const HitItem = ({
           {!!topic.node?.title && (
             <StyledButton
               size="mini"
-              type="primary"
+              type="tag"
               onPress={() => {
                 navigation.push('NodeTopics', { name: topic.node?.name! })
               }}

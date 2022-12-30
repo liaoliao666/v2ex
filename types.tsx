@@ -6,7 +6,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack'
 import { z } from 'zod'
 
 import { Sov2exArgs } from './servicies/sov2ex'
-import { Node } from './servicies/types'
+import { Member, Node, Topic } from './servicies/types'
 
 declare global {
   namespace ReactNavigation {
@@ -28,15 +28,19 @@ export type RootStackParamList = {
     onSubmit: (values: z.infer<typeof Sov2exArgs>) => void
   }
   SearchNode: {
-    onNodeItemPress: (node: Node) => void
+    onPressNodeItem: (node: Node) => void
+  }
+  SearchReplyMember: {
+    topicId: number
+    onPressReplyMemberItem: (member: Member) => void
   }
   Login: undefined
   TopicDetail: {
     id: number
-    initialScrollIndex?: number
+    hightlightReplyNo?: number
   }
   RelatedReplies: {
-    replyIndex: number
+    replyId: number
     onReply: (username: string) => void
     topicId: number
   }
@@ -46,13 +50,17 @@ export type RootStackParamList = {
   MemberDetail: {
     username: string
   }
-  WriteTopic: undefined
+  WriteTopic: {
+    topic?: Topic
+  }
   NavNodes: undefined
   GItHubMD: {
     url: string
     title: string
   }
-  WebLogin: undefined
+  GoogleSignin: {
+    once: string
+  }
   RecentTopic: undefined
 }
 

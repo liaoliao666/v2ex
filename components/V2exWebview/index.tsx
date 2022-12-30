@@ -7,7 +7,6 @@ import WebView from 'react-native-webview'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
 
-import { webviewUserAgent } from './helper'
 import v2exMessage from './v2exMessage'
 
 let outterResolve: () => void
@@ -26,12 +25,12 @@ export default function V2exWebview() {
     1
   )
 
-  v2exMessage.clear = () => {
+  v2exMessage.clearWebviewCache = () => {
     webViewRef.current?.clearCache?.(true)
     CookieManager.clearAll(true)
   }
 
-  v2exMessage.reload = () => {
+  v2exMessage.reloadWebview = () => {
     v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
       outterResolve = resolve
       outterReject = reject
@@ -40,7 +39,7 @@ export default function V2exWebview() {
   }
 
   useEffect(() => {
-    v2exMessage.inject = ({ id, config }) => {
+    v2exMessage.injectRequestScript = ({ id, config }) => {
       const run = `window.axios(${JSON.stringify(config)})
       .then(response => {
         window.ReactNativeWebView.postMessage(
@@ -65,22 +64,23 @@ export default function V2exWebview() {
     }
 
     return () => {
-      v2exMessage.inject = noop
+      v2exMessage.injectRequestScript = noop
     }
   }, [])
 
   return (
-    <View
-      key={forceRenderKey}
-      style={tw`absolute w-0 h-0`}
-      pointerEvents="none"
-    >
+    <View style={tw`absolute w-0 h-0`} pointerEvents="none">
       <WebView
+        key={forceRenderKey}
         ref={webViewRef}
         originWhitelist={['*']}
         source={{ uri: `${baseURL}/signin` }}
         onLoadEnd={() => outterResolve()}
-        onError={() => outterReject(new Error('应用初始化失败'))}
+        onError={() => {
+          const err = new Error('请检查你的网络设置')
+          err.name = `应用初始化失败`
+          outterReject(err)
+        }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         decelerationRate="normal"
@@ -106,7 +106,7 @@ export default function V2exWebview() {
             )
           }
         }}
-        userAgent={webviewUserAgent}
+        userAgent={`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`}
       />
     </View>
   )

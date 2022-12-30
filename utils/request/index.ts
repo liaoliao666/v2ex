@@ -3,7 +3,6 @@ import { CheerioAPI, load } from 'cheerio'
 import { RESET } from 'jotai/utils'
 import { isEqual } from 'lodash-es'
 
-import { pcUserAgent } from '@/components/V2exWebview/helper'
 import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -23,7 +22,6 @@ export const request = axios.create({
     'Referrer-Policy': 'unsafe-url',
     'X-Requested-With': 'XMLHttpRequest',
     'cache-control': 'max-age=0',
-    'user-agent': pcUserAgent,
   },
   adapter: v2exMessage.sendMessage,
 })

@@ -2,7 +2,7 @@ import { Octicons } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, ListRenderItem, Text, View } from 'react-native'
 
 import IconButton from '@/components/IconButton'
@@ -14,7 +14,6 @@ import {
 } from '@/components/QuerySuspense'
 import RadioButtonGroup from '@/components/RadioButtonGroup'
 import { LineSeparator } from '@/components/Separator'
-import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
@@ -65,38 +64,47 @@ function TopicDetailScreen() {
   const replyBoxRef = useRef<ReplyBoxRef>(null)
 
   const handleReplyItem = useCallback((username: string) => {
-    replyBoxRef.current?.replyFor(username)
+    replyBoxRef.current?.replyFor({ username })
+  }, [])
+
+  const handleAppend = useCallback(() => {
+    replyBoxRef.current?.replyFor({ isAppend: true })
   }, [])
 
   const [orderBy, setOrderBy] = useState<OrderBy>('asc')
 
+  useEffect(() => {
+    // fetch all pages when order equals to `desc`
+    if (orderBy === 'desc' && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage()
+    }
+  }, [orderBy, hasNextPage, fetchNextPage, isFetchingNextPage])
+
   const flatedData = useMemo(() => {
     const result = uniqBy(
-      (data?.pages.map(page => page.replies).flat() || []).map(
-        (item, index) => ({
-          ...item,
-          index,
-        })
-      ),
+      data?.pages.map(page => page.replies).flat() || [],
       'id'
     )
     if (orderBy === 'desc') result.reverse()
     return result
   }, [data?.pages, orderBy])
 
-  const renderItem: ListRenderItem<typeof flatedData[number]> = useCallback(
-    ({ item, index }) => (
+  const renderItem: ListRenderItem<Reply> = useCallback(
+    ({ item }) => (
       <ReplyItem
         key={item.id}
         reply={item as Reply}
         topicId={lastPage.id}
         once={lastPage.once}
-        hightlight={index === params.initialScrollIndex}
-        index={item.index}
+        hightlight={
+          params.hightlightReplyNo
+            ? params.hightlightReplyNo === item.no
+            : undefined
+        }
         onReply={handleReplyItem}
       />
     ),
-    [lastPage.id, lastPage.once, params.initialScrollIndex, handleReplyItem]
+    [lastPage.id, lastPage.once, params.hightlightReplyNo, handleReplyItem]
   )
 
   const [avatarVisible, setAvatarVisible] = useState(true)
@@ -139,11 +147,11 @@ function TopicDetailScreen() {
         }}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
-          <TopicInfo topic={lastPage}>
+          <TopicInfo topic={lastPage} onAppend={handleAppend}>
             <View
               style={tw.style(`flex-row items-center justify-between pt-2`)}
             >
-              <Space style={tw`items-center`}>
+              <View style={tw`flex-1 flex-row justify-between items-center`}>
                 <VoteButton topic={lastPage} />
 
                 <View style={tw.style(`flex-row items-center`)}>
@@ -169,7 +177,9 @@ function TopicDetailScreen() {
                 <ThankTopic topic={lastPage} />
 
                 <LikeTopic topic={lastPage} />
-              </Space>
+              </View>
+
+              <View style={tw`flex-shrink-0 w-8`} />
 
               <RadioButtonGroup
                 options={
@@ -182,10 +192,7 @@ function TopicDetailScreen() {
                   }[]
                 }
                 value={orderBy}
-                onChange={value => {
-                  setOrderBy(value)
-                  if (hasNextPage) fetchNextPage()
-                }}
+                onChange={setOrderBy}
               />
             </View>
           </TopicInfo>

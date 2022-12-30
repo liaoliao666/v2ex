@@ -4,6 +4,7 @@ import { createMutation, createQuery } from 'react-query-kit'
 
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
+import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
 import { isLogined } from './helper'
 
@@ -54,9 +55,7 @@ export const useSignin = createMutation<string, Record<string, string>, Error>(
   async args => {
     const { headers, data } = await request.post(
       '/signin',
-      Object.entries(args)
-        .map(([key, val]) => `${key}=${encodeURI(val)}`)
-        .join('&'),
+      paramsSerializer(args),
       {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',

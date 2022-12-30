@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native'
 import {
   Fragment,
   forwardRef,
@@ -15,7 +16,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
-import { useReply } from '@/servicies/topic'
+import { useAppendTopic, useReply } from '@/servicies/topic'
 import { validateLoginStatus } from '@/utils/authentication'
 import tw from '@/utils/tw'
 import useUpdate from '@/utils/useUpdate'
@@ -23,17 +24,19 @@ import useUpdate from '@/utils/useUpdate'
 import StyledButton from '../StyledButton'
 
 export interface ReplyBoxRef {
-  replyFor: (username?: string) => void
+  replyFor: (replyTYpe?: ReplyType) => void
 }
+
+type ReplyType = { username?: string; isAppend?: boolean }
 
 const ReplyBox = forwardRef<
   ReplyBoxRef,
   { topicId: number; once?: string; onSuccess: () => void }
 >(({ topicId, once, onSuccess }, ref) => {
-  const replyMemberRef = useRef<string>()
+  const replyTypeRef = useRef<ReplyType>({})
 
   const { getContent, setContent, initContent } = useContent({
-    getReplyMember: () => replyMemberRef.current,
+    getReplyType: () => replyTypeRef.current,
     topicId,
   })
 
@@ -49,10 +52,10 @@ const ReplyBox = forwardRef<
   const inputRef = useRef<TextInput>(null)
 
   useImperativeHandle(ref, () => ({
-    replyFor: (username?: string) => {
+    replyFor: (replyType?: ReplyType) => {
       try {
         validateLoginStatus()
-        replyMemberRef.current = username
+        replyTypeRef.current = replyType || {}
         inputRef.current?.focus()
       } catch (error) {
         // empty
@@ -60,7 +63,11 @@ const ReplyBox = forwardRef<
     },
   }))
 
-  const { mutateAsync, isLoading } = useReply()
+  const replyMutation = useReply()
+
+  const appendTopicMutation = useAppendTopic()
+
+  const navigation = useNavigation()
 
   return (
     <Fragment>
@@ -90,10 +97,35 @@ const ReplyBox = forwardRef<
             )}
             multiline
             numberOfLines={3}
-            placeholder="发送你的评论"
+            placeholder={
+              replyTypeRef.current.isAppend ? '发送你的附言' : '发送你的评论'
+            }
             onChangeText={text => {
               if (isFocus) {
-                setContent(text.trim())
+                if (text.endsWith('@')) {
+                  navigation.navigate('SearchReplyMember', {
+                    topicId,
+                    onPressReplyMemberItem(member) {
+                      setContent(`${text}${member.username} `)
+                    },
+                  })
+                } else {
+                  const isDeleting = text.length < getContent().length
+                  const lastAtName = getContent().match(/(@\w+)$/)?.[1]
+
+                  if (isDeleting && lastAtName) {
+                    const prunedText = text.slice(
+                      0,
+                      text.length - lastAtName.length + 1
+                    )
+                    setContent(prunedText)
+                    inputRef.current?.setNativeProps({
+                      text: prunedText,
+                    })
+                  } else {
+                    setContent(text)
+                  }
+                }
               }
             }}
             onFocus={() => {
@@ -124,13 +156,17 @@ const ReplyBox = forwardRef<
             onPress={async () => {
               validateLoginStatus()
 
+              const { isLoading, mutateAsync } = replyTypeRef.current.isAppend
+                ? appendTopicMutation
+                : replyMutation
+
               if (isLoading) return
 
               try {
                 await mutateAsync({
                   once: once!,
                   topicId,
-                  content: getContent(),
+                  content: getContent().trim(),
                 })
 
                 blur()
@@ -159,18 +195,20 @@ const ReplyBox = forwardRef<
 const cacheContent: {
   replyTopicText: string
   replyMemberText: string
+  appendText: string
   topicId?: number
-  username?: string
+  replyName?: string
 } = {
   replyTopicText: '',
   replyMemberText: '',
+  appendText: '',
 }
 
 function useContent({
-  getReplyMember,
+  getReplyType,
   topicId,
 }: {
-  getReplyMember: () => string | void
+  getReplyType: () => ReplyType
   topicId: number
 }) {
   const update = useUpdate()
@@ -180,27 +218,35 @@ function useContent({
       Object.assign(cacheContent, {
         replyTopicText: '',
         replyMemberText: '',
+        appendText: '',
         topicId: topicId,
-        username: '',
+        replyName: '',
       })
     }
 
-    if (getReplyMember()) {
-      if (getReplyMember() !== cacheContent.username) {
+    const { username } = getReplyType()
+
+    if (username) {
+      if (username !== cacheContent.replyName) {
         Object.assign(cacheContent, {
-          replyMemberText: `@${getReplyMember()} `,
-          username: getReplyMember(),
+          replyMemberText: `@${username} `,
+          replyName: username,
         })
-      } else if (!getContent().includes(getReplyMember()!)) {
+      } else if (!getContent().trim()) {
         Object.assign(cacheContent, {
-          replyMemberText: `@${getReplyMember()} `,
+          replyMemberText: `@${username} `,
         })
       }
     }
   }
 
   function getTextKey() {
-    return getReplyMember() ? 'replyMemberText' : 'replyTopicText'
+    const { username, isAppend } = getReplyType()
+    return username
+      ? 'replyMemberText'
+      : isAppend
+      ? 'appendText'
+      : 'replyTopicText'
   }
 
   function setContent(text: string) {

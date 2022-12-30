@@ -79,6 +79,7 @@ export interface Supplement {
 
 export interface Reply {
   id: number
+  no: number
   content: string
   created: string
   member: {
@@ -90,7 +91,7 @@ export interface Reply {
   via?: string
   mod?: boolean
   op?: boolean
-  hasRelatedReplies?: boolean
+  has_related_replies?: boolean
 }
 
 export interface Topic {
@@ -118,6 +119,8 @@ export interface Topic {
   likes: number
   thanks: number
   id: number
+  editable?: boolean
+  appendable?: boolean
 }
 
 export interface Notice {

@@ -1,6 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { findIndex, isEmpty, last, uniqBy } from 'lodash-es'
+import { find, findIndex, isEmpty, last, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
@@ -27,12 +27,11 @@ import tw from '@/utils/tw'
 
 interface RelatedReply extends Reply {
   related: boolean
-  index: number
 }
 
 export default function RelatedRepliesScreen() {
   const {
-    params: { replyIndex, topicId },
+    params: { replyId, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
   const { data } = useTopicDetail({
@@ -41,21 +40,12 @@ export default function RelatedRepliesScreen() {
   })
 
   const flatedData = useMemo(
-    () =>
-      uniqBy(
-        (data?.pages.map(page => page.replies).flat() || []).map(
-          (item, index) => ({
-            ...item,
-            index,
-          })
-        ),
-        'id'
-      ),
+    () => uniqBy(data?.pages.map(page => page.replies).flat() || [], 'id'),
     [data?.pages]
   )
 
   const routes = useMemo(() => {
-    const currentReply = flatedData[replyIndex]
+    const currentReply = find(flatedData, { id: replyId })
     if (!currentReply) return []
     const replyName = currentReply.member.username
     const replyAtNameList = getAtNameList(currentReply.content)
@@ -76,7 +66,7 @@ export default function RelatedRepliesScreen() {
         relatedData: [],
       }
 
-      flatedData.forEach((reply, i) => {
+      flatedData.forEach(reply => {
         if (reply.member.username === replyName) {
           const related = isRelatedReply(reply.content, replyName, atName)
           const item = {
@@ -91,7 +81,8 @@ export default function RelatedRepliesScreen() {
         } else if (reply.member.username === atName) {
           result.avatar = reply.member.avatar
           const related =
-            replyIndex === i || isRelatedReply(reply.content, replyName, atName)
+            replyId === reply.id ||
+            isRelatedReply(reply.content, replyName, atName)
           const item = {
             ...reply,
             related,
@@ -110,8 +101,8 @@ export default function RelatedRepliesScreen() {
     })
 
     return results
-  }, [flatedData, replyIndex])
-
+  }, [flatedData, replyId])
+  replyId
   const [isSmartMode, setIsSmartMode] = useState<boolean>(true)
 
   const colorScheme = useAtomValue(colorSchemeAtom)
@@ -177,7 +168,7 @@ export default function RelatedRepliesScreen() {
                     key={route.key}
                     style={({ pressed }) =>
                       tw.style(
-                        `w-[100px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
+                        `w-[100px] px-1 flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
                         pressed && tw`bg-tab-press`
                       )
                     }
@@ -231,7 +222,6 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
         reply={item as Reply}
         topicId={lastPage.id}
         once={lastPage.once}
-        index={item.index}
         onReply={onReply}
         hideViewRelatedReplies
         related={item.related}

@@ -12,10 +12,10 @@ export default memo(NodeItem)
 
 function NodeItem({
   node,
-  onNodeItemPress,
+  onPressNodeItem,
 }: {
   node: Node
-  onNodeItemPress: (node: Node) => void
+  onPressNodeItem: (node: Node) => void
 }) {
   return (
     <Pressable
@@ -26,7 +26,7 @@ function NodeItem({
         )
       }
       onPress={() => {
-        onNodeItemPress(node)
+        onPressNodeItem(node)
       }}
     >
       <StyledImage
