@@ -4,7 +4,7 @@
 
 ## 预览
 
-![Preview](https://files.catbox.moe/cfxbpo.gif)
+![Preview](https://files.catbox.moe/q6sy9n.gif)
 
 ## 下载
 
