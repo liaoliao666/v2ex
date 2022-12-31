@@ -132,6 +132,7 @@ const NodeList = memo(({ nodes }: { nodes: Node[][] }) => {
 
   return (
     <FlatList
+      removeClippedSubviews
       style={tw`flex-1`}
       contentContainerStyle={tw`p-4`}
       renderItem={renderItem}

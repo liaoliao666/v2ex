@@ -21,7 +21,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         if (url) onPreview(url)
       }}
     >
-      <StyledImage style={style} source={{ uri: url }} />
+      <StyledImage style={style as any} source={{ uri: url }} />
     </Pressable>
   )
 }

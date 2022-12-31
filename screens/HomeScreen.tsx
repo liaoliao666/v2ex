@@ -175,6 +175,7 @@ function RecentTopics() {
 
   return (
     <FlatList
+      removeClippedSubviews
       data={flatedData}
       refreshControl={
         <StyledRefreshControl
@@ -218,6 +219,7 @@ function TabTopics({ tab }: { tab: string }) {
 
   return (
     <FlatList
+      removeClippedSubviews
       data={data}
       refreshControl={
         <StyledRefreshControl

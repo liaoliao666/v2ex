@@ -108,7 +108,7 @@ function TopicInfo({
 
       {!!topic.content && (
         <View style={tw`pt-2`}>
-          <Html source={{ html: topic.content }} />
+          <Html source={{ html: topic.content }} youtubePaddingX={32} />
         </View>
       )}
 

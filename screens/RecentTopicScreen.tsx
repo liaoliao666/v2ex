@@ -25,6 +25,7 @@ export default function RecentTopicScreen() {
       <NavBar title="最近浏览" />
 
       <FlatList
+        removeClippedSubviews
         data={recentTopics}
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}

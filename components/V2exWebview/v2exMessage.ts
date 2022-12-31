@@ -45,10 +45,10 @@ class V2exMessage {
         this.timeout = false
         this.linsteners.delete(id)
       }),
-      sleep(5 * 1000).then(() => {
+      sleep(6 * 1000).then(() => {
         this.timeout = true
         this.linsteners.delete(id)
-        throw new Error('Timeout')
+        return Promise.reject(new Error('Timeout'))
       }),
     ])
   }

@@ -17,6 +17,8 @@ v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
   outterReject = reject
 })
 
+const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
+
 export default function V2exWebview() {
   const webViewRef = useRef<WebView>(null)
 
@@ -25,7 +27,8 @@ export default function V2exWebview() {
     1
   )
 
-  v2exMessage.clearWebviewCache = () => {
+  v2exMessage.clearWebviewCache = async () => {
+    RCTNetworking.clearCookies(() => {})
     webViewRef.current?.clearCache?.(true)
     CookieManager.clearAll(true)
   }
@@ -73,8 +76,9 @@ export default function V2exWebview() {
       <WebView
         key={forceRenderKey}
         ref={webViewRef}
-        originWhitelist={['*']}
-        source={{ uri: `${baseURL}/signin` }}
+        source={{
+          uri: `${baseURL}/signin`,
+        }}
         onLoadEnd={() => outterResolve()}
         onError={() => {
           const err = new Error('请检查你的网络设置')

@@ -162,6 +162,7 @@ function MyFollowing() {
 
   return (
     <FlatList
+      removeClippedSubviews
       data={flatedData}
       refreshControl={
         <StyledRefreshControl
@@ -209,6 +210,7 @@ function MemberTopics({ username }: { username: string }) {
 
   return (
     <FlatList
+      removeClippedSubviews
       data={flatedData}
       refreshControl={
         <StyledRefreshControl

@@ -1,4 +1,4 @@
-# V2EX APP
+# V2exHi
 
 > V2EX 好看的第三方客户端，原生 App，支持夜间模式。
 
@@ -9,7 +9,7 @@
 ## 下载
 
 - [iOS App Store](https://apps.apple.com/cn/app/awesomev2ex/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.1.0/application-d05b3001-ee3e-4f73-8228-a48b88d6c73c.apk)
+- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.1.1/application-eaab03c3-1803-4144-aea0-700fe1c39f7f.apk)
 
 ## 本地运行
 

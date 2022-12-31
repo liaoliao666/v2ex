@@ -119,6 +119,7 @@ export default function SearchScreen() {
 
       {isSearchNode ? (
         <FlatList
+          removeClippedSubviews
           key={colorScheme}
           ListHeaderComponent={
             <View>
@@ -208,6 +209,7 @@ function SoV2exList({
 
   return (
     <FlatList
+      removeClippedSubviews
       data={flatedData}
       ListHeaderComponent={
         <View style={tw`px-4 py-2.5`}>

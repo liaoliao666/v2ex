@@ -71,6 +71,7 @@ function NotificationsScreen() {
       <NavBar title="未读提醒" />
 
       <FlatList
+        removeClippedSubviews
         key={colorScheme}
         data={flatedData}
         refreshControl={

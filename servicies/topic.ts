@@ -63,6 +63,7 @@ export const useTopicDetail = createInfiniteQuery<
       responseType: 'text',
       signal,
     })
+
     const $ = load(data)
 
     return {

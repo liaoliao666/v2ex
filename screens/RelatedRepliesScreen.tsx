@@ -233,6 +233,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
 
   return (
     <FlatList
+      removeClippedSubviews
       data={replies}
       renderItem={renderItem}
       onEndReached={() => {

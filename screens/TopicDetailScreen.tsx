@@ -130,6 +130,7 @@ function TopicDetailScreen() {
       </NavBar>
 
       <FlatList
+        removeClippedSubviews
         key={colorScheme}
         data={flatedData}
         refreshControl={

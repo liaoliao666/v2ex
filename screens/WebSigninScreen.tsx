@@ -1,4 +1,3 @@
-import { RouteProp, useRoute } from '@react-navigation/native'
 import { useRef, useState } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
@@ -6,15 +5,12 @@ import WebView from 'react-native-webview'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
 import { getNavigation } from '@/navigation/navigationRef'
-import { RootStackParamList } from '@/types'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
 import useUnmount from '@/utils/useUnmount'
 
-export default function GoogleSigninScreen() {
-  const { params } = useRoute<RouteProp<RootStackParamList, 'GoogleSignin'>>()
-
+export default function WebSigninScreen() {
   const [isLoading, setIsLoading] = useState(true)
 
   const webViewRef = useRef<WebView>(null)
@@ -25,18 +21,19 @@ export default function GoogleSigninScreen() {
 
   return (
     <View style={tw`flex-1`}>
-      <NavBar title="谷歌登录" />
+      <NavBar title="网页登录" />
 
       {isLoading && <LoadingIndicator />}
 
       <WebView
         ref={webViewRef}
-        originWhitelist={['*']}
+        // originWhitelist={['*']}
         onLoadEnd={() => {
           setIsLoading(false)
         }}
         style={tw.style(`flex-1`, isLoading && `hidden`)}
-        source={{ uri: `${baseURL}/auth/google?once=${params.once}` }}
+        // source={{ uri: `${baseURL}/auth/google?once=${params.once}` }}
+        source={{ uri: `${baseURL}/signin` }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
         decelerationRate="normal"

@@ -222,10 +222,7 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
               onPress={async () => {
-                if (!SigninInfoQuery.data?.once) return
-                navigation.navigate('GoogleSignin', {
-                  once: SigninInfoQuery.data.once,
-                })
+                navigation.navigate('Webignin')
               }}
             >
               <StyledImage
@@ -235,7 +232,7 @@ export default function LoginScreen() {
                 style={tw`w-5 h-5`}
               />
               <Text style={tw`text-body-5 text-tint-secondary ml-2`}>
-                Google 登录
+                网页登录
               </Text>
             </TouchableOpacity>
           </View>

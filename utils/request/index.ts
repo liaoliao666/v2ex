@@ -20,10 +20,17 @@ export const request = axios.create({
   baseURL,
   headers: {
     'Referrer-Policy': 'unsafe-url',
-    'X-Requested-With': 'XMLHttpRequest',
-    'cache-control': 'max-age=0',
   },
-  adapter: v2exMessage.sendMessage,
+})
+
+request.interceptors.request.use(config => {
+  return {
+    ...config,
+    adapter:
+      config.url && config.url.startsWith('http')
+        ? undefined
+        : v2exMessage.sendMessage,
+  }
 })
 
 request.interceptors.response.use(

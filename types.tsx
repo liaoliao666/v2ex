@@ -58,9 +58,7 @@ export type RootStackParamList = {
     url: string
     title: string
   }
-  GoogleSignin: {
-    once: string
-  }
+  Webignin: undefined
   RecentTopic: undefined
 }
 

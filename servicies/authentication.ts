@@ -34,7 +34,7 @@ export const useSigninInfo = createQuery(
 
     return {
       is_limit: !captcha,
-      captcha: `${captcha}?timestamp=${Date.now()}`,
+      captcha: `${captcha}?now=${Date.now()}`,
       once: $(
         '#Main > div.box > div.cell > form > table > tbody > tr:nth-child(4) > td:nth-child(2) > input[type=hidden]:nth-child(1)'
       ).attr('value'),
@@ -48,6 +48,10 @@ export const useSigninInfo = createQuery(
         '#Main > div.box > div.cell > form > table > tbody > tr:nth-child(3) > td:nth-child(2) > input'
       ).attr('name'),
     }
+  },
+  {
+    cacheTime: 0,
+    staleTime: 0,
   }
 )
 
@@ -59,8 +63,8 @@ export const useSignin = createMutation<string, Record<string, string>, Error>(
       {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
-          origin: baseURL,
           Referer: `${baseURL}/signin`,
+          origin: baseURL,
         },
       }
     )
@@ -74,8 +78,12 @@ export const useSignin = createMutation<string, Record<string, string>, Error>(
       ? Promise.resolve(cookie)
       : Promise.reject(
           new Error(
-            $(`#Main > div.box > div.problem > ul > li`).eq(0).text().trim() ||
-              '登录失败'
+            `${
+              $(`#Main > div.box > div.problem > ul > li`)
+                .eq(0)
+                .text()
+                .trim() || '登录失败'
+            }，可尝试网页登录`
           )
         )
   }

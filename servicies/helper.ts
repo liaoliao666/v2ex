@@ -9,10 +9,11 @@ import { getURLSearchParams } from '@/utils/url'
 import { Member, Node, Profile, Reply, Topic } from './types'
 
 export function parseTimestamp(timestamp: string) {
-  return timestamp.replace(` +08:00`, ``)
+  return timestamp?.replace(` +08:00`, ``)
 }
 
 export function parseVia(via: string) {
+  if (!via) return ''
   if (via.includes('iPhone')) return 'iPhone'
   if (via.includes('Android')) return 'Android'
   return undefined
@@ -242,7 +243,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
         appendable: opHrefs.some(href => href.includes('/append/topic')),
       }
     }),
-    title: $('h1').text(),
+    title: $('h1').eq(0).text(),
     created: parseTimestamp($('small.gray > span').attr('title')!),
     content: $('.topic_content').html()!,
     via: parseVia($('small.gray').text().split('·')[1]),

@@ -59,8 +59,9 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
 
 export default function Html({
   inModalScreen,
+  youtubePaddingX,
   ...renderHTMLProps
-}: RenderHTMLProps & { inModalScreen?: boolean }) {
+}: RenderHTMLProps & { inModalScreen?: boolean; youtubePaddingX?: number }) {
   const mergedProps = {
     ...defaultProps,
     ...renderHTMLProps,
@@ -97,8 +98,9 @@ export default function Html({
               imageUrls,
             })
           },
+          youtubePaddingX,
         }),
-        [imageUrls, setImageViewer]
+        [imageUrls, setImageViewer, youtubePaddingX]
       )}
     >
       <RenderHtml

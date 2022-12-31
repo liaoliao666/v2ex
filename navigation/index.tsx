@@ -17,7 +17,6 @@ import { Platform } from 'react-native'
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import GItHubMDScreen from '@/screens/GItHubMD'
-import GoogleSigninScreen from '@/screens/GoogleSigninScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import LoginScreen from '@/screens/LoginScreen'
 import MemberDetailScreen from '@/screens/MemberDetailScreen'
@@ -36,6 +35,7 @@ import SearchReplyMemberScreen from '@/screens/SearchReplyMemberScreen'
 import SearchScreen from '@/screens/SearchScreen'
 import SortTabsScreen from '@/screens/SortTabsScreen'
 import TopicDetailScreen from '@/screens/TopicDetailScreen'
+import WebSigninScreen from '@/screens/WebSigninScreen'
 import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -128,7 +128,7 @@ function StackNavigator() {
 
       <Stack.Screen name="GItHubMD" component={GItHubMDScreen} />
 
-      <Stack.Screen name="GoogleSignin" component={GoogleSigninScreen} />
+      <Stack.Screen name="Webignin" component={WebSigninScreen} />
 
       <Stack.Screen name="RecentTopic" component={RecentTopicScreen} />
 

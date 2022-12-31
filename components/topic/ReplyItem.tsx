@@ -128,6 +128,7 @@ function ReplyItem({
             <Html
               source={{ html: reply.content }}
               inModalScreen={inModalScreen}
+              youtubePaddingX={32 + 36}
             />
           </View>
 
