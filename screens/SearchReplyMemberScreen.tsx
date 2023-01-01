@@ -94,12 +94,7 @@ const MemberItem = memo(
   }) => {
     return (
       <Pressable
-        style={({ pressed }) =>
-          tw.style(
-            `h-[${NAV_BAR_HEIGHT}px] px-4 flex-row items-center`,
-            pressed && `bg-message-press`
-          )
-        }
+        style={tw`h-[${NAV_BAR_HEIGHT}px] px-4 flex-row items-center`}
         onPress={() => {
           onPressMember(member)
         }}

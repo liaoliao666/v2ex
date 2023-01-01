@@ -34,6 +34,7 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
   'useRecentTopics',
   async ({ pageParam, signal }) => {
     const page = pageParam ?? 1
+
     const { data } = await request.get(`/recent?p=${page}`, {
       responseType: 'text',
       signal,

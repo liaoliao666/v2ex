@@ -33,6 +33,7 @@ import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
+import DebouncePressable from '@/components/DebouncePressable'
 import Html from '@/components/Html'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import Money from '@/components/Money'
@@ -571,11 +572,9 @@ const MemberReply = memo(
     const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
     return (
-      <Pressable
+      <DebouncePressable
         key={topic.id}
-        style={({ pressed }) =>
-          tw.style(`px-4 py-3 bg-body-1`, pressed && 'bg-message-press')
-        }
+        style={tw`px-4 py-3 bg-body-1`}
         onPress={() => {
           navigation.push('TopicDetail', { id: topic.id })
         }}
@@ -619,7 +618,7 @@ const MemberReply = memo(
           </Separator>
           <Html source={{ html: topic.reply.content }} />
         </View>
-      </Pressable>
+      </DebouncePressable>
     )
   }
 )

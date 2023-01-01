@@ -4,7 +4,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { Suspense, useMemo } from 'react'
-import { AppStateStatus, Platform } from 'react-native'
+import { AppStateStatus, LogBox, Platform } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
@@ -27,6 +27,10 @@ import './utils/dayjsPlugins'
 import { asyncStoragePersister, queryClient } from './utils/query'
 import tw from './utils/tw'
 import { useAppState } from './utils/useAppState'
+
+LogBox.ignoreLogs([
+  'Non-serializable values were found in the navigation state',
+])
 
 // enabledNetworkInspect()
 

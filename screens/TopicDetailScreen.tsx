@@ -206,7 +206,7 @@ function TopicDetailScreen() {
         ListEmptyComponent={
           <View style={tw`items-center justify-center py-16`}>
             <Text style={tw`text-tint-secondary text-body-6`}>
-              目前还没有未读提醒
+              目前还没有回复
             </Text>
           </View>
         }

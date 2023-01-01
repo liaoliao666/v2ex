@@ -4,7 +4,7 @@ import { load } from 'cheerio'
 import Constants from 'expo-constants'
 import { useSetAtom } from 'jotai'
 import { findIndex, first, isString } from 'lodash-es'
-import { useMemo } from 'react'
+import { memo, useMemo } from 'react'
 import { useWindowDimensions } from 'react-native'
 import RenderHtml, {
   HTMLContentModel,
@@ -57,7 +57,13 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   systemFonts: Constants.systemFonts,
 }
 
-export default function Html({
+export default memo(
+  Html,
+  (prevProps, nextProps) =>
+    (prevProps.source as any)?.html! !== (nextProps.source as any)?.html
+)
+
+function Html({
   inModalScreen,
   youtubePaddingX,
   ...renderHTMLProps

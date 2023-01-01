@@ -83,7 +83,7 @@ export const useSignin = createMutation<string, Record<string, string>, Error>(
                 .eq(0)
                 .text()
                 .trim() || '登录失败'
-            }，可尝试网页登录`
+            }，也可尝试网页登录`
           )
         )
   }

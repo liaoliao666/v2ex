@@ -6,16 +6,7 @@ import tw from '@/utils/tw'
 
 const RATIO = 1.7
 
-export default function IconButton({
-  color,
-  activeColor,
-  name,
-  size = 22.5,
-  onPress,
-  active,
-  icon,
-  pressed: outerPressed,
-}: {
+export interface IconButtonProps {
   backgroundColor?: string
   color?: string
   activeColor?: string
@@ -25,42 +16,52 @@ export default function IconButton({
   active?: boolean
   icon?: ReactNode
   pressed?: boolean
-}) {
+}
+
+export default function IconButton(props: IconButtonProps) {
+  return typeof props.pressed === 'boolean' ? (
+    <IconButtonImpl {...props} />
+  ) : (
+    <Pressable onPress={props.onPress} style={tw`flex-row items-center`}>
+      {({ pressed }) => <IconButtonImpl {...props} pressed={pressed} />}
+    </Pressable>
+  )
+}
+
+function IconButtonImpl({
+  color,
+  activeColor,
+  name,
+  size = 22.5,
+  active,
+  icon,
+  pressed,
+}: IconButtonProps) {
   const blurSize = size * RATIO
 
-  function renderIconButton(pressed: boolean) {
-    return (
-      <View style={tw`items-center justify-center`}>
-        <View
-          style={tw.style(
-            `w-[${blurSize}px] h-[${blurSize}px] -m-[${
-              (blurSize - size) / 2
-            }px] rounded-full overflow-hidden absolute`,
+  return (
+    <View style={tw`items-center justify-center`}>
+      <View
+        style={tw.style(
+          `w-[${blurSize}px] h-[${blurSize}px] -m-[${
+            (blurSize - size) / 2
+          }px] rounded-full overflow-hidden absolute`,
 
-            pressed && `bg-[${activeColor}] bg-opacity-20`
-          )}
-        />
-        {isValidElement(icon) ? (
-          cloneElement(icon as any, {
-            size,
-            color: pressed || active ? activeColor : color,
-          })
-        ) : (
-          <MaterialCommunityIcons
-            name={name}
-            size={size}
-            color={pressed || active ? activeColor : color}
-          />
+          pressed && `bg-[${activeColor}] bg-opacity-20`
         )}
-      </View>
-    )
-  }
-
-  return typeof outerPressed === 'boolean' ? (
-    renderIconButton(outerPressed)
-  ) : (
-    <Pressable onPress={onPress} style={tw`flex-row items-center`}>
-      {({ pressed: innerPressed }) => renderIconButton(innerPressed)}
-    </Pressable>
+      />
+      {isValidElement(icon) ? (
+        cloneElement(icon as any, {
+          size,
+          color: pressed || active ? activeColor : color,
+        })
+      ) : (
+        <MaterialCommunityIcons
+          name={name}
+          size={size}
+          color={pressed || active ? activeColor : color}
+        />
+      )}
+    </View>
   )
 }

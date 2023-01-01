@@ -9,6 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
+import DebouncePressable from '@/components/DebouncePressable'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
@@ -105,7 +106,7 @@ const NoticeItem = memo(({ notice }: { notice: Notice }) => {
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   return (
-    <Pressable
+    <DebouncePressable
       style={tw`flex-row flex-wrap p-4`}
       onPress={() => {
         navigation.push('TopicDetail', {
@@ -162,7 +163,7 @@ const NoticeItem = memo(({ notice }: { notice: Notice }) => {
           </View>
         )}
       </View>
-    </Pressable>
+    </DebouncePressable>
   )
 })
 

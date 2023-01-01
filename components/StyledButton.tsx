@@ -89,7 +89,7 @@ export default function StyledButton({
             mini: tw`px-1 py-0.5`,
           }[size],
           {
-            default: size === 'mini' ? tw`rounded-sm` : tw`rounded-lg`,
+            default: size === 'mini' ? tw`rounded` : tw`rounded-lg`,
             rounded: tw`rounded-full`,
             rectangular: tw`rounded-none`,
           }[shape],

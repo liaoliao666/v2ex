@@ -10,6 +10,7 @@ import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
+import DebouncePressable from '../DebouncePressable'
 import Separator from '../Separator'
 import Space from '../Space'
 import StyledButton from '../StyledButton'
@@ -33,13 +34,8 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
   })
 
   return (
-    <Pressable
-      style={({ pressed }) =>
-        tw.style(
-          `px-4 py-3 flex-row bg-body-1`,
-          pressed && !isDisabledPress?.() && 'bg-message-press'
-        )
-      }
+    <DebouncePressable
+      style={tw`px-4 py-3 flex-row bg-body-1`}
       onPress={() => {
         if (isDisabledPress?.()) return
         navigation.push('TopicDetail', { id: topic.id })
@@ -66,6 +62,13 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
       )}
       <View style={tw`flex-1`}>
         <Space style={tw`items-center`}>
+          <Text
+            style={tw`text-tint-primary text-body-5 flex-1`}
+            numberOfLines={1}
+          >
+            {topic.member?.username}
+          </Text>
+
           {!!topic.node?.title && (
             <StyledButton
               size="mini"
@@ -77,12 +80,6 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
               {topic.node?.title}
             </StyledButton>
           )}
-          <Text
-            style={tw`text-tint-primary text-body-5 flex-1`}
-            numberOfLines={1}
-          >
-            {topic.member?.username}
-          </Text>
         </Space>
 
         <Text
@@ -127,6 +124,6 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
           ])}
         </Separator>
       </View>
-    </Pressable>
+    </DebouncePressable>
   )
 }

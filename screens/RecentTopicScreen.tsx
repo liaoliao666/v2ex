@@ -5,6 +5,7 @@ import { memo, useCallback } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import DebouncePressable from '@/components/DebouncePressable'
 import NavBar from '@/components/NavBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledImage from '@/components/StyledImage'
@@ -48,13 +49,8 @@ const RecentTopicItem = memo(
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
     return (
-      <Pressable
-        style={({ pressed }) =>
-          tw.style(
-            `px-4 py-3 flex-row bg-body-1`,
-            pressed && 'bg-message-press'
-          )
-        }
+      <DebouncePressable
+        style={tw`px-4 py-3 flex-row bg-body-1`}
         onPress={() => {
           navigation.push('TopicDetail', { id: recentTopic.id })
         }}
@@ -88,7 +84,7 @@ const RecentTopicItem = memo(
             {recentTopic.title}
           </Text>
         </View>
-      </Pressable>
+      </DebouncePressable>
     )
   }
 )

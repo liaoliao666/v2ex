@@ -8,6 +8,7 @@ import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { z } from 'zod'
 
+import DebouncePressable from '@/components/DebouncePressable'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import NavBar from '@/components/NavBar'
@@ -18,7 +19,6 @@ import Separator, { LineSeparator } from '@/components/Separator'
 import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
-import StyledPressable from '@/components/StyledPressable'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useNodes } from '@/servicies/node'
@@ -273,10 +273,8 @@ const HitItem = ({
   })
 
   return (
-    <StyledPressable
-      style={({ pressed }) =>
-        tw.style(`px-4 py-3 flex-row bg-body-1`, pressed && 'bg-message-press')
-      }
+    <DebouncePressable
+      style={tw`px-4 py-3 flex-row bg-body-1`}
       onPress={() => {
         navigation.push('TopicDetail', { id: topic.id })
       }}
@@ -338,6 +336,6 @@ const HitItem = ({
           </View>
         )}
       </View>
-    </StyledPressable>
+    </DebouncePressable>
   )
 }

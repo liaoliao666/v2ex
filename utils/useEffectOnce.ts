@@ -6,16 +6,3 @@ const useEffectOnce = (effect: EffectCallback) => {
 }
 
 export default useEffectOnce
-
-// const profile = useAtomValue(profileAtom)
-// const shouldCache = !!profile
-
-// const webViewRef = useRef<WebView>(null)
-
-// useUpdateEffect(() => {
-//   if (!shouldCache) {
-//     console.log(111)
-
-//     v2exMessage.reloadWebview()
-//   }
-// }, [shouldCache])

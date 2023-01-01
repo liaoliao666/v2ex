@@ -3,6 +3,13 @@ import { noop, pick, uniqueId } from 'lodash-es'
 
 import { sleep } from '@/utils/sleep'
 
+class SendMEssageTimeoutError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'SendMEssageTimeoutError'
+  }
+}
+
 class V2exMessage {
   linsteners: Map<string, (response: any) => void> = new Map()
   loadV2exWebviewPromise: Promise<void> = Promise.resolve()
@@ -12,10 +19,15 @@ class V2exMessage {
     config: AxiosRequestConfig
   }) => void = noop
   clearWebviewCache: () => void = noop
-  reloadWebview: () => void = noop
+  reloadWebview: () => void = () => Promise.resolve()
+
+  injectCheckConnectScript: () => Promise<void> = () => Promise.resolve()
+  checkConnectPromise: Promise<void> = Promise.resolve()
+  checkConnectTimeElapsed: number = 0
 
   constructor() {
     this.sendMessage = this.sendMessage.bind(this)
+    this.checkConnect = this.checkConnect.bind(this)
   }
 
   async sendMessage(
@@ -45,12 +57,30 @@ class V2exMessage {
         this.timeout = false
         this.linsteners.delete(id)
       }),
-      sleep(6 * 1000).then(() => {
-        this.timeout = true
-        this.linsteners.delete(id)
-        return Promise.reject(new Error('Timeout'))
-      }),
+      sleep(5 * 1000).then(() =>
+        Promise.reject(new SendMEssageTimeoutError('timeout'))
+      ),
     ])
+      .catch(async err => {
+        if (err instanceof SendMEssageTimeoutError) {
+          await this.checkConnect()
+          this.timeout = true
+        }
+        return Promise.reject(err)
+      })
+      .finally(() => this.linsteners.delete(id))
+  }
+
+  private async checkConnect() {
+    const diffMins = (Date.now() - this.checkConnectTimeElapsed) / 1000 / 60
+    if (diffMins < 5) return this.checkConnectPromise
+
+    this.checkConnectTimeElapsed = Date.now()
+    this.checkConnectPromise = this.injectCheckConnectScript().catch(() => {
+      this.reloadWebview()
+    })
+
+    return this.checkConnectPromise
   }
 }
 

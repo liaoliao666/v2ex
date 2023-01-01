@@ -128,7 +128,7 @@ function StackNavigator() {
 
       <Stack.Screen name="GItHubMD" component={GItHubMDScreen} />
 
-      <Stack.Screen name="Webignin" component={WebSigninScreen} />
+      <Stack.Screen name="WebSignin" component={WebSigninScreen} />
 
       <Stack.Screen name="RecentTopic" component={RecentTopicScreen} />
 

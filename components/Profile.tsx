@@ -173,8 +173,9 @@ function Profile() {
       ) : (
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
-          onPress={() => {
+          onPress={async () => {
             v2exMessage.clearWebviewCache()
+            v2exMessage.reloadWebview()
             navigation.navigate('Login')
           }}
         >
