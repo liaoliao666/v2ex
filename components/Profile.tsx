@@ -26,13 +26,13 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { useSignout } from '@/servicies/authentication'
 import { RootStackParamList } from '@/types'
+import { clearCookie } from '@/utils/cookie'
 import tw from '@/utils/tw'
 import { openURL } from '@/utils/url'
 
 import Badge from './Badge'
 import { withQuerySuspense } from './QuerySuspense'
 import RadioButtonGroup from './RadioButtonGroup'
-import v2exMessage from './V2exWebview/v2exMessage'
 
 export default withQuerySuspense(memo(Profile))
 
@@ -174,8 +174,7 @@ function Profile() {
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
           onPress={async () => {
-            v2exMessage.clearWebviewCache()
-            v2exMessage.reloadWebview()
+            clearCookie()
             navigation.navigate('Login')
           }}
         >
@@ -306,7 +305,8 @@ function SignoutItem({ once }: { once: string }) {
       // empty
     } finally {
       setProfileAtom(RESET)
-      v2exMessage.clearWebviewCache()
+      // v2exMessage.clearWebviewCache()
+      clearCookie()
     }
   }
 

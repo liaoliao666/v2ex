@@ -222,8 +222,10 @@ export default function LoginScreen() {
             <TouchableOpacity
               style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
               onPress={() => {
-                if (signinMutation.isLoading) return
-                navigation.navigate('WebSignin')
+                if (!SigninInfoQuery.data?.once) return
+                navigation.navigate('WebSignin', {
+                  once: SigninInfoQuery.data.once,
+                })
               }}
             >
               <StyledImage

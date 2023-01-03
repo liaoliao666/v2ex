@@ -101,7 +101,6 @@ function MyNodesScreen() {
       <NavBar title="节点收藏" />
 
       <FlatList
-        removeClippedSubviews
         key={colorScheme}
         contentContainerStyle={tw`p-4`}
         renderItem={renderItem}

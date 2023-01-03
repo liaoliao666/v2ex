@@ -124,7 +124,6 @@ function NodeTopicsScreen() {
       </NavBar>
 
       <FlatList
-        removeClippedSubviews
         key={colorScheme}
         data={flatedData}
         ListHeaderComponent={

@@ -79,15 +79,15 @@ function Html({
 
   const setImageViewer = useSetAtom(imageViewerAtom)
 
-  const imageUrls = useMemo(() => {
+  const images = useMemo(() => {
     if (!isString(html)) return []
     const $ = load(html)
     return $('img')
       .map((i, img) => ({
-        url: $(img).attr('src')!,
+        uri: $(img).attr('src')!,
       }))
       .get()
-      .filter(item => !!item.url)
+      .filter(item => !!item.uri)
   }, [html])
 
   const navigation =
@@ -97,16 +97,16 @@ function Html({
     <HtmlContext.Provider
       value={useMemo(
         () => ({
-          onPreview: url => {
+          onPreview: uri => {
             setImageViewer({
-              index: findIndex(imageUrls, { url }),
+              imageIndex: findIndex(images, { uri }),
               visible: true,
-              imageUrls,
+              images,
             })
           },
           youtubePaddingX,
         }),
-        [imageUrls, setImageViewer, youtubePaddingX]
+        [images, setImageViewer, youtubePaddingX]
       )}
     >
       <RenderHtml

@@ -14,7 +14,6 @@ import '@/utils/dayjsPlugins'
 
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
-import V2exWebview from './components/V2exWebview'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
@@ -78,7 +77,7 @@ function App() {
 
           <StyledToast />
 
-          <V2exWebview />
+          {/* <V2exWebview /> */}
         </PersistQueryClientProvider>
       </Provider>
     </ActionSheetProvider>
@@ -108,9 +107,9 @@ function GlobalImageViewer() {
   const [imageViewer, setImageViewer] = useAtom(imageViewerAtom)
   return (
     <StyledImageViewer
-      {...imageViewer}
-      onClose={() =>
-        setImageViewer({ visible: false, index: 0, imageUrls: [] })
+      {...(imageViewer as any)}
+      onRequestClose={() =>
+        setImageViewer({ visible: false, imageIndex: 0, images: [] })
       }
     />
   )

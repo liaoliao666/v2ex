@@ -1,12 +1,12 @@
+import CookieManager from '@react-native-cookies/cookies'
 import { load } from 'cheerio'
-import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
-import { isLogined } from './helper'
+import { isLogined, updateStoreWithData } from './helper'
 
 export const useSignout = createMutation<void, { once: string }>(
   async ({ once }) => {
@@ -55,36 +55,44 @@ export const useSigninInfo = createQuery(
   }
 )
 
-export const useSignin = createMutation<string, Record<string, string>, Error>(
+export const useSignin = createMutation<void, Record<string, string>, Error>(
   async args => {
-    const { headers, data } = await request.post(
-      '/signin',
-      paramsSerializer(args),
-      {
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          Referer: `${baseURL}/signin`,
-          origin: baseURL,
-        },
-      }
-    )
+    const response = await fetch(`${baseURL}/signin`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Referer: `${baseURL}/signin`,
+        origin: baseURL,
+      },
+      body: paramsSerializer(args),
+    })
+
+    const { headers } = response
+
+    const data = await response.text()
+
+    updateStoreWithData(data)
 
     const $ = load(data)
 
-    const cookie = isArray(headers['set-cookie'])
-      ? headers['set-cookie'].join(';')
-      : ''
-    return isLogined($)
-      ? Promise.resolve(cookie)
-      : Promise.reject(
-          new Error(
-            `${
-              $(`#Main > div.box > div.problem > ul > li`)
-                .eq(0)
-                .text()
-                .trim() || '登录失败'
-            }，也可尝试网页登录`
-          )
-        )
+    if (isLogined($)) {
+      return CookieManager.setFromResponse(
+        baseURL,
+        headers.get('set-cookie')!
+      ).then(value =>
+        value
+          ? Promise.resolve()
+          : Promise.reject(new Error(`登录失败，也可尝试网页登录`))
+      )
+    }
+
+    return Promise.reject(
+      new Error(
+        `${
+          $(`#Main > div.box > div.problem > ul > li`).eq(0).text().trim() ||
+          '登录失败'
+        }，也可尝试网页登录`
+      )
+    )
   }
 )

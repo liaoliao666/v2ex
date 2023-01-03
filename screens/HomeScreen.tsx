@@ -72,13 +72,18 @@ function HomeScreen() {
         onSwipeEnd={() => {
           isSwiping = false
         }}
-        renderScene={({ route }) =>
-          route.key === 'recent' ? (
-            <MemoRecentTopics />
+        renderScene={({ route }) => {
+          const refetchOnWindowFocus =
+            index === findIndex(tabs, { key: route.key })
+          return route.key === 'recent' ? (
+            <MemoRecentTopics refetchOnWindowFocus={refetchOnWindowFocus} />
           ) : (
-            <MemoTabTopics tab={route.key} />
+            <MemoTabTopics
+              refetchOnWindowFocus={refetchOnWindowFocus}
+              tab={route.key}
+            />
           )
-        }
+        }}
         onIndexChange={i => {
           if (tabs[i].key === 'recent') {
             queryClient.refetchQueries(useRecentTopics.getKey())
@@ -153,10 +158,15 @@ function HomeScreen() {
   )
 }
 
-function RecentTopics() {
+function RecentTopics({
+  refetchOnWindowFocus,
+}: {
+  refetchOnWindowFocus: boolean
+}) {
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useRecentTopics({
       suspense: true,
+      refetchOnWindowFocus,
     })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -175,7 +185,6 @@ function RecentTopics() {
 
   return (
     <FlatList
-      removeClippedSubviews
       data={flatedData}
       refreshControl={
         <StyledRefreshControl
@@ -202,10 +211,17 @@ function RecentTopics() {
   )
 }
 
-function TabTopics({ tab }: { tab: string }) {
+function TabTopics({
+  tab,
+  refetchOnWindowFocus,
+}: {
+  tab: string
+  refetchOnWindowFocus: boolean
+}) {
   const { data, refetch } = useTabTopics({
     variables: { tab },
     suspense: true,
+    refetchOnWindowFocus,
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -219,7 +235,6 @@ function TabTopics({ tab }: { tab: string }) {
 
   return (
     <FlatList
-      removeClippedSubviews
       data={data}
       refreshControl={
         <StyledRefreshControl

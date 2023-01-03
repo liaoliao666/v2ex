@@ -74,7 +74,6 @@ export default function SearchReplyMemberScreen() {
       </NavBar>
 
       <FlatList
-        removeClippedSubviews
         key={colorScheme}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         data={matchReplyMembers}

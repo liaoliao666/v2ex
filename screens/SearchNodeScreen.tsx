@@ -77,7 +77,6 @@ export default function SearchNodeScreen() {
       </NavBar>
 
       <FlatList
-        removeClippedSubviews
         key={colorScheme}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         data={matchNodes}

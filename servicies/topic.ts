@@ -50,6 +50,7 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
   },
   {
     getNextPageParam,
+    cacheTime: 1000 * 60 * 60 * 1, // 1 hours
   }
 )
 

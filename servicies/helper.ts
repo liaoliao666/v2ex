@@ -1,8 +1,12 @@
-import { Cheerio, CheerioAPI, Element } from 'cheerio'
-import { defaultTo } from 'lodash-es'
+import { Cheerio, CheerioAPI, Element, load } from 'cheerio'
+import { RESET } from 'jotai/utils'
+import { defaultTo, isEqual } from 'lodash-es'
 import { isString } from 'twrnc/dist/esm/types'
 
-import { RecentTopic } from '@/jotai/recentTopicsAtom'
+import { navNodesAtom } from '@/jotai/navNodesAtom'
+import { profileAtom } from '@/jotai/profileAtom'
+import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { store } from '@/jotai/store'
 import { invoke } from '@/utils/invoke'
 import { getURLSearchParams } from '@/utils/url'
 
@@ -442,4 +446,50 @@ export function parseRecentTopics($: CheerioAPI) {
       } as RecentTopic
     })
     .get()
+}
+
+export function updateStoreWithData(data: any) {
+  if (typeof data !== 'string') return
+
+  const $ = load(data)
+
+  function updateProfile() {
+    const hasProfile = !!$('#Rightbar #money').length
+    if (hasProfile) {
+      const newProfile = parseProfile($)
+
+      store.set(profileAtom, prev =>
+        isEqual(newProfile, prev) ? prev : newProfile
+      )
+    } else if (
+      $('#Top div.tools > a:nth-child(3)').attr('href')?.includes('signin')
+    ) {
+      store.set(profileAtom, RESET)
+    }
+  }
+
+  function updateNavNodes() {
+    const $nodesBox = $(`#Main .box`).eq(1)
+    const hasNavAtoms = $nodesBox.find('.fr a').eq(0).attr('href') === '/planes'
+    if (!hasNavAtoms) return
+
+    const newNavAtoms = parseNavAtoms($)
+    store.set(navNodesAtom, prev =>
+      isEqual(newNavAtoms, prev) ? prev : newNavAtoms
+    )
+  }
+
+  function updateRecentTopics() {
+    if ($(`#my-recent-topics`).length) {
+      store.set(recentTopicsAtom, parseRecentTopics($))
+    }
+  }
+
+  try {
+    updateProfile()
+    updateNavNodes()
+    updateRecentTopics()
+  } catch (error) {
+    // empty
+  }
 }

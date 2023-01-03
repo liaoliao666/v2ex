@@ -60,7 +60,6 @@ function MyTopicsScreen() {
       <NavBar title="主题收藏" />
 
       <FlatList
-        removeClippedSubviews
         key={colorScheme}
         data={flatedData}
         refreshControl={
