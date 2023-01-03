@@ -235,7 +235,7 @@ export default function LoginScreen() {
                 style={tw`w-5 h-5`}
               />
               <Text style={tw`text-body-5 text-tint-secondary ml-2`}>
-                网页登录
+                谷歌登录
               </Text>
             </TouchableOpacity>
           </View>

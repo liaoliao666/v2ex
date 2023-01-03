@@ -25,6 +25,15 @@ export default function WebSigninScreen() {
     webViewRef.current?.clearCache?.(true)
   })
 
+  const isGobackRef = useRef(false)
+
+  function goBackWithRefetch() {
+    if (isGobackRef.current) return
+    isGobackRef.current = true
+    getNavigation()?.pop(2)
+    queryClient.refetchQueries({ type: 'active' })
+  }
+
   return (
     <View style={tw`flex-1`}>
       <NavBar title="谷歌登录" />
@@ -53,6 +62,8 @@ export default function WebSigninScreen() {
         renderLoading={() => <View />}
         onNavigationStateChange={async state => {
           if (state.url.startsWith(`${baseURL}/auth/google?code`)) {
+            setIsLoading(true)
+
             const response = await fetch(state.url, {
               headers: {
                 Referer: `https://accounts.google.com/`,
@@ -65,19 +76,16 @@ export default function WebSigninScreen() {
             )
 
             updateStoreWithData(await response.text())
-
-            getNavigation()?.pop(2)
-            queryClient.refetchQueries({ type: 'active' })
+            goBackWithRefetch()
           }
         }}
-        // onMessage={async event => {
-        //   const isSignin = event.nativeEvent.data
+        onMessage={async event => {
+          const isSignin = event.nativeEvent.data
 
-        //   if (isSignin === 'true') {
-        //     getNavigation()?.pop(2)
-        //     queryClient.refetchQueries({ type: 'active' })
-        //   }
-        // }}
+          if (isSignin === 'true') {
+            goBackWithRefetch()
+          }
+        }}
         userAgent={
           Platform.OS === 'android'
             ? `Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36`

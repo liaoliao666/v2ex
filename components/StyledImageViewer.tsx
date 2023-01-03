@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import ImageView from 'react-native-image-viewing'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import { savePicture } from '@/utils/savePicture'

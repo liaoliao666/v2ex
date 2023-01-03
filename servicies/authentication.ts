@@ -62,6 +62,7 @@ export const useSignin = createMutation<void, Record<string, string>, Error>(
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Referer: `${baseURL}/signin`,
+        'User-Agent': `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`,
         origin: baseURL,
       },
       body: paramsSerializer(args),
@@ -80,9 +81,7 @@ export const useSignin = createMutation<void, Record<string, string>, Error>(
         baseURL,
         headers.get('set-cookie')!
       ).then(value =>
-        value
-          ? Promise.resolve()
-          : Promise.reject(new Error(`登录失败，也可尝试网页登录`))
+        value ? Promise.resolve() : Promise.reject(new Error(`登录失败`))
       )
     }
 
@@ -91,7 +90,7 @@ export const useSignin = createMutation<void, Record<string, string>, Error>(
         `${
           $(`#Main > div.box > div.problem > ul > li`).eq(0).text().trim() ||
           '登录失败'
-        }，也可尝试网页登录`
+        }`
       )
     )
   }

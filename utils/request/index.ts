@@ -6,9 +6,6 @@ import { baseURL } from './baseURL'
 
 export const request = axios.create({
   baseURL,
-  headers: {
-    'Referrer-Policy': 'unsafe-url',
-  },
 })
 
 request.interceptors.request.use(config => {
