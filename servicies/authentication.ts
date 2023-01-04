@@ -1,12 +1,12 @@
-import CookieManager from '@react-native-cookies/cookies'
 import { load } from 'cheerio'
+import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
-import { isLogined, updateStoreWithData } from './helper'
+import { isLogined } from './helper'
 
 export const useSignout = createMutation<void, { once: string }>(
   async ({ once }) => {
@@ -55,43 +55,78 @@ export const useSigninInfo = createQuery(
   }
 )
 
-export const useSignin = createMutation<void, Record<string, string>, Error>(
-  async args => {
-    const response = await fetch(`${baseURL}/signin`, {
-      method: 'POST',
+export const useSignin = createMutation<
+  {
+    '2fa'?: boolean
+    once?: string
+    cookie?: string
+  },
+  Record<string, string>,
+  Error
+>(async args => {
+  const { headers, data } = await request.post(
+    '/signin',
+    paramsSerializer(args),
+    {
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
+        'content-type': 'application/x-www-form-urlencoded',
         Referer: `${baseURL}/signin`,
-        'User-Agent': `Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`,
         origin: baseURL,
       },
-      body: paramsSerializer(args),
-    })
-
-    const { headers } = response
-
-    const data = await response.text()
-
-    updateStoreWithData(data)
-
-    const $ = load(data)
-
-    if (isLogined($)) {
-      return CookieManager.setFromResponse(
-        baseURL,
-        headers.get('set-cookie')!
-      ).then(value =>
-        value ? Promise.resolve() : Promise.reject(new Error(`登录失败`))
-      )
     }
+  )
 
-    return Promise.reject(
-      new Error(
-        `${
-          $(`#Main > div.box > div.problem > ul > li`).eq(0).text().trim() ||
-          '登录失败'
-        }`
-      )
-    )
+  const $ = load(data)
+
+  if ($('#otp_code').length) {
+    return {
+      '2fa': true,
+      once: $("input[name='once']").attr('value'),
+    }
   }
-)
+
+  const problem = $(`#Main > div.box > div.problem > ul > li`)
+    .eq(0)
+    .text()
+    .trim()
+
+  if (isLogined($) && !problem) {
+    return {
+      cookie: isArray(headers['set-cookie'])
+        ? headers['set-cookie'].join(';')
+        : '',
+    }
+  }
+
+  return Promise.reject(new Error(`${problem || '登录失败'}`))
+})
+
+export const useTwoStepSignin = createMutation<
+  string,
+  {
+    code: string
+    once: string
+  },
+  Error
+>(async args => {
+  const { headers, data } = await request.post('/2fa', paramsSerializer(args), {
+    headers: {
+      'content-type': 'application/x-www-form-urlencoded',
+      Referer: `${baseURL}/2fa`,
+      origin: baseURL,
+    },
+  })
+
+  const $ = load(data)
+
+  const problem = $(`#Main > div.box > div.problem > ul > li`)
+    .eq(0)
+    .text()
+    .trim()
+
+  if (isLogined($) && !problem) {
+    return isArray(headers['set-cookie']) ? headers['set-cookie'].join(';') : ''
+  }
+
+  return Promise.reject(new Error(`${problem || '登录失败'}`))
+})

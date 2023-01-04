@@ -60,6 +60,7 @@ export type RootStackParamList = {
   }
   WebSignin: {
     once: string
+    onTwoStepOnce: (once: string) => void
   }
   RecentTopic: undefined
 }
