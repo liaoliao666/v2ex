@@ -9,13 +9,15 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -96,19 +98,20 @@ function MyNodesScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1`}>
-      <NavBar title="节点收藏" />
-
       <FlatList
         key={colorScheme}
-        contentContainerStyle={tw`p-4`}
+        contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
         renderItem={renderItem}
         data={myNodes}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
             onRefresh={refetchByUser}
+            progressViewOffset={navbarHeight}
           />
         }
         ListEmptyComponent={
@@ -118,7 +121,12 @@ function MyNodesScreen() {
             </Text>
           </View>
         }
+        ListFooterComponent={<SafeAreaView edges={['bottom']} />}
       />
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+        <NavBar title="节点收藏" />
+      </StyledBlurView>
     </View>
   )
 }

@@ -107,9 +107,9 @@ function GlobalImageViewer() {
   const [imageViewer, setImageViewer] = useAtom(imageViewerAtom)
   return (
     <StyledImageViewer
-      {...(imageViewer as any)}
-      onRequestClose={() =>
-        setImageViewer({ visible: false, imageIndex: 0, images: [] })
+      {...imageViewer}
+      onClose={() =>
+        setImageViewer({ visible: false, index: 0, imageUrls: [] })
       }
     />
   )

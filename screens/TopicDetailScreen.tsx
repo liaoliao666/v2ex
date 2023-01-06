@@ -7,7 +7,7 @@ import { FlatList, ListRenderItem, Text, View } from 'react-native'
 
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
@@ -15,6 +15,7 @@ import {
 import RadioButtonGroup from '@/components/RadioButtonGroup'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
 import ReplyItem from '@/components/topic/ReplyItem'
@@ -111,31 +112,21 @@ function TopicDetailScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
-      <NavBar title="帖子">
-        {!avatarVisible && (
-          <View style={tw`flex-1`}>
-            <View style={tw`flex-row items-center`}>
-              <Text style={tw`text-tint-primary text-body-4 font-bold`}>
-                {lastPage.member?.username}
-              </Text>
-            </View>
-
-            <Text style={tw`text-tint-secondary text-body-6`}>
-              {lastPage.reply_count} 条回复
-            </Text>
-          </View>
-        )}
-      </NavBar>
-
       <FlatList
         key={colorScheme}
         data={flatedData}
+        contentContainerStyle={{
+          paddingTop: navbarHeight,
+        }}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
             onRefresh={refetchByUser}
+            progressViewOffset={navbarHeight}
           />
         }
         renderItem={renderItem}
@@ -220,6 +211,24 @@ function TopicDetailScreen() {
         topicId={params.id}
         ref={replyBoxRef}
       />
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0`}>
+        <NavBar title="帖子">
+          {!avatarVisible && (
+            <View style={tw`flex-1`}>
+              <View style={tw`flex-row items-center`}>
+                <Text style={tw`text-tint-primary text-body-4 font-bold`}>
+                  {lastPage.member?.username}
+                </Text>
+              </View>
+
+              <Text style={tw`text-tint-secondary text-body-6`}>
+                {lastPage.reply_count} 条回复
+              </Text>
+            </View>
+          )}
+        </NavBar>
+      </StyledBlurView>
     </View>
   )
 }

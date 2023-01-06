@@ -5,7 +5,7 @@ import Constants from 'expo-constants'
 import { useSetAtom } from 'jotai'
 import { findIndex, first, isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
-import { useWindowDimensions } from 'react-native'
+import { Alert, useWindowDimensions } from 'react-native'
 import RenderHtml, {
   HTMLContentModel,
   HTMLElementModel,
@@ -13,6 +13,8 @@ import RenderHtml, {
 } from 'react-native-render-html'
 
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
+import { store } from '@/jotai/store'
+import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { RootStackParamList } from '@/types'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
@@ -79,15 +81,15 @@ function Html({
 
   const setImageViewer = useSetAtom(imageViewerAtom)
 
-  const images = useMemo(() => {
+  const imageUrls = useMemo(() => {
     if (!isString(html)) return []
     const $ = load(html)
     return $('img')
       .map((i, img) => ({
-        uri: $(img).attr('src')!,
+        url: $(img).attr('src')!,
       }))
       .get()
-      .filter(item => !!item.uri)
+      .filter(item => !!item.url)
   }, [html])
 
   const navigation =
@@ -97,16 +99,27 @@ function Html({
     <HtmlContext.Provider
       value={useMemo(
         () => ({
-          onPreview: uri => {
+          onPreview: url => {
+            if (inModalScreen) {
+              Alert.alert(
+                '评论回复内暂不支持查看图片',
+                '',
+                [{ text: '确定' }],
+                {
+                  userInterfaceStyle: store.get(colorSchemeAtom),
+                }
+              )
+              return
+            }
             setImageViewer({
-              imageIndex: findIndex(images, { uri }),
+              index: findIndex(imageUrls, { url }),
               visible: true,
-              images,
+              imageUrls,
             })
           },
           youtubePaddingX,
         }),
-        [images, setImageViewer, youtubePaddingX]
+        [imageUrls, setImageViewer, youtubePaddingX, inModalScreen]
       )}
     >
       <RenderHtml

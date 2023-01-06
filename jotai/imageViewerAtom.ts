@@ -1,8 +1,9 @@
 import { atom } from 'jotai'
-import ImageView from 'react-native-image-viewing'
 
-export const imageViewerAtom = atom<Partial<Parameters<typeof ImageView>[0]>>({
-  imageIndex: 0,
+import { StyledImageViewerProps } from '@/components/StyledImageViewer'
+
+export const imageViewerAtom = atom<StyledImageViewerProps>({
+  index: 0,
   visible: false,
-  images: [],
+  imageUrls: [],
 })

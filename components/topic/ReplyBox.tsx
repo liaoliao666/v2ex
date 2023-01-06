@@ -72,11 +72,12 @@ const ReplyBox = forwardRef<
   return (
     <Fragment>
       {isFocus && (
-        <Pressable style={tw`bg-mask absolute inset-0`} onPress={blur} />
+        <Pressable style={tw`bg-mask absolute inset-0 z-20`} onPress={blur} />
       )}
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={tw`z-30`}
       >
         <View
           style={tw.style(
@@ -184,7 +185,12 @@ const ReplyBox = forwardRef<
               }
             }}
           >
-            发送
+            {(replyTypeRef.current.isAppend
+              ? appendTopicMutation
+              : replyMutation
+            ).isLoading
+              ? '发送中'
+              : '发送'}
           </StyledButton>
         </View>
       </KeyboardAvoidingView>

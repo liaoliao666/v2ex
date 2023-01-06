@@ -472,11 +472,7 @@ export function updateStoreWithData(data: any) {
     const $nodesBox = $(`#Main .box`).eq(1)
     const hasNavAtoms = $nodesBox.find('.fr a').eq(0).attr('href') === '/planes'
     if (!hasNavAtoms) return
-
-    const newNavAtoms = parseNavAtoms($)
-    store.set(navNodesAtom, prev =>
-      isEqual(newNavAtoms, prev) ? prev : newNavAtoms
-    )
+    store.set(navNodesAtom, parseNavAtoms($))
   }
 
   function updateRecentTopics() {

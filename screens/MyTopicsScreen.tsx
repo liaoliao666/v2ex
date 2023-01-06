@@ -5,13 +5,14 @@ import { FlatList, ListRenderItem, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -55,10 +56,10 @@ function MyTopicsScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1`}>
-      <NavBar title="主题收藏" />
-
       <FlatList
         key={colorScheme}
         data={flatedData}
@@ -66,8 +67,12 @@ function MyTopicsScreen() {
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
             onRefresh={refetchByUser}
+            progressViewOffset={navbarHeight}
           />
         }
+        contentContainerStyle={{
+          paddingTop: navbarHeight,
+        }}
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         onEndReached={() => {
@@ -84,6 +89,10 @@ function MyTopicsScreen() {
           </SafeAreaView>
         }
       />
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+        <NavBar title="主题收藏" />
+      </StyledBlurView>
     </View>
   )
 }

@@ -6,11 +6,12 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Html from '@/components/Html'
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import StyledBlurView from '@/components/StyledBlurView'
 import { RootStackParamList } from '@/types'
 import { request } from '@/utils/request'
 import tw from '@/utils/tw'
@@ -49,15 +50,24 @@ function GItHubMDScreen() {
     { suspense: true }
   )
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1`}>
-      <NavBar title={params.title} />
-      <ScrollView>
+      <ScrollView
+        contentContainerStyle={{
+          paddingTop: navbarHeight,
+        }}
+      >
         <View style={tw`p-4`}>
           <Html source={{ html: html! }} />
         </View>
         <SafeAreaView edges={['bottom']} />
       </ScrollView>
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0`}>
+        <NavBar title={params.title} />
+      </StyledBlurView>
     </View>
   )
 }

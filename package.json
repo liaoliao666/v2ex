@@ -1,11 +1,10 @@
 {
   "name": "v2ex",
   "version": "1.0.0",
-  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "start": "expo start --dev-client",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -13,6 +12,7 @@
     "@expo/vector-icons": "^13.0.0",
     "@hookform/resolvers": "^2.9.10",
     "@react-native-async-storage/async-storage": "~1.17.3",
+    "@react-native-community/blur": "^4.3.0",
     "@react-native-community/netinfo": "9.3.5",
     "@react-native-cookies/cookies": "^6.2.1",
     "@react-navigation/drawer": "^6.5.0",
@@ -30,6 +30,7 @@
     "expo-font": "~11.0.1",
     "expo-linking": "~3.3.0",
     "expo-media-library": "~15.0.0",
+    "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "expo-updates": "~0.15.6",
     "highlight.js": "^11.6.0",
@@ -45,7 +46,7 @@
     "react-native-drag-sort": "^2.4.4",
     "react-native-fast-image": "^8.6.3",
     "react-native-gesture-handler": "~2.8.0",
-    "react-native-image-viewing": "^0.2.2",
+    "react-native-image-zoom-viewer": "^3.0.1",
     "react-native-pager-view": "6.0.1",
     "react-native-reanimated": "~2.12.0",
     "react-native-render-html": "^6.3.4",

@@ -13,8 +13,9 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
+import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { useNodes } from '@/servicies/node'
@@ -51,13 +52,16 @@ function NavNodesScreen() {
 
   const [index, setIndex] = useState(0)
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`bg-body-1 flex-1`}>
-      <NavBar title="节点导航" />
-
       <View style={tw`flex-1 flex-row`}>
         <ScrollView
           style={tw`flex-none border-tint-border border-r border-solid`}
+          contentContainerStyle={{
+            paddingTop: navbarHeight,
+          }}
         >
           {routes.map((route, i) => (
             <Pressable
@@ -86,57 +90,63 @@ function NavNodesScreen() {
           <SafeAreaView edges={['bottom']} />
         </ScrollView>
 
-        <NodeList nodes={routes[index].nodes} />
+        <NodeList nodes={routes[index].nodes} navbarHeight={navbarHeight} />
       </View>
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+        <NavBar title="节点导航" />
+      </StyledBlurView>
     </View>
   )
 }
 
-const NodeList = memo(({ nodes }: { nodes: Node[][] }) => {
-  const navigation = useNavigation()
+const NodeList = memo(
+  ({ nodes, navbarHeight }: { nodes: Node[][]; navbarHeight: number }) => {
+    const navigation = useNavigation()
 
-  const renderItem: ListRenderItem<Node[]> = useCallback(
-    ({ item }) => {
-      return (
-        <View key={item.map(o => o.name).join('_')} style={tw`flex flex-row`}>
-          {item.map(node => {
-            return (
-              <TouchableOpacity
-                key={node.id}
-                onPress={() => {
-                  navigation.navigate('NodeTopics', { name: node.name })
-                }}
-                style={tw`w-1/3 py-2 items-center justify-center`}
-              >
-                <StyledImage
-                  style={tw`w-12 h-12`}
-                  source={{
-                    uri: node.avatar_large,
+    const renderItem: ListRenderItem<Node[]> = useCallback(
+      ({ item }) => {
+        return (
+          <View key={item.map(o => o.name).join('_')} style={tw`flex flex-row`}>
+            {item.map(node => {
+              return (
+                <TouchableOpacity
+                  key={node.id}
+                  onPress={() => {
+                    navigation.navigate('NodeTopics', { name: node.name })
                   }}
-                />
-
-                <Text
-                  style={tw`text-body-6 text-tint-primary text-center mt-2`}
+                  style={tw`w-1/3 py-2 items-center justify-center`}
                 >
-                  {node.title}
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
-        </View>
-      )
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
+                  <StyledImage
+                    style={tw`w-12 h-12`}
+                    source={{
+                      uri: node.avatar_large,
+                    }}
+                  />
 
-  return (
-    <FlatList
-      style={tw`flex-1`}
-      contentContainerStyle={tw`p-4`}
-      renderItem={renderItem}
-      data={nodes}
-      ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-    />
-  )
-})
+                  <Text
+                    style={tw`text-body-6 text-tint-primary text-center mt-2`}
+                  >
+                    {node.title}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        )
+      },
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      []
+    )
+
+    return (
+      <FlatList
+        style={tw`flex-1`}
+        contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
+        renderItem={renderItem}
+        data={nodes}
+        ListFooterComponent={<SafeAreaView edges={['bottom']} />}
+      />
+    )
+  }
+)

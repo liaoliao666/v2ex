@@ -10,7 +10,8 @@ import Toast from 'react-native-toast-message'
 import { z } from 'zod'
 
 import FormControl from '@/components/FormControl'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -52,11 +53,17 @@ export default function WriteTopicScreen() {
 
   const editTopicMutation = useEditTopic()
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`bg-body-1 flex-1`}>
-      <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
-
-      <ScrollView style={tw`flex-1 p-4`} keyboardShouldPersistTaps="handled">
+      <ScrollView
+        style={tw`flex-1 p-4`}
+        contentContainerStyle={{
+          paddingTop: navbarHeight,
+        }}
+        keyboardShouldPersistTaps="handled"
+      >
         <FormControl
           control={control}
           name="node"
@@ -173,6 +180,10 @@ export default function WriteTopicScreen() {
           </StyledButton>
         </SafeAreaView>
       </ScrollView>
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+        <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
+      </StyledBlurView>
     </View>
   )
 }

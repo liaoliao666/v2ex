@@ -88,6 +88,12 @@ function ReplyItem({
               <Text
                 key="username"
                 style={tw`text-tint-primary text-body-5 font-medium`}
+                onPress={() => {
+                  if (inModalScreen) navigation.goBack()
+                  navigation.push('MemberDetail', {
+                    username: reply.member?.username!,
+                  })
+                }}
               >
                 {reply.member?.username}
               </Text>

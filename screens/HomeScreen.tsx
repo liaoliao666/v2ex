@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons'
+import { Feather, FontAwesome5 } from '@expo/vector-icons'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom, useAtomValue } from 'jotai'
@@ -18,11 +18,12 @@ import { TabBar, TabView } from 'react-native-tab-view'
 
 import Badge from '@/components/Badge'
 import IconButton from '@/components/IconButton'
-import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
+import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
@@ -32,6 +33,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useRecentTopics, useTabTopics } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
+import { validateLoginStatus } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -58,9 +60,10 @@ function HomeScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
+  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
-      <TopNavBar />
       <TabView
         key={colorScheme}
         navigationState={{ index, routes: tabs }}
@@ -76,10 +79,14 @@ function HomeScreen() {
           const refetchOnWindowFocus =
             index === findIndex(tabs, { key: route.key })
           return route.key === 'recent' ? (
-            <MemoRecentTopics refetchOnWindowFocus={refetchOnWindowFocus} />
+            <MemoRecentTopics
+              refetchOnWindowFocus={refetchOnWindowFocus}
+              headerHeight={headerHeight}
+            />
           ) : (
             <MemoTabTopics
               refetchOnWindowFocus={refetchOnWindowFocus}
+              headerHeight={headerHeight}
               tab={route.key}
             />
           )
@@ -97,71 +104,80 @@ function HomeScreen() {
         initialLayout={{
           width: layout.width,
         }}
+        tabBarPosition="bottom"
         renderTabBar={props => (
-          <View
-            style={tw`flex-row items-center border-b border-tint-border border-solid`}
-          >
-            <TabBar
-              {...props}
-              scrollEnabled
-              style={tw`bg-body-1 flex-row flex-1 shadow-none`}
-              tabStyle={tw`w-[60px] h-[${NAV_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[10px] bg-primary h-1 rounded-full`}
-              indicatorContainerStyle={tw`border-b-0`}
-              renderTabBarItem={({ route }) => {
-                const active = tabs[index].key === route.key
+          <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+            <TopNavBar />
 
-                return (
-                  <Pressable
-                    key={route.key}
-                    style={({ pressed }) =>
-                      tw.style(
-                        `w-[60px] items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
-                        pressed && tw`bg-tab-press`
-                      )
-                    }
-                    onPress={() => {
-                      setIndex(findIndex(tabs, { key: route.key }))
-                    }}
-                  >
-                    <Text
-                      style={tw.style(
-                        active
-                          ? tw`text-tint-primary font-medium`
-                          : tw`text-tint-secondary`
-                      )}
-                    >
-                      {route.title}
-                    </Text>
-                  </Pressable>
-                )
-              }}
-            />
-
-            <TouchableOpacity
-              onPress={() => {
-                navigation.navigate('SortTabs')
-              }}
-              style={tw`bg-body-1 h-full flex-row items-center justify-center z-50`}
+            <View
+              style={tw`flex-row items-center border-b border-tint-border border-solid`}
             >
-              <Feather
-                name="menu"
-                size={17}
-                color={tw`text-tint-secondary`.color as string}
-                style={tw`-mt-1 pr-4 pl-1`}
+              <TabBar
+                {...props}
+                scrollEnabled
+                style={tw`flex-row flex-1 shadow-none bg-transparent`}
+                tabStyle={tw`w-[60px] h-[${NAV_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`w-[40px] ml-[10px] bg-primary h-1 rounded-full`}
+                indicatorContainerStyle={tw`border-b-0`}
+                renderTabBarItem={({ route }) => {
+                  const active = tabs[index].key === route.key
+
+                  return (
+                    <Pressable
+                      key={route.key}
+                      style={({ pressed }) =>
+                        tw.style(
+                          `w-[60px] items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
+                          pressed && tw`bg-tab-press`
+                        )
+                      }
+                      onPress={() => {
+                        setIndex(findIndex(tabs, { key: route.key }))
+                      }}
+                    >
+                      <Text
+                        style={tw.style(
+                          active
+                            ? tw`text-tint-primary font-medium`
+                            : tw`text-tint-secondary`
+                        )}
+                      >
+                        {route.title}
+                      </Text>
+                    </Pressable>
+                  )
+                }}
               />
-            </TouchableOpacity>
-          </View>
+
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate('SortTabs')
+                }}
+                style={tw`h-full flex-row items-center justify-center z-50`}
+              >
+                <Feather
+                  name="menu"
+                  size={17}
+                  color={tw`text-tint-secondary`.color as string}
+                  style={tw`-mt-1 pr-4 pl-1`}
+                />
+              </TouchableOpacity>
+            </View>
+          </StyledBlurView>
         )}
       />
+
+      <PreventLeftSwiping />
     </View>
   )
 }
 
 function RecentTopics({
   refetchOnWindowFocus,
+  headerHeight,
 }: {
   refetchOnWindowFocus: boolean
+  headerHeight: number
 }) {
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useRecentTopics({
@@ -190,8 +206,12 @@ function RecentTopics({
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
           onRefresh={refetchByUser}
+          progressViewOffset={headerHeight}
         />
       }
+      contentContainerStyle={{
+        paddingTop: headerHeight,
+      }}
       ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {
@@ -214,9 +234,11 @@ function RecentTopics({
 function TabTopics({
   tab,
   refetchOnWindowFocus,
+  headerHeight,
 }: {
   tab: string
   refetchOnWindowFocus: boolean
+  headerHeight: number
 }) {
   const { data, refetch } = useTabTopics({
     variables: { tab },
@@ -240,8 +262,12 @@ function TabTopics({
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
           onRefresh={refetchByUser}
+          progressViewOffset={headerHeight}
         />
       }
+      contentContainerStyle={{
+        paddingTop: headerHeight,
+      }}
       ItemSeparatorComponent={LineSeparator}
       ListFooterComponent={<SafeAreaView edges={['bottom']} />}
       renderItem={renderItem}
@@ -280,9 +306,15 @@ function TopNavBar() {
               />
             </Badge>
           ) : (
-            <StyledImage
-              style={tw`w-8 h-8 rounded-full bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
-            />
+            <View
+              style={tw`w-8 h-8 items-center justify-center rounded-full bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
+            >
+              <FontAwesome5
+                name="user-alt"
+                size={14}
+                color={tw`text-white dark:text-[#e7e9ea]`.color as string}
+              />
+            </View>
           )}
         </Pressable>
       }
@@ -293,6 +325,7 @@ function TopNavBar() {
           color={tw`text-tint-secondary`.color as string}
           activeColor={tw`text-tint-primary`.color as string}
           onPress={() => {
+            validateLoginStatus()
             navigation.navigate('WriteTopic', {})
           }}
         />
@@ -306,5 +339,12 @@ function TopNavBar() {
         }}
       />
     </NavBar>
+  )
+}
+
+function PreventLeftSwiping() {
+  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+  return (
+    <View style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-4`} />
   )
 }

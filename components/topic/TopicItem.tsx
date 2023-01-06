@@ -65,6 +65,12 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
           <Text
             style={tw`text-tint-primary text-body-5 flex-1`}
             numberOfLines={1}
+            onPress={() => {
+              if (isDisabledPress?.()) return
+              navigation.push('MemberDetail', {
+                username: topic.member?.username!,
+              })
+            }}
           >
             {topic.member?.username}
           </Text>

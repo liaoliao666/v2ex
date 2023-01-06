@@ -1,32 +1,59 @@
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
-import { memo, useCallback } from 'react'
+import { compact, last, pick, uniqBy } from 'lodash-es'
+import { memo, useCallback, useMemo } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { inferData } from 'react-query-kit'
 
 import DebouncePressable from '@/components/DebouncePressable'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import { LineSeparator } from '@/components/Separator'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { useTopicDetail } from '@/servicies/topic'
 import { RootStackParamList } from '@/types'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 
 export default function RecentTopicScreen() {
   const recentTopics = useAtomValue(recentTopicsAtom)
+
+  const allRecentTopics = useMemo(() => {
+    const localRecentTopics = queryClient
+      .getQueryCache()
+      .findAll(useTopicDetail.getKey())
+      .sort((a, b) => b.state.dataUpdatedAt - a.state.dataUpdatedAt)
+      .map(query => {
+        const lastPage = last(
+          (query.state.data as inferData<typeof useTopicDetail>)?.pages
+        )
+        if (!lastPage?.title) return
+        return {
+          member: pick(lastPage.member, ['username', 'avatar']),
+          ...pick(lastPage, ['id', 'title']),
+        }
+      })
+
+    return uniqBy(compact([...recentTopics, ...localRecentTopics]), 'id')
+  }, [recentTopics]) as RecentTopic[]
 
   const renderItem: ListRenderItem<RecentTopic> = useCallback(
     ({ item }) => <RecentTopicItem recentTopic={item} />,
     []
   )
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1`}>
-      <NavBar title="最近浏览" />
-
       <FlatList
-        data={recentTopics}
+        data={allRecentTopics}
+        contentContainerStyle={{
+          paddingTop: navbarHeight,
+        }}
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
@@ -38,6 +65,10 @@ export default function RecentTopicScreen() {
           </View>
         }
       />
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+        <NavBar title="最近浏览" />
+      </StyledBlurView>
     </View>
   )
 }

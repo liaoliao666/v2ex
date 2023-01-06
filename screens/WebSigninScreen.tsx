@@ -7,7 +7,8 @@ import { Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
+import StyledBlurView from '@/components/StyledBlurView'
 import { getNavigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
 import { queryClient } from '@/utils/query'
@@ -38,11 +39,13 @@ export default function WebSigninScreen() {
     queryClient.refetchQueries({ type: 'active' })
   }
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1`}>
       <NavBar title="谷歌登录" />
 
-      {isLoading && <LoadingIndicator />}
+      {isLoading && <LoadingIndicator style={{ paddingTop: navbarHeight }} />}
 
       {webviewVisible && (
         <WebView
@@ -51,7 +54,9 @@ export default function WebSigninScreen() {
           onLoadEnd={() => {
             setIsLoading(false)
           }}
-          style={tw.style(`flex-1`, isLoading && `hidden`)}
+          style={tw.style(`flex-1`, isLoading && `hidden`, {
+            paddingTop: navbarHeight,
+          })}
           source={{ uri: `${baseURL}/auth/google?once=${params.once}` }}
           // source={{ uri: `${baseURL}/signin` }}
           javaScriptEnabled={true}
@@ -107,6 +112,10 @@ export default function WebSigninScreen() {
           }
         />
       )}
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0`}>
+        <NavBar title="谷歌登录" />
+      </StyledBlurView>
     </View>
   )
 }

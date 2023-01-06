@@ -11,13 +11,14 @@ import { z } from 'zod'
 import DebouncePressable from '@/components/DebouncePressable'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import { QuerySuspense } from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
 import Separator, { LineSeparator } from '@/components/Separator'
 import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -85,41 +86,16 @@ export default function SearchScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
-      <NavBar
-        right={
-          <IconButton
-            name="filter-outline"
-            size={24}
-            color={tw`text-tint-primary`.color as string}
-            activeColor={tw`text-tint-primary`.color as string}
-            onPress={() => {
-              navigation.navigate('SearchOptions', {
-                defaultValues: sov2exArgs,
-                onSubmit: setSov2exArgs,
-              })
-            }}
-          />
-        }
-      >
-        <SearchBar
-          style={tw`flex-1`}
-          value={searchText}
-          onChangeText={text => {
-            setIsSearchNode(true)
-            setSearchText(text.trim())
-          }}
-          onSubmitEditing={() => {
-            setIsSearchNode(!searchText)
-          }}
-          autoFocus
-        />
-      </NavBar>
-
       {isSearchNode ? (
         <FlatList
           key={colorScheme}
+          contentContainerStyle={{
+            paddingTop: navbarHeight,
+          }}
           ListHeaderComponent={
             <View>
               {!!searchText && (
@@ -158,17 +134,52 @@ export default function SearchScreen() {
               ...sov2exArgs,
               q: searchText,
             }}
+            navbarHeight={navbarHeight}
           />
         </QuerySuspense>
       )}
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+        <NavBar
+          right={
+            <IconButton
+              name="filter-outline"
+              size={24}
+              color={tw`text-tint-primary`.color as string}
+              activeColor={tw`text-tint-primary`.color as string}
+              onPress={() => {
+                navigation.navigate('SearchOptions', {
+                  defaultValues: sov2exArgs,
+                  onSubmit: setSov2exArgs,
+                })
+              }}
+            />
+          }
+        >
+          <SearchBar
+            style={tw`flex-1`}
+            value={searchText}
+            onChangeText={text => {
+              setIsSearchNode(true)
+              setSearchText(text.trim())
+            }}
+            onSubmitEditing={() => {
+              setIsSearchNode(!searchText)
+            }}
+            autoFocus
+          />
+        </NavBar>
+      </StyledBlurView>
     </View>
   )
 }
 
 function SoV2exList({
   sov2exArgs,
+  navbarHeight,
 }: {
   sov2exArgs: z.infer<typeof Sov2exArgs>
+  navbarHeight: number
 }) {
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useSov2ex({ suspense: true, variables: sov2exArgs })
@@ -228,8 +239,12 @@ function SoV2exList({
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
           onRefresh={refetchByUser}
+          progressViewOffset={navbarHeight}
         />
       }
+      contentContainerStyle={{
+        paddingTop: navbarHeight,
+      }}
       ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {

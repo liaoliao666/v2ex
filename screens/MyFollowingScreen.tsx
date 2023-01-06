@@ -13,13 +13,14 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
+import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
@@ -71,10 +72,10 @@ function MyFollowingScreen() {
 
   const layout = useWindowDimensions()
 
+  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+
   return (
     <View style={tw`flex-1`}>
-      <NavBar title="特别关注" />
-
       <TabView
         key={colorScheme}
         navigationState={{ index, routes }}
@@ -82,67 +83,75 @@ function MyFollowingScreen() {
         lazyPreloadDistance={1}
         renderScene={({ route }) =>
           route.key === 'all' ? (
-            <MemoMyFollowing />
+            <MemoMyFollowing headerHeight={headerHeight} />
           ) : (
-            <MemoMemberTopics username={route.key} />
+            <MemoMemberTopics
+              headerHeight={headerHeight}
+              username={route.key}
+            />
           )
         }
         onIndexChange={setIndex}
         initialLayout={{
           width: layout.width,
         }}
+        tabBarPosition="bottom"
         renderTabBar={props => (
-          <TabBar
-            {...props}
-            scrollEnabled
-            style={tw`bg-body-1 flex-row shadow-none border-b border-tint-border border-solid`}
-            tabStyle={tw`w-[100px] h-[${NAV_BAR_HEIGHT}px]`}
-            indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
-            indicatorContainerStyle={tw`border-b-0`}
-            renderTabBarItem={({ route }) => {
-              const active = routes[index].key === route.key
+          <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+            <NavBar title="特别关注" />
 
-              return (
-                <Pressable
-                  key={route.key}
-                  style={({ pressed }) =>
-                    tw.style(
-                      `w-[100px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
-                      pressed && tw`bg-tab-press`
-                    )
-                  }
-                  onPress={() => {
-                    setIndex(findIndex(routes, { key: route.key }))
-                  }}
-                >
-                  {route.avatar && (
-                    <StyledImage
-                      style={tw`w-5 h-5 rounded-full`}
-                      source={{ uri: route.avatar }}
-                    />
-                  )}
-                  <Text
-                    style={tw.style(
-                      `ml-2 text-body-5 flex-shrink`,
-                      active
-                        ? tw`text-tint-primary font-bold`
-                        : tw`text-tint-secondary font-medium`
-                    )}
-                    numberOfLines={1}
+            <TabBar
+              {...props}
+              scrollEnabled
+              style={tw`bg-body-1 flex-row shadow-none border-b border-tint-border border-solid`}
+              tabStyle={tw`w-[100px] h-[${NAV_BAR_HEIGHT}px]`}
+              indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
+              indicatorContainerStyle={tw`border-b-0`}
+              renderTabBarItem={({ route }) => {
+                const active = routes[index].key === route.key
+
+                return (
+                  <Pressable
+                    key={route.key}
+                    style={({ pressed }) =>
+                      tw.style(
+                        `w-[100px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
+                        pressed && tw`bg-tab-press`
+                      )
+                    }
+                    onPress={() => {
+                      setIndex(findIndex(routes, { key: route.key }))
+                    }}
                   >
-                    {route.title}
-                  </Text>
-                </Pressable>
-              )
-            }}
-          />
+                    {route.avatar && (
+                      <StyledImage
+                        style={tw`w-5 h-5 rounded-full`}
+                        source={{ uri: route.avatar }}
+                      />
+                    )}
+                    <Text
+                      style={tw.style(
+                        `ml-2 text-body-5 flex-shrink`,
+                        active
+                          ? tw`text-tint-primary font-bold`
+                          : tw`text-tint-secondary font-medium`
+                      )}
+                      numberOfLines={1}
+                    >
+                      {route.title}
+                    </Text>
+                  </Pressable>
+                )
+              }}
+            />
+          </StyledBlurView>
         )}
       />
     </View>
   )
 }
 
-function MyFollowing() {
+function MyFollowing({ headerHeight }: { headerHeight: number }) {
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useMyFollowing({
       suspense: true,
@@ -167,8 +176,12 @@ function MyFollowing() {
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
           onRefresh={refetchByUser}
+          progressViewOffset={headerHeight}
         />
       }
+      contentContainerStyle={{
+        paddingTop: headerHeight,
+      }}
       ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {
@@ -188,7 +201,13 @@ function MyFollowing() {
   )
 }
 
-function MemberTopics({ username }: { username: string }) {
+function MemberTopics({
+  username,
+  headerHeight,
+}: {
+  username: string
+  headerHeight: number
+}) {
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useMemberTopics({
       variables: { username },
@@ -214,8 +233,12 @@ function MemberTopics({ username }: { username: string }) {
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
           onRefresh={refetchByUser}
+          progressViewOffset={headerHeight}
         />
       }
+      contentContainerStyle={{
+        paddingTop: headerHeight,
+      }}
       ItemSeparatorComponent={LineSeparator}
       renderItem={renderItem}
       onEndReached={() => {

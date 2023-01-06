@@ -13,7 +13,6 @@ import tw from '@/utils/tw'
 
 import LoadingIndicator from './LoadingIndicator'
 import StyledButton from './StyledButton'
-import v2exMessage from './V2exWebview/v2exMessage'
 
 export type QuerySuspenseProps = Partial<ErrorBoundaryProps> & {
   Loading?: FC
@@ -25,12 +24,12 @@ export function FallbackComponent({
   resetErrorBoundary,
 }: FallbackProps) {
   async function reset() {
-    try {
-      await v2exMessage.loadV2exWebviewPromise
-      if (v2exMessage.timeout) v2exMessage.reloadWebview()
-    } catch {
-      v2exMessage.reloadWebview()
-    }
+    // try {
+    //   await v2exMessage.loadV2exWebviewPromise
+    //   if (v2exMessage.timeout) v2exMessage.reloadWebview()
+    // } catch {
+    //   v2exMessage.reloadWebview()
+    // }
 
     resetErrorBoundary()
   }

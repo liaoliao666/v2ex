@@ -5,6 +5,7 @@ import { useAtomValue } from 'jotai'
 import { every, findIndex, last, pick, some, uniqBy } from 'lodash-es'
 import {
   Fragment,
+  ReactNode,
   createRef,
   forwardRef,
   memo,
@@ -38,7 +39,10 @@ import Html from '@/components/Html'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import Money from '@/components/Money'
 import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
-import { withQuerySuspense } from '@/components/QuerySuspense'
+import {
+  FallbackComponent,
+  withQuerySuspense,
+} from '@/components/QuerySuspense'
 import Separator, { LineSeparator } from '@/components/Separator'
 import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
@@ -65,25 +69,16 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 const topBarBgCls = `bg-[#333344]`
 
 export default withQuerySuspense(MemberDetailScreen, {
-  Loading: () => {
-    return (
-      <View style={tw`flex-1 bg-body-1`}>
-        <NavBar
-          style={tw.style(topBarBgCls, 'border-b-0')}
-          tintColor="#fff"
-          statusBarStyle="light"
-        />
-        <View style={tw.style(topBarBgCls, `pt-10 px-4`)} />
-
-        <View style={tw`-mt-8 px-4 flex-row`}>
-          <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
-            <StyledImage style={tw`w-[81.25px] h-[81.25px] rounded-full`} />
-          </View>
-        </View>
-        <LoadingIndicator />
-      </View>
-    )
-  },
+  Loading: () => (
+    <MemberDetailSkeleton>
+      <LoadingIndicator />
+    </MemberDetailSkeleton>
+  ),
+  FallbackComponent: props => (
+    <MemberDetailSkeleton>
+      <FallbackComponent {...props} />
+    </MemberDetailSkeleton>
+  ),
 })
 
 function MemberDetailScreen() {
@@ -135,7 +130,7 @@ function MemberDetailScreen() {
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <NavBar
-        style={tw.style(topBarBgCls, 'border-b-0')}
+        style={tw.style(topBarBgCls)}
         tintColor="#fff"
         statusBarStyle="light"
       >
@@ -712,6 +707,28 @@ function BlockMember({
     >
       {blocked ? `Unblock` : `Block`}
     </StyledButton>
+  )
+}
+
+function MemberDetailSkeleton({ children }: { children: ReactNode }) {
+  return (
+    <View style={tw`flex-1 bg-body-1`}>
+      <NavBar
+        style={tw.style(topBarBgCls)}
+        tintColor="#fff"
+        statusBarStyle="light"
+      />
+      <View style={tw.style(topBarBgCls, `pt-10 px-4`)} />
+
+      <View style={tw`-mt-8 px-4 flex-row`}>
+        <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
+          <View
+            style={tw`w-[81.25px] h-[81.25px] rounded-full bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
+          />
+        </View>
+      </View>
+      {children}
+    </View>
   )
 }
 

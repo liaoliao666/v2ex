@@ -32,17 +32,10 @@ export default function NavBar({
 }) {
   useStatusBarStyle(statusBarStyle)
 
-  const safeAreaInsets = useSafeAreaInsets()
+  const safeTop = useNavBarSafeTop(hideSafeTop)
 
   return (
-    <View
-      style={tw.style(
-        `border-b border-solid border-tint-border`,
-        (!hideSafeTop || Platform.OS === 'android') &&
-          `pt-[${safeAreaInsets.top}px`,
-        style
-      )}
-    >
+    <View style={tw.style(`pt-[${safeTop}px`, style)}>
       <View style={tw`px-4 flex-row items-center h-[${NAV_BAR_HEIGHT}px]`}>
         {!!left && (
           <View style={tw`min-w-[56px] flex-row justify-start items-center`}>
@@ -90,7 +83,11 @@ export function BackButton({ tintColor }: { tintColor?: string }) {
   )
 }
 
-export function useNavBarHeight(height: number = NAV_BAR_HEIGHT) {
+export function useNavBarHeight(hideSafeTop?: boolean) {
+  return useNavBarSafeTop(hideSafeTop) + NAV_BAR_HEIGHT
+}
+
+function useNavBarSafeTop(hideSafeTop?: boolean) {
   const safeAreaInsets = useSafeAreaInsets()
-  return safeAreaInsets.top + height
+  return !hideSafeTop || Platform.OS === 'android' ? safeAreaInsets.top : 0
 }

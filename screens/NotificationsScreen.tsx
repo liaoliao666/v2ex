@@ -13,13 +13,14 @@ import DebouncePressable from '@/components/DebouncePressable'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import Separator, { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
+import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -67,10 +68,10 @@ function NotificationsScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const navbarHeight = useNavBarHeight()
+
   return (
     <View style={tw`flex-1`}>
-      <NavBar title="未读提醒" />
-
       <FlatList
         key={colorScheme}
         data={flatedData}
@@ -78,8 +79,12 @@ function NotificationsScreen() {
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
             onRefresh={refetchByUser}
+            progressViewOffset={navbarHeight}
           />
         }
+        contentContainerStyle={{
+          paddingTop: navbarHeight,
+        }}
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         onEndReached={() => {
@@ -96,6 +101,10 @@ function NotificationsScreen() {
           </SafeAreaView>
         }
       />
+
+      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+        <NavBar title="未读提醒" />
+      </StyledBlurView>
     </View>
   )
 }
