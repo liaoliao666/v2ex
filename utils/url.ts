@@ -16,6 +16,8 @@ export function resolveUrl(url: string) {
     return `https:${url}`
   }
   if (url.startsWith('about://')) return url.replace('about://', baseURL)
+  if (url.startsWith('https://v2ex.com'))
+    return url.replace('https://v2ex.com', baseURL)
   if (url.startsWith('/')) return `${baseURL}${url}`
   return url
 }

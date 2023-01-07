@@ -18,7 +18,7 @@ PODS:
   - EXMediaLibrary (15.0.0):
     - ExpoModulesCore
     - React-Core
-  - Expo (47.0.9):
+  - Expo (47.0.12):
     - ExpoModulesCore
   - expo-dev-client (2.0.1):
     - EXManifests
@@ -94,7 +94,7 @@ PODS:
     - expo-dev-menu/SafeAreaView
   - ExpoKeepAwake (11.0.1):
     - ExpoModulesCore
-  - ExpoModulesCore (1.0.4):
+  - ExpoModulesCore (1.1.1):
     - React-Core
     - ReactCommon/turbomodule/core
   - EXSplashScreen (0.17.5):
@@ -687,13 +687,13 @@ SPEC CHECKSUMS:
   EXJSONUtils: 09aef2c1fba1a116ca8c73a2c8299aac00d96b43
   EXManifests: 347f49430b63444579aa013f0ad057d16b8d1cc8
   EXMediaLibrary: b1c4f78878e45f6a359aff3a059e1660c41b73ab
-  Expo: 5523a4835730104a301caeac1e68dad095a9dfff
+  Expo: f48d305fda3e4e501d686e6bad7d8c8373828279
   expo-dev-client: d723d52ccfbe2eb47ee24d1ac0cf5b39001589c2
   expo-dev-launcher: 953f564f7d006f1af50b119cacb48cafcad40c73
   expo-dev-menu: fa9e67b193032700e2908b4737d9d199c0b43c30
   expo-dev-menu-interface: 45581093393dacd51ce5e7f641cf9ed5064a2e3f
   ExpoKeepAwake: 69b59d0a8d2b24de9f82759c39b3821fec030318
-  ExpoModulesCore: 8211c89bcc3ba86e2d02c54b1d31f1fa81acb6de
+  ExpoModulesCore: 485dff3a59b036a33b6050c0a5aea3cf1037fdd1
   EXSplashScreen: 3e989924f61a8dd07ee4ea584c6ba14be9b51949
   EXStructuredHeaders: fb774e45eac2e5d62ba40b28176bfbfba61b843e
   EXUpdates: e687436502147e80ef13cf6eedd17e3039ef47d6

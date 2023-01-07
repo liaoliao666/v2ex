@@ -1,7 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { load } from 'cheerio'
-import Constants from 'expo-constants'
 import { useSetAtom } from 'jotai'
 import { findIndex, first, isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
@@ -32,13 +31,12 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
       // @ts-ignore
       if (firstChild && firstChild.name === 'p')
         // @ts-ignore
-        firstChild.attribs = { class: 'mt-0' }
+        firstChild.attribs = { class: 'text-body-5 mt-0' }
     },
   },
   classesStyles: {
-    'mt-0': {
-      marginTop: 0,
-    },
+    'mt-0': tw`mt-0`,
+    'text-body-5': tw`text-body-5`,
   },
   renderers: {
     pre: CodeRenderer,
@@ -56,7 +54,7 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   defaultTextProps: {
     selectable: true,
   },
-  systemFonts: Constants.systemFonts,
+  enableExperimentalMarginCollapsing: true,
 }
 
 export default memo(
@@ -128,7 +126,7 @@ function Html({
         tagsStyles={{
           h1: tw`text-body-3 border-b border-solid border-tint-border`,
           h2: tw`text-body-4 border-b border-solid border-tint-border`,
-          h3: tw`text-body-4 border-b border-solid border-tint-border`,
+          h3: tw`text-body-4 `,
           h4: tw`text-body-4`,
           h5: tw`text-body-5`,
           h6: tw`text-body-6`,
@@ -136,6 +134,9 @@ function Html({
           a: tw`text-tint-secondary no-underline`,
           hr: {
             backgroundColor: tw`border-tint-border`.borderColor as string,
+          },
+          em: {
+            fontStyle: 'italic',
           },
           ...mergedProps.tagsStyles,
         }}

@@ -1,5 +1,4 @@
 import { load } from 'cheerio'
-import Constants from 'expo-constants'
 import hljs from 'highlight.js'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
@@ -45,9 +44,24 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] text-[15px] leading-5`}
         tagsStyles={{
           code: tw`p-3`,
+          h1: tw`text-body-3 border-b border-solid border-tint-border`,
+          h2: tw`text-body-4 border-b border-solid border-tint-border`,
+          h3: tw`text-body-4 `,
+          h4: tw`text-body-4`,
+          h5: tw`text-body-5`,
+          h6: tw`text-body-6`,
+          p: tw`text-body-5`,
+          a: tw`text-tint-secondary no-underline`,
+          hr: {
+            backgroundColor: tw`border-tint-border`.borderColor as string,
+          },
+          em: {
+            fontStyle: 'italic',
+          },
         }}
+        enableExperimentalMarginCollapsing
+        defaultTextProps={{ selectable: true }}
         classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
-        systemFonts={Constants.systemFonts}
         source={{ html }}
       />
     </ScrollView>
