@@ -212,7 +212,8 @@ function TopicDetailScreen() {
         ref={replyBoxRef}
       />
 
-      <StyledBlurView style={tw`absolute top-0 inset-x-0`}>
+      <View style={tw`absolute top-0 inset-x-0`}>
+        <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar title="帖子">
           {!avatarVisible && (
             <View style={tw`flex-1`}>
@@ -228,7 +229,7 @@ function TopicDetailScreen() {
             </View>
           )}
         </NavBar>
-      </StyledBlurView>
+      </View>
     </View>
   )
 }

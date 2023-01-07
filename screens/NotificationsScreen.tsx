@@ -102,9 +102,10 @@ function NotificationsScreen() {
         }
       />
 
-      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+      <View style={tw`absolute top-0 inset-x-0 z-10`}>
+        <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar title="未读提醒" />
-      </StyledBlurView>
+      </View>
     </View>
   )
 }

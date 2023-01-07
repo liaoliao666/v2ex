@@ -181,9 +181,10 @@ export default function WriteTopicScreen() {
         </SafeAreaView>
       </ScrollView>
 
-      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+      <View style={tw`absolute top-0 inset-x-0 z-10`}>
+        <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
-      </StyledBlurView>
+      </View>
     </View>
   )
 }

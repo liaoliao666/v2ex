@@ -113,9 +113,10 @@ export default function WebSigninScreen() {
         />
       )}
 
-      <StyledBlurView style={tw`absolute top-0 inset-x-0`}>
+      <View style={tw`absolute top-0 inset-x-0`}>
+        <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar title="谷歌登录" />
-      </StyledBlurView>
+      </View>
     </View>
   )
 }

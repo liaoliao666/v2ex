@@ -1,4 +1,4 @@
-import { Feather, FontAwesome5 } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom, useAtomValue } from 'jotai'
@@ -106,7 +106,9 @@ function HomeScreen() {
         }}
         tabBarPosition="bottom"
         renderTabBar={props => (
-          <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+          <View style={tw`absolute top-0 inset-x-0 z-10`}>
+            <StyledBlurView style={tw`absolute inset-0`} />
+
             <TopNavBar />
 
             <View
@@ -163,7 +165,7 @@ function HomeScreen() {
                 />
               </TouchableOpacity>
             </View>
-          </StyledBlurView>
+          </View>
         )}
       />
 
@@ -308,13 +310,7 @@ function TopNavBar() {
           ) : (
             <View
               style={tw`w-8 h-8 items-center justify-center rounded-full bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
-            >
-              <FontAwesome5
-                name="user-alt"
-                size={14}
-                color={tw`text-white dark:text-[#e7e9ea]`.color as string}
-              />
-            </View>
+            />
           )}
         </Pressable>
       }

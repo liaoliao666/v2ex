@@ -139,7 +139,8 @@ export default function SearchScreen() {
         </QuerySuspense>
       )}
 
-      <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+      <View style={tw`absolute top-0 inset-x-0 z-10`}>
+        <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar
           right={
             <IconButton
@@ -169,7 +170,7 @@ export default function SearchScreen() {
             autoFocus
           />
         </NavBar>
-      </StyledBlurView>
+      </View>
     </View>
   )
 }
