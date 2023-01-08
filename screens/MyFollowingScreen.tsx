@@ -105,7 +105,7 @@ function MyFollowingScreen() {
             <TabBar
               {...props}
               scrollEnabled
-              style={tw`bg-body-1 flex-row shadow-none border-b border-tint-border border-solid`}
+              style={tw`flex-row shadow-none border-b border-tint-border border-solid bg-transparent`}
               tabStyle={tw`w-[100px] h-[${NAV_BAR_HEIGHT}px]`}
               indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}

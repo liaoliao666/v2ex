@@ -6,6 +6,7 @@ import { Image, ImageProps, View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
 import { hasSize } from '@/utils/hasSize'
+import { isExpoGo } from '@/utils/isExpoGo'
 import { isStyle } from '@/utils/isStyle'
 import { request } from '@/utils/request'
 import tw from '@/utils/tw'
@@ -15,11 +16,8 @@ const placeholderCls = 'bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]'
 const uriToSize = new Map()
 
 let FastImage = Image
-
-try {
-  FastImage = require('react-native-fast-images')
-} catch {
-  FastImage = Image
+if (!isExpoGo) {
+  FastImage = require('react-native-fast-image')
 }
 
 function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
@@ -44,7 +42,8 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
         }
       : source,
     onLoad: ev => {
-      const newSize: any = ev.nativeEvent
+      const newSize: any =
+        FastImage === Image ? ev.nativeEvent.source : ev.nativeEvent
 
       if (!uriToSize.has(uri) && hasSize(newSize)) {
         uriToSize.set(uri, newSize)
