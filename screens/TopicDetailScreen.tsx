@@ -218,8 +218,11 @@ function TopicDetailScreen() {
           {!avatarVisible && (
             <View style={tw`flex-1`}>
               <View style={tw`flex-row items-center`}>
-                <Text style={tw`text-tint-primary text-body-4 font-bold`}>
-                  {lastPage.member?.username}
+                <Text
+                  style={tw`text-tint-primary text-body-4 font-bold`}
+                  numberOfLines={1}
+                >
+                  {lastPage.title}
                 </Text>
               </View>
 

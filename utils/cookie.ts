@@ -1,20 +1,20 @@
-import CookieManager from '@react-native-cookies/cookies'
-import { isArray } from 'lodash-es'
+// import CookieManager from '@react-native-cookies/cookies'
+import { isArray, noop } from 'lodash-es'
 
 import { baseURL } from './request/baseURL'
 
 const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
 
-// let CookieManager: any
+let CookieManager: any
 
-// try {
-//   CookieManager = require('@react-native-cookies/cookies')
-// } catch {
-//   CookieManager = {
-//     clearAll: noop,
-//     setFromResponse: noop,
-//   }
-// }
+try {
+  CookieManager = require('@react-native-cookies/cookies')
+} catch {
+  CookieManager = {
+    clearAll: noop,
+    setFromResponse: noop,
+  }
+}
 
 export function clearCookie() {
   return Promise.all([

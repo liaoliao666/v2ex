@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query'
 import { load } from 'cheerio'
-import { isObject, isString } from 'lodash-es'
+import { isArray, isObject, isString } from 'lodash-es'
 import { useState } from 'react'
-import { View } from 'react-native'
-import FastImage, { FastImageProps, ImageStyle } from 'react-native-fast-image'
+import { Image, ImageProps, View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
 import { hasSize } from '@/utils/hasSize'
@@ -15,15 +14,17 @@ import { isSvgUrl, resolveUrl } from '@/utils/url'
 const placeholderCls = 'bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]'
 const uriToSize = new Map()
 
-function CustomImage({
-  style,
-  source,
-  onLoad,
-  onError,
-  ...props
-}: FastImageProps) {
+let FastImage = Image
+
+try {
+  FastImage = require('react-native-fast-images')
+} catch {
+  FastImage = Image
+}
+
+function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
   const uri =
-    isObject(source) && isString(source.uri)
+    isObject(source) && !isArray(source) && isString(source.uri)
       ? resolveUrl(source.uri)
       : undefined
 
@@ -34,7 +35,7 @@ function CustomImage({
     height: number
   }>(uriToSize.get(uri))
 
-  const imageProps: FastImageProps = {
+  const imageProps: ImageProps = {
     ...props,
     source: isObject(source)
       ? {
@@ -43,7 +44,7 @@ function CustomImage({
         }
       : source,
     onLoad: ev => {
-      const newSize = ev.nativeEvent
+      const newSize: any = ev.nativeEvent
 
       if (!uriToSize.has(uri) && hasSize(newSize)) {
         uriToSize.set(uri, newSize)
@@ -53,11 +54,11 @@ function CustomImage({
       setIsLoading(false)
       onLoad?.(ev)
     },
-    onError() {
+    onError(err) {
       if (!uriToSize.has(uri)) {
         setIsLoading(false)
       }
-      onError?.()
+      onError?.(err)
       uriToSize.set(uri, undefined)
     },
   }
@@ -77,7 +78,7 @@ function CustomImage({
       <FastImage
         {...imageProps}
         style={tw.style(
-          style as ImageStyle,
+          style as ViewStyle,
           `w-full h-full`,
           isLoading && placeholderCls
         )}
@@ -131,8 +132,13 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
   )
 }
 
-export default function StyledImage({ source, ...props }: FastImageProps) {
-  if (isObject(source) && isString(source.uri) && isSvgUrl(source.uri)) {
+export default function StyledImage({ source, ...props }: ImageProps) {
+  if (
+    isObject(source) &&
+    !isArray(source) &&
+    isString(source.uri) &&
+    isSvgUrl(source.uri)
+  ) {
     return <CustomSvgUri uri={source.uri} {...(props as any)} />
   }
 

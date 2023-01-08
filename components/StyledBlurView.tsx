@@ -13,11 +13,11 @@ export default function StyledBlurView(props: BlurViewProps) {
   return (
     <CompatibleBLurView
       {...props}
-      tint={colorScheme}
+      tint={colorScheme === 'light' ? 'default' : 'dark'}
       style={tw.style(
         Platform.OS === 'android'
           ? tw`bg-body-1`
-          : `bg-[rgba(255,255,255,0.85)] dark:bg-[rgba(26,26,26,0.65)]`,
+          : `bg-[rgba(255,255,255,0.65)] dark:bg-[rgba(26,26,26,0.65)]`,
         props.style as any
       )}
     />
