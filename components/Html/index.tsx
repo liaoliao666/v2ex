@@ -26,11 +26,9 @@ import ImageRenderer from './ImageRenderer'
 
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
-    onElement: el => {
-      const firstChild = first(el.children)
-      // @ts-ignore
+    onElement: (el: any) => {
+      const firstChild: any = first(el.children)
       if (firstChild && firstChild.name === 'p')
-        // @ts-ignore
         firstChild.attribs = { class: 'text-body-5 mt-0' }
     },
   },

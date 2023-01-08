@@ -35,7 +35,7 @@ export function FallbackComponent({
   }
 
   return (
-    <View style={tw`flex-1 p-8`}>
+    <View style={tw`p-8`}>
       <Text style={tw`text-[31px] leading-9 font-extrabold text-tint-primary`}>
         {isObject(error) && error.code
           ? (error as unknown as AxiosError).code || error.name

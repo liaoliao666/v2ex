@@ -1,7 +1,5 @@
-import CookieManager from '@react-native-cookies/cookies'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { load } from 'cheerio'
-import { isArray } from 'lodash-es'
 import { useRef, useState } from 'react'
 import { Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
@@ -11,6 +9,7 @@ import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import StyledBlurView from '@/components/StyledBlurView'
 import { getNavigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
+import { setCookie } from '@/utils/cookie'
 import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
@@ -87,13 +86,7 @@ export default function WebSigninScreen() {
                 params.onTwoStepOnce($("input[name='once']").attr('value')!)
                 getNavigation()?.goBack()
               } else {
-                await CookieManager.setFromResponse(
-                  baseURL,
-                  isArray(headers['set-cookie'])
-                    ? headers['set-cookie'].join(';')
-                    : ''
-                )
-
+                await setCookie(headers['set-cookie'])
                 goBackWithRefetch()
               }
             }

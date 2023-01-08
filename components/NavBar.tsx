@@ -35,7 +35,13 @@ export default function NavBar({
   const safeTop = useNavBarSafeTop(hideSafeTop)
 
   return (
-    <View style={tw.style(`pt-[${safeTop}px`, style)}>
+    <View
+      style={tw.style(
+        `pt-[${safeTop}px`,
+        Platform.OS === 'android' && `border-tint-border border-solid border-b`,
+        style
+      )}
+    >
       <View style={tw`px-4 flex-row items-center h-[${NAV_BAR_HEIGHT}px]`}>
         {!!left && (
           <View style={tw`min-w-[56px] flex-row justify-start items-center`}>

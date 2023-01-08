@@ -19,7 +19,10 @@ import { TabBar, TabView } from 'react-native-tab-view'
 import Badge from '@/components/Badge'
 import IconButton from '@/components/IconButton'
 import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
-import { withQuerySuspense } from '@/components/QuerySuspense'
+import {
+  FallbackComponent,
+  withQuerySuspense,
+} from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
@@ -38,8 +41,30 @@ import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
-const MemoRecentTopics = memo(withQuerySuspense(RecentTopics))
-const MemoTabTopics = memo(withQuerySuspense(TabTopics))
+const MemoRecentTopics = memo(
+  withQuerySuspense(RecentTopics, {
+    FallbackComponent: props => {
+      const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+      return (
+        <View style={{ paddingTop: headerHeight }}>
+          <FallbackComponent {...props} />
+        </View>
+      )
+    },
+  })
+)
+const MemoTabTopics = memo(
+  withQuerySuspense(TabTopics, {
+    FallbackComponent: props => {
+      const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+      return (
+        <View style={{ paddingTop: headerHeight }}>
+          <FallbackComponent {...props} />
+        </View>
+      )
+    },
+  })
+)
 
 export default withQuerySuspense(HomeScreen)
 
@@ -106,9 +131,7 @@ function HomeScreen() {
         }}
         tabBarPosition="bottom"
         renderTabBar={props => (
-          <View style={tw`absolute top-0 inset-x-0 z-10`}>
-            <StyledBlurView style={tw`absolute inset-0`} />
-
+          <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
             <TopNavBar />
 
             <View
@@ -165,11 +188,11 @@ function HomeScreen() {
                 />
               </TouchableOpacity>
             </View>
-          </View>
+          </StyledBlurView>
         )}
       />
 
-      <PreventLeftSwiping />
+      <PreventLeftSwiping headerHeight={headerHeight} />
     </View>
   )
 }
@@ -338,8 +361,7 @@ function TopNavBar() {
   )
 }
 
-function PreventLeftSwiping() {
-  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+function PreventLeftSwiping({ headerHeight }: { headerHeight: number }) {
   return (
     <View style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-4`} />
   )

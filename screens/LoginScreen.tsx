@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import CookieManager from '@react-native-cookies/cookies'
 import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { useState } from 'react'
@@ -16,8 +15,8 @@ import {
   useSigninInfo,
   useTwoStepSignin,
 } from '@/servicies/authentication'
+import { setCookie } from '@/utils/cookie'
 import { queryClient } from '@/utils/query'
-import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
 
@@ -179,7 +178,7 @@ export default function LoginScreen() {
               }
 
               if (result.cookie) {
-                await CookieManager.setFromResponse(baseURL, result.cookie)
+                await setCookie(result.cookie)
               }
 
               navigation.goBack()
@@ -335,7 +334,7 @@ function TwoStepSignin({ once }: { once: string }) {
             ...getValues(),
             once,
           })
-          await CookieManager.setFromResponse(baseURL, cookie)
+          await setCookie(cookie)
           navigation.goBack()
           queryClient.refetchQueries({ type: 'active' })
         })}

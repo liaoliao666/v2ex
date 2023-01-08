@@ -31,6 +31,7 @@ import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
+import { openURL } from '@/utils/url'
 
 import Html from '../Html'
 import IconButton from '../IconButton'
@@ -385,6 +386,7 @@ function MoreButton({
           topic.ignored ? '取消忽略' : '忽略',
           '举报',
           '分享',
+          '浏览器打开',
           topic.editable && '编辑',
           topic.appendable && '附言',
           '取消',
@@ -406,6 +408,8 @@ function MoreButton({
                 validateLoginStatus()
 
                 if (reportTopicMutation.isLoading) return
+
+                await confirm('确定举报该主题么?')
 
                 try {
                   await reportTopicMutation.mutateAsync({
@@ -483,6 +487,10 @@ function MoreButton({
 
               case options.indexOf('附言'):
                 onAppend()
+                break
+
+              case options.indexOf('浏览器打开'):
+                openURL(`${baseURL}/t/${topic.id}`)
                 break
 
               case cancelButtonIndex:
