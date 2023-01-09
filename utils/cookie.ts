@@ -23,13 +23,15 @@ export function clearCookie() {
   ])
 }
 
-export function setCookie(cookies?: string[] | string) {
+export function setCookie(cookies: string[] | string) {
   return CookieManager.setFromResponse(
     baseURL,
-    isArray(cookies) ? cookies.join(';') : ''
+    isArray(cookies) ? cookies.join(';') : cookies
   )
 }
 
-export function getCookie() {
-  return CookieManager.get(baseURL)
+export async function getCookie(): Promise<string> {
+  return Object.entries((await CookieManager.get(baseURL, true)) as any)
+    .map(([key, { value }]: any) => `${key}=${value}`)
+    .join(';')
 }

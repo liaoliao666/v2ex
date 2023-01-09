@@ -22,7 +22,7 @@ import Navigation from './navigation'
 import { useCheckin } from './servicies/member'
 import { useNodes } from './servicies/node'
 import './utils/dayjsPlugins'
-// import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
+import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
 import { asyncStoragePersister, queryClient } from './utils/query'
 import tw from './utils/tw'
 import { useAppState } from './utils/useAppState'
@@ -31,7 +31,7 @@ LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
 ])
 
-// enabledNetworkInspect()
+enabledNetworkInspect()
 
 function onAppStateChange(status: AppStateStatus) {
   // React Query already supports in web browser refetch on window focus by default

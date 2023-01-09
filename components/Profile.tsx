@@ -173,8 +173,8 @@ function Profile() {
       ) : (
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
-          onPress={() => {
-            clearCookie()
+          onPress={async () => {
+            await clearCookie()
             navigation.navigate('Login')
           }}
         >

@@ -1,5 +1,6 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
+import { isEmpty } from 'lodash-es'
 
 import { open503UrlTimeAtom } from '@/jotai/open503UrlTimeAtom'
 import { store } from '@/jotai/store'
@@ -26,7 +27,9 @@ request.interceptors.request.use(async config => {
 request.interceptors.response.use(
   response => {
     updateStoreWithData(response.data)
-    setCookie(response.headers['set-cookie'])
+    if (!isEmpty(response.headers['set-cookie'])) {
+      setCookie(response.headers['set-cookie']!)
+    }
     return response
   },
   error => {

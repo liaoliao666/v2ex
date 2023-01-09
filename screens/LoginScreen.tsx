@@ -130,7 +130,12 @@ export default function LoginScreen() {
               >
                 <StyledImage
                   style={tw`w-full h-full rounded-lg bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
-                  source={{ uri: SigninInfoQuery.data?.captcha }}
+                  source={{
+                    uri: SigninInfoQuery.data?.captcha,
+                    headers: {
+                      Cookie: SigninInfoQuery.data?.cookie!,
+                    },
+                  }}
                 />
               </TouchableOpacity>
 

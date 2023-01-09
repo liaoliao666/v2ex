@@ -2,6 +2,7 @@ import { load } from 'cheerio'
 import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
+import { getCookie } from '@/utils/cookie'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
@@ -47,6 +48,7 @@ export const useSigninInfo = createQuery(
       code_hash: $(
         '#Main > div.box > div.cell > form > table > tbody > tr:nth-child(3) > td:nth-child(2) > input'
       ).attr('name'),
+      cookie: await getCookie(),
     }
   },
   {
