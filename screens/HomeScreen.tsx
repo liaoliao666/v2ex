@@ -36,7 +36,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useRecentTopics, useTabTopics } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { validateLoginStatus } from '@/utils/authentication'
+import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -131,7 +131,9 @@ function HomeScreen() {
         }}
         tabBarPosition="bottom"
         renderTabBar={props => (
-          <StyledBlurView style={tw`absolute top-0 inset-x-0 z-10`}>
+          <View style={tw`absolute top-0 inset-x-0 z-10`}>
+            <StyledBlurView style={tw`absolute inset-0`} />
+
             <TopNavBar />
 
             <View
@@ -188,7 +190,7 @@ function HomeScreen() {
                 />
               </TouchableOpacity>
             </View>
-          </StyledBlurView>
+          </View>
         )}
       />
 
@@ -344,7 +346,10 @@ function TopNavBar() {
           color={tw`text-tint-secondary`.color as string}
           activeColor={tw`text-tint-primary`.color as string}
           onPress={() => {
-            validateLoginStatus()
+            if (!isSignined()) {
+              navigation.navigate('Login')
+              return
+            }
             navigation.navigate('WriteTopic', {})
           }}
         />

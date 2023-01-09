@@ -5,6 +5,7 @@ import { open503UrlTimeAtom } from '@/jotai/open503UrlTimeAtom'
 import { store } from '@/jotai/store'
 import { updateStoreWithData } from '@/servicies/helper'
 
+import { setCookie } from '../cookie'
 import { openURL } from '../url'
 import { baseURL } from './baseURL'
 
@@ -12,7 +13,7 @@ export const request = axios.create({
   baseURL,
 })
 
-request.interceptors.request.use(config => {
+request.interceptors.request.use(async config => {
   return {
     ...config,
     // adapter:
@@ -25,9 +26,17 @@ request.interceptors.request.use(config => {
 request.interceptors.response.use(
   response => {
     updateStoreWithData(response.data)
+    setCookie(response.headers['set-cookie'])
     return response
   },
-  async error => {
+  error => {
+    Error503Handler(error)
+    return Promise.reject(error)
+  }
+)
+
+async function Error503Handler(error: any) {
+  try {
     if (error.message.includes(`503`) && !error.config.url.startsWith('http')) {
       const open503UrlTime = await store.get(open503UrlTimeAtom)
       if (dayjs().diff(open503UrlTime, 'day') > 1) {
@@ -35,6 +44,7 @@ request.interceptors.response.use(
         openURL(`${baseURL}${error.config.url}`)
       }
     }
-    return Promise.reject(error)
+  } catch {
+    // empty
   }
-)
+}

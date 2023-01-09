@@ -9,6 +9,7 @@ const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
 let CookieManager = {
   clearAll: noop,
   setFromResponse: noop,
+  get: noop,
 }
 
 if (!isExpoGo) {
@@ -27,4 +28,8 @@ export function setCookie(cookies?: string[] | string) {
     baseURL,
     isArray(cookies) ? cookies.join(';') : ''
   )
+}
+
+export function getCookie() {
+  return CookieManager.get(baseURL)
 }

@@ -27,7 +27,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
 import { Notice } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { validateLoginStatus } from '@/utils/authentication'
+import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
@@ -179,6 +179,8 @@ const NoticeItem = memo(({ notice }: { notice: Notice }) => {
 function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
   const { mutateAsync, isLoading } = useDeleteNotice()
 
+  const navigation = useNavigation()
+
   return (
     <IconButton
       size={16}
@@ -186,7 +188,10 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
       color={tw`text-tint-secondary`.color as string}
       activeColor={tw`text-tint-primary`.color as string}
       onPress={async () => {
-        validateLoginStatus()
+        if (!isSignined()) {
+          navigation.navigate('Login')
+          return
+        }
 
         if (isLoading) return
 

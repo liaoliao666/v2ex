@@ -19,7 +19,7 @@ import {
 } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { validateLoginStatus } from '@/utils/authentication'
+import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
@@ -221,10 +221,15 @@ function ThankReply({
 }) {
   const { mutateAsync, isLoading } = useThankReply()
 
+  const navigation = useNavigation()
+
   return (
     <Pressable
       onPress={async () => {
-        validateLoginStatus()
+        if (!isSignined()) {
+          navigation.navigate('Login')
+          return
+        }
 
         if (isLoading || reply.thanked) return
 
@@ -296,6 +301,8 @@ function MoreButton({
 
   const ignoreReplyMutation = useIgnoreReply()
 
+  const navigation = useNavigation()
+
   return (
     <IconButton
       name="dots-horizontal"
@@ -326,7 +333,10 @@ function MoreButton({
                 break
 
               case destructiveButtonIndex: {
-                validateLoginStatus()
+                if (!isSignined()) {
+                  navigation.navigate('Login')
+                  return
+                }
 
                 if (ignoreReplyMutation.isLoading) return
 

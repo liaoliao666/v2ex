@@ -26,7 +26,7 @@ import {
 } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { validateLoginStatus } from '@/utils/authentication'
+import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
@@ -154,6 +154,8 @@ function TopicInfo({
 export function LikeTopic({ topic }: { topic: Topic }) {
   const { mutateAsync, isLoading } = useLikeTopic()
 
+  const navigation = useNavigation()
+
   return (
     <View style={tw.style(`flex-row items-center`)}>
       <IconButton
@@ -162,7 +164,10 @@ export function LikeTopic({ topic }: { topic: Topic }) {
         active={topic.liked}
         icon={<FontAwesome name={topic.liked ? 'star' : 'star-o'} />}
         onPress={async () => {
-          validateLoginStatus()
+          if (!isSignined()) {
+            navigation.navigate('Login')
+            return
+          }
 
           if (isLoading) return
 
@@ -215,6 +220,8 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 export function ThankTopic({ topic }: { topic: Topic }) {
   const { mutateAsync, isLoading } = useThankTopic()
 
+  const navigation = useNavigation()
+
   return (
     <View style={tw.style(`flex-row items-center`)}>
       <IconButton
@@ -223,7 +230,10 @@ export function ThankTopic({ topic }: { topic: Topic }) {
         activeColor="rgb(249,24,128)"
         active={topic.thanked}
         onPress={async () => {
-          validateLoginStatus()
+          if (!isSignined()) {
+            navigation.navigate('Login')
+            return
+          }
 
           if (isLoading || topic.thanked) return
 
@@ -272,6 +282,8 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 export function VoteButton({ topic }: { topic: Topic }) {
   const { mutateAsync, isLoading } = useVoteTopic()
 
+  const navigation = useNavigation()
+
   return (
     <View
       style={tw`py-1 flex-row items-center border-tint-border border-solid border rounded-full`}
@@ -279,7 +291,10 @@ export function VoteButton({ topic }: { topic: Topic }) {
       <Pressable
         style={tw`px-2 flex-row items-center`}
         onPress={async () => {
-          validateLoginStatus()
+          if (!isSignined()) {
+            navigation.navigate('Login')
+            return
+          }
 
           if (isLoading) return
 
@@ -326,7 +341,10 @@ export function VoteButton({ topic }: { topic: Topic }) {
       <Pressable
         style={tw`px-2`}
         onPress={async () => {
-          validateLoginStatus()
+          if (!isSignined()) {
+            navigation.navigate('Login')
+            return
+          }
 
           if (isLoading) return
 
@@ -405,7 +423,10 @@ function MoreButton({
           async selectedIndex => {
             switch (selectedIndex) {
               case 1:
-                validateLoginStatus()
+                if (!isSignined()) {
+                  navigation.navigate('Login')
+                  return
+                }
 
                 if (reportTopicMutation.isLoading) return
 
@@ -437,7 +458,10 @@ function MoreButton({
                 break
 
               case destructiveButtonIndex: {
-                validateLoginStatus()
+                if (!isSignined()) {
+                  navigation.navigate('Login')
+                  return
+                }
 
                 if (ignoreTopicMutation.isLoading) return
 

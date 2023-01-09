@@ -9,7 +9,6 @@ import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import StyledBlurView from '@/components/StyledBlurView'
 import { getNavigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
-import { setCookie } from '@/utils/cookie'
 import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
@@ -74,7 +73,7 @@ export default function WebSigninScreen() {
               setIsLoading(true)
               setWebviewVisible(false)
 
-              const { headers, data } = await request.get(state.url, {
+              const { data } = await request.get(state.url, {
                 headers: {
                   Referer: `https://accounts.google.com/`,
                 },
@@ -86,7 +85,6 @@ export default function WebSigninScreen() {
                 params.onTwoStepOnce($("input[name='once']").attr('value')!)
                 getNavigation()?.goBack()
               } else {
-                await setCookie(headers['set-cookie'])
                 goBackWithRefetch()
               }
             }

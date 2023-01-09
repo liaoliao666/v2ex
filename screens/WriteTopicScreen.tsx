@@ -18,7 +18,7 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { useEditTopic, useTopicDetail, useWriteTopic } from '@/servicies/topic'
 import { RootStackParamList } from '@/types'
-import { validateLoginStatus } from '@/utils/authentication'
+import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
@@ -127,10 +127,13 @@ export default function WriteTopicScreen() {
         <SafeAreaView edges={['bottom']} style={tw`mt-auto`}>
           <StyledButton
             onPress={() => {
+              if (!isSignined()) {
+                navigation.navigate('Login')
+                return
+              }
+
               handleSubmit(async values => {
                 try {
-                  validateLoginStatus()
-
                   if (
                     writeTopicMutation.isLoading ||
                     editTopicMutation.isLoading

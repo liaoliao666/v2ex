@@ -1,4 +1,4 @@
-import { RouteProp, useRoute } from '@react-navigation/native'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
@@ -240,8 +240,13 @@ function LikeNode({
 }) {
   const { mutateAsync, isLoading } = useLikeNode()
 
+  const navigation = useNavigation()
+
   async function handleFavorite() {
-    validateLoginStatus()
+    if (!isSignined()) {
+      navigation.navigate('Login')
+      return
+    }
 
     if (isLoading) return
     if (!id || !once) return

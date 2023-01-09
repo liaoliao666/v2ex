@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import { useAppendTopic, useReply } from '@/servicies/topic'
-import { validateLoginStatus } from '@/utils/authentication'
+import { isSignined } from '@/utils/authentication'
 import tw from '@/utils/tw'
 import useUpdate from '@/utils/useUpdate'
 
@@ -53,13 +53,12 @@ const ReplyBox = forwardRef<
 
   useImperativeHandle(ref, () => ({
     replyFor: (replyType?: ReplyType) => {
-      try {
-        validateLoginStatus()
-        replyTypeRef.current = replyType || {}
-        inputRef.current?.focus()
-      } catch (error) {
-        // empty
+      if (!isSignined()) {
+        navigation.navigate('Login')
+        return
       }
+      replyTypeRef.current = replyType || {}
+      inputRef.current?.focus()
     },
   }))
 
@@ -155,7 +154,10 @@ const ReplyBox = forwardRef<
             size="small"
             pressable={getContent().length > 2}
             onPress={async () => {
-              validateLoginStatus()
+              if (!isSignined()) {
+                navigation.navigate('Login')
+                return
+              }
 
               const { isLoading, mutateAsync } = replyTypeRef.current.isAppend
                 ? appendTopicMutation

@@ -173,7 +173,7 @@ function Profile() {
       ) : (
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
-          onPress={async () => {
+          onPress={() => {
             clearCookie()
             navigation.navigate('Login')
           }}
@@ -305,7 +305,6 @@ function SignoutItem({ once }: { once: string }) {
       // empty
     } finally {
       setProfileAtom(RESET)
-      // v2exMessage.clearWebviewCache()
       clearCookie()
     }
   }

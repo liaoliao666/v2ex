@@ -60,7 +60,7 @@ import {
 } from '@/servicies/member'
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { validateLoginStatus } from '@/utils/authentication'
+import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import useMount from '@/utils/useMount'
@@ -626,11 +626,16 @@ function FollowMember({
 }: Pick<Member, 'username' | 'id' | 'once' | 'followed'>) {
   const { mutateAsync, isLoading } = useFollowMember()
 
+  const navigation = useNavigation()
+
   return (
     <StyledButton
       shape="rounded"
       onPress={async () => {
-        validateLoginStatus()
+        if (!isSignined()) {
+          navigation.navigate('Login')
+          return
+        }
 
         if (isLoading) return
         if (!id || !once) return
@@ -671,13 +676,18 @@ function BlockMember({
 }: Pick<Member, 'username' | 'id' | 'once' | 'blocked'>) {
   const { mutateAsync, isLoading } = useBlockMember()
 
+  const navigation = useNavigation()
+
   return (
     <StyledButton
       shape="rounded"
       ghost
       textProps={{ style: tw`font-bold` }}
       onPress={async () => {
-        validateLoginStatus()
+        if (!isSignined()) {
+          navigation.navigate('Login')
+          return
+        }
 
         if (isLoading) return
         if (!id || !once) return

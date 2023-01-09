@@ -15,7 +15,6 @@ import {
   useSigninInfo,
   useTwoStepSignin,
 } from '@/servicies/authentication'
-import { setCookie } from '@/utils/cookie'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
@@ -177,10 +176,6 @@ export default function LoginScreen() {
                 return
               }
 
-              if (result.cookie) {
-                await setCookie(result.cookie)
-              }
-
               navigation.goBack()
               queryClient.refetchQueries({ type: 'active' })
             } catch (error) {
@@ -330,11 +325,10 @@ function TwoStepSignin({ once }: { once: string }) {
         style={tw`w-full mt-4`}
         onPress={handleSubmit(async () => {
           if (isLoading) return
-          const cookie = await mutateAsync({
+          await mutateAsync({
             ...getValues(),
             once,
           })
-          await setCookie(cookie)
           navigation.goBack()
           queryClient.refetchQueries({ type: 'active' })
         })}

@@ -45,8 +45,26 @@ export default withQuerySuspense(MyFollowingScreen, {
   ),
 })
 
-const MemoMyFollowing = withQuerySuspense(memo(MyFollowing))
-const MemoMemberTopics = withQuerySuspense(memo(MemberTopics))
+const MemoMyFollowing = withQuerySuspense(memo(MyFollowing), {
+  FallbackComponent: props => {
+    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    return (
+      <View style={{ paddingTop: headerHeight }}>
+        <FallbackComponent {...props} />
+      </View>
+    )
+  },
+})
+const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
+  FallbackComponent: props => {
+    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    return (
+      <View style={{ paddingTop: headerHeight }}>
+        <FallbackComponent {...props} />
+      </View>
+    )
+  },
+})
 
 function MyFollowingScreen() {
   const { data } = useMyFollowing({

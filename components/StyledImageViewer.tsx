@@ -36,7 +36,7 @@ export default function StyledImageViewer({
 
   return (
     <Modal
-      presentationStyle="fullScreen"
+      // presentationStyle="fullScreen"
       visible={visible}
       onRequestClose={onClose}
       transparent
