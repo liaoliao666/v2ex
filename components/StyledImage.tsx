@@ -12,7 +12,6 @@ import { request } from '@/utils/request'
 import tw from '@/utils/tw'
 import { isSvgUrl, resolveUrl } from '@/utils/url'
 
-const placeholderCls = 'bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]'
 const uriToSize = new Map()
 
 let FastImage = Image
@@ -65,7 +64,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
   return isStyle(style) && hasSize(style) ? (
     <FastImage
       {...imageProps}
-      style={isLoading ? tw.style(style, placeholderCls) : style}
+      style={isLoading ? tw.style(style, `bg-loading`) : style}
     />
   ) : (
     <View
@@ -79,7 +78,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
         style={tw.style(
           style as ViewStyle,
           `w-full h-full`,
-          isLoading && placeholderCls
+          isLoading && `bg-loading`
         )}
       />
     </View>
@@ -109,8 +108,8 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
       <View
         style={
           isStyle(style) && hasSize(style)
-            ? tw.style(style, placeholderCls)
-            : tw.style(placeholderCls, 'aspect-square')
+            ? tw.style(style, `bg-loading`)
+            : tw.style(`bg-loading`, 'aspect-square')
         }
       />
     )

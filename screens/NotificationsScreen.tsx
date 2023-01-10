@@ -119,7 +119,7 @@ const NoticeItem = memo(({ notice }: { notice: Notice }) => {
       style={tw`flex-row flex-wrap p-4`}
       onPress={() => {
         navigation.push('TopicDetail', {
-          id: notice.topic.id,
+          ...notice.topic,
           hightlightReplyNo: [
             notice.prev_action_text,
             notice.next_action_text,

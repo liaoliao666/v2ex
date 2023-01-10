@@ -38,7 +38,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
       style={tw`px-4 py-3 flex-row bg-body-1`}
       onPress={() => {
         if (isDisabledPress?.()) return
-        navigation.push('TopicDetail', { id: topic.id })
+        navigation.push('TopicDetail', topic)
       }}
     >
       {!hideAvatar && (

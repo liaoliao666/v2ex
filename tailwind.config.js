@@ -31,6 +31,7 @@ module.exports = {
           'text-body-4': 'text-[17px] leading-[26px]',
           'text-body-5': 'text-[15px] leading-[24px]',
           'text-body-6': 'text-[13px] leading-[22px]',
+          'bg-loading': 'bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]',
           'bg-body-1': 'bg-white dark:bg-[#1a1a1a]',
           'bg-body-1-invert': 'dark:bg-white bg-[#1a1a1a]',
           'bg-body-2': 'bg-[#f0f3f5] dark:bg-[#262626]',

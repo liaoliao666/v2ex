@@ -290,7 +290,7 @@ const HitItem = ({
     <DebouncePressable
       style={tw`px-4 py-3 flex-row bg-body-1`}
       onPress={() => {
-        navigation.push('TopicDetail', { id: topic.id })
+        navigation.push('TopicDetail', topic)
       }}
     >
       <View style={tw`flex-1`}>

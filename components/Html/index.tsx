@@ -122,8 +122,8 @@ function Html({
         baseStyle={tw`text-tint-primary text-body-5`}
         contentWidth={width}
         tagsStyles={{
-          h1: tw`text-body-3 border-b border-solid border-tint-border`,
-          h2: tw`text-body-4 border-b border-solid border-tint-border`,
+          h1: tw`text-body-3 pb-1.5 border-b border-solid border-tint-border`,
+          h2: tw`text-body-4 pb-1.5 border-b border-solid border-tint-border`,
           h3: tw`text-body-4 `,
           h4: tw`text-body-4`,
           h5: tw`text-body-5`,

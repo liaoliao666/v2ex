@@ -35,10 +35,7 @@ export type RootStackParamList = {
     onPressReplyMemberItem: (member: Member) => void
   }
   Login: undefined
-  TopicDetail: {
-    id: number
-    hightlightReplyNo?: number
-  }
+  TopicDetail: Partial<Topic> & { hightlightReplyNo?: number; id: number }
   RelatedReplies: {
     replyId: number
     onReply: (username: string) => void

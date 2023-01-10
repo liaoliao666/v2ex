@@ -2,7 +2,14 @@ import { Octicons } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import { FlatList, ListRenderItem, Text, View } from 'react-native'
 
 import IconButton from '@/components/IconButton'
@@ -16,6 +23,7 @@ import RadioButtonGroup from '@/components/RadioButtonGroup'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
+import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
 import ReplyItem from '@/components/topic/ReplyItem'
@@ -33,18 +41,62 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(TopicDetailScreen, {
   Loading: () => (
-    <View style={tw`flex-1 bg-body-1`}>
-      <NavBar title="帖子" />
+    <TopicDetailPlaceholder>
       <LoadingIndicator />
-    </View>
+    </TopicDetailPlaceholder>
   ),
   fallbackRender: props => (
-    <View style={tw`flex-1`}>
-      <NavBar title="帖子" />
+    <TopicDetailPlaceholder>
       <FallbackComponent {...props} />
-    </View>
+    </TopicDetailPlaceholder>
   ),
 })
+
+function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
+  const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
+  return (
+    <View style={tw`flex-1 bg-body-1`}>
+      <NavBar title="帖子" />
+      {params.member && (
+        <View style={tw`pt-3 px-4`}>
+          <View style={tw`flex-row items-center`}>
+            <View style={tw`mr-3`}>
+              <StyledImage
+                style={tw`w-12 h-12 rounded-full`}
+                source={{
+                  uri: params.member?.avatar,
+                }}
+              />
+            </View>
+
+            <View style={tw`flex-1`}>
+              <View style={tw`flex-row items-center`}>
+                <Text style={tw`text-tint-primary text-body-4 font-bold`}>
+                  {params.member?.username}
+                </Text>
+              </View>
+              <View style={tw`flex-1`}>
+                {params.reply_count && (
+                  <Text
+                    key="reply_count"
+                    style={tw`text-tint-secondary text-body-5 flex-1`}
+                    numberOfLines={1}
+                  >
+                    {`${params.reply_count} 回复`}
+                  </Text>
+                )}
+              </View>
+            </View>
+          </View>
+          <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
+            {params.title}
+          </Text>
+        </View>
+      )}
+      {children}
+    </View>
+  )
+}
 
 type OrderBy = 'asc' | 'desc'
 

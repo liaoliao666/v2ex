@@ -83,7 +83,7 @@ const RecentTopicItem = memo(
       <DebouncePressable
         style={tw`px-4 py-3 flex-row bg-body-1`}
         onPress={() => {
-          navigation.push('TopicDetail', { id: recentTopic.id })
+          navigation.push('TopicDetail', recentTopic)
         }}
       >
         <View style={tw`mr-3`}>

@@ -571,7 +571,7 @@ const MemberReply = memo(
         key={topic.id}
         style={tw`px-4 py-3 bg-body-1`}
         onPress={() => {
-          navigation.push('TopicDetail', { id: topic.id })
+          navigation.push('TopicDetail', topic)
         }}
       >
         <Space style={tw`items-center`}>
@@ -732,9 +732,7 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
 
       <View style={tw`-mt-8 px-4 flex-row`}>
         <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
-          <View
-            style={tw`w-[81.25px] h-[81.25px] rounded-full bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
-          />
+          <View style={tw`w-[81.25px] h-[81.25px] rounded-full bg-loading`} />
         </View>
       </View>
       {children}

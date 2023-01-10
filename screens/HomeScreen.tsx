@@ -66,7 +66,13 @@ const MemoTabTopics = memo(
   })
 )
 
-export default withQuerySuspense(HomeScreen)
+export default withQuerySuspense(HomeScreen, {
+  fallbackRender: props => (
+    <SafeAreaView edges={['top']}>
+      <FallbackComponent {...props} />
+    </SafeAreaView>
+  ),
+})
 
 let isSwiping = false
 function isDisabledPress() {
@@ -334,7 +340,7 @@ function TopNavBar() {
             </Badge>
           ) : (
             <View
-              style={tw`w-8 h-8 items-center justify-center rounded-full bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
+              style={tw`w-8 h-8 items-center justify-center rounded-full bg-loading`}
             />
           )}
         </Pressable>

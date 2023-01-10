@@ -178,9 +178,7 @@ function Profile() {
             navigation.navigate('Login')
           }}
         >
-          <StyledImage
-            style={tw`w-16 h-16 mb-2 rounded-full bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]`}
-          />
+          <StyledImage style={tw`w-16 h-16 mb-2 rounded-full bg-loading`} />
           <View style={tw`flex-row items-center ml-2`}>
             <Text style={tw`text-[24px] text-tint-primary`}>点我登录</Text>
             <SimpleLineIcons
