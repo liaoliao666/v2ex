@@ -41,8 +41,6 @@ export default function WebSigninScreen() {
 
   return (
     <View style={tw`flex-1`}>
-      <NavBar title="谷歌登录" />
-
       {isLoading && <LoadingIndicator style={{ paddingTop: navbarHeight }} />}
 
       {webviewVisible && (
@@ -53,9 +51,9 @@ export default function WebSigninScreen() {
             setIsLoading(false)
           }}
           style={tw.style(`flex-1`, isLoading && `hidden`, {
-            paddingTop: navbarHeight,
+            marginTop: navbarHeight,
           })}
-          source={{ uri: `${baseURL}/auth/google?once=${params.once}` }}
+          source={{ uri: `${baseURL}/signin` }}
           // source={{ uri: `${baseURL}/signin` }}
           javaScriptEnabled={true}
           domStorageEnabled={true}
@@ -106,7 +104,7 @@ export default function WebSigninScreen() {
 
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
-        <NavBar title="谷歌登录" />
+        <NavBar title="网页登录" />
       </View>
     </View>
   )

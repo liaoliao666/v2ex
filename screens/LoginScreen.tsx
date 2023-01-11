@@ -176,6 +176,7 @@ export default function LoginScreen() {
                   getValues('password').trim(),
                 [SigninInfoQuery.data.code_hash!]: getValues('code').trim(),
                 once: SigninInfoQuery.data.once!,
+                username: getValues('username').trim(),
               })
 
               if (result['2fa']) {
@@ -247,13 +248,7 @@ export default function LoginScreen() {
             })
           }}
         >
-          <StyledImage
-            source={{
-              uri: `https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQK4PQZCFUtcTcnrZPxzTznGkOKaTwcIMjth0k9lG_SFmhf5kYvCacJWkeSpA&s=10`,
-            }}
-            style={tw`w-5 h-5`}
-          />
-          <Text style={tw`text-body-5 text-tint-secondary ml-2`}>谷歌登录</Text>
+          <Text style={tw`text-body-5 text-tint-secondary ml-2`}>网页登录</Text>
         </TouchableOpacity>
       </View>
     )

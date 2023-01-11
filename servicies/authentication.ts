@@ -1,7 +1,10 @@
+import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { load } from 'cheerio'
 import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
+import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
+import { store } from '@/jotai/store'
 import { getCookie } from '@/utils/cookie'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
@@ -65,7 +68,12 @@ export const useSignin = createMutation<
   },
   Record<string, string>,
   Error
->(async args => {
+>(async ({ username, ...args }) => {
+  if (await store.get(deletedNamesAtom)?.includes(username)) {
+    await sleep(1000)
+    return Promise.reject(new Error('该帐号已注销'))
+  }
+
   const { headers, data } = await request.post(
     '/signin',
     paramsSerializer(args),

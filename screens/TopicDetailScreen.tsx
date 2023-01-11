@@ -61,12 +61,16 @@ function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
         <View style={tw`pt-3 px-4`}>
           <View style={tw`flex-row items-center`}>
             <View style={tw`mr-3`}>
-              <StyledImage
-                style={tw`w-12 h-12 rounded-full`}
-                source={{
-                  uri: params.member?.avatar,
-                }}
-              />
+              {params.member.avatar?.includes('gravatar') ? (
+                <View style={tw`w-12 h-12 bg-loading rounded-full`} />
+              ) : (
+                <StyledImage
+                  style={tw`w-12 h-12 rounded-full`}
+                  source={{
+                    uri: params.member?.avatar,
+                  }}
+                />
+              )}
             </View>
 
             <View style={tw`flex-1`}>

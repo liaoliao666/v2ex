@@ -60,6 +60,7 @@ export type RootStackParamList = {
     onTwoStepOnce: (once: string) => void
   }
   RecentTopic: undefined
+  Setting: undefined
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

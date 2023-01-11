@@ -50,6 +50,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
+import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
   useBlockMember,
@@ -127,6 +128,10 @@ function MemberDetailScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const pofile = useAtomValue(profileAtom)
+
+  const isSelf = pofile?.username === params.username
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <NavBar
@@ -134,7 +139,7 @@ function MemberDetailScreen() {
         tintColor="#fff"
         statusBarStyle="light"
       >
-        {!avatarVisible && (
+        {!avatarVisible && !isSelf && (
           <View style={tw`flex-row items-center flex-1`}>
             <Text style={tw`text-white text-body-4 font-bold mr-auto`}>
               {member?.username}
@@ -229,7 +234,7 @@ function MemberDetailScreen() {
                 pointerEvents="box-none"
                 style={tw`bg-body-1`}
               >
-                <MemberHeader />
+                <MemberHeader isSelf={isSelf} />
               </View>
 
               <TabBar
@@ -275,7 +280,7 @@ function MemberDetailScreen() {
   )
 }
 
-const MemberHeader = memo(() => {
+const MemberHeader = memo(({ isSelf }: { isSelf: boolean }) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data: member } = useMember({
@@ -296,11 +301,13 @@ const MemberHeader = memo(() => {
           />
         </View>
 
-        <Space style={tw`mt-10 ml-auto flex-row`}>
-          <BlockMember {...member!} />
+        {!isSelf && (
+          <Space style={tw`mt-10 ml-auto flex-row`}>
+            <BlockMember {...member!} />
 
-          <FollowMember {...member!} />
-        </Space>
+            <FollowMember {...member!} />
+          </Space>
+        )}
       </View>
 
       <Space

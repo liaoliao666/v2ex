@@ -5,18 +5,10 @@ import {
 } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { RESET } from 'jotai/utils'
+import { useAtom, useAtomValue } from 'jotai'
 import { omit, pick } from 'lodash-es'
-import { ReactNode, memo } from 'react'
-import {
-  Pressable,
-  PressableProps,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { memo } from 'react'
+import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Money from '@/components/Money'
@@ -24,13 +16,12 @@ import Space from '@/components/Space'
 import StyledImage from '@/components/StyledImage'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
-import { useSignout } from '@/servicies/authentication'
 import { RootStackParamList } from '@/types'
 import { clearCookie } from '@/utils/cookie'
 import tw from '@/utils/tw'
-import { openURL } from '@/utils/url'
 
 import Badge from './Badge'
+import ListItem from './ListItem'
 import { withQuerySuspense } from './QuerySuspense'
 import RadioButtonGroup from './RadioButtonGroup'
 
@@ -193,11 +184,11 @@ function Profile() {
       <ScrollView>
         {isLogin &&
           userOptions.map(item => (
-            <ProfileItem key={item.value} {...omit(item, ['value'])} />
+            <ListItem key={item.value} {...omit(item, ['value'])} />
           ))}
 
         <View style={tw`border-t border-solid border-tint-border`}>
-          <ProfileItem
+          <ListItem
             label="外观"
             icon={
               <Feather
@@ -219,7 +210,7 @@ function Profile() {
             }
           />
 
-          <ProfileItem
+          <ListItem
             label="节点导航"
             icon={
               <Feather
@@ -233,91 +224,23 @@ function Profile() {
             }}
           />
 
-          <ProfileItem
-            label="Github"
+          <ListItem
+            label="更多设置"
             icon={
               <Feather
                 color={tw`text-tint-primary`.color as string}
                 size={24}
-                name="github"
+                name="settings"
               />
             }
             onPress={() => {
-              openURL('https://github.com/liaoliao666/v2ex')
+              navigation.navigate('Setting')
             }}
           />
-
-          {isLogin && <SignoutItem once={profile?.once!} />}
         </View>
 
         <SafeAreaView edges={['bottom']} />
       </ScrollView>
     </SafeAreaView>
-  )
-}
-
-function ProfileItem({
-  label,
-  icon,
-  action,
-  onPress,
-}: {
-  label: string
-  icon: ReactNode
-  action?: ReactNode
-  onPress?: PressableProps['onPress']
-}) {
-  return (
-    <Pressable
-      style={({ pressed }) =>
-        tw.style(
-          `px-4 h-[56px] flex-row items-center`,
-          pressed && `bg-message-press`
-        )
-      }
-      onPress={onPress}
-    >
-      {icon}
-
-      <Text style={tw`ml-6 text-[20px] font-medium text-tint-primary mr-auto`}>
-        {label}
-      </Text>
-
-      {action}
-    </Pressable>
-  )
-}
-
-function SignoutItem({ once }: { once: string }) {
-  const { isLoading, mutateAsync } = useSignout({
-    onError: () => {},
-  })
-
-  const setProfileAtom = useSetAtom(profileAtom)
-
-  async function logout() {
-    try {
-      if (isLoading) return
-      await mutateAsync({ once })
-    } catch (error) {
-      // empty
-    } finally {
-      setProfileAtom(RESET)
-      clearCookie()
-    }
-  }
-
-  return (
-    <ProfileItem
-      label="退出登录"
-      icon={
-        <MaterialCommunityIcons
-          color={tw`text-tint-primary`.color as string}
-          size={24}
-          name={'exit-to-app'}
-        />
-      }
-      onPress={logout}
-    />
   )
 }

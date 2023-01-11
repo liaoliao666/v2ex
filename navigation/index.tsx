@@ -33,6 +33,7 @@ import SearchNodeScreen from '@/screens/SearchNodeScreen'
 import SearchOptionsScreen from '@/screens/SearchOptionsScreen'
 import SearchReplyMemberScreen from '@/screens/SearchReplyMemberScreen'
 import SearchScreen from '@/screens/SearchScreen'
+import SettingScreen from '@/screens/SettingScreen'
 import SortTabsScreen from '@/screens/SortTabsScreen'
 import TopicDetailScreen from '@/screens/TopicDetailScreen'
 import WebSigninScreen from '@/screens/WebSigninScreen'
@@ -173,6 +174,8 @@ function StackNavigator() {
         name="SortTabs"
         component={SortTabsScreen}
       />
+
+      <Stack.Screen name="Setting" component={SettingScreen} />
     </Stack.Navigator>
   )
 }

@@ -100,7 +100,7 @@ function TopicInfo({
           </Separator>
         </View>
 
-        {/* <MoreButton topic={topic} onAppend={onAppend} /> */}
+        <MoreButton topic={topic} onAppend={onAppend} />
       </View>
 
       <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
