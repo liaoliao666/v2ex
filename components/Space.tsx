@@ -23,7 +23,7 @@ export default function Space({
     <View
       style={tw.style(
         wrap && `flex-wrap mb-[-${gap}px]`,
-        direction === 'horizontal' && `flex-row`,
+        direction === 'horizontal' && `flex-row items-center`,
         style
       )}
       {...restProps}

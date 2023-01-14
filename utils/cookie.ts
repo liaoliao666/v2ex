@@ -31,7 +31,7 @@ export function setCookie(cookies: string[] | string) {
 }
 
 export async function getCookie(): Promise<string> {
-  return Object.entries((await CookieManager.get(baseURL)) as any)
+  return Object.entries(((await CookieManager.get(baseURL)) as any) || {})
     .map(([key, { value }]: any) => `${key}=${value}`)
     .join(';')
 }

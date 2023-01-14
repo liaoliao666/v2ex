@@ -11,6 +11,9 @@ export interface RecentTopic {
   title: string
 }
 
+/**
+ * 最近浏览节点
+ */
 export const recentTopicsAtom = atomWithStorage<RecentTopic[]>(
   'recentTopics',
   [],

@@ -2,7 +2,7 @@
   "expo": {
     "name": "V2exHi",
     "slug": "v2ex",
-    "version": "1.1.6",
+    "version": "1.1.7",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -19,7 +19,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.1.6.5"
+      "buildNumber": "1.1.7.3"
     },
     "android": {
       "adaptiveIcon": {

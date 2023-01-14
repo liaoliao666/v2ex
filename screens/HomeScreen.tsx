@@ -235,6 +235,7 @@ function RecentTopics({
   return (
     <FlatList
       data={flatedData}
+      automaticallyAdjustsScrollIndicatorInsets={false}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
@@ -291,6 +292,7 @@ function TabTopics({
   return (
     <FlatList
       data={data}
+      automaticallyAdjustsScrollIndicatorInsets={false}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}

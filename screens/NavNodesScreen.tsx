@@ -54,6 +54,10 @@ function NavNodesScreen() {
 
   const navbarHeight = useNavBarHeight()
 
+  const renderItem: ListRenderItem<Node[]> = useCallback(({ item }) => {
+    return <NavNodeItem item={item} />
+  }, [])
+
   return (
     <View style={tw`bg-body-1 flex-1`}>
       <View style={tw`flex-1 flex-row`}>
@@ -90,7 +94,13 @@ function NavNodesScreen() {
           <SafeAreaView edges={['bottom']} />
         </ScrollView>
 
-        <NodeList nodes={routes[index].nodes} navbarHeight={navbarHeight} />
+        <FlatList
+          style={tw`flex-1`}
+          contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
+          renderItem={renderItem}
+          data={routes[index].nodes}
+          ListFooterComponent={<SafeAreaView edges={['bottom']} />}
+        />
       </View>
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>
@@ -101,53 +111,33 @@ function NavNodesScreen() {
   )
 }
 
-const NodeList = memo(
-  ({ nodes, navbarHeight }: { nodes: Node[][]; navbarHeight: number }) => {
-    const navigation = useNavigation()
+const NavNodeItem = memo(({ item }: { item: Node[] }) => {
+  const navigation = useNavigation()
 
-    const renderItem: ListRenderItem<Node[]> = useCallback(
-      ({ item }) => {
+  return (
+    <View key={item.map(o => o.name).join('_')} style={tw`flex flex-row`}>
+      {item.map(node => {
         return (
-          <View key={item.map(o => o.name).join('_')} style={tw`flex flex-row`}>
-            {item.map(node => {
-              return (
-                <TouchableOpacity
-                  key={node.id}
-                  onPress={() => {
-                    navigation.navigate('NodeTopics', { name: node.name })
-                  }}
-                  style={tw`w-1/3 py-2 items-center justify-center`}
-                >
-                  <StyledImage
-                    style={tw`w-12 h-12`}
-                    source={{
-                      uri: node.avatar_large,
-                    }}
-                  />
+          <TouchableOpacity
+            key={node.id}
+            onPress={() => {
+              navigation.navigate('NodeTopics', { name: node.name })
+            }}
+            style={tw`w-1/3 py-2 items-center justify-center`}
+          >
+            <StyledImage
+              style={tw`w-12 h-12`}
+              source={{
+                uri: node.avatar_large,
+              }}
+            />
 
-                  <Text
-                    style={tw`text-body-6 text-tint-primary text-center mt-2`}
-                  >
-                    {node.title}
-                  </Text>
-                </TouchableOpacity>
-              )
-            })}
-          </View>
+            <Text style={tw`text-body-6 text-tint-primary text-center mt-2`}>
+              {node.title}
+            </Text>
+          </TouchableOpacity>
         )
-      },
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      []
-    )
-
-    return (
-      <FlatList
-        style={tw`flex-1`}
-        contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
-        renderItem={renderItem}
-        data={nodes}
-        ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-      />
-    )
-  }
-)
+      })}
+    </View>
+  )
+})

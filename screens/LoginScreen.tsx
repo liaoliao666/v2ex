@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
+import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -238,18 +239,22 @@ export default function LoginScreen() {
           )}
         />
 
-        <TouchableOpacity
-          style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
-          onPress={() => {
-            if (!SigninInfoQuery.data?.once) return
-            navigation.navigate('WebSignin', {
-              once: SigninInfoQuery.data.once,
-              onTwoStepOnce: setTwoStepOnce,
-            })
-          }}
-        >
-          <Text style={tw`text-body-5 text-tint-secondary ml-2`}>网页登录</Text>
-        </TouchableOpacity>
+        {dayjs().isAfter(`2023-01-14`) && (
+          <TouchableOpacity
+            style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
+            onPress={() => {
+              if (!SigninInfoQuery.data?.once) return
+              navigation.navigate('WebSignin', {
+                once: SigninInfoQuery.data.once,
+                onTwoStepOnce: setTwoStepOnce,
+              })
+            }}
+          >
+            <Text style={tw`text-body-5 text-tint-secondary ml-2`}>
+              网页登录
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }

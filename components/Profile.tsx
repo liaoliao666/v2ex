@@ -1,5 +1,6 @@
 import {
   Feather,
+  Ionicons,
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons'
@@ -144,7 +145,7 @@ function Profile() {
             </TouchableOpacity>
           </View>
 
-          <Space style={tw`items-center pt-2`}>
+          <Space style={tw`pt-2`}>
             <Text style={tw`text-tint-primary text-[20px] leading-6 font-bold`}>
               {profile?.username}
             </Text>
@@ -225,7 +226,21 @@ function Profile() {
           />
 
           <ListItem
-            label="更多设置"
+            label="社区排行"
+            icon={
+              <Ionicons
+                color={tw`text-tint-primary`.color as string}
+                size={24}
+                name={'md-analytics-outline'}
+              />
+            }
+            onPress={() => {
+              navigation.navigate('Rank')
+            }}
+          />
+
+          <ListItem
+            label="更多选项"
             icon={
               <Feather
                 color={tw`text-tint-primary`.color as string}

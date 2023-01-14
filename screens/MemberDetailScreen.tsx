@@ -156,6 +156,8 @@ function MemberDetailScreen() {
         lazy
         lazyPreloadDistance={1}
         renderScene={({ route }) => {
+          const currentRoute = routes[index]
+
           const senceProps = {
             ref: route.ref,
             contentContainerStyle: {
@@ -170,12 +172,11 @@ function MemberDetailScreen() {
                   route.scrollY = (
                     ev.nativeEvent as NativeScrollEvent
                   ).contentOffset.y
-                  setAvatarVisible(route.scrollY < 130)
+                  setAvatarVisible(currentRoute.scrollY < 130)
                 },
               }
             ),
             onScrollEnd: () => {
-              const currentRoute = routes[index]
               routes.forEach(routeItem => {
                 if (routeItem === currentRoute) return
                 if (
@@ -302,7 +303,7 @@ const MemberHeader = memo(({ isSelf }: { isSelf: boolean }) => {
         </View>
 
         {!isSelf && (
-          <Space style={tw`mt-10 ml-auto flex-row`}>
+          <Space style={tw`mt-10 ml-auto`}>
             <BlockMember {...member!} />
 
             <FollowMember {...member!} />
@@ -316,12 +317,12 @@ const MemberHeader = memo(({ isSelf }: { isSelf: boolean }) => {
         gap={4}
         style={tw`mt-3 px-4`}
       >
-        <Space style={tw`items-center`}>
+        <Space>
           <Text style={tw`text-tint-primary text-body-2 font-extrabold`}>
             {member?.username}
           </Text>
 
-          <Space pointerEvents="none" style={tw`items-center`}>
+          <Space pointerEvents="none">
             <View style={tw`rounded-full overflow-hidden`}>
               <Svg height="100%" width="100%" style={tw`absolute inset-0`}>
                 <Defs>
@@ -581,7 +582,7 @@ const MemberReply = memo(
           navigation.push('TopicDetail', topic)
         }}
       >
-        <Space style={tw`items-center`}>
+        <Space>
           <StyledButton
             size="mini"
             type="tag"
@@ -592,7 +593,7 @@ const MemberReply = memo(
             {topic.node?.title}
           </StyledButton>
 
-          <Separator style={tw`items-center`}>
+          <Separator>
             <Text style={tw`text-tint-primary text-body-5 font-bold`}>
               {topic.member?.username}
             </Text>

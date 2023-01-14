@@ -3,6 +3,7 @@ import { focusManager } from '@tanstack/react-query'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
+import { waitForAll } from 'jotai/utils'
 import { Suspense, useMemo } from 'react'
 import { AppStateStatus, LogBox, Platform } from 'react-native'
 import 'react-native-gesture-handler'
@@ -14,6 +15,8 @@ import '@/utils/dayjsPlugins'
 
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
+import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
+import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
@@ -29,6 +32,7 @@ import { useAppState } from './utils/useAppState'
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
+  'Sending',
 ])
 
 enabledNetworkInspect()
@@ -49,7 +53,14 @@ export default function AppWithSuspense() {
 }
 
 function App() {
-  const colorScheme = useAtomValue(colorSchemeAtom)
+  const [colorScheme] = useAtomValue(
+    waitForAll([
+      colorSchemeAtom,
+      profileAtom,
+      enabledAutoCheckinAtom,
+      enabledMsgPushAtom,
+    ])
+  )
 
   useMemo(() => {
     tw.setColorScheme(colorScheme)
@@ -85,6 +96,9 @@ function App() {
 }
 
 function GlobalQueries() {
+  const profile = useAtomValue(profileAtom)
+  const enabledAutoCheckin = useAtomValue(enabledAutoCheckinAtom)
+
   useCheckin({
     onSuccess(amount = 0) {
       if (amount > 0) {
@@ -95,7 +109,7 @@ function GlobalQueries() {
         })
       }
     },
-    enabled: !!useAtomValue(profileAtom),
+    enabled: !!profile && enabledAutoCheckin,
   })
 
   useNodes()

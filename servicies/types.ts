@@ -49,6 +49,7 @@ export interface Member {
   overview?: string
   blocked?: boolean
   followed?: boolean
+  cost?: string
   once?: string
 }
 

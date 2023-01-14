@@ -1,25 +1,29 @@
 import { ReactNode } from 'react'
-import { Pressable, PressableProps, Text } from 'react-native'
+import { PressableProps, Text } from 'react-native'
 
 import tw from '@/utils/tw'
+
+import DebouncePressable from './DebouncePressable'
 
 export default function ListItem({
   label,
   icon,
   action,
   onPress,
+  pressable = true,
 }: {
   label: string
   icon: ReactNode
   action?: ReactNode
   onPress?: PressableProps['onPress']
+  pressable?: boolean
 }) {
   return (
-    <Pressable
+    <DebouncePressable
       style={({ pressed }) =>
         tw.style(
           `px-4 h-[56px] flex-row items-center`,
-          pressed && `bg-message-press`
+          pressed && pressable && `bg-message-press`
         )
       }
       onPress={onPress}
@@ -31,6 +35,6 @@ export default function ListItem({
       </Text>
 
       {action}
-    </Pressable>
+    </DebouncePressable>
   )
 }

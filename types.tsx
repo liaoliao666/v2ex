@@ -61,6 +61,7 @@ export type RootStackParamList = {
   }
   RecentTopic: undefined
   Setting: undefined
+  Rank: undefined
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

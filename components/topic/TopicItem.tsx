@@ -61,7 +61,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
         </View>
       )}
       <View style={tw`flex-1`}>
-        <Space style={tw`items-center`}>
+        <Space>
           <Text
             style={tw`text-tint-primary text-body-5 flex-1`}
             numberOfLines={1}

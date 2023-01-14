@@ -30,9 +30,9 @@ export default function FormControl<
             <Text style={tw`text-tint-primary text-body-5 mb-1`}>{label}</Text>
           )}
           {render(props)}
-          <View style={tw`h-4`}>
+          <View style={tw`min-h-[16px]`}>
             {!!props.fieldState.error?.message && (
-              <Text style={tw`text-body-6 text-[#ff4d4f]`}>
+              <Text style={tw`text-[#ff4d4f] text-[13px]`}>
                 {props.fieldState.error?.message}
               </Text>
             )}

@@ -27,6 +27,7 @@ import NavNodesScreen from '@/screens/NavNodesScreen'
 import NodeTopicsScreen from '@/screens/NodeTopicsScreen'
 import NotFoundScreen from '@/screens/NotFoundScreen'
 import NotificationsScreen from '@/screens/NotificationsScreen'
+import RankScreen from '@/screens/RankScreen'
 import RecentTopicScreen from '@/screens/RecentTopicScreen'
 import RelatedRepliesScreen from '@/screens/RelatedRepliesScreen'
 import SearchNodeScreen from '@/screens/SearchNodeScreen'
@@ -176,6 +177,8 @@ function StackNavigator() {
       />
 
       <Stack.Screen name="Setting" component={SettingScreen} />
+
+      <Stack.Screen name="Rank" component={RankScreen} />
     </Stack.Navigator>
   )
 }

@@ -84,7 +84,7 @@ function ReplyItem({
 
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center`}>
-            <Space style={tw`mr-auto items-center`}>
+            <Space style={tw`mr-auto`}>
               <Text
                 key="username"
                 style={tw`text-tint-primary text-body-5 font-medium`}
@@ -139,7 +139,7 @@ function ReplyItem({
           </View>
 
           <View style={tw`flex-row items-center pt-2`}>
-            <Space style={tw`items-center mr-auto`} gap={16}>
+            <Space style={tw`mr-auto`} gap={16}>
               {isBoolean(related) && !related && (
                 <Text style={tw`text-body-5 text-tint-secondary`}>
                   可能是无关内容

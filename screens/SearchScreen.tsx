@@ -294,7 +294,7 @@ const HitItem = ({
       }}
     >
       <View style={tw`flex-1`}>
-        <Space style={tw`items-center`}>
+        <Space>
           {!!topic.node?.title && (
             <StyledButton
               size="mini"

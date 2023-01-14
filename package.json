@@ -26,7 +26,6 @@
     "cheerio": "^1.0.0-rc.12",
     "dayjs": "^1.11.5",
     "expo": "~47.0.12",
-    "expo-asset": "~8.7.0",
     "expo-blur": "~12.0.1",
     "expo-constants": "~14.0.2",
     "expo-dev-client": "~2.0.1",

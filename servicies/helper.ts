@@ -1,12 +1,8 @@
-import { Cheerio, CheerioAPI, Element, load } from 'cheerio'
-import { RESET } from 'jotai/utils'
-import { defaultTo, isEqual } from 'lodash-es'
+import { Cheerio, CheerioAPI, Element } from 'cheerio'
+import { defaultTo } from 'lodash-es'
 import { isString } from 'twrnc/dist/esm/types'
 
-import { navNodesAtom } from '@/jotai/navNodesAtom'
-import { profileAtom } from '@/jotai/profileAtom'
-import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
-import { store } from '@/jotai/store'
+import { RecentTopic } from '@/jotai/recentTopicsAtom'
 import { invoke } from '@/utils/invoke'
 import { getURLSearchParams } from '@/utils/url'
 
@@ -59,14 +55,14 @@ export function parseTopicByATag(
 }
 
 export function parseBalance(
-  $: CheerioAPI,
+  $el: Cheerio<Element>,
   selector: string
 ): {
   gold: number
   silver: number
   bronze: number
 } {
-  const balanceHtml = $(selector).html()
+  const balanceHtml = $el.find(selector).html()
 
   return Object.fromEntries(
     ['gold', 'silver', 'bronze'].map(level => [
@@ -346,7 +342,7 @@ export function parseMember($: CheerioAPI): Omit<Member, 'username'> {
       .eq(0)
       .attr('onclick')
       ?.match(/once=(\d+)/)?.[1],
-    ...parseBalance($, '.balance_area'),
+    ...parseBalance($profile, '.balance_area'),
   }
 }
 
@@ -404,7 +400,7 @@ export function parseProfile($: CheerioAPI): Profile {
         my_following: defaultTo(+$tds.eq(2).find('.bigger').text().trim(), 0),
       }
     }),
-    ...parseBalance($, '.balance_area'),
+    ...parseBalance($profile, '.balance_area'),
   }
 }
 
@@ -448,44 +444,28 @@ export function parseRecentTopics($: CheerioAPI) {
     .get()
 }
 
-export function updateStoreWithData(data: any) {
-  if (typeof data !== 'string') return
+export function parseRank($: CheerioAPI) {
+  return $(`#Main > div.box > div.inner > table tr`)
+    .map((i, item) => {
+      const $item = $(item)
+      const $avatar = $item.find('a:first-child img').eq(0)
+      const $secondTd = $item.find('td:nth-child(2)')
 
-  const $ = load(data)
-
-  function updateProfile() {
-    const hasProfile = !!$('#Rightbar #money').length
-    if (hasProfile) {
-      const newProfile = parseProfile($)
-
-      store.set(profileAtom, prev =>
-        isEqual(newProfile, prev) ? prev : newProfile
-      )
-    } else if (
-      $('#Top div.tools > a:nth-child(3)').attr('href')?.includes('signin')
-    ) {
-      store.set(profileAtom, RESET)
-    }
-  }
-
-  function updateNavNodes() {
-    const $nodesBox = $(`#Main .box`).eq(1)
-    const hasNavAtoms = $nodesBox.find('.fr a').eq(0).attr('href') === '/planes'
-    if (!hasNavAtoms) return
-    store.set(navNodesAtom, parseNavAtoms($))
-  }
-
-  function updateRecentTopics() {
-    if ($(`#my-recent-topics`).length) {
-      store.set(recentTopicsAtom, parseRecentTopics($))
-    }
-  }
-
-  try {
-    updateProfile()
-    updateNavNodes()
-    updateRecentTopics()
-  } catch (error) {
-    // empty
-  }
+      return {
+        username: $avatar.attr('alt')!,
+        avatar: $avatar.attr('src')!,
+        motto: !$secondTd.find('.f12').eq(0).find('a').length
+          ? $secondTd.find('.f12').eq(0).text()
+          : undefined,
+        website: $secondTd.find('.gray a').attr('href'),
+        id: defaultTo(
+          +$secondTd.find('.fade')?.text()?.match(/\d+/)?.[0]!,
+          undefined
+        ),
+        cost: $item.find('.balance_area').text().trim(),
+        ...parseBalance($item, '.balance_area'),
+      } as Member
+    })
+    .get()
+    .filter(item => !!item.username)
 }

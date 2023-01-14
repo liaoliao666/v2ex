@@ -3,7 +3,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
 import { compact, last, pick, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo } from 'react'
-import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
+import { FlatList, ListRenderItem, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { inferData } from 'react-query-kit'
 
@@ -87,7 +87,7 @@ const RecentTopicItem = memo(
         }}
       >
         <View style={tw`mr-3`}>
-          <Pressable
+          <DebouncePressable
             onPress={() => {
               navigation.push('MemberDetail', {
                 username: recentTopic.member?.username!,
@@ -100,7 +100,7 @@ const RecentTopicItem = memo(
                 uri: recentTopic.member?.avatar,
               }}
             />
-          </Pressable>
+          </DebouncePressable>
         </View>
 
         <View style={tw`flex-1`}>

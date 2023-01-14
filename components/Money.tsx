@@ -18,7 +18,7 @@ export default function Money({
   bronze?: number
 }) {
   return some([gold, silver, bronze], Boolean) ? (
-    <Space style={tw.style(`items-center`, style)} gap={4}>
+    <Space style={style} gap={4}>
       {!!gold && (
         <View style={tw`flex-row items-center`}>
           <Text style={tw`text-tint-secondary text-body-6`}>{gold}</Text>

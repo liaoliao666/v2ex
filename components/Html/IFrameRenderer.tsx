@@ -1,8 +1,10 @@
 import { load } from 'cheerio'
 import { useContext, useMemo } from 'react'
-import { useWindowDimensions } from 'react-native'
+import { View, useWindowDimensions } from 'react-native'
 import { CustomBlockRenderer } from 'react-native-render-html'
 import YoutubePlayer from 'react-native-youtube-iframe'
+
+import tw from '@/utils/tw'
 
 import { HtmlContext } from './HtmlContext'
 
@@ -24,7 +26,11 @@ const IFrameRenderer: CustomBlockRenderer = ({ tnode }) => {
   const witdh = layout.width - youtubePaddingX
   const height = witdh / aspectRatio
 
-  return <YoutubePlayer width={witdh} height={height} videoId={videoId} />
+  return (
+    <View style={tw`bg-black`}>
+      <YoutubePlayer width={witdh} height={height} videoId={videoId} />
+    </View>
+  )
 }
 
 export default IFrameRenderer

@@ -74,22 +74,17 @@ function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
             </View>
 
             <View style={tw`flex-1`}>
-              <View style={tw`flex-row items-center`}>
-                <Text style={tw`text-tint-primary text-body-4 font-bold`}>
-                  {params.member?.username}
-                </Text>
-              </View>
-              <View style={tw`flex-1`}>
-                {params.reply_count && (
-                  <Text
-                    key="reply_count"
-                    style={tw`text-tint-secondary text-body-5 flex-1`}
-                    numberOfLines={1}
-                  >
-                    {`${params.reply_count} 回复`}
-                  </Text>
-                )}
-              </View>
+              <Text style={tw`text-tint-primary text-body-4 font-bold`}>
+                {params.member?.username}
+              </Text>
+
+              <Text
+                key="reply_count"
+                style={tw`text-tint-secondary text-body-5 flex-1 min-h-[24px]`}
+                numberOfLines={1}
+              >
+                {`${params.reply_count} 回复`}
+              </Text>
             </View>
           </View>
           <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
