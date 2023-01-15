@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
-import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { compact } from 'lodash-es'
 import { useForm } from 'react-hook-form'
 import { Pressable, View } from 'react-native'
@@ -147,8 +146,6 @@ export default function WriteTopicScreen() {
                       node_name: values.node.name,
                       prevTopic: topic,
                     })
-
-                    await sleep(1000)
 
                     queryClient.refetchQueries(
                       useTopicDetail.getKey({ id: topic?.id })

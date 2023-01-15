@@ -27,6 +27,9 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>(
     })
     const $ = load(data)
     return parseTopicItems($, '#Main .box .cell.item')
+  },
+  {
+    structuralSharing: false,
   }
 )
 
@@ -51,6 +54,7 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
   {
     getNextPageParam,
     cacheTime: 1000 * 60 * 60 * 1, // 1 hours
+    structuralSharing: false,
   }
 )
 
@@ -77,6 +81,7 @@ export const useTopicDetail = createInfiniteQuery<
   },
   {
     getNextPageParam,
+    structuralSharing: false,
   }
 )
 
@@ -127,6 +132,7 @@ export const useMyTopics = createInfiniteQuery<PageData<Topic>>(
   },
   {
     getNextPageParam,
+    structuralSharing: false,
   }
 )
 
@@ -136,7 +142,7 @@ export const useReply = createMutation<
 >(({ topicId, ...args }) => {
   return request.post(`/t/${topicId}`, paramsSerializer(args), {
     headers: {
-      'content-type': 'application/x-www-form-urlencoded',
+      'Content-Type': 'application/x-www-form-urlencoded',
     },
   })
 })
@@ -158,21 +164,21 @@ export const useWriteTopic = createMutation<
     }),
     {
       headers: {
-        'content-type': 'application/x-www-form-urlencoded',
+        'Content-Type': 'application/x-www-form-urlencoded',
       },
     }
   )
 )
 
 export const useEditTopic = createMutation<
-  void,
+  any,
   {
     title: string
     content?: string
     node_name: string
     prevTopic: Topic
   }
->(async ({ prevTopic, ...args }) => {
+>(({ prevTopic, ...args }) => {
   const promises = []
 
   if (args.node_name !== prevTopic.node?.name) {
@@ -184,7 +190,7 @@ export const useEditTopic = createMutation<
         }),
         {
           headers: {
-            'content-type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
         }
       )
@@ -202,14 +208,14 @@ export const useEditTopic = createMutation<
         }),
         {
           headers: {
-            'content-type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/x-www-form-urlencoded',
           },
         }
       )
     )
   }
 
-  Promise.all(promises)
+  return Promise.all(promises)
 })
 
 export const useAppendTopic = createMutation<

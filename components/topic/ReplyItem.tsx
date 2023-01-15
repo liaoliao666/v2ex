@@ -31,7 +31,10 @@ import IconButton from '../IconButton'
 import Space from '../Space'
 import StyledImage from '../StyledImage'
 
-export default memo(ReplyItem)
+export default memo(
+  ReplyItem,
+  (prev, next) => prev.reply.thanked === next.reply.thanked
+)
 
 function ReplyItem({
   reply,

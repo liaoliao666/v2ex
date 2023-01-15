@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import dayjs from 'dayjs'
-import { compact } from 'lodash-es'
+import { compact, isEqual } from 'lodash-es'
 import { memo } from 'react'
 import { Pressable, Text, View } from 'react-native'
 
@@ -22,7 +22,7 @@ export interface TopicItemProps {
   isDisabledPress?: () => boolean
 }
 
-export default memo(TopicItem)
+export default memo(TopicItem, isEqual)
 
 function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
   const navigation =

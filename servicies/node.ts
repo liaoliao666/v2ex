@@ -54,6 +54,7 @@ export const useNodeTopics = createInfiniteQuery<
   },
   {
     getNextPageParam,
+    structuralSharing: false,
   }
 )
 

@@ -81,51 +81,6 @@ export function parseBalance(
   }
 }
 
-export function parseTopics($: CheerioAPI): Topic[] {
-  return $('#Main .box .cell.item')
-    .map((i, topic) => {
-      const $topicItem = $(topic).find('table > tbody > tr:first-child')
-      const $topicInfo = $topicItem.find('.topic_info')
-
-      return {
-        ...invoke(() => {
-          const $node = $topicItem.find('.node')
-          const hasNode = !!$node.attr('href')
-
-          let node
-          let last_touched: string
-
-          if (hasNode) {
-            node = parseNodeByATag($node)
-            last_touched = $topicInfo.children(':nth-child(4)').text().trim()
-          } else {
-            last_touched = $topicInfo.children(':nth-child(2)').text().trim()
-          }
-
-          return {
-            node,
-            last_touched,
-          }
-        }),
-        ...parseTopicByATag($topicItem.find('.item_title a')),
-        member: invoke(() => {
-          const $avatar = $topicItem.find('td:first-child').find('a > img')
-          return {
-            username: $avatar.attr('alt'),
-            avatar: $avatar.attr('src'),
-          }
-        }),
-        votes: parseInt($topicItem.find('.votes').text().trim(), 10),
-        last_reply_by: $topicInfo
-          .find('strong:nth-of-type(2) a')
-          .attr('href')
-          ?.replace('/member/', '')
-          .trim(),
-      } as Topic
-    })
-    .get()
-}
-
 export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
   const ignores = new Set(
     $.text()

@@ -71,6 +71,7 @@ export const useMemberTopics = createInfiniteQuery<
   },
   {
     getNextPageParam,
+    structuralSharing: false,
   }
 )
 
@@ -132,6 +133,7 @@ export const useMyFollowing = createInfiniteQuery<
   },
   {
     getNextPageParam,
+    structuralSharing: false,
   }
 )
 
