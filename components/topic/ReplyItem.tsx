@@ -2,7 +2,6 @@ import { useActionSheet } from '@expo/react-native-action-sheet'
 import { FontAwesome5, Octicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import dayjs from 'dayjs'
 import produce from 'immer'
 import { find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo } from 'react'
@@ -33,7 +32,9 @@ import StyledImage from '../StyledImage'
 
 export default memo(
   ReplyItem,
-  (prev, next) => prev.reply.thanked === next.reply.thanked
+  (prev, next) =>
+    prev.reply.thanked === next.reply.thanked &&
+    prev.reply.created === next.reply.created
 )
 
 function ReplyItem({
@@ -129,8 +130,7 @@ function ReplyItem({
           </View>
 
           <Text style={tw`text-tint-secondary text-body-6`}>
-            {dayjs(reply.created).fromNow()}
-            {reply.via ? ` via ${reply.via}` : ``}
+            {reply.created}
           </Text>
 
           <View style={tw`pt-0.5`}>

@@ -89,7 +89,6 @@ export interface Reply {
   }
   thanks: number
   thanked: boolean
-  via?: string
   mod?: boolean
   op?: boolean
   has_related_replies?: boolean
@@ -109,7 +108,6 @@ export interface Topic {
   last_modified?: string
   replies: Reply[]
   votes: number
-  via?: string
   reply_count: number
   supplements: Supplement[]
   liked?: boolean

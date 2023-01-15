@@ -2,7 +2,7 @@ import axios from 'axios'
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { RESET } from 'jotai/utils'
-import { isEmpty, isFunction, isNumber } from 'lodash-es'
+import { isEmpty, isNumber } from 'lodash-es'
 import { isEqual } from 'lodash-es'
 import Toast from 'react-native-toast-message'
 
@@ -12,7 +12,7 @@ import { open503UrlTimeAtom } from '@/jotai/open503UrlTimeAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
 import { store } from '@/jotai/store'
-import { getNavigation } from '@/navigation/navigationRef'
+import { getCurrentRouteName, getNavigation } from '@/navigation/navigationRef'
 import {
   parseNavAtoms,
   parseProfile,
@@ -76,14 +76,8 @@ export function updateStoreWithData(data: any) {
       const newProfile = parseProfile($)
 
       store.set(profileAtom, prev => {
-        // @ts-ignore
-        const getCurrentRoute: any = getNavigation()?.getCurrentRoute
-        const currentRouteName = isFunction(getCurrentRoute)
-          ? getCurrentRoute()?.name
-          : undefined
-
         if (
-          currentRouteName !== 'HomeScreen' &&
+          getCurrentRouteName() !== 'HomeScreen' &&
           store.get(enabledMsgPushAtom) &&
           newProfile.my_notification !== prev?.my_notification &&
           isNumber(newProfile.my_notification) &&

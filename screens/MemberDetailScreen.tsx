@@ -623,7 +623,8 @@ const MemberReply = memo(
         </View>
       </DebouncePressable>
     )
-  }
+  },
+  (prev, next) => prev.topic.reply.created === next.topic.reply.created
 )
 
 function FollowMember({

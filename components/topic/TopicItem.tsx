@@ -1,6 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import dayjs from 'dayjs'
 import { compact, isEqual } from 'lodash-es'
 import { memo } from 'react'
 import { Pressable, Text, View } from 'react-native'
@@ -113,7 +112,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
               key="last_touched"
               style={tw`text-tint-secondary text-body-6`}
             >
-              {dayjs(topic.last_touched).fromNow()}
+              {topic.last_touched}
             </Text>,
             !!topic.last_reply_by && (
               <Text

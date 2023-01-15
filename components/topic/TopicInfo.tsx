@@ -2,7 +2,6 @@ import { useActionSheet } from '@expo/react-native-action-sheet'
 import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import dayjs from 'dayjs'
 import produce from 'immer'
 import { compact } from 'lodash-es'
 import { Fragment, ReactElement, memo } from 'react'
@@ -83,8 +82,7 @@ function TopicInfo({
             {compact([
               topic.created && (
                 <Text key="created" style={tw`text-tint-secondary text-body-5`}>
-                  {dayjs(topic.created).fromNow()}
-                  {topic.via ? ` via ${topic.via}` : ``}
+                  {topic.created}
                 </Text>
               ),
               topic.views && (
@@ -117,7 +115,7 @@ function TopicInfo({
         <View style={tw`pt-2`}>
           {topic.supplements.map((supplement, i) => (
             <View
-              key={supplement.created}
+              key={`${supplement.created}_${i}`}
               style={tw`border-t border-solid border-tint-border py-2`}
             >
               <Separator>

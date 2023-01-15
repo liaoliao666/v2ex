@@ -57,7 +57,9 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
 
 export default memo(
   Html,
-  (prev, next) => (prev.source as any)?.html! === (next.source as any)?.html
+  (prev: any, next: any) =>
+    prev.source?.html! === next.source?.html &&
+    prev.baseStyle?.color === next.baseStyle?.color
 )
 
 function Html({

@@ -110,71 +110,74 @@ function NotificationsScreen() {
   )
 }
 
-const NoticeItem = memo(({ notice }: { notice: Notice }) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+const NoticeItem = memo(
+  ({ notice }: { notice: Notice }) => {
+    const navigation =
+      useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  return (
-    <DebouncePressable
-      style={tw`flex-row flex-wrap p-4`}
-      onPress={() => {
-        navigation.push('TopicDetail', {
-          ...notice.topic,
-          hightlightReplyNo: [
-            notice.prev_action_text,
-            notice.next_action_text,
-          ].some(text => text?.includes('回复'))
-            ? notice.topic.reply_count
-            : undefined,
-        })
-      }}
-    >
-      <Pressable
+    return (
+      <DebouncePressable
+        style={tw`flex-row flex-wrap p-4`}
         onPress={() => {
-          navigation.navigate('MemberDetail', {
-            username: notice.member?.username!,
+          navigation.push('TopicDetail', {
+            ...notice.topic,
+            hightlightReplyNo: [
+              notice.prev_action_text,
+              notice.next_action_text,
+            ].some(text => text?.includes('回复'))
+              ? notice.topic.reply_count
+              : undefined,
           })
         }}
       >
-        <StyledImage
-          style={tw`w-6 h-6 mr-3 rounded-full`}
-          source={{
-            uri: notice.member.avatar,
+        <Pressable
+          onPress={() => {
+            navigation.navigate('MemberDetail', {
+              username: notice.member?.username!,
+            })
           }}
-        />
-      </Pressable>
+        >
+          <StyledImage
+            style={tw`w-6 h-6 mr-3 rounded-full`}
+            source={{
+              uri: notice.member.avatar,
+            }}
+          />
+        </Pressable>
 
-      <View style={tw`flex-1`}>
-        <View style={tw`flex-row items-center justify-between`}>
-          <Separator>
-            <Text style={tw`text-tint-primary text-body-5`}>
-              {notice.member.username}
-            </Text>
-            <Text style={tw`text-tint-secondary text-body-5`}>
-              {notice.created}
-            </Text>
-          </Separator>
+        <View style={tw`flex-1`}>
+          <View style={tw`flex-row items-center justify-between`}>
+            <Separator>
+              <Text style={tw`text-tint-primary text-body-5`}>
+                {notice.member.username}
+              </Text>
+              <Text style={tw`text-tint-secondary text-body-5`}>
+                {notice.created}
+              </Text>
+            </Separator>
 
-          <DeleteNoticeButton id={notice.id} once={notice.once} />
-        </View>
-
-        <Text style={tw`flex-row flex-wrap text-body-5 text-tint-secondary`}>
-          {notice.prev_action_text}
-          <Text style={tw`text-tint-primary`}>{notice.topic.title}</Text>
-          {notice.next_action_text}
-        </Text>
-
-        {!!notice.content && (
-          <View
-            style={tw`bg-[#f0f3f5] dark:bg-[#262626] px-4 py-3 mt-2 rounded`}
-          >
-            <Html source={{ html: notice.content }} />
+            <DeleteNoticeButton id={notice.id} once={notice.once} />
           </View>
-        )}
-      </View>
-    </DebouncePressable>
-  )
-})
+
+          <Text style={tw`flex-row flex-wrap text-body-5 text-tint-secondary`}>
+            {notice.prev_action_text}
+            <Text style={tw`text-tint-primary`}>{notice.topic.title}</Text>
+            {notice.next_action_text}
+          </Text>
+
+          {!!notice.content && (
+            <View
+              style={tw`bg-[#f0f3f5] dark:bg-[#262626] px-4 py-3 mt-2 rounded`}
+            >
+              <Html source={{ html: notice.content }} />
+            </View>
+          )}
+        </View>
+      </DebouncePressable>
+    )
+  },
+  (prev, next) => prev.notice.created === next.notice.created
+)
 
 function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
   const { mutateAsync, isLoading } = useDeleteNotice()

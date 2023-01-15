@@ -2,8 +2,16 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
-import { compact, isEmpty, isString, uniqBy, upperCase } from 'lodash-es'
+import {
+  compact,
+  isEmpty,
+  isEqual,
+  isString,
+  uniqBy,
+  upperCase,
+} from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
+import { memo } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { z } from 'zod'
@@ -265,91 +273,97 @@ function SoV2exList({
   )
 }
 
-const HitItem = ({
-  topic,
-}: {
-  topic: {
-    node: Node
-    member: Member
-    id: number
-    title: string
-    reply_count: number
-    created: string
-    content: string
-  }
-}) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+const HitItem = memo(
+  ({
+    topic,
+  }: {
+    topic: {
+      node: Node
+      member: Member
+      id: number
+      title: string
+      reply_count: number
+      created: string
+      content: string
+    }
+  }) => {
+    const navigation =
+      useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const { isFetched } = useTopicDetail({
-    variables: { id: topic.id },
-    enabled: false,
-  })
+    const { isFetched } = useTopicDetail({
+      variables: { id: topic.id },
+      enabled: false,
+    })
 
-  return (
-    <DebouncePressable
-      style={tw`px-4 py-3 flex-row bg-body-1`}
-      onPress={() => {
-        navigation.push('TopicDetail', topic)
-      }}
-    >
-      <View style={tw`flex-1`}>
-        <Space>
-          {!!topic.node?.title && (
-            <StyledButton
-              size="mini"
-              type="tag"
-              onPress={() => {
-                navigation.push('NodeTopics', { name: topic.node?.name! })
-              }}
+    return (
+      <DebouncePressable
+        style={tw`px-4 py-3 flex-row bg-body-1`}
+        onPress={() => {
+          navigation.push('TopicDetail', topic)
+        }}
+      >
+        <View style={tw`flex-1`}>
+          <Space>
+            {!!topic.node?.title && (
+              <StyledButton
+                size="mini"
+                type="tag"
+                onPress={() => {
+                  navigation.push('NodeTopics', { name: topic.node?.name! })
+                }}
+              >
+                {topic.node?.title}
+              </StyledButton>
+            )}
+            <Text
+              style={tw`text-tint-primary text-body-5 font-bold flex-1`}
+              numberOfLines={1}
             >
-              {topic.node?.title}
-            </StyledButton>
-          )}
+              {topic.member?.username}
+            </Text>
+
+            <Separator>
+              {compact([
+                <Text key="created" style={tw`text-tint-secondary text-body-5`}>
+                  {dayjs(topic.created).fromNow()}
+                </Text>,
+                !!topic.reply_count && (
+                  <Text
+                    key="replies"
+                    style={tw`text-tint-secondary text-body-5`}
+                  >
+                    {`${topic.reply_count} 回复`}
+                  </Text>
+                ),
+              ])}
+            </Separator>
+          </Space>
+
           <Text
-            style={tw`text-tint-primary text-body-5 font-bold flex-1`}
-            numberOfLines={1}
+            style={tw.style(
+              `text-body-5 font-medium pt-2`,
+              isFetched ? `text-tint-secondary` : `text-tint-primary`
+            )}
           >
-            {topic.member?.username}
+            {topic.title}
           </Text>
 
-          <Separator>
-            {compact([
-              <Text key="created" style={tw`text-tint-secondary text-body-5`}>
-                {dayjs(topic.created).fromNow()}
-              </Text>,
-              !!topic.reply_count && (
-                <Text key="replies" style={tw`text-tint-secondary text-body-5`}>
-                  {`${topic.reply_count} 回复`}
-                </Text>
-              ),
-            ])}
-          </Separator>
-        </Space>
-
-        <Text
-          style={tw.style(
-            `text-body-5 font-medium pt-2`,
-            isFetched ? `text-tint-secondary` : `text-tint-primary`
+          {!!topic.content && (
+            <View style={tw`pt-2`}>
+              <Html
+                source={{
+                  html: topic.content,
+                }}
+                baseStyle={tw.style(
+                  `text-body-5`,
+                  isFetched ? `text-tint-secondary` : `text-tint-primary`
+                )}
+              />
+            </View>
           )}
-        >
-          {topic.title}
-        </Text>
-
-        {!!topic.content && (
-          <View style={tw`pt-2`}>
-            <Html
-              source={{
-                html: topic.content,
-              }}
-              baseStyle={tw.style(
-                `text-body-5`,
-                isFetched ? `text-tint-secondary` : `text-tint-primary`
-              )}
-            />
-          </View>
-        )}
-      </View>
-    </DebouncePressable>
-  )
-}
+        </View>
+      </DebouncePressable>
+    )
+  },
+  isEqual
+)

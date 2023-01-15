@@ -8,17 +8,6 @@ import { getURLSearchParams } from '@/utils/url'
 
 import { Member, Node, Profile, Reply, Topic } from './types'
 
-export function parseTimestamp(timestamp: string) {
-  return timestamp?.replace(` +08:00`, ``)
-}
-
-export function parseVia(via: string) {
-  if (!via) return ''
-  if (via.includes('iPhone')) return 'iPhone'
-  if (via.includes('Android')) return 'Android'
-  return undefined
-}
-
 export function getNextPageParam(data: { page: number; last_page: number }) {
   return data.last_page > data.page ? data.page + 1 : undefined
 }
@@ -119,13 +108,9 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
               name: $node.attr('href')?.replace('/go/', '').trim(),
               title: $node.text(),
             }
-            last_touched = parseTimestamp(
-              $topicInfo.children(':nth-child(4)').attr('title')!
-            )
+            last_touched = $topicInfo.children(':nth-child(4)').text().trim()
           } else {
-            last_touched = parseTimestamp(
-              $topicInfo.children(':nth-child(2)').attr('title')!
-            )
+            last_touched = $topicInfo.children(':nth-child(4)').text().trim()
           }
 
           return {
@@ -199,14 +184,13 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
       }
     }),
     title: $('h1').eq(0).text(),
-    created: parseTimestamp($('small.gray > span').attr('title')!),
+    created: $('small.gray > span').text().trim(),
     content: $('.topic_content').html()!,
-    via: parseVia($('small.gray').text().split('·')[1]),
     thanked: !!$('.topic_thanked').length,
     votes: parseInt($($('.votes').find('a').get(0)).text() || '0', 10),
     supplements: $('.subtle')
       .map((i, subtle) => ({
-        created: parseTimestamp($(subtle).find('.fade>span').attr('title')!),
+        created: $(subtle).find('.fade>span').text().trim(),
         content: $(subtle).find('.topic_content').html()!,
       }))
       .get(),
@@ -240,8 +224,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
           },
           id,
           no: +$reply.find('.no').text(),
-          created: parseTimestamp($reply.find('.ago').attr('title')!),
-          via: parseVia($reply.find('.ago').text()),
+          created: $reply.find('.ago').text().trim(),
           content,
           thanks: parseInt($reply.find('.small.fade').text() || '0', 10),
           thanked: !!$reply.find('.thanked').length,

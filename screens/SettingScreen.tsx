@@ -4,7 +4,7 @@ import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { Fragment } from 'react'
-import { ScrollView, Switch, Text, View } from 'react-native'
+import { Platform, ScrollView, Switch, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 
 import ListItem from '@/components/ListItem'
@@ -81,7 +81,11 @@ function SettingScreen() {
               action={
                 <Switch
                   value={enabledAutoCheckin}
-                  trackColor={{ true: `rgb(26,140,216)` }}
+                  trackColor={
+                    Platform.OS === 'android'
+                      ? undefined
+                      : { true: `rgb(26,140,216)` }
+                  }
                   onValueChange={() =>
                     setEnabledAutoCheckin(!enabledAutoCheckin)
                   }
@@ -102,7 +106,11 @@ function SettingScreen() {
               action={
                 <Switch
                   value={enabledMsgPush}
-                  trackColor={{ true: `rgb(26,140,216)` }}
+                  trackColor={
+                    Platform.OS === 'android'
+                      ? undefined
+                      : { true: `rgb(26,140,216)` }
+                  }
                   onValueChange={() => setEnabledMsgPush(!enabledMsgPush)}
                 />
               }
@@ -150,31 +158,32 @@ function SettingScreen() {
 
         {isSignined ? (
           <Fragment>
-            <ListItem
-              label="注销帐号"
-              icon={
-                <Feather
-                  color={tw`text-tint-primary`.color as string}
-                  size={24}
-                  name={'delete'}
-                />
-              }
-              onPress={async () => {
-                try {
-                  await confirm(`确定注销当前账号 ${profile.username} 么？`)
-                  await sleep(500)
-                  Toast.show({
-                    type: 'success',
-                    text1: `注销成功`,
-                  })
-                  store.set(deletedNamesAtom, prev => [
-                    ...new Set([...prev, profile.username]),
-                  ])
-                  store.set(profileAtom, RESET)
-                } catch (error) {}
-              }}
-            />
-
+            {Platform.OS !== 'android' && (
+              <ListItem
+                label="注销帐号"
+                icon={
+                  <Feather
+                    color={tw`text-tint-primary`.color as string}
+                    size={24}
+                    name={'delete'}
+                  />
+                }
+                onPress={async () => {
+                  try {
+                    await confirm(`确定注销当前账号 ${profile.username} 么？`)
+                    await sleep(500)
+                    Toast.show({
+                      type: 'success',
+                      text1: `注销成功`,
+                    })
+                    store.set(deletedNamesAtom, prev => [
+                      ...new Set([...prev, profile.username]),
+                    ])
+                    store.set(profileAtom, RESET)
+                  } catch (error) {}
+                }}
+              />
+            )}
             <SignoutItem once={profile.once!} />
           </Fragment>
         ) : (
