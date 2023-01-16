@@ -223,7 +223,6 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
         topicId={lastPage.id}
         once={lastPage.once}
         onReply={onReply}
-        hideViewRelatedReplies
         related={item.related}
         inModalScreen
       />
