@@ -298,11 +298,7 @@ const RankItem = memo(
               style={tw.style(`text-body-6 text-tint-primary`)}
               numberOfLines={1}
             >
-              {member.website.startsWith('http://')
-                ? member.website.slice('http://'.length)
-                : member.website.startsWith('https://')
-                ? member.website.slice('https://'.length)
-                : member.website}
+              {member.website.replace(/^https?:\/\//, '')}
             </Text>
           )}
 

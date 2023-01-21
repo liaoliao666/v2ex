@@ -102,7 +102,7 @@ export default function RelatedRepliesScreen() {
 
     return results
   }, [flatedData, replyId])
-  replyId
+
   const [isSmartMode, setIsSmartMode] = useState<boolean>(true)
 
   const colorScheme = useAtomValue(colorSchemeAtom)

@@ -34,7 +34,8 @@ export default memo(
   ReplyItem,
   (prev, next) =>
     prev.reply.thanked === next.reply.thanked &&
-    prev.reply.created === next.reply.created
+    prev.reply.created === next.reply.created &&
+    prev.once === next.once
 )
 
 function ReplyItem({
@@ -71,10 +72,13 @@ function ReplyItem({
         <View style={tw`mr-3`}>
           <Pressable
             onPress={() => {
-              if (inModalScreen) navigation.goBack()
-              navigation.push('MemberDetail', {
-                username: reply.member?.username!,
-              })
+              if (inModalScreen) {
+                navigation.goBack()
+              } else {
+                navigation.push('MemberDetail', {
+                  username: reply.member?.username!,
+                })
+              }
             }}
           >
             <StyledImage
