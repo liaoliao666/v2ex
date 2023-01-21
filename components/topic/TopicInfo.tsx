@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact } from 'lodash-es'
-import { Fragment, ReactElement, memo } from 'react'
+import { Fragment, ReactElement } from 'react'
 import { Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
@@ -25,7 +25,7 @@ import {
 } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { isSignined } from '@/utils/authentication'
+import { isMe, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
@@ -37,9 +37,7 @@ import IconButton from '../IconButton'
 import Separator from '../Separator'
 import StyledImage from '../StyledImage'
 
-export default memo(TopicInfo)
-
-function TopicInfo({
+export default function TopicInfo({
   topic,
   onAppend,
   children,
@@ -155,63 +153,70 @@ export function LikeTopic({ topic }: { topic: Topic }) {
   const navigation = useNavigation()
 
   return (
-    <View style={tw.style(`flex-row items-center`)}>
-      <IconButton
-        color={tw`text-tint-secondary`.color as string}
-        activeColor="rgb(250,219,20)"
-        active={topic.liked}
-        icon={<FontAwesome name={topic.liked ? 'star' : 'star-o'} />}
-        onPress={async () => {
-          if (!isSignined()) {
-            navigation.navigate('Login')
-            return
-          }
+    <Pressable
+      style={tw.style(`flex-row items-center`)}
+      onPress={async () => {
+        if (!isSignined()) {
+          navigation.navigate('Login')
+          return
+        }
 
-          if (isLoading) return
+        if (isLoading) return
 
-          try {
-            updateTopicDetail({
-              id: topic.id,
-              liked: !topic.liked,
-              likes: topic.likes + (topic.liked ? -1 : 1),
-            })
+        try {
+          updateTopicDetail({
+            id: topic.id,
+            liked: !topic.liked,
+            likes: topic.likes + (topic.liked ? -1 : 1),
+          })
 
-            await mutateAsync({
-              id: topic.id,
-              type: topic.liked ? 'unfavorite' : 'favorite',
-              once: topic.once!,
-            })
+          await mutateAsync({
+            id: topic.id,
+            type: topic.liked ? 'unfavorite' : 'favorite',
+            once: topic.once!,
+          })
 
-            Toast.show({
-              type: 'success',
-              text1: '操作成功',
-            })
-          } catch (error) {
-            updateTopicDetail({
-              id: topic.id,
-              liked: topic.liked,
-              likes: topic.likes,
-            })
+          Toast.show({
+            type: 'success',
+            text1: '操作成功',
+          })
+        } catch (error) {
+          updateTopicDetail({
+            id: topic.id,
+            liked: topic.liked,
+            likes: topic.likes,
+          })
 
-            Toast.show({
-              type: 'error',
-              text1: '操作失败',
-            })
-          }
-        }}
-      />
+          Toast.show({
+            type: 'error',
+            text1: '操作失败',
+          })
+        }
+      }}
+    >
+      {({ pressed }) => (
+        <Fragment>
+          <IconButton
+            color={tw`text-tint-secondary`.color as string}
+            activeColor="rgb(250,219,20)"
+            active={topic.liked}
+            icon={<FontAwesome name={topic.liked ? 'star' : 'star-o'} />}
+            pressed={pressed}
+          />
 
-      {!!topic.likes && (
-        <Text
-          style={tw.style(
-            'text-body-6 pl-1',
-            topic.liked ? `text-[rgb(250,219,20)]` : `text-tint-secondary`
+          {!!topic.likes && (
+            <Text
+              style={tw.style(
+                'text-body-6 pl-1',
+                topic.liked ? `text-[rgb(250,219,20)]` : `text-tint-secondary`
+              )}
+            >
+              {topic.likes}
+            </Text>
           )}
-        >
-          {topic.likes}
-        </Text>
+        </Fragment>
       )}
-    </View>
+    </Pressable>
   )
 }
 
@@ -221,59 +226,66 @@ export function ThankTopic({ topic }: { topic: Topic }) {
   const navigation = useNavigation()
 
   return (
-    <View style={tw.style(`flex-row items-center`)}>
-      <IconButton
-        name={topic.thanked ? 'heart' : 'heart-outline'}
-        color={tw`text-tint-secondary`.color as string}
-        activeColor="rgb(249,24,128)"
-        active={topic.thanked}
-        onPress={async () => {
-          if (!isSignined()) {
-            navigation.navigate('Login')
-            return
-          }
+    <Pressable
+      style={tw.style(`flex-row items-center`)}
+      onPress={async () => {
+        if (!isSignined()) {
+          navigation.navigate('Login')
+          return
+        }
 
-          if (isLoading || topic.thanked) return
+        if (isLoading || topic.thanked) return
 
-          await confirm('你确定要向本主题创建者发送谢意？')
+        await confirm('你确定要向本主题创建者发送谢意？')
 
-          try {
-            updateTopicDetail({
-              id: topic.id,
-              thanked: !topic.thanked,
-              thanks: topic.thanks + 1,
-            })
+        try {
+          updateTopicDetail({
+            id: topic.id,
+            thanked: !topic.thanked,
+            thanks: topic.thanks + 1,
+          })
 
-            await mutateAsync({
-              id: topic.id,
-              once: topic.once!,
-            })
-          } catch (error) {
-            updateTopicDetail({
-              id: topic.id,
-              thanked: topic.thanked,
-              thanks: topic.thanks,
-            })
+          await mutateAsync({
+            id: topic.id,
+            once: topic.once!,
+          })
+        } catch (error) {
+          updateTopicDetail({
+            id: topic.id,
+            thanked: topic.thanked,
+            thanks: topic.thanks,
+          })
 
-            Toast.show({
-              type: 'error',
-              text1: '感谢失败',
-            })
-          }
-        }}
-      />
+          Toast.show({
+            type: 'error',
+            text1: '感谢失败',
+          })
+        }
+      }}
+    >
+      {({ pressed }) => (
+        <Fragment>
+          <IconButton
+            name={topic.thanked ? 'heart' : 'heart-outline'}
+            color={tw`text-tint-secondary`.color as string}
+            activeColor="rgb(249,24,128)"
+            active={topic.thanked}
+            pressed={pressed}
+          />
 
-      {!!topic.thanks && (
-        <Text
-          style={tw.style(
-            'text-body-6 pl-1',
-            topic.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
+          {!!topic.thanks && (
+            <Text
+              style={tw.style(
+                'text-body-6 pl-1',
+                topic.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
+              )}
+            >
+              {topic.thanks}
+            </Text>
           )}
-        >
-          {topic.thanks}
-        </Text>
+        </Fragment>
       )}
-    </View>
+    </Pressable>
   )
 }
 
@@ -399,16 +411,21 @@ function MoreButton({
       activeColor={tw`text-tint-primary`.color as string}
       onPress={() => {
         const options = compact([
-          topic.ignored ? '取消忽略' : '忽略',
-          '举报',
+          !isMe(topic.member?.username) &&
+            (topic.ignored ? '取消忽略' : '忽略'),
+          !isMe(topic.member?.username) && '举报',
           '分享',
-          '浏览器打开',
           topic.editable && '编辑',
           topic.appendable && '附言',
+          '浏览器打开',
           '取消',
         ] as const)
 
-        const destructiveButtonIndex = 0
+        const destructiveButtonIndex = options.includes('忽略')
+          ? options.indexOf('忽略')
+          : options.includes('取消忽略')
+          ? options.indexOf('取消忽略')
+          : undefined
         const cancelButtonIndex = options.indexOf('取消')
 
         showActionSheetWithOptions(
@@ -420,7 +437,7 @@ function MoreButton({
           },
           async selectedIndex => {
             switch (selectedIndex) {
-              case 1:
+              case options.indexOf('举报'):
                 if (!isSignined()) {
                   navigation.navigate('Login')
                   return
@@ -448,7 +465,7 @@ function MoreButton({
                 }
                 break
 
-              case 2:
+              case options.indexOf('分享'):
                 Share.share({
                   title: topic.title,
                   url: `${baseURL}/t/${topic.id}`,

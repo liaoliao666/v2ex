@@ -3,6 +3,7 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
 import {
+  Fragment,
   ReactNode,
   useCallback,
   useEffect,
@@ -10,7 +11,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { FlatList, ListRenderItem, Text, View } from 'react-native'
+import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
@@ -36,6 +37,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
+import { isMe } from '@/utils/authentication'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -120,10 +122,6 @@ function TopicDetailScreen() {
     replyBoxRef.current?.replyFor({ username })
   }, [])
 
-  const handleAppend = useCallback(() => {
-    replyBoxRef.current?.replyFor({ isAppend: true })
-  }, [])
-
   const [orderBy, setOrderBy] = useState<OrderBy>('asc')
 
   useEffect(() => {
@@ -190,34 +188,50 @@ function TopicDetailScreen() {
         }}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
-          <TopicInfo topic={lastPage} onAppend={handleAppend}>
+          <TopicInfo
+            topic={lastPage}
+            onAppend={() => {
+              replyBoxRef.current?.replyFor({ isAppend: true })
+            }}
+          >
             <View
               style={tw.style(`flex-row items-center justify-between pt-2`)}
             >
               <View style={tw`flex-1 flex-row justify-between items-center`}>
                 <VoteButton topic={lastPage} />
 
-                <View style={tw.style(`flex-row items-center`)}>
-                  <IconButton
-                    color={tw`text-tint-secondary`.color as string}
-                    activeColor="rgb(245,158,11)"
-                    onPress={() => {
-                      replyBoxRef.current?.replyFor()
-                    }}
-                    size={21}
-                    icon={<Octicons name="comment" />}
-                  />
+                <Pressable
+                  style={tw.style(`flex-row items-center`)}
+                  onPress={() => {
+                    replyBoxRef.current?.replyFor()
+                  }}
+                >
+                  {({ pressed }) => (
+                    <Fragment>
+                      <IconButton
+                        color={tw`text-tint-secondary`.color as string}
+                        activeColor="rgb(245,158,11)"
+                        size={21}
+                        icon={<Octicons name="comment" />}
+                        pressed={pressed}
+                      />
 
-                  {!!lastPage.reply_count && (
-                    <Text
-                      style={tw.style('text-body-6 pl-1 text-tint-secondary')}
-                    >
-                      {lastPage.reply_count}
-                    </Text>
+                      {!!lastPage.reply_count && (
+                        <Text
+                          style={tw.style(
+                            'text-body-6 pl-1 text-tint-secondary'
+                          )}
+                        >
+                          {lastPage.reply_count}
+                        </Text>
+                      )}
+                    </Fragment>
                   )}
-                </View>
+                </Pressable>
 
-                <ThankTopic topic={lastPage} />
+                {!isMe(lastPage.member?.username) && (
+                  <ThankTopic topic={lastPage} />
+                )}
 
                 <LikeTopic topic={lastPage} />
               </View>

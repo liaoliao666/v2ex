@@ -101,31 +101,32 @@ const ReplyBox = forwardRef<
               replyTypeRef.current.isAppend ? '发送你的附言' : '发送你的评论'
             }
             onChangeText={text => {
-              if (isFocus) {
-                if (text.endsWith('@')) {
-                  navigation.navigate('SearchReplyMember', {
-                    topicId,
-                    onPressReplyMemberItem(member) {
-                      setContent(`${text}${member.username} `)
-                    },
-                  })
-                } else {
-                  const isDeleting = text.length < getContent().length
-                  const lastAtName = getContent().match(/(@\w+)$/)?.[1]
+              if (!isFocus) return
 
-                  if (isDeleting && lastAtName) {
-                    const prunedText = text.slice(
-                      0,
-                      text.length - lastAtName.length + 1
-                    )
-                    setContent(prunedText)
-                    inputRef.current?.setNativeProps({
-                      text: prunedText,
-                    })
-                  } else {
-                    setContent(text)
-                  }
-                }
+              if (text.endsWith('@')) {
+                navigation.navigate('SearchReplyMember', {
+                  topicId,
+                  onPressReplyMemberItem(member) {
+                    setContent(`${text}${member.username} `)
+                  },
+                })
+                return
+              }
+
+              const isDeleting = text.length < getContent().length
+              const lastAtName = getContent().match(/(@\w+)$/)?.[1]
+
+              if (isDeleting && lastAtName) {
+                const prunedText = text.slice(
+                  0,
+                  text.length - lastAtName.length + 1
+                )
+                setContent(prunedText)
+                inputRef.current?.setNativeProps({
+                  text: prunedText,
+                })
+              } else {
+                setContent(text)
               }
             }}
             onFocus={() => {

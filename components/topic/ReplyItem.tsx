@@ -3,7 +3,7 @@ import { FontAwesome5, Octicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
-import { find, findIndex, isBoolean } from 'lodash-es'
+import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo } from 'react'
 import { Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
@@ -18,7 +18,7 @@ import {
 } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { isSignined } from '@/utils/authentication'
+import { isMe, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
@@ -44,7 +44,6 @@ function ReplyItem({
   once,
   hightlight,
   onReply,
-  hideViewRelatedReplies,
   related,
   inModalScreen,
 }: {
@@ -53,7 +52,6 @@ function ReplyItem({
   reply: Reply
   hightlight?: boolean
   onReply: (username: string) => void
-  hideViewRelatedReplies?: boolean
   related?: boolean
   inModalScreen?: boolean
 }) {
@@ -153,7 +151,9 @@ function ReplyItem({
                 </Text>
               )}
 
-              <ThankReply topicId={topicId} once={once} reply={reply} />
+              {!(isMe(reply.member.username) && !reply.thanks) && (
+                <ThankReply topicId={topicId} once={once} reply={reply} />
+              )}
 
               <Pressable
                 onPress={() => onReply(reply.member.username)}
@@ -176,7 +176,7 @@ function ReplyItem({
                 )}
               </Pressable>
 
-              {reply.has_related_replies && !hideViewRelatedReplies && (
+              {reply.has_related_replies && !inModalScreen && (
                 <Pressable
                   onPress={() => {
                     navigation.navigate('RelatedReplies', {
@@ -233,6 +233,8 @@ function ThankReply({
   return (
     <Pressable
       onPress={async () => {
+        if (isMe(reply.member.username)) return
+
         if (!isSignined()) {
           navigation.navigate('Login')
           return
@@ -278,7 +280,7 @@ function ThankReply({
             name={reply.thanked ? 'heart' : 'heart-outline'}
             color={tw`text-tint-secondary`.color as string}
             activeColor={'rgb(249,24,128)'}
-            pressed={pressed}
+            pressed={isMe(reply.member.username) ? false : pressed}
           />
 
           <Text
@@ -317,9 +319,13 @@ function MoreButton({
       activeColor={tw`text-tint-primary`.color as string}
       size={16}
       onPress={() => {
-        const options = ['忽略', '分享', '取消']
-        const destructiveButtonIndex = 0
-        const cancelButtonIndex = 2
+        const options = compact([
+          !isMe(reply.member.username) && '隐藏',
+          '分享',
+          '取消',
+        ])
+        const destructiveButtonIndex = options.indexOf('隐藏')
+        const cancelButtonIndex = options.indexOf('取消')
 
         showActionSheetWithOptions(
           {
@@ -330,7 +336,7 @@ function MoreButton({
           },
           async selectedIndex => {
             switch (selectedIndex) {
-              case 1:
+              case options.indexOf('分享'):
                 Share.share({
                   title: reply.content,
                   url: `${baseURL}/t/${topicId}?p=${Math.ceil(
@@ -347,7 +353,7 @@ function MoreButton({
 
                 if (ignoreReplyMutation.isLoading) return
 
-                await confirm('确定忽略该回复么?')
+                await confirm('确定隐藏该回复么?')
 
                 try {
                   await ignoreReplyMutation.mutateAsync({
@@ -371,12 +377,12 @@ function MoreButton({
 
                   Toast.show({
                     type: 'success',
-                    text1: '忽略成功',
+                    text1: '隐藏成功',
                   })
                 } catch (error) {
                   Toast.show({
                     type: 'error',
-                    text1: '忽略失败',
+                    text1: '隐藏失败',
                   })
                 }
                 break

@@ -50,7 +50,6 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
-import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
   useBlockMember,
@@ -61,7 +60,7 @@ import {
 } from '@/servicies/member'
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { isSignined } from '@/utils/authentication'
+import { isMe, isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import useMount from '@/utils/useMount'
@@ -128,10 +127,6 @@ function MemberDetailScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
-  const pofile = useAtomValue(profileAtom)
-
-  const isSelf = pofile?.username === params.username
-
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <NavBar
@@ -139,7 +134,7 @@ function MemberDetailScreen() {
         tintColor="#fff"
         statusBarStyle="light"
       >
-        {!avatarVisible && !isSelf && (
+        {!avatarVisible && !isMe(params.username) && (
           <View style={tw`flex-row items-center flex-1`}>
             <Text style={tw`text-white text-body-4 font-bold mr-auto`}>
               {member?.username}
@@ -235,7 +230,7 @@ function MemberDetailScreen() {
                 pointerEvents="box-none"
                 style={tw`bg-body-1`}
               >
-                <MemberHeader isSelf={isSelf} />
+                <MemberHeader />
               </View>
 
               <TabBar
@@ -281,7 +276,7 @@ function MemberDetailScreen() {
   )
 }
 
-const MemberHeader = memo(({ isSelf }: { isSelf: boolean }) => {
+const MemberHeader = memo(() => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data: member } = useMember({
@@ -302,7 +297,7 @@ const MemberHeader = memo(({ isSelf }: { isSelf: boolean }) => {
           />
         </View>
 
-        {!isSelf && (
+        {!isMe(params.username) && (
           <Space style={tw`mt-10 ml-auto`}>
             <BlockMember {...member!} />
 
@@ -624,7 +619,9 @@ const MemberReply = memo(
       </DebouncePressable>
     )
   },
-  (prev, next) => prev.topic.reply.created === next.topic.reply.created
+  (prev, next) =>
+    prev.topic.reply.content === next.topic.reply.content &&
+    prev.topic.reply_count === next.topic.reply_count
 )
 
 function FollowMember({
