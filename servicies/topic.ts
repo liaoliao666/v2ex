@@ -33,7 +33,7 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>(
   }
 )
 
-export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
+export const useRecentTopics = createInfiniteQuery<PageData<Topic>, void>(
   'useRecentTopics',
   async ({ pageParam, signal }) => {
     const page = pageParam ?? 1

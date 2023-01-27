@@ -1,10 +1,10 @@
-import CookieManager from '@react-native-cookies/cookies'
 import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { noop } from 'lodash-es'
 import { useEffect, useReducer, useRef } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
+import { clearCookie } from '@/utils/cookie'
 import { baseURL } from '@/utils/request/baseURL'
 import { timeout } from '@/utils/timeout'
 import tw from '@/utils/tw'
@@ -14,6 +14,7 @@ import v2exMessage from './v2exMessage'
 enum ActionType {
   Request = 'REQUEST',
   IsConnect = 'IS_CONNECT',
+  GetCaptcha = 'GET_CAPTCHA',
 }
 
 let handleLoad: () => void
@@ -25,8 +26,6 @@ v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
 })
 
 let handleCheckConnect: () => void = noop
-
-const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
 
 export default function V2exWebview() {
   const webViewRef = useRef<WebView>(null)
@@ -44,17 +43,11 @@ export default function V2exWebview() {
         })
       ); void(0);
     `)
-    return timeout(new Promise(ok => (handleCheckConnect = ok)), 100)
+    return timeout(new Promise(ok => (handleCheckConnect = ok)), 300)
   }
 
   v2exMessage.clearWebviewCache = async () => {
-    await Promise.race([
-      Promise.all([
-        new Promise(ok => RCTNetworking.clearCookies(ok)),
-        CookieManager.clearAll(true),
-      ]),
-      sleep(1000),
-    ])
+    await Promise.race([clearCookie(), sleep(500)])
     webViewRef.current?.clearCache?.(true)
   }
 
@@ -64,12 +57,17 @@ export default function V2exWebview() {
       handleLoadError = reject
     })
     updateForceRenderKey()
+    return v2exMessage.loadV2exWebviewPromise
   }
 
   useEffect(() => {
     v2exMessage.injectRequestScript = ({ id, config }) => {
+      const transformResponseScript =
+        config.transformResponseScript || `function(data) {return data}`
+
       const run = `axios(${JSON.stringify(config)})
-      .then(response => {
+      .then(async response => {
+        response.data = await (${transformResponseScript})(response.data)
         ReactNativeWebView.postMessage(
           JSON.stringify({
             id: '${id}',
@@ -127,23 +125,21 @@ export default function V2exWebview() {
             // empty
           }
 
-          if (typeof result === 'object' && result !== null) {
-            switch (result.type as ActionType) {
-              case ActionType.Request: {
-                const listener = v2exMessage.linsteners.get(result.id)
+          switch (result.type as ActionType) {
+            case ActionType.Request: {
+              const listener = v2exMessage.linsteners.get(result.id)
 
-                listener?.(
-                  result.error != null
-                    ? Promise.reject(result.error)
-                    : Promise.resolve(result.response)
-                )
-                break
-              }
+              listener?.(
+                result.error != null
+                  ? Promise.reject(result.error)
+                  : Promise.resolve(result.response)
+              )
+              break
+            }
 
-              case ActionType.IsConnect: {
-                handleCheckConnect()
-                break
-              }
+            case ActionType.IsConnect: {
+              handleCheckConnect()
+              break
             }
           }
         }}

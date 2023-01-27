@@ -2,11 +2,13 @@ import axios from 'axios'
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { RESET } from 'jotai/utils'
-import { isEmpty, isNumber } from 'lodash-es'
+import { isNumber } from 'lodash-es'
 import { isEqual } from 'lodash-es'
 import Toast from 'react-native-toast-message'
 
+import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
+import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { open503UrlTimeAtom } from '@/jotai/open503UrlTimeAtom'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -19,7 +21,6 @@ import {
   parseRecentTopics,
 } from '@/servicies/helper'
 
-import { setCookie } from '../cookie'
 import { openURL } from '../url'
 import { baseURL } from './baseURL'
 
@@ -28,21 +29,22 @@ export const request = axios.create({
 })
 
 request.interceptors.request.use(async config => {
-  return {
-    ...config,
-    // adapter:
-    //   config.url && config.url.startsWith('http')
-    //     ? undefined
-    //     : v2exMessage.sendMessage,
+  if (
+    !(await store.get(enabledPerformanceAtom)) &&
+    !config.url?.startsWith('http')
+  ) {
+    config.adapter = v2exMessage.sendMessage
   }
+
+  return config
 })
 
 request.interceptors.response.use(
   response => {
     updateStoreWithData(response.data)
-    if (!isEmpty(response.headers['set-cookie'])) {
-      setCookie(response.headers['set-cookie']!)
-    }
+    // if (!isEmpty(response.headers['set-cookie'])) {
+    //   setCookie(response.headers['set-cookie']!)
+    // }
     return response
   },
   error => {
@@ -65,7 +67,7 @@ async function handle503Error(error: any) {
   }
 }
 
-export function updateStoreWithData(data: any) {
+function updateStoreWithData(data: any) {
   if (typeof data !== 'string') return
 
   const $ = load(data)

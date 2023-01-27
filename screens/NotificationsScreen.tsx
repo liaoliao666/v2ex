@@ -169,7 +169,10 @@ const NoticeItem = memo(
             <View
               style={tw`bg-[#f0f3f5] dark:bg-[#262626] px-4 py-3 mt-2 rounded`}
             >
-              <Html source={{ html: notice.content }} />
+              <Html
+                source={{ html: notice.content }}
+                defaultTextProps={{ selectable: false }}
+              />
             </View>
           )}
         </View>

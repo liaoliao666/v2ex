@@ -18,7 +18,6 @@ import StyledImage from '@/components/StyledImage'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { RootStackParamList } from '@/types'
-import { clearCookie } from '@/utils/cookie'
 import tw from '@/utils/tw'
 
 import Badge from './Badge'
@@ -165,8 +164,7 @@ function Profile() {
       ) : (
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
-          onPress={async () => {
-            await clearCookie()
+          onPress={() => {
             navigation.navigate('Login')
           }}
         >

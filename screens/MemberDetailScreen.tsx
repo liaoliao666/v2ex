@@ -614,7 +614,10 @@ const MemberReply = memo(
               {topic.reply.created}
             </Text>
           </Separator>
-          <Html source={{ html: topic.reply.content }} />
+          <Html
+            source={{ html: topic.reply.content }}
+            defaultTextProps={{ selectable: false }}
+          />
         </View>
       </DebouncePressable>
     )

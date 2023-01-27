@@ -14,7 +14,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { memo } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { z } from 'zod'
 
 import DebouncePressable from '@/components/DebouncePressable'
 import Html from '@/components/Html'
@@ -29,9 +28,10 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useNodes } from '@/servicies/node'
-import { Sov2exArgs, useSov2ex } from '@/servicies/sov2ex'
+import { useSov2ex } from '@/servicies/sov2ex'
 import { useTopicDetail } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -86,12 +86,6 @@ export default function SearchScreen() {
     [handleClickNode]
   )
 
-  const [sov2exArgs, setSov2exArgs] = useState<z.infer<typeof Sov2exArgs>>({
-    size: 10,
-    sort: 'sumup',
-    order: '0',
-  })
-
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const navbarHeight = useNavBarHeight()
@@ -138,10 +132,7 @@ export default function SearchScreen() {
         <QuerySuspense>
           <SoV2exList
             key={colorScheme}
-            sov2exArgs={{
-              ...sov2exArgs,
-              q: searchText,
-            }}
+            searchText={searchText}
             navbarHeight={navbarHeight}
           />
         </QuerySuspense>
@@ -157,10 +148,7 @@ export default function SearchScreen() {
               color={tw`text-tint-primary`.color as string}
               activeColor={tw`text-tint-primary`.color as string}
               onPress={() => {
-                navigation.navigate('SearchOptions', {
-                  defaultValues: sov2exArgs,
-                  onSubmit: setSov2exArgs,
-                })
+                navigation.navigate('SearchOptions')
               }}
             />
           }
@@ -184,14 +172,16 @@ export default function SearchScreen() {
 }
 
 function SoV2exList({
-  sov2exArgs,
   navbarHeight,
+  searchText,
 }: {
-  sov2exArgs: z.infer<typeof Sov2exArgs>
   navbarHeight: number
+  searchText: string
 }) {
+  const sov2exArgs = useAtomValue(sov2exArgsAtom)
+
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSov2ex({ suspense: true, variables: sov2exArgs })
+    useSov2ex({ suspense: true, variables: { ...sov2exArgs, q: searchText } })
 
   const { data: nodeMap } = useNodes({
     select: useCallback(
@@ -358,6 +348,7 @@ const HitItem = memo(
                   `text-body-5`,
                   isFetched ? `text-tint-secondary` : `text-tint-primary`
                 )}
+                defaultTextProps={{ selectable: false }}
               />
             </View>
           )}

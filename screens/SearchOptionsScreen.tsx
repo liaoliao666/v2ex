@@ -1,27 +1,31 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { View } from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import FormControl from '@/components/FormControl'
 import NavBar from '@/components/NavBar'
+import { withQuerySuspense } from '@/components/QuerySuspense'
 import RadioButtonGroup from '@/components/RadioButtonGroup'
 import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
+import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { Sov2exArgs } from '@/servicies/sov2ex'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
-import { SafeAreaView } from 'react-native-safe-area-context'
 
-export default function SearchOptionsScreen() {
-  const { params } = useRoute<RouteProp<RootStackParamList, 'SearchOptions'>>()
+export default withQuerySuspense(SearchOptionsScreen)
+
+function SearchOptionsScreen() {
+  const [sov2exArgs, setSov2exArgsm] = useAtom(sov2exArgsAtom)
 
   const { control, reset, handleSubmit, watch } = useForm({
     resolver: zodResolver(Sov2exArgs),
-    defaultValues: params.defaultValues,
+    defaultValues: sov2exArgs,
   })
 
   const sort = watch('sort')
@@ -149,39 +153,39 @@ export default function SearchOptionsScreen() {
         </View>
       </View>
 
-      <SafeAreaView edges={["bottom"]}>
-      <View style={tw`flex-row p-4`}>
-        <StyledButton
-          style={tw`flex-1`}
-          shape="rounded"
-          size="large"
-          ghost
-          onPress={() => {
-            reset({
-              size: 10,
-              sort: 'sumup',
-              order: '0',
-              gte: '',
-              lte: '',
-            })
-          }}
-        >
-          重置
-        </StyledButton>
-        <StyledButton
-          onPress={() => {
-            handleSubmit(values => {
-              params.onSubmit(values)
-              navigation.goBack()
-            })()
-          }}
-          style={tw`flex-1 ml-2`}
-          shape="rounded"
-          size="large"
-        >
-          提交
-        </StyledButton>
-      </View>
+      <SafeAreaView edges={['bottom']}>
+        <View style={tw`flex-row p-4`}>
+          <StyledButton
+            style={tw`flex-1`}
+            shape="rounded"
+            size="large"
+            ghost
+            onPress={() => {
+              reset({
+                size: 10,
+                sort: 'sumup',
+                order: '0',
+                gte: '',
+                lte: '',
+              })
+            }}
+          >
+            重置
+          </StyledButton>
+          <StyledButton
+            onPress={() => {
+              handleSubmit(values => {
+                setSov2exArgsm(values)
+                navigation.goBack()
+              })()
+            }}
+            style={tw`flex-1 ml-2`}
+            shape="rounded"
+            size="large"
+          >
+            提交
+          </StyledButton>
+        </View>
       </SafeAreaView>
     </View>
   )

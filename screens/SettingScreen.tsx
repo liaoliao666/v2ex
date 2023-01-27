@@ -13,9 +13,11 @@ import { withQuerySuspense } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
+import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
+import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { useSignout } from '@/servicies/authentication'
@@ -39,6 +41,10 @@ function SettingScreen() {
   )
 
   const [enabledMsgPush, setEnabledMsgPush] = useAtom(enabledMsgPushAtom)
+
+  const [enabledPerformance, setEnabledPerformance] = useAtom(
+    enabledPerformanceAtom
+  )
 
   const isSignined = !!profile?.once
 
@@ -118,6 +124,41 @@ function SettingScreen() {
             />
           </Fragment>
         )}
+
+        <ListItem
+          label="性能模式"
+          icon={
+            <MaterialCommunityIcons
+              color={tw`text-tint-primary`.color as string}
+              size={24}
+              name={'flash'}
+            />
+          }
+          action={
+            <Switch
+              value={enabledPerformance}
+              trackColor={
+                Platform.OS === 'android'
+                  ? undefined
+                  : { true: `rgb(26,140,216)` }
+              }
+              onValueChange={async () => {
+                try {
+                  if (!enabledPerformance) {
+                    await confirm(
+                      '开启性能模式',
+                      '优化首次请求时间及超时问题，注意可能会导致无法登录'
+                    )
+                  }
+                  setEnabledPerformance(!enabledPerformance)
+                } catch (error) {
+                  // empty
+                }
+              }}
+            />
+          }
+          pressable={false}
+        />
 
         <ListItem
           label="问题反馈"
@@ -222,8 +263,9 @@ function SignoutItem({ once }: { once: string }) {
     } catch (error) {
       // empty
     } finally {
-      setProfileAtom(RESET)
-      clearCookie()
+      await clearCookie()
+      await setProfileAtom(RESET)
+      v2exMessage.reloadWebview()
     }
   }
 

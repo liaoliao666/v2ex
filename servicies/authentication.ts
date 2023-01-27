@@ -1,14 +1,14 @@
-import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { load } from 'cheerio'
 import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
+import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { store } from '@/jotai/store'
-import { getCookie } from '@/utils/cookie'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
+import { sleep } from '@/utils/sleep'
 
 import { isLogined } from './helper'
 
@@ -38,7 +38,6 @@ export const useSigninInfo = createQuery(
 
     return {
       is_limit: !captcha,
-      captcha: `${captcha}?now=${Date.now()}`,
       once: $(
         '#Main > div.box > div.cell > form > table > tbody > tr:nth-child(4) > td:nth-child(2) > input[type=hidden]:nth-child(1)'
       ).attr('value'),
@@ -51,7 +50,6 @@ export const useSigninInfo = createQuery(
       code_hash: $(
         '#Main > div.box > div.cell > form > table > tbody > tr:nth-child(3) > td:nth-child(2) > input'
       ).attr('name'),
-      cookie: await getCookie(),
     }
   },
   {
@@ -140,3 +138,49 @@ export const useTwoStepSignin = createMutation<
 
   return Promise.reject(new Error(`${problem || '登录失败'}`))
 })
+
+export const useCaptcha = createQuery<string, void>(
+  'useCaptcha',
+  async () => {
+    const enabledPerformance = await store.get(enabledPerformanceAtom)
+    return request
+      .get(`/_captcha?now=${Date.now()}`, {
+        responseType: 'blob',
+        ...(enabledPerformance
+          ? {
+              transformResponse: [
+                function blobToBase64(blob) {
+                  if (!blob) return blob
+                  return new Promise((resolve, reject) => {
+                    const reader = new FileReader()
+                    reader.onloadend = () => resolve(reader.result)
+                    reader.onerror = reject
+                    reader.readAsDataURL(blob)
+                  })
+                },
+              ],
+            }
+          : {
+              transformResponseScript: `function blobToBase64(blob) {
+                if (!blob) return blob
+                return new Promise((resolve, reject) => {
+                  const reader = new FileReader()
+                  reader.onloadend = () => resolve(reader.result)
+                  reader.onerror = reject
+                  reader.readAsDataURL(blob)
+                })
+              }`,
+            }),
+      })
+      .then(res => res.data)
+      .catch(err => {
+        console.log('err', err)
+
+        throw err
+      })
+  },
+  {
+    cacheTime: 0,
+    staleTime: 0,
+  }
+)

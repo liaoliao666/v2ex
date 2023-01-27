@@ -32,8 +32,8 @@ function getColorScheme(theme: ThemeScheme) {
   return theme === 'system' ? Appearance.getColorScheme() || 'light' : theme
 }
 
-Appearance.addChangeListener(preferences => {
-  const systemColorScheme = preferences.colorScheme
+function handleColorSchemeChange() {
+  const systemColorScheme = Appearance.getColorScheme()
   const theme = store.get(themeAtom)
   const colorScheme = store.get(colorSchemeAtom)
 
@@ -45,4 +45,7 @@ Appearance.addChangeListener(preferences => {
     tw.setColorScheme(getColorScheme(store.get(baseThemeAtom)!))
     store.set(forceUpdateColorScheme, prev => ++prev)
   }
-})
+}
+
+Appearance.addChangeListener(handleColorSchemeChange)
+AppState.addEventListener('change', handleColorSchemeChange)

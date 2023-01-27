@@ -4,9 +4,9 @@ import { noop, pick, uniqueId } from 'lodash-es'
 import { sleep } from '@/utils/sleep'
 
 class SendMEssageTimeoutError extends Error {
-  constructor(message: string) {
-    super(message)
-    this.name = 'SendMEssageTimeoutError'
+  constructor() {
+    super('请检查您的网络设置')
+    this.name = '应用连接失败'
   }
 }
 
@@ -50,6 +50,7 @@ class V2exMessage {
             'headers',
             'withCredentials',
             'data',
+            'transformResponseScript',
           ]),
         })
         this.linsteners.set(id, resolve)
@@ -57,8 +58,8 @@ class V2exMessage {
         this.timeout = false
         this.linsteners.delete(id)
       }),
-      sleep(5 * 1000).then(() =>
-        Promise.reject(new SendMEssageTimeoutError('timeout'))
+      sleep(config.timeout || 5 * 1000).then(() =>
+        Promise.reject(new SendMEssageTimeoutError())
       ),
     ])
       .catch(async err => {
@@ -73,7 +74,7 @@ class V2exMessage {
 
   private async checkConnect() {
     const diffMins = (Date.now() - this.checkConnectTimeElapsed) / 1000 / 60
-    if (diffMins < 5) return this.checkConnectPromise
+    if (diffMins < 3) return this.checkConnectPromise
 
     this.checkConnectTimeElapsed = Date.now()
     this.checkConnectPromise = this.injectCheckConnectScript().catch(() => {

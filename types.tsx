@@ -3,14 +3,18 @@
  * https://reactnavigation.org/docs/typescript/
  */
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
-import { z } from 'zod'
 
-import { Sov2exArgs } from './servicies/sov2ex'
 import { Member, Node, Topic } from './servicies/types'
 
 declare global {
   namespace ReactNavigation {
     interface RootParamList extends RootStackParamList {}
+  }
+}
+
+declare module 'axios' {
+  export interface AxiosRequestConfig {
+    transformResponseScript?: string
   }
 }
 
@@ -23,10 +27,7 @@ export type RootStackParamList = {
   MyFollowing: undefined
   Notifications: undefined
   Search: undefined
-  SearchOptions: {
-    defaultValues: z.infer<typeof Sov2exArgs>
-    onSubmit: (values: z.infer<typeof Sov2exArgs>) => void
-  }
+  SearchOptions: undefined
   SearchNode: {
     onPressNodeItem: (node: Node) => void
   }

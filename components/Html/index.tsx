@@ -24,6 +24,8 @@ import { HtmlContext } from './HtmlContext'
 import IFrameRenderer from './IFrameRenderer'
 import ImageRenderer from './ImageRenderer'
 
+// import TextRenderer from './TextRenderer'
+
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
     onElement: (el: any) => {
@@ -40,6 +42,7 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
     pre: CodeRenderer,
     img: ImageRenderer,
     iframe: IFrameRenderer,
+    // _TEXT_: TextRenderer,
   },
 
   customHTMLElementModels: {

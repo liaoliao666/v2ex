@@ -7,12 +7,15 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Text, View } from 'react-native'
 import { isObject } from 'twrnc/dist/esm/types'
 
+import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
+import { store } from '@/jotai/store'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 
 import LoadingIndicator from './LoadingIndicator'
 import StyledButton from './StyledButton'
+import v2exMessage from './V2exWebview/v2exMessage'
 
 export type QuerySuspenseProps = Partial<ErrorBoundaryProps> & {
   Loading?: FC
@@ -23,17 +26,6 @@ export function FallbackComponent({
   error,
   resetErrorBoundary,
 }: FallbackProps) {
-  async function reset() {
-    // try {
-    //   await v2exMessage.loadV2exWebviewPromise
-    //   if (v2exMessage.timeout) v2exMessage.reloadWebview()
-    // } catch {
-    //   v2exMessage.reloadWebview()
-    // }
-
-    resetErrorBoundary()
-  }
-
   return (
     <View style={tw`p-8`}>
       <Text style={tw`text-[31px] leading-9 font-extrabold text-tint-primary`}>
@@ -46,7 +38,7 @@ export function FallbackComponent({
       </Text>
       <StyledButton
         style={tw`h-[52px] mt-7`}
-        onPress={reset}
+        onPress={resetErrorBoundary}
         size="large"
         shape="rounded"
       >
@@ -58,7 +50,7 @@ export function FallbackComponent({
           try {
             await confirm(`确认清除缓存吗？`, `该动作会导致删除所有缓存数据`)
             queryClient.removeQueries()
-            reset()
+            resetErrorBoundary()
           } catch {
             // empty
           }
@@ -84,7 +76,18 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
       {({ reset }) => (
         // @ts-ignored
         <ErrorBoundary
-          onReset={reset}
+          onReset={async () => {
+            if (!store.get(enabledPerformanceAtom)) {
+              try {
+                await v2exMessage.loadV2exWebviewPromise
+                if (v2exMessage.timeout) v2exMessage.reloadWebview()
+              } catch {
+                v2exMessage.reloadWebview()
+              }
+            }
+
+            reset()
+          }}
           FallbackComponent={
             !rest.fallback && !rest.fallbackRender && !rest.FallbackComponent
               ? FallbackComponent

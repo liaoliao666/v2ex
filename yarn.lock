@@ -2029,29 +2029,34 @@
   dependencies:
     "@tanstack/query-persist-client-core" "4.20.4"
 
-"@tanstack/query-core@4.20.4":
-  version "4.20.4"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.20.4.tgz#1f7975a2db26a8bc2f382bad8a44cd422c846b17"
-  integrity sha512-lhLtGVNJDsJ/DyZXrLzekDEywQqRVykgBqTmkv0La32a/RleILXy6JMLBb7UmS3QCatg/F/0N9/5b0i5j6IKcA==
+"@tanstack/query-core@4.22.4":
+  version "4.22.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.22.4.tgz#aca622d2f8800a147ece5520d956a076ab92f0ea"
+  integrity sha512-t79CMwlbBnj+yL82tEcmRN93bL4U3pae2ota4t5NN2z3cIeWw74pzdWrKRwOfTvLcd+b30tC+ciDlfYOKFPGUw==
 
 "@tanstack/query-persist-client-core@4.20.4":
   version "4.20.4"
   resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-4.20.4.tgz#cd4b408b4f36645f3b06cce4b757df8c755e713f"
   integrity sha512-MzrRC9esSEpD/kY28Zi4YqkWvuOUmpO67vpgCkQszOLbAHLMeEibId3njXxIZXDPg5fvX3HaAwFS7GheuMuKFg==
 
-"@tanstack/react-query-persist-client@^4.19.1":
-  version "4.20.4"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query-persist-client/-/react-query-persist-client-4.20.4.tgz#f433e5723bf1ae4d764327faa23c26b45814eefb"
-  integrity sha512-fJvYdULQEa+PV7M3WzWNPWiP/VmWflyiISwIzu2/wC6TnsH7CzXwUwy5PvTl89AR26GR0/U5J6f+oS6JhLVJxQ==
-  dependencies:
-    "@tanstack/query-persist-client-core" "4.20.4"
+"@tanstack/query-persist-client-core@4.22.4":
+  version "4.22.4"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-4.22.4.tgz#a8ed136a8234b9cbd12ae3df857425330c6200db"
+  integrity sha512-F5rCLczSw8RjFlwWASD3oRR7D4oyG90QbBFaOqBCjGbvE3bcD+m/E4GGCp1qfACoLuH4KtxhdwdOFfE+e0TRZQ==
 
-"@tanstack/react-query@^4.20.4":
-  version "4.20.4"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.20.4.tgz#562b34fb919adea884eccaba2b5be50e8ba7fb16"
-  integrity sha512-SJRxx13k/csb9lXAJfycgVA1N/yU/h3bvRNWP0+aHMfMjmbyX82FdoAcckDBbOdEyAupvb0byelNHNeypCFSyA==
+"@tanstack/react-query-persist-client@^4.23.0":
+  version "4.23.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query-persist-client/-/react-query-persist-client-4.23.0.tgz#9efd696279987f654c104b985eed7a5fab665d89"
+  integrity sha512-wYK0HQP2vS/tAf//oQwoiCmbjMBr+JcaLNex+BU+fbN3ul2uUi6v8Ek5yS9tT95MOc3zySwEDwY48fesbV7KgA==
   dependencies:
-    "@tanstack/query-core" "4.20.4"
+    "@tanstack/query-persist-client-core" "4.22.4"
+
+"@tanstack/react-query@^4.23.0":
+  version "4.23.0"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.23.0.tgz#0b9e14269a48cf5a4ffe46c8525cdb9df2ebd9cf"
+  integrity sha512-cfQsrecZQjYYueiow4WcK8ItokXJnv+b2OrK8Lf5kF7lM9uCo1ilyygFB8wo4MfxchUBVM6Cs8wq4Ed7fouwkA==
+  dependencies:
+    "@tanstack/query-core" "4.22.4"
     use-sync-external-store "^1.2.0"
 
 "@trivago/prettier-plugin-sort-imports@^3.3.0":
@@ -7279,10 +7284,10 @@ react-native@0.70.5:
     whatwg-fetch "^3.0.0"
     ws "^6.1.4"
 
-react-query-kit@^1.3.1:
-  version "1.3.1"
-  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-1.3.1.tgz#6f2be5b8e7a88699d7bd7cb598681b6dbd924ea6"
-  integrity sha512-U24GJiaXErgwkCOJdb0ihIzzPm0MZJwtjIzYKpb7+/fCxdRVn5iv55G5DIu9ijSjY+bxsr6DFOxcyX8xfbtqQA==
+react-query-kit@^1.3.5:
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-1.3.5.tgz#5c4b66064bdba2339c063fb76c2d5ba9640a1214"
+  integrity sha512-49nAYT5gckrmv7ozE0TBF1w7fm0vWY2/NsXWzeKvdelKEvzckxTlvjKaUe/waMp/WeGeKszIvw3ppfRCCf6i2Q==
 
 react-refresh@^0.4.0:
   version "0.4.3"

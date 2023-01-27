@@ -19,6 +19,7 @@ if (!isExpoGo) {
 export function clearCookie() {
   return Promise.all([
     new Promise(ok => RCTNetworking.clearCookies(ok)),
+    CookieManager.clearAll(),
     CookieManager.clearAll(true),
   ])
 }

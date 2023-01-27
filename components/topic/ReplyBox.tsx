@@ -80,10 +80,13 @@ const ReplyBox = forwardRef<
       >
         <View
           style={tw.style(
-            `px-4 bg-body-1 border-t border-solid border-tint-border flex-row items-center`,
+            `px-4 bg-body-1 flex-row items-center`,
             isFocus
               ? `rounded-t-[32px] overflow-hidden`
-              : `pt-4 pb-[${Math.max(safeAreaInsets.bottom, 16)}px]`
+              : `pt-4 pb-[${Math.max(
+                  safeAreaInsets.bottom,
+                  16
+                )}px] border-b-0 border-t border-solid border-tint-border`
           )}
         >
           <TextInput

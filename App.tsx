@@ -4,7 +4,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
-import { Suspense, useMemo } from 'react'
+import { Fragment, ReactNode, Suspense, useMemo } from 'react'
 import { AppStateStatus, LogBox, Platform } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -15,8 +15,10 @@ import '@/utils/dayjsPlugins'
 
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
+import V2exWebview from './components/V2exWebview'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
+import { enabledPerformanceAtom } from './jotai/enabledPerformanceAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
@@ -44,33 +46,7 @@ function onAppStateChange(status: AppStateStatus) {
   }
 }
 
-export default function AppWithSuspense() {
-  return (
-    <Suspense>
-      <App />
-    </Suspense>
-  )
-}
-
-function App() {
-  const [colorScheme] = useAtomValue(
-    waitForAll([
-      colorSchemeAtom,
-      profileAtom,
-      enabledAutoCheckinAtom,
-      enabledMsgPushAtom,
-    ])
-  )
-
-  useMemo(() => {
-    tw.setColorScheme(colorScheme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useDeviceContext(tw, { withDeviceColorScheme: false })
-
-  useAppState(onAppStateChange)
-
+export default function AppWithProvider() {
   return (
     <ActionSheetProvider>
       <Provider unstable_createStore={() => store}>
@@ -78,26 +54,37 @@ function App() {
           client={queryClient}
           persistOptions={{ persister: asyncStoragePersister }}
         >
-          <GlobalQueries />
-
-          <SafeAreaProvider>
-            <Navigation />
-            <StatusBar />
-            <GlobalImageViewer />
-          </SafeAreaProvider>
+          <Suspense>
+            <AppWithJotai>
+              <App />
+            </AppWithJotai>
+          </Suspense>
 
           <StyledToast />
-
-          {/* <V2exWebview /> */}
         </PersistQueryClientProvider>
       </Provider>
     </ActionSheetProvider>
   )
 }
 
-function GlobalQueries() {
-  const profile = useAtomValue(profileAtom)
-  const enabledAutoCheckin = useAtomValue(enabledAutoCheckinAtom)
+function AppWithJotai({ children }: { children: ReactNode }) {
+  const [colorScheme, profile, enabledAutoCheckin, enabledPerformance] =
+    useAtomValue(
+      waitForAll([
+        colorSchemeAtom,
+        profileAtom,
+        enabledAutoCheckinAtom,
+        enabledPerformanceAtom,
+        enabledMsgPushAtom,
+      ])
+    )
+
+  useMemo(() => {
+    tw.setColorScheme(colorScheme)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useDeviceContext(tw, { withDeviceColorScheme: false })
 
   useCheckin({
     onSuccess(amount = 0) {
@@ -114,7 +101,24 @@ function GlobalQueries() {
 
   useNodes()
 
-  return null
+  return (
+    <Fragment>
+      {!enabledPerformance && <V2exWebview />}
+      {children}
+    </Fragment>
+  )
+}
+
+function App() {
+  useAppState(onAppStateChange)
+
+  return (
+    <SafeAreaProvider>
+      <Navigation />
+      <StatusBar />
+      <GlobalImageViewer />
+    </SafeAreaProvider>
+  )
 }
 
 function GlobalImageViewer() {
