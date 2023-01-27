@@ -1,7 +1,7 @@
 import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { noop } from 'lodash-es'
 import { useEffect, useReducer, useRef } from 'react'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import { clearCookie } from '@/utils/cookie'
@@ -9,6 +9,7 @@ import { baseURL } from '@/utils/request/baseURL'
 import { timeout } from '@/utils/timeout'
 import tw from '@/utils/tw'
 
+import { userAgent } from './userAgent'
 import v2exMessage from './v2exMessage'
 
 enum ActionType {
@@ -52,9 +53,13 @@ export default function V2exWebview() {
   }
 
   v2exMessage.reloadWebview = () => {
+    v2exMessage.loadingV2exWebview = true
     v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
       handleLoad = resolve
       handleLoadError = reject
+    })
+    v2exMessage.loadV2exWebviewPromise.finally(() => {
+      v2exMessage.loadingV2exWebview = false
     })
     updateForceRenderKey()
     return v2exMessage.loadV2exWebviewPromise
@@ -80,9 +85,13 @@ export default function V2exWebview() {
         ReactNativeWebView.postMessage(
           JSON.stringify({
             id: '${id}',
-            error: JSON.parse(
-              JSON.stringify(error, Object.getOwnPropertyNames(error))
-            ),
+            error: (function toJSON(obj) {
+              var alt = {}
+              Object.getOwnPropertyNames(obj).forEach(function (key) {
+                alt[key] = obj[key]
+              }, obj)
+              return alt
+            })(error),
             type: '${ActionType.Request}'
           })
         )
@@ -143,7 +152,8 @@ export default function V2exWebview() {
             }
           }
         }}
-        userAgent={`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`}
+        contentMode="desktop"
+        userAgent={Platform.OS === 'android' ? userAgent : undefined}
       />
     </View>
   )

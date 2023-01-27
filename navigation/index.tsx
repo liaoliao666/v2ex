@@ -16,7 +16,7 @@ import { Platform } from 'react-native'
 
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import GItHubMDScreen from '@/screens/GItHubMD'
+import GItHubMDScreen from '@/screens/GItHubMDScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import LoginScreen from '@/screens/LoginScreen'
 import MemberDetailScreen from '@/screens/MemberDetailScreen'

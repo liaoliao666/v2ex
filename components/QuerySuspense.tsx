@@ -77,6 +77,7 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
         // @ts-ignored
         <ErrorBoundary
           onReset={async () => {
+            reset()
             if (!store.get(enabledPerformanceAtom)) {
               try {
                 await v2exMessage.loadV2exWebviewPromise
@@ -85,8 +86,6 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
                 v2exMessage.reloadWebview()
               }
             }
-
-            reset()
           }}
           FallbackComponent={
             !rest.fallback && !rest.fallbackRender && !rest.FallbackComponent

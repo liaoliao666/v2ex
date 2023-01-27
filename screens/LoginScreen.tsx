@@ -249,11 +249,7 @@ export default function LoginScreen() {
         <TouchableOpacity
           style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
           onPress={() => {
-            if (!signinInfoQuery.data?.once) return
-            navigation.navigate('WebSignin', {
-              once: signinInfoQuery.data.once,
-              onTwoStepOnce: setTwoStepOnce,
-            })
+            navigation.navigate('WebSignin')
           }}
         >
           <Text style={tw`text-body-5 text-tint-secondary ml-2`}>网页登录</Text>

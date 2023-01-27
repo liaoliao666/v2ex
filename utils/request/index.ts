@@ -2,7 +2,7 @@ import axios from 'axios'
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { RESET } from 'jotai/utils'
-import { isNumber } from 'lodash-es'
+import { isNumber, isObjectLike } from 'lodash-es'
 import { isEqual } from 'lodash-es'
 import Toast from 'react-native-toast-message'
 
@@ -55,9 +55,15 @@ request.interceptors.response.use(
 
 async function handle503Error(error: any) {
   try {
-    if (error.message.includes(`503`) && !error.config.url.startsWith('http')) {
+    if (
+      isObjectLike(error) &&
+      isObjectLike(error.config) &&
+      error.message.includes(`503`) &&
+      error.config.method === 'get' &&
+      !error.config.url.startsWith('http')
+    ) {
       const open503UrlTime = await store.get(open503UrlTimeAtom)
-      if (dayjs().diff(open503UrlTime, 'day') > 1) {
+      if (dayjs().diff(open503UrlTime, 'hour') > 8) {
         store.set(open503UrlTimeAtom, Date.now())
         openURL(`${baseURL}${error.config.url}`)
       }
