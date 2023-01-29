@@ -2,6 +2,7 @@ import { load } from 'cheerio'
 import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
+import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { store } from '@/jotai/store'
@@ -28,6 +29,12 @@ export const useSignout = createMutation<void, { once: string }>(
 export const useSigninInfo = createQuery(
   'useSigninInfo',
   async ({ signal }) => {
+    if (!(await store.get(enabledPerformanceAtom))) {
+      return {
+        is_limit: await v2exMessage.isLimitLogin(),
+      }
+    }
+
     const { data } = await request.get(`/signin`, {
       responseType: 'text',
       signal,
@@ -64,12 +71,16 @@ export const useSignin = createMutation<
     once?: string
     cookie?: string
   },
-  Record<string, string>,
+  Record<string, any>,
   Error
->(async ({ username, ...args }) => {
-  if (await store.get(deletedNamesAtom)?.includes(username)) {
+>(async ({ webviewArg, ...args }) => {
+  if (await store.get(deletedNamesAtom)?.includes(webviewArg.username)) {
     await sleep(1000)
     return Promise.reject(new Error('该帐号已注销'))
+  }
+
+  if (!(await store.get(enabledPerformanceAtom))) {
+    return v2exMessage.login(webviewArg) as any
   }
 
   const { headers, data } = await request.post(
@@ -174,8 +185,6 @@ export const useCaptcha = createQuery<string, void>(
       })
       .then(res => res.data)
       .catch(err => {
-        console.log('err', err)
-
         throw err
       })
   },

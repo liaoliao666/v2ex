@@ -164,7 +164,7 @@ function ReplyItem({
                     <IconButton
                       pressed={pressed}
                       color={tw`text-tint-secondary`.color as string}
-                      activeColor="rgb(245,158,11)"
+                      activeColor="rgb(29,155,240)"
                       size={15}
                       icon={<Octicons name="comment" />}
                     />
@@ -230,17 +230,17 @@ function ThankReply({
 
   const navigation = useNavigation()
 
+  const disabled = isMe(reply.member.username) || reply.thanked
+
   return (
     <Pressable
       onPress={async () => {
-        if (isMe(reply.member.username)) return
-
         if (!isSignined()) {
           navigation.navigate('Login')
           return
         }
 
-        if (isLoading || reply.thanked) return
+        if (isLoading || disabled) return
 
         await confirm(
           `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`
@@ -278,15 +278,19 @@ function ThankReply({
             size={16}
             active={reply.thanked}
             name={reply.thanked ? 'heart' : 'heart-outline'}
-            color={tw`text-tint-secondary`.color as string}
+            color={
+              reply.thanks
+                ? `rgb(249,24,128)`
+                : (tw`text-tint-secondary`.color as string)
+            }
             activeColor={'rgb(249,24,128)'}
-            pressed={isMe(reply.member.username) ? false : pressed}
+            pressed={disabled ? false : pressed}
           />
 
           <Text
             style={tw.style(
               'text-body-6 pl-0.5',
-              reply.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
+              reply.thanks ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
             )}
           >
             {reply.thanks ? reply.thanks : '感谢'}

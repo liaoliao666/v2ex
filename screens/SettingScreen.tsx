@@ -20,6 +20,7 @@ import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
 import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
+import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useSignout } from '@/servicies/authentication'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
@@ -30,6 +31,8 @@ import { openURL } from '@/utils/url'
 export default withQuerySuspense(SettingScreen)
 
 function SettingScreen() {
+  useAtomValue(colorSchemeAtom)
+
   const navbarHeight = useNavBarHeight()
 
   const profile = useAtomValue(profileAtom)

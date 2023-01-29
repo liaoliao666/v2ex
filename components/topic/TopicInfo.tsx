@@ -346,8 +346,6 @@ export function VoteButton({ topic }: { topic: Topic }) {
         )}
       </Pressable>
 
-      <View style={tw`w-px h-3/4 border-tint-border border-l border-solid`} />
-
       <Pressable
         style={tw`px-2`}
         onPress={async () => {
@@ -421,11 +419,9 @@ function MoreButton({
           '取消',
         ] as const)
 
-        const destructiveButtonIndex = options.includes('忽略')
-          ? options.indexOf('忽略')
-          : options.includes('取消忽略')
-          ? options.indexOf('取消忽略')
-          : undefined
+        const destructiveButtonIndex = options.findIndex(o =>
+          o.includes('忽略')
+        )
         const cancelButtonIndex = options.indexOf('取消')
 
         showActionSheetWithOptions(

@@ -128,7 +128,7 @@ function Html({
         tagsStyles={{
           h1: tw`text-body-3 pb-1.5 border-b border-solid border-tint-border`,
           h2: tw`text-body-4 pb-1.5 border-b border-solid border-tint-border`,
-          h3: tw`text-body-4 `,
+          h3: tw`text-body-4`,
           h4: tw`text-body-4`,
           h5: tw`text-body-5`,
           h6: tw`text-body-6`,
@@ -153,9 +153,8 @@ function Html({
                 }
 
                 const [, routeName, arg] =
-                  resolvedURI
-                    .slice(baseURL.length)
-                    .match(/\/(\w+)\/([\w|\d|-]+)/) || []
+                  resolvedURI.slice(baseURL.length).match(/\/(\w+)\/(\w+)/) ||
+                  []
 
                 switch (routeName) {
                   case 't':

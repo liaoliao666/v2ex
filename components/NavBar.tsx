@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import { StatusBarStyle } from 'expo-status-bar'
 import { ReactNode, isValidElement } from 'react'
-import { Platform, Text, View, ViewStyle } from 'react-native'
+import { Platform, PressableProps, Text, View, ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import tw from '@/utils/tw'
@@ -73,7 +73,12 @@ export default function NavBar({
   )
 }
 
-export function BackButton({ tintColor }: { tintColor?: string }) {
+export function BackButton({
+  tintColor,
+}: {
+  tintColor?: string
+  onPress?: PressableProps['onPress']
+}) {
   const { goBack } = useNavigation()
 
   const color = tintColor || (tw`text-tint-primary`.color as string)

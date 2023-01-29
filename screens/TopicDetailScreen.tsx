@@ -114,7 +114,7 @@ function TopicDetailScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
-  const lastPage = last(data?.pages)!
+  const topic = last(data?.pages)!
 
   const replyBoxRef = useRef<ReplyBoxRef>(null)
 
@@ -145,8 +145,8 @@ function TopicDetailScreen() {
       <ReplyItem
         key={item.id}
         reply={item as Reply}
-        topicId={lastPage.id}
-        once={lastPage.once}
+        topicId={topic.id}
+        once={topic.once}
         hightlight={
           params.hightlightReplyNo
             ? params.hightlightReplyNo === item.no
@@ -155,7 +155,7 @@ function TopicDetailScreen() {
         onReply={handleReplyItem}
       />
     ),
-    [lastPage.id, lastPage.once, params.hightlightReplyNo, handleReplyItem]
+    [topic.id, topic.once, params.hightlightReplyNo, handleReplyItem]
   )
 
   const [avatarVisible, setAvatarVisible] = useState(true)
@@ -189,7 +189,7 @@ function TopicDetailScreen() {
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
           <TopicInfo
-            topic={lastPage}
+            topic={topic}
             onAppend={() => {
               replyBoxRef.current?.replyFor({ isAppend: true })
             }}
@@ -198,7 +198,7 @@ function TopicDetailScreen() {
               style={tw.style(`flex-row items-center justify-between pt-2`)}
             >
               <View style={tw`flex-1 flex-row justify-between items-center`}>
-                <VoteButton topic={lastPage} />
+                <VoteButton topic={topic} />
 
                 <Pressable
                   style={tw.style(`flex-row items-center`)}
@@ -210,30 +210,28 @@ function TopicDetailScreen() {
                     <Fragment>
                       <IconButton
                         color={tw`text-tint-secondary`.color as string}
-                        activeColor="rgb(245,158,11)"
+                        activeColor="rgb(29,155,240)"
                         size={21}
                         icon={<Octicons name="comment" />}
                         pressed={pressed}
                       />
 
-                      {!!lastPage.reply_count && (
+                      {!!topic.reply_count && (
                         <Text
                           style={tw.style(
                             'text-body-6 pl-1 text-tint-secondary'
                           )}
                         >
-                          {lastPage.reply_count}
+                          {topic.reply_count}
                         </Text>
                       )}
                     </Fragment>
                   )}
                 </Pressable>
 
-                {!isMe(lastPage.member?.username) && (
-                  <ThankTopic topic={lastPage} />
-                )}
+                {!isMe(topic.member?.username) && <ThankTopic topic={topic} />}
 
-                <LikeTopic topic={lastPage} />
+                <LikeTopic topic={topic} />
               </View>
 
               <View style={tw`flex-shrink-0 w-8`} />
@@ -273,7 +271,7 @@ function TopicDetailScreen() {
 
       <ReplyBox
         onSuccess={refetch}
-        once={lastPage.once}
+        once={topic.once}
         topicId={params.id}
         ref={replyBoxRef}
       />
@@ -284,13 +282,16 @@ function TopicDetailScreen() {
           {!avatarVisible && (
             <View style={tw`flex-1`}>
               <View style={tw`flex-row items-center`}>
-                <Text style={tw`text-tint-primary text-body-4 font-bold`}>
-                  {lastPage.member?.username}
+                <Text
+                  style={tw`text-tint-primary text-body-4 font-bold w-4/5`}
+                  numberOfLines={1}
+                >
+                  {topic.title}
                 </Text>
               </View>
 
               <Text style={tw`text-tint-secondary text-body-6`}>
-                {lastPage.reply_count} 条回复
+                {topic.reply_count} 条回复
               </Text>
             </View>
           )}

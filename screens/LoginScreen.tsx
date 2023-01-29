@@ -38,9 +38,7 @@ const SigninArgs = z.object({
 export default function LoginScreen() {
   const signinInfoQuery = useSigninInfo()
 
-  const captchaQuery = useCaptcha({
-    enabled: signinInfoQuery.isSuccess,
-  })
+  const captchaQuery = useCaptcha()
 
   const signinMutation = useSignin()
 
@@ -183,10 +181,10 @@ export default function LoginScreen() {
                   getValues('password').trim(),
                 [signinInfoQuery.data.code_hash!]: getValues('code').trim(),
                 once: signinInfoQuery.data.once!,
-                username: getValues('username').trim(),
+                webviewArg: getValues(),
               })
 
-              if (result['2fa']) {
+              if (result?.['2fa']) {
                 setTwoStepOnce(result.once!)
                 return
               }

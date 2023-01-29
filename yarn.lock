@@ -7185,7 +7185,7 @@ react-native-reanimated@~2.12.0:
 
 react-native-render-html@^6.3.4:
   version "6.3.4"
-  resolved "https://registry.yarnpkg.com/react-native-render-html/-/react-native-render-html-6.3.4.tgz#01684897bed2de84829e540a1dbb3a7bdf9d0e57"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-native-render-html/-/react-native-render-html-6.3.4.tgz#01684897bed2de84829e540a1dbb3a7bdf9d0e57"
   integrity sha512-H2jSMzZjidE+Wo3qCWPUMU1nm98Vs2SGCvQCz/i6xf0P3Y9uVtG/b0sDbG/cYFir2mSYBYCIlS1Dv0WC1LjYig==
   dependencies:
     "@jsamr/counter-style" "^2.0.1"
@@ -7284,10 +7284,10 @@ react-native@0.70.5:
     whatwg-fetch "^3.0.0"
     ws "^6.1.4"
 
-react-query-kit@^1.3.5:
-  version "1.3.5"
-  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-1.3.5.tgz#5c4b66064bdba2339c063fb76c2d5ba9640a1214"
-  integrity sha512-49nAYT5gckrmv7ozE0TBF1w7fm0vWY2/NsXWzeKvdelKEvzckxTlvjKaUe/waMp/WeGeKszIvw3ppfRCCf6i2Q==
+react-query-kit@^1.3.6:
+  version "1.3.6"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-query-kit/-/react-query-kit-1.3.6.tgz#7cdb8ce0cb6adf86c411550a90dc5250349ad54c"
+  integrity sha512-WCl0CvIModmuVPE9r1z9PL9s5OgfvwFxjHA0i+ZZ9mZRy5LrsWU23PIZIg54ZToI1Ak3NcjydO6oKFZzrS4nMg==
 
 react-refresh@^0.4.0:
   version "0.4.3"
@@ -8373,10 +8373,10 @@ tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-twrnc@^3.4.0:
-  version "3.5.0"
-  resolved "https://registry.yarnpkg.com/twrnc/-/twrnc-3.5.0.tgz#b46a7845a394f9843f0a83c25f04193080cb6b14"
-  integrity sha512-HcvyGAjbE4udXnGYcU8Y0T0Jj5d6wY/X2vWmiy8aYg15K/K709HRRyVVcFu0CrgK62qBBDKwuS5gFgb+w7MCLw==
+twrnc@^3.6.0:
+  version "3.6.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/twrnc/-/twrnc-3.6.0.tgz#11eaa30da790b01b658b68b7f38ca15eeaa82e70"
+  integrity sha512-ee3etAeEfJyH7a9iiQD6JEYJN7nQiZumO6KXCaAmgj9xL5BIFgZfjWsVfQ0eV+anSqgXVit/a2ZUNX3LFlbdhA==
   dependencies:
     tailwindcss ">=2.0.0"
 

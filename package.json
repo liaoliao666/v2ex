@@ -59,8 +59,8 @@
     "react-native-toast-message": "^2.1.5",
     "react-native-webview": "11.23.1",
     "react-native-youtube-iframe": "^2.2.2",
-    "react-query-kit": "^1.3.5",
-    "twrnc": "^3.4.0",
+    "react-query-kit": "^1.3.6",
+    "twrnc": "^3.6.0",
     "zod": "^3.19.1"
   },
   "devDependencies": {

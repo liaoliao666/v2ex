@@ -3,7 +3,7 @@ import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
-import { ComponentProps, memo, useCallback, useMemo } from 'react'
+import { ComponentProps, ReactNode, memo, useCallback, useMemo } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -44,12 +44,18 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 const errorResetMap: Record<string, () => void> = {}
 
-const MemoRecentTopics = memo((props: ComponentProps<typeof RecentTopics>) => {
+function TabPlaceholder({
+  children,
+  tab,
+}: {
+  children: ReactNode
+  tab: string
+}) {
   const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
   return (
     <QuerySuspense
       fallbackRender={fallbackProps => {
-        errorResetMap.recent = fallbackProps.resetErrorBoundary
+        errorResetMap[tab] = fallbackProps.resetErrorBoundary
         return (
           <View style={{ paddingTop: headerHeight }}>
             <FallbackComponent {...fallbackProps} />
@@ -57,28 +63,22 @@ const MemoRecentTopics = memo((props: ComponentProps<typeof RecentTopics>) => {
         )
       }}
     >
-      <RecentTopics {...props} />
+      {children}
     </QuerySuspense>
   )
-})
+}
 
-const MemoTabTopics = memo((props: ComponentProps<typeof TabTopics>) => {
-  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
-  return (
-    <QuerySuspense
-      fallbackRender={fallbackProps => {
-        errorResetMap[props.tab] = fallbackProps.resetErrorBoundary
-        return (
-          <View style={{ paddingTop: headerHeight }}>
-            <FallbackComponent {...fallbackProps} />
-          </View>
-        )
-      }}
-    >
-      <TabTopics {...props} />
-    </QuerySuspense>
-  )
-})
+const MemoRecentTopics = memo((props: ComponentProps<typeof RecentTopics>) => (
+  <TabPlaceholder tab="recent">
+    <RecentTopics {...props} />
+  </TabPlaceholder>
+))
+
+const MemoTabTopics = memo((props: ComponentProps<typeof TabTopics>) => (
+  <TabPlaceholder tab={props.tab}>
+    <TabTopics {...props} />
+  </TabPlaceholder>
+))
 
 export default withQuerySuspense(HomeScreen, {
   fallbackRender: props => (
@@ -137,6 +137,8 @@ function HomeScreen() {
           )
         }}
         onIndexChange={i => {
+          isSwiping = false
+
           const tab = tabs[i].key
           const activeKey =
             tab === 'recent'
@@ -395,6 +397,6 @@ function TopNavBar() {
 
 function PreventLeftSwiping({ headerHeight }: { headerHeight: number }) {
   return (
-    <View style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-4`} />
+    <View style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-5`} />
   )
 }

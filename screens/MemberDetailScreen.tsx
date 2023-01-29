@@ -157,7 +157,6 @@ function MemberDetailScreen() {
             ref: route.ref,
             contentContainerStyle: {
               paddingTop: headerHeight ? headerHeight + NAV_BAR_HEIGHT : 0,
-              minHeight: layout.height,
             },
             onScroll: Animated.event(
               [{ nativeEvent: { contentOffset: { y: scrollYRef.current } } }],
@@ -505,9 +504,7 @@ const MemberReplies = forwardRef<
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<
-    Omit<Topic, 'replies'> & {
-      reply: Reply
-    }
+    inferData<typeof useMemberReplies>['pages'][number]['list'][number]
   > = useCallback(({ item }) => <MemberReply key={item.id} topic={item} />, [])
 
   const flatedData = useMemo(
