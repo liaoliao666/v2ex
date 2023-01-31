@@ -11,6 +11,8 @@ import RenderHTML, {
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import tw from '@/utils/tw'
 
+import TextRenderer from './TextRenderer'
+
 const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const { width } = useWindowDimensions()
 
@@ -37,13 +39,12 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     <ScrollView
       horizontal
       nestedScrollEnabled
-      style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}
+      style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded px-2`)}
     >
       <RenderHTML
         contentWidth={width}
         baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] text-[15px] leading-5`}
         tagsStyles={{
-          code: tw`px-2`,
           pre: tw`my-2`,
           h1: tw`text-body-3 pb-1.5 border-b border-solid border-tint-border`,
           h2: tw`text-body-4 pb-1.5 border-b border-solid border-tint-border`,
@@ -64,6 +65,7 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         defaultTextProps={{ selectable: true }}
         classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
         source={{ html }}
+        renderers={{ _TEXT_: TextRenderer }}
       />
     </ScrollView>
   )

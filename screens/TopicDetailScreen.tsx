@@ -11,7 +11,14 @@ import {
   useRef,
   useState,
 } from 'react'
-import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
+import {
+  FlatList,
+  ListRenderItem,
+  Platform,
+  Pressable,
+  Text,
+  View,
+} from 'react-native'
 
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
@@ -169,7 +176,7 @@ function TopicDetailScreen() {
       <FlatList
         key={colorScheme}
         data={flatedData}
-        removeClippedSubviews={false}
+        removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
