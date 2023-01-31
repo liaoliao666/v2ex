@@ -5,7 +5,7 @@ import tw from '@/utils/tw'
 const StyledActivityIndicator = (props: ActivityIndicatorProps) => {
   return (
     <ActivityIndicator
-      color={tw`text-[#536471] dark:text-[#e7e9ea]`.color as string}
+      color={tw.color(`text-[#536471] dark:text-[#e7e9ea]`)}
       {...props}
     />
   )

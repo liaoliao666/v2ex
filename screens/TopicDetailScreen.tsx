@@ -209,7 +209,7 @@ function TopicDetailScreen() {
                   {({ pressed }) => (
                     <Fragment>
                       <IconButton
-                        color={tw`text-tint-secondary`.color as string}
+                        color={tw.color(`text-tint-secondary`)}
                         activeColor="rgb(29,155,240)"
                         size={21}
                         icon={<Octicons name="comment" />}

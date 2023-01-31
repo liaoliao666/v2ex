@@ -15,7 +15,7 @@ export default function NavBar({
   children,
   style,
   title,
-  tintColor = tw`text-tint-primary`.color as string,
+  tintColor = tw.color(`text-tint-primary`),
   statusBarStyle = 'auto',
   left = <BackButton tintColor={tintColor} />,
   right,
@@ -81,7 +81,7 @@ export function BackButton({
 }) {
   const { goBack } = useNavigation()
 
-  const color = tintColor || (tw`text-tint-primary`.color as string)
+  const color = tintColor || tw.color(`text-tint-primary`)
 
   return (
     <IconButton

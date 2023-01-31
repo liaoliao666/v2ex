@@ -91,13 +91,15 @@ const ReplyBox = forwardRef<
         >
           <TextInput
             ref={inputRef}
-            placeholderTextColor={tw`text-tint-secondary`.color as string}
+            placeholderTextColor={tw.color(`text-tint-secondary`)}
             style={tw.style(
+              { paddingVertical: 0 },
               `text-tint-primary flex-1 py-2 px-3`,
               isFocus
                 ? `h-20 pt-4 rounded-lg`
                 : `h-9 rounded-full bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)]`
             )}
+            textAlignVertical="top"
             multiline
             numberOfLines={3}
             placeholder={

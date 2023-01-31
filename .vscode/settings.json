@@ -1,6 +1,7 @@
 {
   "tailwindCSS.experimental.classRegex": [
     "tw`([^`]*)",
-    "tw\\.style\\(([^)]*)\\)"
+    "tw\\.style\\(([^)]*)\\)",
+    "tw\\.color\\(([^)]*)\\)"
   ]
 }

@@ -23,8 +23,7 @@ import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
 import IFrameRenderer from './IFrameRenderer'
 import ImageRenderer from './ImageRenderer'
-
-// import TextRenderer from './TextRenderer'
+import TextRenderer from './TextRenderer'
 
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
@@ -42,7 +41,7 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
     pre: CodeRenderer,
     img: ImageRenderer,
     iframe: IFrameRenderer,
-    // _TEXT_: TextRenderer,
+    _TEXT_: TextRenderer,
   },
 
   customHTMLElementModels: {
@@ -135,7 +134,7 @@ function Html({
           p: tw`text-body-5`,
           a: tw`text-tint-secondary no-underline`,
           hr: {
-            backgroundColor: tw`border-tint-border`.borderColor as string,
+            backgroundColor: tw.color(`border-tint-border`),
           },
           em: {
             fontStyle: 'italic',

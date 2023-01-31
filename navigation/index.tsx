@@ -42,6 +42,7 @@ import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
+import linking from './LinkingConfiguration'
 import { navigationRef } from './navigationRef'
 
 export default function Navigation() {
@@ -49,11 +50,11 @@ export default function Navigation() {
 
   const theme = useMemo(() => {
     const colors = {
-      primary: tw`text-primary-focus`.color as string,
-      text: tw`text-tint-primary`.color as string,
-      border: tw`border-tint-border`.borderColor as string,
-      card: tw`bg-body-1`.backgroundColor as string,
-      background: tw`bg-body-1`.backgroundColor as string,
+      primary: tw.color(`text-primary-focus`)!,
+      text: tw.color(`text-tint-primary`)!,
+      border: tw.color(`border-tint-border`)!,
+      card: tw.color(`bg-body-1`)!,
+      background: tw.color(`bg-body-1`)!,
     }
 
     return colorScheme === 'dark'
@@ -74,7 +75,7 @@ export default function Navigation() {
   }, [colorScheme])
 
   return (
-    <NavigationContainer ref={navigationRef} theme={theme}>
+    <NavigationContainer ref={navigationRef} linking={linking} theme={theme}>
       <StackNavigator />
     </NavigationContainer>
   )

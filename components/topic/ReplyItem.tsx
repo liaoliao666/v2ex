@@ -163,7 +163,7 @@ function ReplyItem({
                   <Fragment>
                     <IconButton
                       pressed={pressed}
-                      color={tw`text-tint-secondary`.color as string}
+                      color={tw.color(`text-tint-secondary`)}
                       activeColor="rgb(29,155,240)"
                       size={15}
                       icon={<Octicons name="comment" />}
@@ -194,8 +194,8 @@ function ReplyItem({
                     <Fragment>
                       <IconButton
                         pressed={pressed}
-                        color={tw`text-tint-secondary`.color as string}
-                        activeColor={tw`text-tint-primary`.color as string}
+                        color={tw.color(`text-tint-secondary`)}
+                        activeColor={tw.color(`text-tint-primary`)}
                         size={15}
                         icon={<FontAwesome5 name="comments" />}
                       />
@@ -279,9 +279,7 @@ function ThankReply({
             active={reply.thanked}
             name={reply.thanked ? 'heart' : 'heart-outline'}
             color={
-              reply.thanks
-                ? `rgb(249,24,128)`
-                : (tw`text-tint-secondary`.color as string)
+              reply.thanks ? `rgb(249,24,128)` : tw.color(`text-tint-secondary`)
             }
             activeColor={'rgb(249,24,128)'}
             pressed={disabled ? false : pressed}
@@ -319,8 +317,8 @@ function MoreButton({
   return (
     <IconButton
       name="dots-horizontal"
-      color={tw`text-tint-secondary`.color as string}
-      activeColor={tw`text-tint-primary`.color as string}
+      color={tw.color(`text-tint-secondary`)}
+      activeColor={tw.color(`text-tint-primary`)}
       size={16}
       onPress={() => {
         const options = compact([

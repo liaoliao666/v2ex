@@ -212,7 +212,7 @@ function HomeScreen() {
                 <Feather
                   name="menu"
                   size={17}
-                  color={tw`text-tint-secondary`.color as string}
+                  color={tw.color(`text-tint-secondary`)}
                   style={tw`-mt-1 pr-4 pl-1`}
                 />
               </TouchableOpacity>
@@ -372,8 +372,8 @@ function TopNavBar() {
         <IconButton
           name="note-edit-outline"
           size={24}
-          color={tw`text-tint-secondary`.color as string}
-          activeColor={tw`text-tint-primary`.color as string}
+          color={tw.color(`text-tint-secondary`)}
+          activeColor={tw.color(`text-tint-primary`)}
           onPress={() => {
             if (!isSignined()) {
               navigation.navigate('Login')
@@ -388,7 +388,7 @@ function TopNavBar() {
         style={tw`flex-1`}
         editable={false}
         onPress={() => {
-          navigation.push('Search')
+          navigation.push('Search', {})
         }}
       />
     </NavBar>

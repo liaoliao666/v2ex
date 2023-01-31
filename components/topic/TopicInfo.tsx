@@ -99,7 +99,7 @@ export default function TopicInfo({
         <MoreButton topic={topic} onAppend={onAppend} />
       </View>
 
-      <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
+      <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`} selectable>
         {topic.title}
       </Text>
 
@@ -197,7 +197,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
       {({ pressed }) => (
         <Fragment>
           <IconButton
-            color={tw`text-tint-secondary`.color as string}
+            color={tw.color(`text-tint-secondary`)}
             activeColor="rgb(250,219,20)"
             active={topic.liked}
             icon={<FontAwesome name={topic.liked ? 'star' : 'star-o'} />}
@@ -267,7 +267,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
         <Fragment>
           <IconButton
             name={topic.thanked ? 'heart' : 'heart-outline'}
-            color={tw`text-tint-secondary`.color as string}
+            color={tw.color(`text-tint-secondary`)}
             activeColor="rgb(249,24,128)"
             active={topic.thanked}
             pressed={pressed}
@@ -332,10 +332,9 @@ export function VoteButton({ topic }: { topic: Topic }) {
             <MaterialCommunityIcons
               name="thumb-up-outline"
               size={22.5}
-              color={
-                tw.style(pressed ? `text-[#ff4500]` : `text-tint-secondary`)
-                  .color as string
-              }
+              color={tw.color(
+                pressed ? `text-[#ff4500]` : `text-tint-secondary`
+              )}
             />
             {!!topic.votes && (
               <Text style={tw.style(`ml-1 text-tint-secondary`)}>
@@ -376,10 +375,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
           <MaterialCommunityIcons
             name="thumb-down-outline"
             size={22.5}
-            color={
-              tw.style(pressed ? `text-[#7193ff]` : `text-tint-secondary`)
-                .color as string
-            }
+            color={tw.color(pressed ? `text-[#7193ff]` : `text-tint-secondary`)}
           />
         )}
       </Pressable>
@@ -405,8 +401,8 @@ function MoreButton({
   return (
     <IconButton
       name="dots-horizontal"
-      color={tw`text-tint-secondary`.color as string}
-      activeColor={tw`text-tint-primary`.color as string}
+      color={tw.color(`text-tint-secondary`)}
+      activeColor={tw.color(`text-tint-primary`)}
       onPress={() => {
         const options = compact([
           !isMe(topic.member?.username) &&

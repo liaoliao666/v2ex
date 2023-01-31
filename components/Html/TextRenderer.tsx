@@ -1,24 +1,31 @@
-import { isString } from 'lodash-es'
-import { Text, TextInput } from 'react-native'
+import { Platform, Text, TextInput } from 'react-native'
 import {
   CustomTextualRenderer,
   getNativePropsForTNode,
 } from 'react-native-render-html'
 
-import tw from '@/utils/tw'
+const resetTextInputStyle = {
+  paddingTop: 0,
+  paddingVertical: 0,
+  marginTop: -3,
+  paddingBottom: 3,
+}
 
 const TextRenderer: CustomTextualRenderer = props => {
   const renderProps = getNativePropsForTNode(props)
 
-  return renderProps.selectable && isString(renderProps.children) ? (
+  if (!renderProps.selectable || Platform.OS === 'android')
+    return <Text {...renderProps} />
+
+  return (
     <TextInput
       editable={false}
       multiline
-      {...renderProps}
-      style={[renderProps.style, tw`pt-0`]}
-    />
-  ) : (
-    <Text {...renderProps} />
+      style={resetTextInputStyle}
+      textAlignVertical="top"
+    >
+      <Text {...renderProps} />
+    </TextInput>
   )
 }
 

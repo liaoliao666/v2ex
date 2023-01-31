@@ -39,12 +39,12 @@ export default function SearchBar({
       <Ionicons
         name="search"
         size={18}
-        color={tw`text-tint-secondary`.color as string}
+        color={tw.color(`text-tint-secondary`)}
         style={tw`pl-3`}
       />
       <TextInput
         placeholder={placeholder || '搜索V2EX内容'}
-        placeholderTextColor={tw`text-tint-secondary`.color as string}
+        placeholderTextColor={tw.color(`text-tint-secondary`)}
         style={tw`text-tint-primary px-3 py-1 flex-1`}
         pointerEvents={editable ? 'auto' : 'none'}
         editable={editable}

@@ -3,7 +3,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
-import { Fragment, ReactNode, Suspense, useMemo } from 'react'
+import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -14,10 +14,8 @@ import '@/utils/dayjsPlugins'
 
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
-import V2exWebview from './components/V2exWebview'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
-import { enabledPerformanceAtom } from './jotai/enabledPerformanceAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
@@ -63,16 +61,14 @@ export default function App() {
 }
 
 function AppInitializer({ children }: { children: ReactNode }) {
-  const [colorScheme, profile, enabledAutoCheckin, enabledPerformance] =
-    useAtomValue(
-      waitForAll([
-        colorSchemeAtom,
-        profileAtom,
-        enabledAutoCheckinAtom,
-        enabledPerformanceAtom,
-        enabledMsgPushAtom,
-      ])
-    )
+  const [colorScheme, profile, enabledAutoCheckin] = useAtomValue(
+    waitForAll([
+      colorSchemeAtom,
+      profileAtom,
+      enabledAutoCheckinAtom,
+      enabledMsgPushAtom,
+    ])
+  )
 
   useMemo(() => {
     tw.setColorScheme(colorScheme)
@@ -96,12 +92,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
 
   useNodes()
 
-  return (
-    <Fragment>
-      {!enabledPerformance && <V2exWebview />}
-      {children}
-    </Fragment>
-  )
+  return children as ReactElement
 }
 
 function GlobalImageViewer() {

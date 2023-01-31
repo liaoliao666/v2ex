@@ -11,7 +11,7 @@ const StyledTextInput = forwardRef<
     <TextInput
       ref={ref}
       autoCapitalize="none"
-      placeholderTextColor={tw`text-tint-secondary`.color as string}
+      placeholderTextColor={tw.color(`text-tint-secondary`)}
       {...props}
       style={tw.style(
         `bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)] h-9 px-3 rounded-lg text-tint-primary`,

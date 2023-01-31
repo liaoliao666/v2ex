@@ -191,8 +191,8 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
     <IconButton
       size={16}
       name="delete-outline"
-      color={tw`text-tint-secondary`.color as string}
-      activeColor={tw`text-tint-primary`.color as string}
+      color={tw.color(`text-tint-secondary`)}
+      activeColor={tw.color(`text-tint-primary`)}
       onPress={async () => {
         if (!isSignined()) {
           navigation.navigate('Login')

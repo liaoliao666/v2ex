@@ -322,7 +322,10 @@ export function parseProfile($: CheerioAPI): Profile {
       .text(),
     avatar: $profile.find('img').eq(0).attr('src')!,
     my_notification: defaultTo(
-      parseInt($('#money').prev().text().trim(), 10),
+      parseInt(
+        $('#Rightbar a.fade[href$="notifications"]:first').text().trim(),
+        10
+      ),
       0
     ),
     once: $('.site-nav .tools a')

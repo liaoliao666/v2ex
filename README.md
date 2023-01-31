@@ -9,7 +9,7 @@
 ## 下载
 
 - [iOS App Store](https://apps.apple.com/cn/app/awesomev2ex/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.2.0/application-21a7581a-be1a-4aa0-8a5d-12791409389d.apk)
+- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.2.1/application-9399c68c-cb31-4a09-9a3c-85a9336fbe6f.apk)
 
 ## 本地运行
 
@@ -18,6 +18,10 @@
 ## Issues
 
 希望做出贡献？ [Good First Issue][good-first-issue]
+
+## URL Scheme
+
+搜索页面 `v2fun://search/query?` 例子: `v2fun://search` or `v2fun://search/v2fun这款应用怎么样？`
 
 ### 🐛 Bugs
 

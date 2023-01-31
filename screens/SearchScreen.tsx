@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
@@ -43,9 +43,11 @@ export default function SearchScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const [searchText, setSearchText] = useState('')
+  const { params } = useRoute<RouteProp<RootStackParamList, 'Search'>>()
 
-  const [isSearchNode, setIsSearchNode] = useState(true)
+  const [searchText, setSearchText] = useState(params.query || '')
+
+  const [isSearchNode, setIsSearchNode] = useState(!params.query)
 
   const { data: matchNodes } = useNodes({
     select: useCallback(
@@ -145,8 +147,8 @@ export default function SearchScreen() {
             <IconButton
               name="filter-outline"
               size={24}
-              color={tw`text-tint-primary`.color as string}
-              activeColor={tw`text-tint-primary`.color as string}
+              color={tw.color(`text-tint-primary`)}
+              activeColor={tw.color(`text-tint-primary`)}
               onPress={() => {
                 navigation.navigate('SearchOptions')
               }}

@@ -43,7 +43,8 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         contentWidth={width}
         baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] text-[15px] leading-5`}
         tagsStyles={{
-          code: tw`p-3`,
+          code: tw`px-2`,
+          pre: tw`my-2`,
           h1: tw`text-body-3 pb-1.5 border-b border-solid border-tint-border`,
           h2: tw`text-body-4 pb-1.5 border-b border-solid border-tint-border`,
           h3: tw`text-body-4 `,
@@ -53,7 +54,7 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
           p: tw`text-body-5`,
           a: tw`text-tint-secondary no-underline`,
           hr: {
-            backgroundColor: tw`border-tint-border`.borderColor as string,
+            backgroundColor: tw.color(`border-tint-border`),
           },
           em: {
             fontStyle: 'italic',

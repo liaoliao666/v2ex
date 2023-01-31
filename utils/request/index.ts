@@ -6,9 +6,7 @@ import { isNumber, isObjectLike } from 'lodash-es'
 import { isEqual } from 'lodash-es'
 import Toast from 'react-native-toast-message'
 
-import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
-import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { open503UrlTimeAtom } from '@/jotai/open503UrlTimeAtom'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -28,23 +26,9 @@ export const request = axios.create({
   baseURL,
 })
 
-request.interceptors.request.use(async config => {
-  if (
-    !(await store.get(enabledPerformanceAtom)) &&
-    !config.url?.startsWith('http')
-  ) {
-    config.adapter = v2exMessage.sendMessage
-  }
-
-  return config
-})
-
 request.interceptors.response.use(
   response => {
     updateStoreWithData(response.data)
-    // if (!isEmpty(response.headers['set-cookie'])) {
-    //   setCookie(response.headers['set-cookie']!)
-    // }
     return response
   },
   error => {
@@ -79,7 +63,10 @@ function updateStoreWithData(data: any) {
   const $ = load(data)
 
   function updateProfile() {
-    const hasProfile = !!$('#Rightbar #money').length
+    const hasProfile =
+      !!$('#Rightbar #money').length ||
+      !!$('#Rightbar #member-activity').length ||
+      !!$('#Rightbar .light-toggle').length
     if (hasProfile) {
       const newProfile = parseProfile($)
 

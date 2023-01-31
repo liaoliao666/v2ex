@@ -17,7 +17,6 @@ import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
-import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -44,10 +43,6 @@ function SettingScreen() {
   )
 
   const [enabledMsgPush, setEnabledMsgPush] = useAtom(enabledMsgPushAtom)
-
-  const [enabledPerformance, setEnabledPerformance] = useAtom(
-    enabledPerformanceAtom
-  )
 
   const isSignined = !!profile?.once
 
@@ -82,7 +77,7 @@ function SettingScreen() {
               label="自动签到"
               icon={
                 <MaterialCommunityIcons
-                  color={tw`text-tint-primary`.color as string}
+                  color={tw.color(`text-tint-primary`)}
                   size={24}
                   name={'calendar-check'}
                 />
@@ -107,7 +102,7 @@ function SettingScreen() {
               label="消息通知"
               icon={
                 <MaterialCommunityIcons
-                  color={tw`text-tint-primary`.color as string}
+                  color={tw.color(`text-tint-primary`)}
                   size={24}
                   name={'bell-outline'}
                 />
@@ -129,45 +124,10 @@ function SettingScreen() {
         )}
 
         <ListItem
-          label="性能模式"
-          icon={
-            <MaterialCommunityIcons
-              color={tw`text-tint-primary`.color as string}
-              size={24}
-              name={'flash'}
-            />
-          }
-          action={
-            <Switch
-              value={enabledPerformance}
-              trackColor={
-                Platform.OS === 'android'
-                  ? undefined
-                  : { true: `rgb(26,140,216)` }
-              }
-              onValueChange={async () => {
-                try {
-                  if (!enabledPerformance) {
-                    await confirm(
-                      '开启性能模式',
-                      '优化首次请求时间及超时问题，注意可能会导致无法登录'
-                    )
-                  }
-                  setEnabledPerformance(!enabledPerformance)
-                } catch (error) {
-                  // empty
-                }
-              }}
-            />
-          }
-          pressable={false}
-        />
-
-        <ListItem
           label="问题反馈"
           icon={
             <Feather
-              color={tw`text-tint-primary`.color as string}
+              color={tw.color(`text-tint-primary`)}
               size={24}
               name="github"
             />
@@ -181,7 +141,7 @@ function SettingScreen() {
           label="清除缓存"
           icon={
             <MaterialCommunityIcons
-              color={tw`text-tint-primary`.color as string}
+              color={tw.color(`text-tint-primary`)}
               size={24}
               name="delete-empty-outline"
             />
@@ -207,7 +167,7 @@ function SettingScreen() {
                 label="注销帐号"
                 icon={
                   <Feather
-                    color={tw`text-tint-primary`.color as string}
+                    color={tw.color(`text-tint-primary`)}
                     size={24}
                     name={'delete'}
                   />

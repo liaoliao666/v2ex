@@ -1,0 +1,27 @@
+diff --git a/node_modules/react-native-render-html/src/render/RenderRegistry.ts b/node_modules/react-native-render-html/src/render/RenderRegistry.ts
+index aea3942..0ed85df 100644
+--- a/node_modules/react-native-render-html/src/render/RenderRegistry.ts
++++ b/node_modules/react-native-render-html/src/render/RenderRegistry.ts
+@@ -28,7 +28,7 @@ export interface RendererConfig<T extends TNode> {
+ export default class RenderRegistry {
+   constructor(
+     customRenderers: CustomTagRendererRecord = {},
+-    elementModels: HTMLElementModelRecord
++    elementModels: HTMLElementModelRecord,
+   ) {
+     this.customRenderers = customRenderers;
+     this.elementModels = elementModels;
+@@ -58,6 +58,13 @@ export default class RenderRegistry {
+       }
+       return renderer as any;
+     }
++    if (
++      (tnode.type === 'text' || tnode.type === 'phrasing')
++      && this.customRenderers._TEXT_
++      && !internalTextRenderers[tnode.tagName!] && !internalRenderers[tnode.tagName!]
++    ) {
++      return this.customRenderers._TEXT_ as any;
++    }
+     return null;
+   }
+ 

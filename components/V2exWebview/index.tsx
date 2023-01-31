@@ -1,83 +1,23 @@
+import CookieManager from '@react-native-cookies/cookies'
+import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { noop } from 'lodash-es'
 import { useEffect, useReducer, useRef } from 'react'
-import { Alert, Platform, View } from 'react-native'
+import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
-import { clearCookie } from '@/utils/cookie'
 import { baseURL } from '@/utils/request/baseURL'
 import { timeout } from '@/utils/timeout'
 import tw from '@/utils/tw'
 
-import { userAgent } from './userAgent'
 import v2exMessage from './v2exMessage'
 
 enum ActionType {
   Request = 'REQUEST',
   IsConnect = 'IS_CONNECT',
-  Login = 'LOGIN',
-  IsLimitLogin = 'IS_LIMIT_LOGIN',
 }
-
-enum LoginStatus {
-  '2fa' = '2FA',
-  success = 'SUCCESS',
-  error = 'ERROR',
-}
-
-const checkSubmitStatus = `
-(function() {
-  if ($('#otp_code').length) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({
-      status: '${LoginStatus['2fa']}',
-      type: '${ActionType.Login}',
-    }));
-    return;
-  }
-
-  const onclick = $('#Top > div > div > div.tools > a:last').attr('onclick');
-  if (onclick && onclick.includes('signout')) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({
-      status: '${LoginStatus.success}',
-      type: '${ActionType.Login}'
-    }));
-  } else if (!location.pathname.includes("signin")) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({
-      status: '${LoginStatus.error}',
-      type: '${ActionType.Login}',
-      payload: '请求超时',
-      wrongPath: true,
-      path: location.pathname
-    }));
-  } else {
-    const problem = $('#Main > div.box > div.problem > ul > li').eq(0).text().trim()
-    window.ReactNativeWebView.postMessage(JSON.stringify({
-      status: '${LoginStatus.error}',
-      type: '${ActionType.Login}',
-      payload: problem
-    }));
-  }
-}()); void(0);
-`
-
-const get2FASubmitCode = (code: string) => `(function() {
-  try {
-    const input = document.getElementById('otp_code');
-    input.value = ${JSON.stringify(code)}
-    document.querySelector('[type="submit"]').click();
-  } catch (err) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({
-      error: '${LoginStatus.error}',
-      message: err.message
-    }))
-  }
-}()); void(0);`
 
 let handleLoad: () => void
 let handleLoadError: (error: Error) => void
-let handleResolveLogin: () => void
-let handleRejectLogin: (error: Error) => void
-let handleIsLimitLogin: (is_limit: boolean) => any
-let isLogining = false
 
 v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
   handleLoad = resolve
@@ -86,7 +26,7 @@ v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
 
 let handleCheckConnect: () => void = noop
 
-let uri = baseURL
+const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
 
 export default function V2exWebview() {
   const webViewRef = useRef<WebView>(null)
@@ -104,35 +44,32 @@ export default function V2exWebview() {
         })
       ); void(0);
     `)
-    return timeout(new Promise(ok => (handleCheckConnect = ok)), 300)
+    return timeout(new Promise(ok => (handleCheckConnect = ok)), 100)
   }
 
   v2exMessage.clearWebviewCache = async () => {
-    await clearCookie()
+    await Promise.race([
+      Promise.all([
+        new Promise(ok => RCTNetworking.clearCookies(ok)),
+        CookieManager.clearAll(true),
+      ]),
+      sleep(1000),
+    ])
     webViewRef.current?.clearCache?.(true)
   }
 
   v2exMessage.reloadWebview = () => {
-    v2exMessage.loadingV2exWebview = true
     v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
       handleLoad = resolve
       handleLoadError = reject
     })
-    v2exMessage.loadV2exWebviewPromise.finally(() => {
-      v2exMessage.loadingV2exWebview = false
-    })
     updateForceRenderKey()
-    return v2exMessage.loadV2exWebviewPromise
   }
 
   useEffect(() => {
     v2exMessage.injectRequestScript = ({ id, config }) => {
-      const transformResponseScript =
-        config.transformResponseScript || `function(data) {return data}`
-
       const run = `axios(${JSON.stringify(config)})
-      .then(async response => {
-        response.data = await (${transformResponseScript})(response.data)
+      .then(response => {
         ReactNativeWebView.postMessage(
           JSON.stringify({
             id: '${id}',
@@ -145,13 +82,9 @@ export default function V2exWebview() {
         ReactNativeWebView.postMessage(
           JSON.stringify({
             id: '${id}',
-            error: (function toJSON(obj) {
-              var alt = {}
-              Object.getOwnPropertyNames(obj).forEach(function (key) {
-                alt[key] = obj[key]
-              }, obj)
-              return alt
-            })(error),
+            error: JSON.parse(
+              JSON.stringify(error, Object.getOwnPropertyNames(error))
+            ),
             type: '${ActionType.Request}'
           })
         )
@@ -159,51 +92,9 @@ export default function V2exWebview() {
 
       webViewRef.current?.injectJavaScript(run)
     }
-    v2exMessage.login = arg => {
-      const run = `(function() {
-        const form = document.querySelector('form[action="/signin"]');
-        const inputEls = Array.prototype.filter.call(form.elements, function(el){
-            return el.classList.contains('sl')
-        });
-        inputEls[0].value = '${arg.username}';
-        inputEls[1].value = '${arg.password}';
-        if (inputEls[2]) {
-            inputEls[2].value = '${arg.code}';
-        }
-        form.submit();
-      }()); void(0);`
 
-      webViewRef.current?.injectJavaScript(run)
-
-      isLogining = true
-
-      return new Promise<void>((resolve, reject) => {
-        handleResolveLogin = resolve
-        handleRejectLogin = reject
-      }).finally(() => {
-        isLogining = false
-      })
-    }
-
-    v2exMessage.isLimitLogin = async () => {
-      uri = `${baseURL}/signin`
-      await v2exMessage.reloadWebview()
-
-      webViewRef.current?.injectJavaScript(`
-      ReactNativeWebView.postMessage(
-        JSON.stringify({
-          type: '${ActionType.IsLimitLogin}',
-          is_limit: $('form[action="/signin"]').length
-          ? !$('#captcha-image').attr('src')
-          : false
-        })
-      ); void(0);
-    `)
-
-      return timeout(
-        new Promise<boolean>(ok => (handleIsLimitLogin = ok)),
-        5000
-      )
+    return () => {
+      v2exMessage.injectRequestScript = noop
     }
   }, [])
 
@@ -213,7 +104,7 @@ export default function V2exWebview() {
         key={forceRenderKey}
         ref={webViewRef}
         source={{
-          uri,
+          uri: `${baseURL}/signin`,
         }}
         onLoadEnd={() => handleLoad()}
         onError={() => {
@@ -236,85 +127,27 @@ export default function V2exWebview() {
             // empty
           }
 
-          switch (result.type as ActionType) {
-            case ActionType.Request: {
-              const listener = v2exMessage.linsteners.get(result.id)
+          if (typeof result === 'object' && result !== null) {
+            switch (result.type as ActionType) {
+              case ActionType.Request: {
+                const listener = v2exMessage.linsteners.get(result.id)
 
-              listener?.(
-                result.error != null
-                  ? Promise.reject(result.error)
-                  : Promise.resolve(result.response)
-              )
-              break
-            }
-
-            case ActionType.IsConnect: {
-              handleCheckConnect()
-              break
-            }
-
-            case ActionType.IsLimitLogin: {
-              console.log('is_limit', result.is_limit)
-
-              handleIsLimitLogin(result.is_limit)
-              break
-            }
-
-            case ActionType.Login: {
-              console.log(result)
-
-              switch (result.status as LoginStatus) {
-                case LoginStatus['2fa']:
-                  Alert.prompt(
-                    '你的账号已开启两步验证，请输入验证码',
-                    undefined,
-                    async val => {
-                      webViewRef.current?.injectJavaScript(
-                        get2FASubmitCode(val)
-                      )
-                    }
-                  )
-                  break
-                case LoginStatus.success:
-                  uri = baseURL
-                  handleResolveLogin()
-                  break
-                case LoginStatus.error: {
-                  if (result.wrongPath) {
-                    webViewRef.current?.injectJavaScript(
-                      `window.location = '/signin'`
-                    )
-                  }
-                  handleRejectLogin(new Error(result.payload))
-                  break
-                }
-
-                default:
-                  break
+                listener?.(
+                  result.error != null
+                    ? Promise.reject(result.error)
+                    : Promise.resolve(result.response)
+                )
+                break
               }
-              break
+
+              case ActionType.IsConnect: {
+                handleCheckConnect()
+                break
+              }
             }
           }
         }}
-        onLoad={() => {
-          if (isLogining) {
-            webViewRef.current?.injectJavaScript(checkSubmitStatus)
-          } else {
-            webViewRef.current?.injectJavaScript(`
-            (function() {
-              if ($('#otp_code').length) {
-                window.ReactNativeWebView.postMessage(JSON.stringify({
-                  status: '${LoginStatus['2fa']}',
-                  type: '${ActionType.Login}',
-                }));
-                return;
-              }
-            }()); void(0);
-            `)
-          }
-        }}
-        contentMode="desktop"
-        userAgent={Platform.OS === 'android' ? userAgent : undefined}
+        userAgent={`Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/107.0.0.0 Safari/537.36`}
       />
     </View>
   )

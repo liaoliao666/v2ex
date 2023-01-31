@@ -64,7 +64,7 @@ export default function SortTabsScreen() {
             >
               <MaterialCommunityIcons
                 name={iconName}
-                color={tw`text-tint-secondary`.color as string}
+                color={tw.color(`text-tint-secondary`)}
                 size={16}
               />
             </Pressable>
@@ -90,7 +90,7 @@ export default function SortTabsScreen() {
           style={tw`px-4`}
         >
           <MaterialCommunityIcons
-            color={tw`text-tint-secondary`.color as string}
+            color={tw.color(`text-tint-secondary`)}
             size={20}
             name="close-circle"
           />

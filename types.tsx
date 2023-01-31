@@ -26,7 +26,9 @@ export type RootStackParamList = {
   MyTopics: undefined
   MyFollowing: undefined
   Notifications: undefined
-  Search: undefined
+  Search: {
+    query?: string
+  }
   SearchOptions: undefined
   SearchNode: {
     onPressNodeItem: (node: Node) => void
@@ -56,7 +58,10 @@ export type RootStackParamList = {
     url: string
     title: string
   }
-  WebSignin: undefined
+  WebSignin: {
+    once: string
+    onTwoStepOnce: (once: string) => void
+  }
   RecentTopic: undefined
   Setting: undefined
   Rank: undefined

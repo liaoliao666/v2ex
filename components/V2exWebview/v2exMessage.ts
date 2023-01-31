@@ -20,12 +20,6 @@ class V2exMessage {
   }) => void = noop
   clearWebviewCache: () => void = noop
   reloadWebview: () => void = () => Promise.resolve()
-  login: (arg: {
-    username: string
-    password: string
-    code: string
-  }) => Promise<void> = () => Promise.resolve()
-  isLimitLogin: () => Promise<boolean> = () => Promise.resolve(false)
   timeout: boolean = false
   injectCheckConnectScript: () => Promise<void> = () => Promise.resolve()
   checkConnectPromise: Promise<void> = Promise.resolve()

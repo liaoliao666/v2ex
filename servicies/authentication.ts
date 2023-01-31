@@ -2,10 +2,9 @@ import { load } from 'cheerio'
 import { isArray } from 'lodash-es'
 import { createMutation, createQuery } from 'react-query-kit'
 
-import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
-import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
 import { store } from '@/jotai/store'
+import { getCookie } from '@/utils/cookie'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
@@ -29,12 +28,6 @@ export const useSignout = createMutation<void, { once: string }>(
 export const useSigninInfo = createQuery(
   'useSigninInfo',
   async ({ signal }) => {
-    if (!(await store.get(enabledPerformanceAtom))) {
-      return {
-        is_limit: await v2exMessage.isLimitLogin(),
-      }
-    }
-
     const { data } = await request.get(`/signin`, {
       responseType: 'text',
       signal,
@@ -45,6 +38,7 @@ export const useSigninInfo = createQuery(
 
     return {
       is_limit: !captcha,
+      captcha: `${captcha}?now=${Date.now()}`,
       once: $(
         '#Main > div.box > div.cell > form > table > tbody > tr:nth-child(4) > td:nth-child(2) > input[type=hidden]:nth-child(1)'
       ).attr('value'),
@@ -57,6 +51,7 @@ export const useSigninInfo = createQuery(
       code_hash: $(
         '#Main > div.box > div.cell > form > table > tbody > tr:nth-child(3) > td:nth-child(2) > input'
       ).attr('name'),
+      cookie: await getCookie(),
     }
   },
   {
@@ -73,14 +68,10 @@ export const useSignin = createMutation<
   },
   Record<string, any>,
   Error
->(async ({ webviewArg, ...args }) => {
-  if (await store.get(deletedNamesAtom)?.includes(webviewArg.username)) {
+>(async ({ username, ...args }) => {
+  if (await store.get(deletedNamesAtom)?.includes(username)) {
     await sleep(1000)
     return Promise.reject(new Error('该帐号已注销'))
-  }
-
-  if (!(await store.get(enabledPerformanceAtom))) {
-    return v2exMessage.login(webviewArg) as any
   }
 
   const { headers, data } = await request.post(
@@ -117,7 +108,16 @@ export const useSignin = createMutation<
     }
   }
 
-  return Promise.reject(new Error(`${problem || '登录失败'}`))
+  return Promise.reject(
+    new Error(
+      `${
+        problem ||
+        ($('#captcha-image').attr('src')
+          ? '登录失败'
+          : '由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。')
+      }`
+    )
+  )
 })
 
 export const useTwoStepSignin = createMutation<
@@ -149,47 +149,3 @@ export const useTwoStepSignin = createMutation<
 
   return Promise.reject(new Error(`${problem || '登录失败'}`))
 })
-
-export const useCaptcha = createQuery<string, void>(
-  'useCaptcha',
-  async () => {
-    const enabledPerformance = await store.get(enabledPerformanceAtom)
-    return request
-      .get(`/_captcha?now=${Date.now()}`, {
-        responseType: 'blob',
-        ...(enabledPerformance
-          ? {
-              transformResponse: [
-                function blobToBase64(blob) {
-                  if (!blob) return blob
-                  return new Promise((resolve, reject) => {
-                    const reader = new FileReader()
-                    reader.onloadend = () => resolve(reader.result)
-                    reader.onerror = reject
-                    reader.readAsDataURL(blob)
-                  })
-                },
-              ],
-            }
-          : {
-              transformResponseScript: `function blobToBase64(blob) {
-                if (!blob) return blob
-                return new Promise((resolve, reject) => {
-                  const reader = new FileReader()
-                  reader.onloadend = () => resolve(reader.result)
-                  reader.onerror = reject
-                  reader.readAsDataURL(blob)
-                })
-              }`,
-            }),
-      })
-      .then(res => res.data)
-      .catch(err => {
-        throw err
-      })
-  },
-  {
-    cacheTime: 0,
-    staleTime: 0,
-  }
-)

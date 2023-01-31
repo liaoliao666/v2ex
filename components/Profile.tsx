@@ -45,7 +45,7 @@ function Profile() {
       value: 'my_nodes',
       icon: (
         <MaterialCommunityIcons
-          color={tw`text-tint-primary`.color as string}
+          color={tw.color(`text-tint-primary`)}
           size={24}
           name={'family-tree'}
         />
@@ -59,7 +59,7 @@ function Profile() {
       value: 'my_topics',
       icon: (
         <MaterialCommunityIcons
-          color={tw`text-tint-primary`.color as string}
+          color={tw.color(`text-tint-primary`)}
           size={24}
           name={'comment-outline'}
         />
@@ -73,7 +73,7 @@ function Profile() {
       value: 'my_following',
       icon: (
         <MaterialCommunityIcons
-          color={tw`text-tint-primary`.color as string}
+          color={tw.color(`text-tint-primary`)}
           size={24}
           name={'account-heart-outline'}
         />
@@ -88,7 +88,7 @@ function Profile() {
       icon: (
         <Badge content={profile?.my_notification}>
           <MaterialCommunityIcons
-            color={tw`text-tint-primary`.color as string}
+            color={tw.color(`text-tint-primary`)}
             size={24}
             name={'bell-outline'}
           />
@@ -103,7 +103,7 @@ function Profile() {
       value: 'RecentTopic',
       icon: (
         <MaterialCommunityIcons
-          color={tw`text-tint-primary`.color as string}
+          color={tw.color(`text-tint-primary`)}
           size={24}
           name={'clock-check-outline'}
         />
@@ -128,7 +128,7 @@ function Profile() {
 
             <TouchableOpacity
               onPress={() => {
-                navigation.push('MemberDetail', {
+                navigation.navigate('MemberDetail', {
                   username: profile?.username!,
                 })
               }}
@@ -139,7 +139,7 @@ function Profile() {
               </Text>
               <SimpleLineIcons
                 name="arrow-right"
-                color={tw`text-tint-secondary`.color as string}
+                color={tw.color(`text-tint-secondary`)}
                 size={10}
               />
             </TouchableOpacity>
@@ -175,7 +175,7 @@ function Profile() {
             <Text style={tw`text-[24px] text-tint-primary`}>点我登录</Text>
             <SimpleLineIcons
               name="arrow-right"
-              color={tw`text-tint-primary ml-2`.color as string}
+              color={tw.color(`text-tint-primary`)}
               size={14}
             />
           </View>
@@ -193,7 +193,7 @@ function Profile() {
             label="外观"
             icon={
               <Feather
-                color={tw`text-tint-primary`.color as string}
+                color={tw.color(`text-tint-primary`)}
                 size={24}
                 name={colorScheme === 'light' ? 'sun' : 'moon'}
               />
@@ -215,7 +215,7 @@ function Profile() {
             label="节点导航"
             icon={
               <Feather
-                color={tw`text-tint-primary`.color as string}
+                color={tw.color(`text-tint-primary`)}
                 size={24}
                 name="navigation"
               />
@@ -229,7 +229,7 @@ function Profile() {
             label="社区排行"
             icon={
               <Ionicons
-                color={tw`text-tint-primary`.color as string}
+                color={tw.color(`text-tint-primary`)}
                 size={24}
                 name={'md-analytics-outline'}
               />
@@ -243,7 +243,7 @@ function Profile() {
             label="更多选项"
             icon={
               <Feather
-                color={tw`text-tint-primary`.color as string}
+                color={tw.color(`text-tint-primary`)}
                 size={24}
                 name="settings"
               />

@@ -7,15 +7,12 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Text, View } from 'react-native'
 import { isObject } from 'twrnc/dist/esm/types'
 
-import { enabledPerformanceAtom } from '@/jotai/enabledPerformanceAtom'
-import { store } from '@/jotai/store'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 
 import LoadingIndicator from './LoadingIndicator'
 import StyledButton from './StyledButton'
-import v2exMessage from './V2exWebview/v2exMessage'
 
 export type QuerySuspenseProps = Partial<ErrorBoundaryProps> & {
   Loading?: FC
@@ -76,17 +73,7 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
       {({ reset }) => (
         // @ts-ignored
         <ErrorBoundary
-          onReset={async () => {
-            reset()
-            if (!store.get(enabledPerformanceAtom)) {
-              try {
-                await v2exMessage.loadV2exWebviewPromise
-                if (v2exMessage.timeout) v2exMessage.reloadWebview()
-              } catch {
-                v2exMessage.reloadWebview()
-              }
-            }
-          }}
+          onReset={reset}
           FallbackComponent={
             !rest.fallback && !rest.fallbackRender && !rest.FallbackComponent
               ? FallbackComponent

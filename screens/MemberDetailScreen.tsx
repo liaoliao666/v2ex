@@ -146,6 +146,7 @@ function MemberDetailScreen() {
       </NavBar>
 
       <TabView
+        style={tw`-mt-0.5`}
         key={colorScheme}
         navigationState={{ index, routes }}
         lazy
@@ -734,7 +735,7 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
         tintColor="#fff"
         statusBarStyle="light"
       />
-      <View style={tw.style(topBarBgCls, `pt-10 px-4`)} />
+      <View style={tw.style(topBarBgCls, `pt-10 px-4 -mt-0.5`)} />
 
       <View style={tw`-mt-8 px-4 flex-row`}>
         <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>

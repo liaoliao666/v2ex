@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
+import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
@@ -11,13 +12,11 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
-  useCaptcha,
   useSignin,
   useSigninInfo,
   useTwoStepSignin,
 } from '@/servicies/authentication'
 import { queryClient } from '@/utils/query'
-import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
 
@@ -36,9 +35,7 @@ const SigninArgs = z.object({
 })
 
 export default function LoginScreen() {
-  const signinInfoQuery = useSigninInfo()
-
-  const captchaQuery = useCaptcha()
+  const SigninInfoQuery = useSigninInfo()
 
   const signinMutation = useSignin()
 
@@ -71,12 +68,12 @@ export default function LoginScreen() {
         <StyledButton
           style={tw`h-[52px] mt-7`}
           onPress={() => {
-            signinInfoQuery.refetch()
+            SigninInfoQuery.refetch()
           }}
           size="large"
           shape="rounded"
         >
-          {signinInfoQuery.isFetching ? '重试中...' : '重试'}
+          {SigninInfoQuery.isFetching ? '重试中...' : '重试'}
         </StyledButton>
       </View>
     )
@@ -126,12 +123,8 @@ export default function LoginScreen() {
             <View>
               <TouchableOpacity
                 onPress={() => {
-                  if (signinInfoQuery.isError) {
-                    signinInfoQuery.refetch()
-                  }
-
-                  if (!captchaQuery.isFetching) {
-                    captchaQuery.refetch()
+                  if (!SigninInfoQuery.isFetching) {
+                    SigninInfoQuery.refetch()
                   }
                 }}
                 style={tw`aspect-4 mb-2 w-full`}
@@ -139,9 +132,12 @@ export default function LoginScreen() {
                 <StyledImage
                   style={tw`w-full h-full rounded-lg bg-loading`}
                   source={{
-                    uri: captchaQuery.error
-                      ? `${baseURL}/_captcha?now=${captchaQuery.errorUpdatedAt}`
-                      : captchaQuery.data,
+                    uri: SigninInfoQuery.data?.captcha,
+                    headers: SigninInfoQuery.data?.cookie
+                      ? {
+                          Cookie: SigninInfoQuery.data.cookie,
+                        }
+                      : undefined,
                   }}
                 />
               </TouchableOpacity>
@@ -171,20 +167,20 @@ export default function LoginScreen() {
           style={tw`w-full mt-4`}
           onPress={handleSubmit(async () => {
             if (signinMutation.isLoading) return
-            if (!signinInfoQuery.isSuccess) return
+            if (!SigninInfoQuery.isSuccess) return
 
             try {
               const result = await signinMutation.mutateAsync({
-                [signinInfoQuery.data.username_hash!]:
+                [SigninInfoQuery.data.username_hash!]:
                   getValues('username').trim(),
-                [signinInfoQuery.data.password_hash!]:
+                [SigninInfoQuery.data.password_hash!]:
                   getValues('password').trim(),
-                [signinInfoQuery.data.code_hash!]: getValues('code').trim(),
-                once: signinInfoQuery.data.once!,
-                webviewArg: getValues(),
+                [SigninInfoQuery.data.code_hash!]: getValues('code').trim(),
+                once: SigninInfoQuery.data.once!,
+                username: getValues('username').trim(),
               })
 
-              if (result?.['2fa']) {
+              if (result['2fa']) {
                 setTwoStepOnce(result.once!)
                 return
               }
@@ -192,8 +188,7 @@ export default function LoginScreen() {
               navigation.goBack()
               queryClient.refetchQueries({ type: 'active' })
             } catch (error) {
-              signinInfoQuery.refetch()
-              captchaQuery.refetch()
+              SigninInfoQuery.refetch()
             }
           })}
         >
@@ -244,14 +239,22 @@ export default function LoginScreen() {
           )}
         />
 
-        <TouchableOpacity
-          style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
-          onPress={() => {
-            navigation.navigate('WebSignin')
-          }}
-        >
-          <Text style={tw`text-body-5 text-tint-secondary ml-2`}>网页登录</Text>
-        </TouchableOpacity>
+        {dayjs().isAfter(`2023-01-19`) && (
+          <TouchableOpacity
+            style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
+            onPress={() => {
+              if (!SigninInfoQuery.data?.once) return
+              navigation.navigate('WebSignin', {
+                once: SigninInfoQuery.data.once,
+                onTwoStepOnce: setTwoStepOnce,
+              })
+            }}
+          >
+            <Text style={tw`text-body-5 text-tint-secondary ml-2`}>
+              网页登录
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }
@@ -266,7 +269,7 @@ export default function LoginScreen() {
           paddingTop: navbarHeight,
         }}
       >
-        {signinInfoQuery.data?.is_limit ? (
+        {SigninInfoQuery.data?.is_limit ? (
           renderLimitContent()
         ) : twoStepOnce ? (
           <TwoStepSignin once={twoStepOnce} />
