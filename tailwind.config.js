@@ -65,12 +65,15 @@ module.exports = {
       addUtilities(withTailWindHint())
     }),
   ],
-  customUtilities: {
-    fontSize: {
-      medium: mediumFontSize,
-      large: largeFontSize,
-      super: superFontSize,
-    },
+  $$update: ({ fontScale }) => {
+    Object.assign(
+      utilities,
+      {
+        medium: mediumFontSize,
+        large: largeFontSize,
+        super: superFontSize,
+      }[fontScale]
+    )
   },
 }
 

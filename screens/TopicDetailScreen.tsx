@@ -169,6 +169,7 @@ function TopicDetailScreen() {
       <FlatList
         key={colorScheme}
         data={flatedData}
+        removeClippedSubviews={false}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
