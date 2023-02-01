@@ -80,7 +80,7 @@ function NavNodesScreen() {
             >
               <Text
                 style={tw.style(
-                  `text-body-5 text-tint-primary`,
+                  `${getFontSize(5)} text-tint-primary`,
                   i === index
                     ? tw`text-tint-primary font-bold`
                     : tw`text-tint-secondary font-medium`
@@ -132,7 +132,9 @@ const NavNodeItem = memo(({ item }: { item: Node[] }) => {
               }}
             />
 
-            <Text style={tw`text-body-6 text-tint-primary text-center mt-2`}>
+            <Text
+              style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}
+            >
               {node.title}
             </Text>
           </TouchableOpacity>

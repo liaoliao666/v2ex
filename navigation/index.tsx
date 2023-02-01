@@ -97,7 +97,13 @@ function StackNavigator() {
         animation: Platform.OS === 'android' ? 'slide_from_right' : undefined,
       }}
     >
-      <Stack.Screen name="Root" component={DrawerNavigator} />
+      <Stack.Screen
+        name="Root"
+        component={DrawerNavigator}
+        options={{
+          animation: 'none',
+        }}
+      />
 
       <Stack.Screen name="TopicDetail" component={TopicDetailScreen} />
 

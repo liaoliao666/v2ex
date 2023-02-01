@@ -19,6 +19,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import ReplyItem from '@/components/topic/ReplyItem'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
@@ -182,7 +183,7 @@ export default function RelatedRepliesScreen() {
                     />
                     <Text
                       style={tw.style(
-                        `ml-2 text-body-5 flex-shrink`,
+                        `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
                           ? tw`text-tint-primary font-bold`
                           : tw`text-tint-secondary font-medium`

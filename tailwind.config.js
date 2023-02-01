@@ -1,48 +1,5 @@
 const plugin = require('tailwindcss/plugin')
 
-const mediumFontSize = {
-  'text-body-1': 'text-[23px] leading-[32px]',
-  'text-body-2': 'text-[21px] leading-[30px]',
-  'text-body-3': 'text-[19px] leading-[28px]',
-  'text-body-4': 'text-[17px] leading-[26px]',
-  'text-body-5': 'text-[15px] leading-[24px]',
-  'text-body-6': 'text-[13px] leading-[22px]',
-}
-
-const largeFontSize = {
-  'text-body-1': 'text-[25px] leading-[34px]',
-  'text-body-2': 'text-[23px] leading-[32px]',
-  'text-body-3': 'text-[21px] leading-[30px]',
-  'text-body-4': 'text-[19px] leading-[28px]',
-  'text-body-5': 'text-[17px] leading-[26px]',
-  'text-body-6': 'text-[15px] leading-[24px]',
-}
-
-const superFontSize = {
-  'text-body-1': 'text-[27px] leading-[36px]',
-  'text-body-2': 'text-[25px] leading-[34px]',
-  'text-body-3': 'text-[23px] leading-[32px]',
-  'text-body-4': 'text-[21px] leading-[30px]',
-  'text-body-5': 'text-[19px] leading-[28px]',
-  'text-body-6': 'text-[17px] leading-[26px]',
-}
-
-const utilities = {
-  'text-tint-primary': 'text-[#0f1419] dark:text-[#e7e9ea]',
-  'text-tint-primary-invert': 'dark:text-[#0f1419] text-[#e7e9ea]',
-  'text-tint-secondary': 'text-[#536471] dark:text-[#71767b]',
-  'text-tint-secondary-invert': 'dark:text-[#536471] text-[#71767b]',
-  'bg-loading': 'bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]',
-  'bg-body-1': 'bg-white dark:bg-[#1a1a1a]',
-  'bg-body-1-invert': 'dark:bg-white bg-[#1a1a1a]',
-  'bg-body-2': 'bg-[#f0f3f5] dark:bg-[#262626]',
-  'bg-mask': 'bg-[rgba(0,0,0,0.4)] dark:bg-[rgba(91,112,131,0.4)]',
-  'bg-message-press': 'bg-[rgba(230,236,240,0.7)] dark:bg-[rgba(18,21,23,0.7)]',
-  'bg-tab-press': 'dark:bg-[rgba(231,233,234,0.2)] bg-[#e7e9ea]',
-  'border-tint-border': 'border-[#eff3f4] dark:border-[#2f3336]',
-  ...mediumFontSize,
-}
-
 module.exports = {
   content: [
     './screens/**/*.{js,ts,jsx,tsx}',
@@ -65,21 +22,25 @@ module.exports = {
       addUtilities(withTailWindHint())
     }),
   ],
-  $$update: ({ fontScale }) => {
-    Object.assign(
-      utilities,
-      {
-        medium: mediumFontSize,
-        large: largeFontSize,
-        super: superFontSize,
-      }[fontScale]
-    )
-  },
 }
 
 function withTailWindHint() {
   return Object.fromEntries(
-    Object.entries(utilities).flatMap(([key, val]) => [
+    Object.entries({
+      'text-tint-primary': 'text-[#0f1419] dark:text-[#e7e9ea]',
+      'text-tint-primary-invert': 'dark:text-[#0f1419] text-[#e7e9ea]',
+      'text-tint-secondary': 'text-[#536471] dark:text-[#71767b]',
+      'text-tint-secondary-invert': 'dark:text-[#536471] text-[#71767b]',
+      'bg-loading': 'bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]',
+      'bg-body-1': 'bg-white dark:bg-[#1a1a1a]',
+      'bg-body-1-invert': 'dark:bg-white bg-[#1a1a1a]',
+      'bg-body-2': 'bg-[#f0f3f5] dark:bg-[#262626]',
+      'bg-mask': 'bg-[rgba(0,0,0,0.4)] dark:bg-[rgba(91,112,131,0.4)]',
+      'bg-message-press':
+        'bg-[rgba(230,236,240,0.7)] dark:bg-[rgba(18,21,23,0.7)]',
+      'bg-tab-press': 'dark:bg-[rgba(231,233,234,0.2)] bg-[#e7e9ea]',
+      'border-tint-border': 'border-[#eff3f4] dark:border-[#2f3336]',
+    }).flatMap(([key, val]) => [
       [key, val],
       [
         `.${key}`,

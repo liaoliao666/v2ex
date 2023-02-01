@@ -61,7 +61,6 @@ export default function WriteTopicScreen() {
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
-        keyboardShouldPersistTaps="handled"
       >
         <FormControl
           control={control}

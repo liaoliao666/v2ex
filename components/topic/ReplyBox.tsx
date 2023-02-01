@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
+import { pick } from 'lodash-es'
 import {
   Fragment,
   forwardRef,
@@ -16,6 +17,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { useAppendTopic, useReply } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
 import tw from '@/utils/tw'
@@ -93,13 +95,16 @@ const ReplyBox = forwardRef<
             ref={inputRef}
             placeholderTextColor={tw.color(`text-tint-secondary`)}
             style={tw.style(
-              { paddingVertical: 0 },
+              {
+                ...pick(tw.style(getFontSize(5)), ['fontSize']),
+                paddingVertical: 0,
+              },
               `text-tint-primary flex-1 py-2 px-3`,
               isFocus
                 ? `h-20 pt-4 rounded-lg`
                 : `h-9 rounded-full bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)]`
             )}
-            textAlignVertical="top"
+            textAlignVertical={'top'}
             multiline
             numberOfLines={3}
             placeholder={

@@ -22,6 +22,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useLikeNode, useNodeTopics, useNodes } from '@/servicies/node'
 import { Topic } from '@/servicies/types'
@@ -103,11 +104,11 @@ function NodeTopicsScreen() {
         {!avatarVisible && (
           <View style={tw`flex-row items-center`}>
             <View style={tw`flex-1`}>
-              <Text style={tw`text-white text-body-4 font-bold`}>
+              <Text style={tw`text-white ${getFontSize(4)} font-bold`}>
                 {node?.title}
               </Text>
 
-              <Text style={tw`text-[#e7e9ea] text-body-6`}>
+              <Text style={tw`text-[#e7e9ea] ${getFontSize(6)}`}>
                 主题总数{node?.topics}
               </Text>
             </View>
@@ -139,7 +140,7 @@ function NodeTopicsScreen() {
         }
         ListEmptyComponent={
           <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary text-body-6`}>
+            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
               无法访问该节点
             </Text>
           </View>
@@ -193,7 +194,7 @@ function NodeInfo({
 
       <View style={tw`flex-1`}>
         <View style={tw`flex-row items-center justify-between`}>
-          <Text style={tw`text-white text-body-4 font-bold`}>
+          <Text style={tw`text-white ${getFontSize(4)} font-bold`}>
             {node?.title}
           </Text>
 
@@ -212,7 +213,7 @@ function NodeInfo({
         <View style={tw`mt-1 flex-row justify-between`}>
           {node?.header && (
             <Html
-              baseStyle={tw`text-[#e7e9ea] text-body-6`}
+              baseStyle={tw`text-[#e7e9ea] ${getFontSize(6)}`}
               tagsStyles={{ a: tw`text-[#03C8FF] no-underline` }}
               source={{ html: node?.header }}
             />
@@ -286,7 +287,7 @@ function LikeNode({
     <View style={tw.style(`flex-row items-center`)}>
       <Text
         style={tw.style(
-          'text-body-6 px-1.5',
+          `${getFontSize(6)} px-1.5`,
           liked ? `text-[rgb(250,219,20)]` : `text-[#e7e9ea]`
         )}
       >

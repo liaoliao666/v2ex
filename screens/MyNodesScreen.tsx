@@ -20,6 +20,7 @@ import {
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useMyNodes } from '@/servicies/node'
 import { useNodes } from '@/servicies/node'
@@ -82,7 +83,9 @@ function MyNodesScreen() {
                 />
 
                 <Text
-                  style={tw`text-body-6 text-tint-primary text-center mt-2`}
+                  style={tw`${getFontSize(
+                    6
+                  )} text-tint-primary text-center mt-2`}
                 >
                   {node.title}
                 </Text>
@@ -116,7 +119,7 @@ function MyNodesScreen() {
         }
         ListEmptyComponent={
           <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary text-body-6`}>
+            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
               目前还没有收藏节点
             </Text>
           </View>

@@ -9,6 +9,7 @@ import { Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -71,7 +72,7 @@ export default function TopicInfo({
 
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center`}>
-            <Text style={tw`text-tint-primary text-body-4 font-bold`}>
+            <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
               {topic.member?.username}
             </Text>
           </View>
@@ -79,14 +80,17 @@ export default function TopicInfo({
           <Separator style={tw`flex-1`}>
             {compact([
               topic.created && (
-                <Text key="created" style={tw`text-tint-secondary text-body-5`}>
+                <Text
+                  key="created"
+                  style={tw`text-tint-secondary ${getFontSize(5)}`}
+                >
                   {topic.created}
                 </Text>
               ),
               topic.views && (
                 <Text
                   key="views"
-                  style={tw`text-tint-secondary text-body-5 flex-1`}
+                  style={tw`text-tint-secondary ${getFontSize(5)} flex-1`}
                   numberOfLines={1}
                 >
                   {`${topic.views} 点击`}
@@ -99,7 +103,10 @@ export default function TopicInfo({
         <MoreButton topic={topic} onAppend={onAppend} />
       </View>
 
-      <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`} selectable>
+      <Text
+        style={tw`text-tint-primary ${getFontSize(3)} font-bold pt-2`}
+        selectable
+      >
         {topic.title}
       </Text>
 
@@ -118,12 +125,15 @@ export default function TopicInfo({
             >
               <Separator>
                 {[
-                  <Text key="i" style={tw`text-tint-secondary text-body-5`}>
+                  <Text
+                    key="i"
+                    style={tw`text-tint-secondary ${getFontSize(5)}`}
+                  >
                     第{i + 1}条附言
                   </Text>,
                   <Text
                     key="created"
-                    style={tw`text-tint-secondary text-body-5`}
+                    style={tw`text-tint-secondary ${getFontSize(5)}`}
                   >
                     {supplement.created}
                   </Text>,
@@ -207,7 +217,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
           {!!topic.likes && (
             <Text
               style={tw.style(
-                'text-body-6 pl-1',
+                `${getFontSize(6)} pl-1`,
                 topic.liked ? `text-[rgb(250,219,20)]` : `text-tint-secondary`
               )}
             >
@@ -276,7 +286,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
           {!!topic.thanks && (
             <Text
               style={tw.style(
-                'text-body-6 pl-1',
+                `${getFontSize(6)} pl-1`,
                 topic.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
               )}
             >

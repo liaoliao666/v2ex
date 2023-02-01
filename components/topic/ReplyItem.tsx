@@ -9,6 +9,7 @@ import { Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
@@ -93,7 +94,7 @@ function ReplyItem({
             <Space style={tw`mr-auto`}>
               <Text
                 key="username"
-                style={tw`text-tint-primary text-body-5 font-medium`}
+                style={tw`text-tint-primary ${getFontSize(5)} font-medium`}
                 onPress={() => {
                   if (inModalScreen) navigation.goBack()
                   navigation.push('MemberDetail', {
@@ -128,10 +129,12 @@ function ReplyItem({
               </View>
             </Space>
 
-            <Text style={tw`text-body-6 text-tint-secondary`}>#{reply.no}</Text>
+            <Text style={tw`${getFontSize(6)} text-tint-secondary`}>
+              #{reply.no}
+            </Text>
           </View>
 
-          <Text style={tw`text-tint-secondary text-body-6`}>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
             {reply.created}
           </Text>
 
@@ -146,7 +149,7 @@ function ReplyItem({
           <View style={tw`flex-row items-center pt-2`}>
             <Space style={tw`mr-auto`} gap={16}>
               {isBoolean(related) && !related && (
-                <Text style={tw`text-body-5 text-tint-secondary`}>
+                <Text style={tw`${getFontSize(5)} text-tint-secondary`}>
                   可能是无关内容
                 </Text>
               )}
@@ -169,7 +172,9 @@ function ReplyItem({
                       icon={<Octicons name="comment" />}
                     />
 
-                    <Text style={tw`pl-1 text-body-6 text-tint-secondary`}>
+                    <Text
+                      style={tw`pl-1 ${getFontSize(6)} text-tint-secondary`}
+                    >
                       回复
                     </Text>
                   </Fragment>
@@ -200,7 +205,9 @@ function ReplyItem({
                         icon={<FontAwesome5 name="comments" />}
                       />
 
-                      <Text style={tw`pl-1 text-body-6 text-tint-secondary`}>
+                      <Text
+                        style={tw`pl-1 ${getFontSize(6)} text-tint-secondary`}
+                      >
                         查看评论
                       </Text>
                     </Fragment>
@@ -287,7 +294,7 @@ function ThankReply({
 
           <Text
             style={tw.style(
-              'text-body-6 pl-0.5',
+              `${getFontSize(6)} pl-0.5`,
               reply.thanks ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
             )}
           >

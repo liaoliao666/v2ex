@@ -1,6 +1,7 @@
 import { some } from 'lodash-es'
 import { Text, View, ViewProps } from 'react-native'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 import Space from './Space'
@@ -21,7 +22,7 @@ export default function Money({
     <Space style={style} gap={4}>
       {!!gold && (
         <View style={tw`flex-row items-center`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>{gold}</Text>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>{gold}</Text>
           <StyledImage
             style={tw`w-4 h-4 ml-0.5`}
             source={{ uri: `/static/img/gold@2x.png` }}
@@ -30,7 +31,9 @@ export default function Money({
       )}
       {!!silver && (
         <View style={tw`flex-row items-center`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>{silver}</Text>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
+            {silver}
+          </Text>
           <StyledImage
             style={tw`w-4 h-4 ml-0.5`}
             source={{ uri: `/static/img/silver@2x.png` }}
@@ -39,7 +42,9 @@ export default function Money({
       )}
       {!!bronze && (
         <View style={tw`flex-row items-center`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>{bronze}</Text>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
+            {bronze}
+          </Text>
           <StyledImage
             style={tw`w-4 h-4 ml-0.5`}
             source={{ uri: `/static/img/bronze@2x.png` }}

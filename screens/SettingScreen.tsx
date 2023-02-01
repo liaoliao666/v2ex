@@ -10,6 +10,7 @@ import Toast from 'react-native-toast-message'
 import ListItem from '@/components/ListItem'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
+import RadioButtonGroup from '@/components/RadioButtonGroup'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
@@ -17,6 +18,7 @@ import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
+import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -44,6 +46,8 @@ function SettingScreen() {
 
   const [enabledMsgPush, setEnabledMsgPush] = useAtom(enabledMsgPushAtom)
 
+  const [fontScale, setFontScale] = useAtom(fontScaleAtom)
+
   const isSignined = !!profile?.once
 
   return (
@@ -62,10 +66,10 @@ function SettingScreen() {
           />
 
           <View style={tw`flex-1`}>
-            <Text style={tw`text-tint-primary text-body-4 font-bold`}>
+            <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
               V2EX
             </Text>
-            <Text style={tw`text-tint-primary text-body-5 mt-1`}>
+            <Text style={tw`text-tint-primary ${getFontSize(5)} mt-1`}>
               创意工作者们的社区
             </Text>
           </View>
@@ -122,6 +126,29 @@ function SettingScreen() {
             />
           </Fragment>
         )}
+
+        <ListItem
+          label="字体大小"
+          icon={
+            <MaterialCommunityIcons
+              color={tw.color(`text-tint-primary`)}
+              size={24}
+              name={'format-font'}
+            />
+          }
+          action={
+            <RadioButtonGroup
+              options={[
+                { label: '中', value: 'medium' },
+                { label: '大', value: 'large' },
+                { label: '超大', value: 'super' },
+              ]}
+              value={fontScale}
+              onChange={setFontScale}
+            />
+          }
+          pressable={false}
+        />
 
         <ListItem
           label="问题反馈"

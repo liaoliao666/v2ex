@@ -7,6 +7,7 @@ import {
 import { Text, View } from 'react-native'
 import { ViewStyle } from 'react-native'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 interface FormControlProps<
@@ -27,7 +28,9 @@ export default function FormControl<
       render={props => (
         <View style={style}>
           {!!label && (
-            <Text style={tw`text-tint-primary text-body-5 mb-1`}>{label}</Text>
+            <Text style={tw.style(`text-tint-primary ${getFontSize(5)} mb-1`)}>
+              {label}
+            </Text>
           )}
           {render(props)}
           <View style={tw`min-h-[16px]`}>

@@ -11,6 +11,7 @@ import RenderHtml, {
   RenderHTMLProps,
 } from 'react-native-render-html'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -29,13 +30,13 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
     onElement: (el: any) => {
       const firstChild: any = first(el.children)
-      if (firstChild && firstChild.name === 'p')
-        firstChild.attribs = { class: 'text-body-5 mt-0' }
+      if (firstChild && firstChild.name === 'p') {
+        firstChild.attribs = { class: `mt-0 ${firstChild.attribs?.class}` }
+      }
     },
   },
   classesStyles: {
     'mt-0': tw`mt-0`,
-    'text-body-5': tw`text-body-5`,
   },
   renderers: {
     pre: CodeRenderer,
@@ -122,16 +123,20 @@ function Html({
       )}
     >
       <RenderHtml
-        baseStyle={tw`text-tint-primary text-body-5`}
+        baseStyle={tw`text-tint-primary ${getFontSize(5)}`}
         contentWidth={width}
         tagsStyles={{
-          h1: tw`text-body-3 pb-1.5 border-b border-solid border-tint-border`,
-          h2: tw`text-body-4 pb-1.5 border-b border-solid border-tint-border`,
-          h3: tw`text-body-4`,
-          h4: tw`text-body-4`,
-          h5: tw`text-body-5`,
-          h6: tw`text-body-6`,
-          p: tw`text-body-5`,
+          h1: tw`${getFontSize(
+            3
+          )} pb-1.5 border-b border-solid border-tint-border`,
+          h2: tw`${getFontSize(
+            4
+          )} pb-1.5 border-b border-solid border-tint-border`,
+          h3: tw`${getFontSize(4)}`,
+          h4: tw`${getFontSize(4)}`,
+          h5: tw`${getFontSize(5)}`,
+          h6: tw`${getFontSize(6)}`,
+          p: tw`${getFontSize(5)}`,
           a: tw`text-tint-secondary no-underline`,
           hr: {
             backgroundColor: tw.color(`border-tint-border`),

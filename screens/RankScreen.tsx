@@ -27,6 +27,7 @@ import Space from '@/components/Space'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useTopPlayer, useTopRich } from '@/servicies/top'
 import { Member } from '@/servicies/types'
@@ -146,7 +147,7 @@ function RankScreen() {
                   >
                     <Text
                       style={tw.style(
-                        `ml-2 text-body-5 flex-shrink`,
+                        `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
                           ? tw`text-tint-primary font-bold`
                           : tw`text-tint-secondary font-medium`
@@ -270,13 +271,13 @@ const RankItem = memo(
         <Space direction="vertical" gap={4} style={tw`flex-1`}>
           <Space>
             <Text
-              style={tw`text-tint-primary text-body-5 font-bold`}
+              style={tw`text-tint-primary ${getFontSize(5)} font-bold`}
               numberOfLines={1}
             >
               {member?.username}
             </Text>
             {rankTab === 'useTopPlayer' ? (
-              <Text style={tw`text-body-6 text-tint-secondary`}>
+              <Text style={tw`${getFontSize(6)} text-tint-secondary`}>
                 {member.cost}
               </Text>
             ) : (
@@ -285,7 +286,7 @@ const RankItem = memo(
           </Space>
 
           {member.motto && (
-            <Text style={tw.style(`text-body-6 text-tint-secondary`)}>
+            <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
               {member.motto}
             </Text>
           )}
@@ -295,14 +296,14 @@ const RankItem = memo(
               onPress={() => {
                 openURL(member.website!)
               }}
-              style={tw.style(`text-body-6 text-tint-primary`)}
+              style={tw.style(`${getFontSize(6)} text-tint-primary`)}
               numberOfLines={1}
             >
               {member.website.replace(/^https?:\/\//, '')}
             </Text>
           )}
 
-          <Text style={tw.style(`text-body-6 text-tint-secondary`)}>
+          <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
             第 {member.id} 号会员
           </Text>
         </Space>

@@ -16,6 +16,7 @@ import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
+import { fontScaleAtom } from './jotai/fontSacleAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
@@ -35,7 +36,15 @@ LogBox.ignoreLogs([
 
 // enabledNetworkInspect()
 
-export default function App() {
+export default function AppWithSuspense() {
+  return (
+    <Suspense>
+      <App />
+    </Suspense>
+  )
+}
+
+function App() {
   return (
     <ActionSheetProvider>
       <Provider unstable_createStore={() => store}>
@@ -67,6 +76,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       profileAtom,
       enabledAutoCheckinAtom,
       enabledMsgPushAtom,
+      fontScaleAtom,
     ])
   )
 

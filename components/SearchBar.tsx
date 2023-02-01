@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import { pick } from 'lodash-es'
 import {
   Pressable,
   PressableProps,
@@ -7,6 +8,7 @@ import {
   ViewStyle,
 } from 'react-native'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 export default function SearchBar({
@@ -45,7 +47,11 @@ export default function SearchBar({
       <TextInput
         placeholder={placeholder || '搜索V2EX内容'}
         placeholderTextColor={tw.color(`text-tint-secondary`)}
-        style={tw`text-tint-primary px-3 py-1 flex-1`}
+        style={tw.style(`text-tint-primary px-3 py-1 flex-1`, {
+          ...pick(tw.style(getFontSize(5)), ['fontSize']),
+          paddingVertical: 0,
+        })}
+        textAlignVertical="center"
         pointerEvents={editable ? 'auto' : 'none'}
         editable={editable}
         value={value}

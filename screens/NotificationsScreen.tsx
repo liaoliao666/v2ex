@@ -23,6 +23,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
 import { Notice } from '@/servicies/types'
@@ -148,10 +149,10 @@ const NoticeItem = memo(
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center justify-between`}>
             <Separator>
-              <Text style={tw`text-tint-primary text-body-5`}>
+              <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
                 {notice.member.username}
               </Text>
-              <Text style={tw`text-tint-secondary text-body-5`}>
+              <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
                 {notice.created}
               </Text>
             </Separator>
@@ -159,7 +160,9 @@ const NoticeItem = memo(
             <DeleteNoticeButton id={notice.id} once={notice.once} />
           </View>
 
-          <Text style={tw`flex-row flex-wrap text-body-5 text-tint-secondary`}>
+          <Text
+            style={tw`flex-row flex-wrap ${getFontSize(5)} text-tint-secondary`}
+          >
             {notice.prev_action_text}
             <Text style={tw`text-tint-primary`}>{notice.topic.title}</Text>
             {notice.next_action_text}

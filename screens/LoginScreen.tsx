@@ -10,6 +10,7 @@ import { z } from 'zod'
 
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
   useSignin,
@@ -59,10 +60,10 @@ export default function LoginScreen() {
         >
           登录受限
         </Text>
-        <Text style={tw`text-body-5 text-tint-secondary mt-2`}>
+        <Text style={tw`${getFontSize(5)} text-tint-secondary mt-2`}>
           由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
         </Text>
-        <Text style={tw`text-body-5 text-tint-secondary mt-2`}>
+        <Text style={tw`${getFontSize(5)} text-tint-secondary mt-2`}>
           你可能会需要等待至多 1 天的时间再继续尝试。
         </Text>
         <StyledButton
@@ -156,7 +157,7 @@ export default function LoginScreen() {
 
         <View style={tw`min-h-[16px]`}>
           {!!signinMutation.error?.message && (
-            <Text style={tw`text-body-6 text-[#ff4d4f]`}>
+            <Text style={tw`${getFontSize(6)} text-[#ff4d4f]`}>
               {signinMutation.error.message}
             </Text>
           )}
@@ -209,7 +210,7 @@ export default function LoginScreen() {
                 fillColor={tw`text-secondary`.color as string}
                 unfillColor={tw`dark:text-[#0f1419] text-white`.color as string}
               />
-              <Text style={tw`text-body-6 text-tint-secondary -ml-2`}>
+              <Text style={tw`${getFontSize(6)} text-tint-secondary -ml-2`}>
                 我已阅读并同意
                 <Text
                   style={tw`text-tint-primary`}
@@ -250,7 +251,7 @@ export default function LoginScreen() {
               })
             }}
           >
-            <Text style={tw`text-body-5 text-tint-secondary ml-2`}>
+            <Text style={tw`${getFontSize(5)} text-tint-secondary ml-2`}>
               网页登录
             </Text>
           </TouchableOpacity>
@@ -303,7 +304,7 @@ function TwoStepSignin({ once }: { once: string }) {
 
   return (
     <View style={tw`w-3/4 mx-auto mt-8`}>
-      <Text style={tw`text-body-5 text-tint-primary mb-2`}>
+      <Text style={tw`${getFontSize(5)} text-tint-primary mb-2`}>
         你的 V2EX 账号已经开启了两步验证，请输入验证码继续
       </Text>
 
@@ -324,7 +325,9 @@ function TwoStepSignin({ once }: { once: string }) {
 
       <View style={tw`min-h-[16px]`}>
         {!!error?.message && (
-          <Text style={tw`text-body-6 text-[#ff4d4f]`}>{error.message}</Text>
+          <Text style={tw`${getFontSize(6)} text-[#ff4d4f]`}>
+            {error.message}
+          </Text>
         )}
       </View>
       <StyledButton
@@ -343,7 +346,7 @@ function TwoStepSignin({ once }: { once: string }) {
         {isLoading ? '登录中...' : '登录'}
       </StyledButton>
 
-      <Text style={tw`text-body-5 text-tint-primary mt-2`}>
+      <Text style={tw`${getFontSize(5)} text-tint-primary mt-2`}>
         出于安全考虑，当你开启了两步验证功能之后，那么你将需要每两周输入一次你的两步验证码续
       </Text>
     </View>

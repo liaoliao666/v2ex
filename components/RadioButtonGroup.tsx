@@ -1,5 +1,6 @@
 import { Pressable, Text, View } from 'react-native'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 export default function RadioButtonGroup<
@@ -34,7 +35,7 @@ export default function RadioButtonGroup<
             >
               <Text
                 style={tw.style(
-                  `text-body-5`,
+                  `${getFontSize(5)}`,
                   active ? `text-tint-primary` : `text-tint-secondary`
                 )}
               >

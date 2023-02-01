@@ -24,6 +24,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useMemberTopics, useMyFollowing } from '@/servicies/member'
 import { Topic } from '@/servicies/types'
@@ -151,7 +152,7 @@ function MyFollowingScreen() {
                     )}
                     <Text
                       style={tw.style(
-                        `ml-2 text-body-5 flex-shrink`,
+                        `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
                           ? tw`text-tint-primary font-bold`
                           : tw`text-tint-secondary font-medium`
@@ -276,7 +277,7 @@ function MemberTopics({
       }
       ListEmptyComponent={
         <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
             {last(data?.pages)?.hidden ? '主题列表被隐藏' : '目前还没有主题'}
           </Text>
         </View>

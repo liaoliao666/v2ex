@@ -6,6 +6,7 @@ import Toast, {
   ToastConfigParams,
 } from 'react-native-toast-message'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 const toastConfig: ToastConfig = {
@@ -19,10 +20,10 @@ function getToastProps(props: ToastConfigParams<any>) {
     ...props,
     contentContainerStyle: tw`bg-body-2`,
     text1Style: tw.style(
-      `text-body-5 text-tint-primary`,
+      `${getFontSize(5)} text-tint-primary`,
       !props.text2 && `font-normal`
     ),
-    text2Style: tw`text-body-6`,
+    text2Style: tw`${getFontSize(6)}`,
     topOffset: 55,
   }
 }

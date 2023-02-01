@@ -40,6 +40,7 @@ import TopicInfo, {
   ThankTopic,
   VoteButton,
 } from '@/components/topic/TopicInfo'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
@@ -84,20 +85,22 @@ function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
             </View>
 
             <View style={tw`flex-1`}>
-              <Text style={tw`text-tint-primary text-body-4 font-bold`}>
+              <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
                 {params.member?.username}
               </Text>
 
               <Text
                 key="reply_count"
-                style={tw`text-tint-secondary text-body-5 flex-1 min-h-[24px]`}
+                style={tw`text-tint-secondary ${getFontSize(
+                  5
+                )} flex-1 min-h-[24px]`}
                 numberOfLines={1}
               >
                 {`${params.reply_count} 回复`}
               </Text>
             </View>
           </View>
-          <Text style={tw`text-tint-primary text-body-3 font-bold pt-2`}>
+          <Text style={tw`text-tint-primary ${getFontSize(3)} font-bold pt-2`}>
             {params.title}
           </Text>
         </View>
@@ -227,7 +230,7 @@ function TopicDetailScreen() {
                       {!!topic.reply_count && (
                         <Text
                           style={tw.style(
-                            'text-body-6 pl-1 text-tint-secondary'
+                            `${getFontSize(6)} pl-1 text-tint-secondary`
                           )}
                         >
                           {topic.reply_count}
@@ -267,7 +270,7 @@ function TopicDetailScreen() {
         }
         ListEmptyComponent={
           <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary text-body-6`}>
+            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
               目前还没有回复
             </Text>
           </View>
@@ -291,14 +294,16 @@ function TopicDetailScreen() {
             <View style={tw`flex-1`}>
               <View style={tw`flex-row items-center`}>
                 <Text
-                  style={tw`text-tint-primary text-body-4 font-bold w-4/5`}
+                  style={tw`text-tint-primary ${getFontSize(
+                    4
+                  )} font-bold w-4/5`}
                   numberOfLines={1}
                 >
                   {topic.title}
                 </Text>
               </View>
 
-              <Text style={tw`text-tint-secondary text-body-6`}>
+              <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
                 {topic.reply_count} 条回复
               </Text>
             </View>

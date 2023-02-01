@@ -8,6 +8,7 @@ import RenderHTML, {
   MixedStyleDeclaration,
 } from 'react-native-render-html'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import tw from '@/utils/tw'
 
@@ -35,6 +36,8 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const baseStyle = tw.style(getFontSize(5))
+
   return (
     <ScrollView
       horizontal
@@ -43,16 +46,23 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     >
       <RenderHTML
         contentWidth={width}
-        baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] text-[15px] leading-5`}
+        baseStyle={tw.style(`text-[#383a42] dark:text-[#abb2bf]`, {
+          ...baseStyle,
+          lineHeight: (baseStyle.lineHeight as number) - 4,
+        })}
         tagsStyles={{
           pre: tw`my-2`,
-          h1: tw`text-body-3 pb-1.5 border-b border-solid border-tint-border`,
-          h2: tw`text-body-4 pb-1.5 border-b border-solid border-tint-border`,
-          h3: tw`text-body-4 `,
-          h4: tw`text-body-4`,
-          h5: tw`text-body-5`,
-          h6: tw`text-body-6`,
-          p: tw`text-body-5`,
+          h1: tw`${getFontSize(
+            3
+          )} pb-1.5 border-b border-solid border-tint-border`,
+          h2: tw`${getFontSize(
+            4
+          )} pb-1.5 border-b border-solid border-tint-border`,
+          h3: tw`${getFontSize(4)}`,
+          h4: tw`${getFontSize(4)}`,
+          h5: tw`${getFontSize(5)}`,
+          h6: tw`${getFontSize(6)}`,
+          p: tw`${getFontSize(5)}`,
           a: tw`text-tint-secondary no-underline`,
           hr: {
             backgroundColor: tw.color(`border-tint-border`),

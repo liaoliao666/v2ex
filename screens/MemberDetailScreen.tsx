@@ -50,6 +50,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
   useBlockMember,
@@ -134,13 +135,13 @@ function MemberDetailScreen() {
         tintColor="#fff"
         statusBarStyle="light"
       >
-        {!avatarVisible && !isMe(params.username) && (
+        {!avatarVisible && (
           <View style={tw`flex-row items-center flex-1`}>
-            <Text style={tw`text-white text-body-4 font-bold mr-auto`}>
+            <Text style={tw`text-white ${getFontSize(4)} font-bold mr-auto`}>
               {member?.username}
             </Text>
 
-            <FollowMember {...member!} />
+            {!isMe(params.username) && <FollowMember {...member!} />}
           </View>
         )}
       </NavBar>
@@ -257,6 +258,7 @@ function MemberDetailScreen() {
                     >
                       <Text
                         style={tw.style(
+                          getFontSize(5),
                           active
                             ? tw`text-tint-primary font-medium`
                             : tw`text-tint-secondary`
@@ -313,7 +315,7 @@ const MemberHeader = memo(() => {
         style={tw`mt-3 px-4`}
       >
         <Space>
-          <Text style={tw`text-tint-primary text-body-2 font-extrabold`}>
+          <Text style={tw`text-tint-primary ${getFontSize(2)} font-extrabold`}>
             {member?.username}
           </Text>
 
@@ -330,7 +332,9 @@ const MemberHeader = memo(() => {
                 <Rect width="100%" height="100%" fill="url(#grad)" />
               </Svg>
               <Text
-                style={tw`px-1 py-0.5 text-white text-body-6 font-medium text-center`}
+                style={tw`px-1 py-0.5 text-white ${getFontSize(
+                  6
+                )} font-medium text-center`}
               >
                 ONLINE
               </Text>
@@ -342,7 +346,7 @@ const MemberHeader = memo(() => {
 
         {!!member?.motto && (
           <View pointerEvents="none">
-            <Text style={tw`text-tint-secondary text-body-5`}>
+            <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
               {member?.motto}
             </Text>
           </View>
@@ -351,26 +355,28 @@ const MemberHeader = memo(() => {
         {some([member?.company, member?.title]) && (
           <View style={tw`flex-row flex-wrap`}>
             {member?.company && (
-              <Text style={tw`font-bold text-tint-primary text-body-5`}>
+              <Text style={tw`font-bold text-tint-primary ${getFontSize(5)}`}>
                 🏢 {member.company}
               </Text>
             )}
             {every([member?.company, member?.title]) && (
-              <Text style={tw`text-tint-secondary text-body-5 px-1`}>/</Text>
+              <Text style={tw`text-tint-secondary ${getFontSize(5)} px-1`}>
+                /
+              </Text>
             )}
             {member?.title && (
-              <Text style={tw`text-tint-secondary text-body-5 flex-1`}>
+              <Text style={tw`text-tint-secondary ${getFontSize(5)} flex-1`}>
                 {member.title}
               </Text>
             )}
           </View>
         )}
 
-        <Text style={tw`text-tint-secondary text-body-5`}>
+        <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
           {`V2EX 第 ${member?.id} 号会员，加入于 ${member?.created}`}
         </Text>
 
-        <Text style={tw`text-tint-secondary text-body-5`}>
+        <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
           {`今日活跃度排名 ${member?.activity}`}
         </Text>
 
@@ -406,7 +412,7 @@ const MemberHeader = memo(() => {
                   uri: widget.uri,
                 }}
               />
-              <Text style={tw`text-body-5 text-tint-secondary`}>
+              <Text style={tw`${getFontSize(5)} text-tint-secondary`}>
                 {widget.title}
               </Text>
             </TouchableOpacity>
@@ -477,7 +483,7 @@ const MemberTopics = forwardRef<
       }
       ListEmptyComponent={
         <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
             {last(data?.pages)?.hidden ? '主题列表被隐藏' : '目前还没有主题'}
           </Text>
         </View>
@@ -545,7 +551,7 @@ const MemberReplies = forwardRef<
       }
       ListEmptyComponent={
         <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
             目前还没有回复
           </Text>
         </View>
@@ -587,28 +593,28 @@ const MemberReply = memo(
           </StyledButton>
 
           <Separator>
-            <Text style={tw`text-tint-primary text-body-5 font-bold`}>
+            <Text style={tw`text-tint-primary ${getFontSize(5)} font-bold`}>
               {topic.member?.username}
             </Text>
 
             {!!topic.reply_count && (
-              <Text style={tw`text-tint-secondary text-body-5`}>
+              <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
                 {`${topic.reply_count} 回复`}
               </Text>
             )}
           </Separator>
         </Space>
 
-        <Text style={tw`text-tint-primary text-body-5 pt-2`}>
+        <Text style={tw`text-tint-primary ${getFontSize(5)} pt-2`}>
           {topic.title}
         </Text>
 
         <View style={tw`bg-[#f0f3f5] dark:bg-[#262626] px-4 py-3 mt-2 rounded`}>
           <Separator style={tw`mb-2`}>
-            <Text style={tw`text-tint-primary text-body-5`}>
+            <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
               {params.username}
             </Text>
-            <Text style={tw`text-tint-secondary text-body-5`}>
+            <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
               {topic.reply.created}
             </Text>
           </Separator>

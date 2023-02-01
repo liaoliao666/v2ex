@@ -1,6 +1,8 @@
 import { Platform, Text, TextInput } from 'react-native'
 import {
   CustomTextualRenderer,
+  TPhrasing,
+  TText,
   getNativePropsForTNode,
 } from 'react-native-render-html'
 
@@ -14,7 +16,11 @@ const resetTextInputStyle = {
 const TextRenderer: CustomTextualRenderer = props => {
   const renderProps = getNativePropsForTNode(props)
 
-  if (!renderProps.selectable || Platform.OS === 'android')
+  if (
+    !renderProps.selectable ||
+    Platform.OS === 'android' ||
+    hasLink(props.tnode)
+  )
     return <Text {...renderProps} />
 
   return (
@@ -26,6 +32,13 @@ const TextRenderer: CustomTextualRenderer = props => {
     >
       <Text {...renderProps} />
     </TextInput>
+  )
+}
+
+function hasLink(tnode: TText | TPhrasing) {
+  return (
+    tnode.domNode?.name === 'a' ||
+    tnode.children.some(child => child.domNode?.name === 'a')
   )
 }
 

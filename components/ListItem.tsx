@@ -1,6 +1,7 @@
 import { ReactNode } from 'react'
 import { PressableProps, Text } from 'react-native'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 import DebouncePressable from './DebouncePressable'
@@ -18,6 +19,7 @@ export default function ListItem({
   onPress?: PressableProps['onPress']
   pressable?: boolean
 }) {
+  const fontSize = (tw.style(getFontSize(3)).fontSize as string) + 1
   return (
     <DebouncePressable
       style={({ pressed }) =>
@@ -30,7 +32,11 @@ export default function ListItem({
     >
       {icon}
 
-      <Text style={tw`ml-6 text-[20px] font-medium text-tint-primary mr-auto`}>
+      <Text
+        style={tw.style(`ml-6 font-medium text-tint-primary mr-auto`, {
+          fontSize,
+        })}
+      >
         {label}
       </Text>
 

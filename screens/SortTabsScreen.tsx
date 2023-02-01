@@ -8,6 +8,7 @@ import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Space from '@/components/Space'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
   HomeTab,
   allHomeTabs,
@@ -52,7 +53,9 @@ export default function SortTabsScreen() {
             }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-body-2`
           )}
         >
-          <Text style={tw`text-tint-primary text-body-5`}>{item.title}</Text>
+          <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+            {item.title}
+          </Text>
 
           {!!iconName && (
             <Pressable
@@ -79,7 +82,7 @@ export default function SortTabsScreen() {
   return (
     <SafeAreaView edges={['top']} style={tw`flex-1`}>
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
-        <Text style={tw`text-tint-primary text-body-4 font-bold`}>
+        <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
           首页板块
         </Text>
 
@@ -98,10 +101,10 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`px-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-tint-primary text-body-5 font-bold`}>
+        <Text style={tw`text-tint-primary ${getFontSize(5)} font-bold`}>
           我的板块
         </Text>
-        <Text style={tw`text-tint-secondary text-body-6 ml-2`}>
+        <Text style={tw`text-tint-secondary ${getFontSize(6)} ml-2`}>
           {isEdit ? '长按拖拽排序' : '点击进入板块'}
         </Text>
 
@@ -115,7 +118,7 @@ export default function SortTabsScreen() {
               {({ pressed }) => (
                 <Text
                   style={tw.style(
-                    `text-body-5`,
+                    `${getFontSize(5)}`,
                     pressed ? `text-secondary-focus` : `text-secondary`
                   )}
                 >
@@ -137,7 +140,7 @@ export default function SortTabsScreen() {
             {({ pressed }) => (
               <Text
                 style={tw.style(
-                  `text-body-5`,
+                  `${getFontSize(5)}`,
                   pressed ? `text-secondary-focus` : `text-secondary`
                 )}
               >
@@ -176,17 +179,17 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`pl-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-tint-primary text-body-5 font-bold`}>
+        <Text style={tw`text-tint-primary ${getFontSize(5)} font-bold`}>
           更多板块
         </Text>
-        <Text style={tw`text-tint-secondary text-body-6 ml-2`}>
+        <Text style={tw`text-tint-secondary ${getFontSize(6)} ml-2`}>
           点击添加板块
         </Text>
       </View>
 
       {isEmpty(unselectedItems) && (
         <View style={tw`py-2 px-4 m-4 bg-body-2 rounded-full`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
             已全部添加至我的板块
           </Text>
         </View>

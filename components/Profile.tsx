@@ -15,6 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Money from '@/components/Money'
 import Space from '@/components/Space'
 import StyledImage from '@/components/StyledImage'
+import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { RootStackParamList } from '@/types'
@@ -30,6 +31,9 @@ export default withQuerySuspense(memo(Profile))
 
 function Profile() {
   const colorScheme = useAtomValue(colorSchemeAtom)
+
+  const fontScale = useAtomValue(fontScaleAtom)
+
   const [theme, setTheme] = useAtom(themeAtom)
 
   const profile = useAtomValue(profileAtom)
@@ -115,7 +119,7 @@ function Profile() {
   ]
 
   return (
-    <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`}>
+    <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`} key={fontScale}>
       {isLogin ? (
         <View style={tw`p-4`}>
           <View style={tw`flex-row justify-between items-center`}>
@@ -157,7 +161,7 @@ function Profile() {
           </Space>
 
           {!!profile?.motto && (
-            <Text style={tw`text-tint-secondary text-body-5 mt-2`}>
+            <Text style={tw`text-tint-secondary ${getFontSize(5)} mt-2`}>
               {profile?.motto}
             </Text>
           )}

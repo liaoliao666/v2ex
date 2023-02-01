@@ -1,9 +1,12 @@
 import { useNavigation } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { StatusBarStyle } from 'expo-status-bar'
 import { ReactNode, isValidElement } from 'react'
 import { Platform, PressableProps, Text, View, ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
+import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 import { useStatusBarStyle } from '@/utils/useStatusBarStyle'
 
@@ -54,7 +57,7 @@ export default function NavBar({
             children
           ) : (
             <Text
-              style={tw.style(`text-tint-primary text-[17px] font-bold`, {
+              style={tw.style(`text-tint-primary ${getFontSize(4)} font-bold`, {
                 color: tintColor,
               })}
             >
@@ -75,17 +78,30 @@ export default function NavBar({
 
 export function BackButton({
   tintColor,
+  onPress,
 }: {
   tintColor?: string
   onPress?: PressableProps['onPress']
 }) {
-  const { goBack } = useNavigation()
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   const color = tintColor || tw.color(`text-tint-primary`)
 
   return (
     <IconButton
-      onPress={goBack}
+      onPress={ev => {
+        if (typeof onPress === 'function') {
+          onPress(ev)
+          return
+        }
+
+        if (navigation.canGoBack()) {
+          navigation.goBack()
+        } else {
+          navigation.replace('Root')
+        }
+      }}
       name="arrow-left"
       size={24}
       color={color}

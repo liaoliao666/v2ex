@@ -104,7 +104,7 @@ const MemberItem = memo(
             uri: member.avatar,
           }}
         />
-        <Text style={tw`text-body-5 text-tint-secondary ml-2`}>
+        <Text style={tw`${getFontSize(5)} text-tint-secondary ml-2`}>
           {member.username}
         </Text>
       </Pressable>

@@ -1,3 +1,4 @@
+import { pick } from 'lodash-es'
 import {
   Pressable,
   PressableProps,
@@ -6,6 +7,7 @@ import {
   ViewStyle,
 } from 'react-native'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 export default function StyledButton({
@@ -116,6 +118,7 @@ export default function StyledButton({
       <Text
         {...textProps}
         style={[
+          pick(tw.style(tw.style(getFontSize(5))), ['fontSize']),
           ghost
             ? tw`dark:text-[${darkColor}] text-[${color}]`
             : tw`text-[${textColor}] dark:text-[${darkTextColor}]`,

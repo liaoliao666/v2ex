@@ -7,6 +7,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { Text, View } from 'react-native'
 import { isObject } from 'twrnc/dist/esm/types'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
@@ -30,7 +31,7 @@ export function FallbackComponent({
           ? (error as unknown as AxiosError).code || error.name
           : error.name || '出现错误了'}
       </Text>
-      <Text style={tw`text-body-5 text-tint-secondary mt-2`}>
+      <Text style={tw`${getFontSize(5)} text-tint-secondary mt-2`}>
         {isObject(error) && error.message}
       </Text>
       <StyledButton

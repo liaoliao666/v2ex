@@ -1,6 +1,7 @@
 import { Children, Fragment } from 'react'
 import { Text, View, ViewStyle } from 'react-native'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
 export type SeparatorProps = {
@@ -10,7 +11,9 @@ export type SeparatorProps = {
 
 export function DotSeparator() {
   return (
-    <Text style={tw`w-4 text-tint-secondary text-center text-body-5`}>·</Text>
+    <Text style={tw`w-4 text-tint-secondary text-center ${getFontSize(5)}`}>
+      ·
+    </Text>
   )
 }
 

@@ -31,6 +31,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
+import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -96,6 +97,8 @@ function isDisabledPress() {
 function HomeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const fontScale = useAtomValue(fontScaleAtom)
+
   const tabs = useAtomValue(homeTabsAtom)
 
   const layout = useWindowDimensions()
@@ -110,7 +113,7 @@ function HomeScreen() {
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <TabView
-        key={colorScheme}
+        key={`${colorScheme}_${fontScale}`}
         navigationState={{ index, routes: tabs }}
         lazy
         lazyPreloadDistance={1}
@@ -191,6 +194,7 @@ function HomeScreen() {
                     >
                       <Text
                         style={tw.style(
+                          getFontSize(5),
                           active
                             ? tw`text-tint-primary font-medium`
                             : tw`text-tint-secondary`
@@ -329,7 +333,7 @@ function TabTopics({
       renderItem={renderItem}
       ListEmptyComponent={
         <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary text-body-6`}>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
             目前还没有主题
           </Text>
         </View>

@@ -12,6 +12,7 @@ import ImageViewer from 'react-native-image-zoom-viewer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { savePicture } from '@/utils/savePicture'
 import tw from '@/utils/tw'
 
@@ -76,7 +77,7 @@ export default function StyledImageViewer({
                     )
                   }
                 >
-                  <Text style={tw`text-body-5 text-tint-primary`}>
+                  <Text style={tw`${getFontSize(5)} text-tint-primary`}>
                     {item.label}
                   </Text>
                 </Pressable>
@@ -114,7 +115,7 @@ export default function StyledImageViewer({
           <View
             style={tw`pt-[${safeAreaInsets.top}px] px-4 z-10 absolute top-0 inset-x-0 flex-row justify-center`}
           >
-            <Text style={tw`text-white text-body-4`}>
+            <Text style={tw`text-white ${getFontSize(4)}`}>
               {currentIndex + '/' + allSize}
             </Text>
           </View>

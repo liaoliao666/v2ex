@@ -21,10 +21,10 @@ export const themeAtom = atom(
   }
 )
 
-const forceUpdateColorScheme = atom(0)
+const forceUpdateColorSchemeAtom = atom(0)
 
 export const colorSchemeAtom = atom<'light' | 'dark'>(get => {
-  get(forceUpdateColorScheme)
+  get(forceUpdateColorSchemeAtom)
   return getColorScheme(get(baseThemeAtom))
 })
 
@@ -43,7 +43,7 @@ function handleColorSchemeChange() {
     colorScheme !== systemColorScheme
   ) {
     tw.setColorScheme(getColorScheme(store.get(baseThemeAtom)!))
-    store.set(forceUpdateColorScheme, prev => ++prev)
+    store.set(forceUpdateColorSchemeAtom, prev => ++prev)
   }
 }
 

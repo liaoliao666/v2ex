@@ -28,6 +28,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useNodes } from '@/servicies/node'
@@ -45,9 +46,9 @@ export default function SearchScreen() {
 
   const { params } = useRoute<RouteProp<RootStackParamList, 'Search'>>()
 
-  const [searchText, setSearchText] = useState(params.query || '')
+  const [searchText, setSearchText] = useState(params?.query || '')
 
-  const [isSearchNode, setIsSearchNode] = useState(!params.query)
+  const [isSearchNode, setIsSearchNode] = useState(!params?.query)
 
   const { data: matchNodes } = useNodes({
     select: useCallback(
@@ -114,14 +115,16 @@ export default function SearchScreen() {
                     setIsSearchNode(!searchText)
                   }}
                 >
-                  <Text style={tw`text-tint-primary text-body-5`}>
+                  <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
                     SOV2EX: <Text style={tw`text-primary`}>{searchText}</Text>
                   </Text>
                 </Pressable>
               )}
               {!isEmpty(matchNodes) && (
                 <View style={tw`px-4 pt-2.5 pb-2`}>
-                  <Text style={tw`text-tint-primary text-body-5`}>节点</Text>
+                  <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+                    节点
+                  </Text>
                 </View>
               )}
             </View>
@@ -223,7 +226,7 @@ function SoV2exList({
       data={flatedData}
       ListHeaderComponent={
         <View style={tw`px-4 py-2.5`}>
-          <Text style={tw`text-tint-primary text-body-5`}>
+          <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
             以下搜索结果来自于{' '}
             <Text
               style={tw`text-primary`}
@@ -308,7 +311,7 @@ const HitItem = memo(
               </StyledButton>
             )}
             <Text
-              style={tw`text-tint-primary text-body-5 font-bold flex-1`}
+              style={tw`text-tint-primary ${getFontSize(5)} font-bold flex-1`}
               numberOfLines={1}
             >
               {topic.member?.username}
@@ -316,13 +319,16 @@ const HitItem = memo(
 
             <Separator>
               {compact([
-                <Text key="created" style={tw`text-tint-secondary text-body-5`}>
+                <Text
+                  key="created"
+                  style={tw`text-tint-secondary ${getFontSize(5)}`}
+                >
                   {dayjs(topic.created).fromNow()}
                 </Text>,
                 !!topic.reply_count && (
                   <Text
                     key="replies"
-                    style={tw`text-tint-secondary text-body-5`}
+                    style={tw`text-tint-secondary ${getFontSize(5)}`}
                   >
                     {`${topic.reply_count} 回复`}
                   </Text>
@@ -333,7 +339,7 @@ const HitItem = memo(
 
           <Text
             style={tw.style(
-              `text-body-5 font-medium pt-2`,
+              `${getFontSize(5)} font-medium pt-2`,
               isFetched ? `text-tint-secondary` : `text-tint-primary`
             )}
           >
@@ -347,7 +353,7 @@ const HitItem = memo(
                   html: topic.content,
                 }}
                 baseStyle={tw.style(
-                  `text-body-5`,
+                  `${getFontSize(5)}`,
                   isFetched ? `text-tint-secondary` : `text-tint-primary`
                 )}
                 defaultTextProps={{ selectable: false }}

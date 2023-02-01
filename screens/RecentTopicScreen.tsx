@@ -12,6 +12,7 @@ import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
 import { useTopicDetail } from '@/servicies/topic'
 import { RootStackParamList } from '@/types'
@@ -59,7 +60,7 @@ export default function RecentTopicScreen() {
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         ListEmptyComponent={
           <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary text-body-6`}>
+            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
               目前还没有已读主题
             </Text>
           </View>
@@ -105,13 +106,13 @@ const RecentTopicItem = memo(
 
         <View style={tw`flex-1`}>
           <Text
-            style={tw`text-tint-primary text-body-5 font-bold`}
+            style={tw`text-tint-primary ${getFontSize(5)} font-bold`}
             numberOfLines={1}
           >
             {recentTopic.member?.username}
           </Text>
 
-          <Text style={tw.style(`text-body-5 pt-1 text-tint-primary`)}>
+          <Text style={tw.style(`${getFontSize(5)} pt-1 text-tint-primary`)}>
             {recentTopic.title}
           </Text>
         </View>
