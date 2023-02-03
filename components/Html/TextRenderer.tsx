@@ -27,6 +27,7 @@ const TextRenderer: CustomTextualRenderer = props => {
     <TextInput
       editable={false}
       multiline
+      scrollEnabled={false}
       style={resetTextInputStyle}
       textAlignVertical="top"
     >
