@@ -2,7 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import { load } from 'cheerio'
 import { isArray, isObject, isString } from 'lodash-es'
 import { useState } from 'react'
-import { Image, ImageProps, View, ViewStyle } from 'react-native'
+import {
+  Image,
+  ImageProps,
+  LayoutRectangle,
+  View,
+  ViewStyle,
+} from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
 import { hasSize } from '@/utils/hasSize'
@@ -27,10 +33,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
 
   const [isLoading, setIsLoading] = useState(uri ? !uriToSize.has(uri) : false)
 
-  const [size, setSize] = useState<{
-    width: number
-    height: number
-  }>(uriToSize.get(uri))
+  const [size, setSize] = useState<LayoutRectangle>(uriToSize.get(uri))
 
   const imageProps: ImageProps = {
     ...props,

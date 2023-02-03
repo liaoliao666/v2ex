@@ -110,7 +110,7 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
             }
             last_touched = $topicInfo.children(':nth-child(4)').text().trim()
           } else {
-            last_touched = $topicInfo.children(':nth-child(4)').text().trim()
+            last_touched = $topicInfo.children(':nth-child(2)').text().trim()
           }
 
           return {

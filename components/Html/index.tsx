@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { load } from 'cheerio'
 import { useSetAtom } from 'jotai'
-import { findIndex, first, isString } from 'lodash-es'
+import { findIndex, first, isArray, isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
 import { Alert, useWindowDimensions } from 'react-native'
 import RenderHtml, {
@@ -29,7 +29,12 @@ import TextRenderer from './TextRenderer'
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
     onElement: (el: any) => {
-      const firstChild: any = first(el.children)
+      const firstChild: any = first(
+        isArray(el.children)
+          ? el.children.filter((child: any) => !!child?.name)
+          : []
+      )
+
       if (firstChild && firstChild.name === 'p') {
         firstChild.attribs = { class: `mt-0 ${firstChild.attribs?.class}` }
       }
@@ -138,6 +143,7 @@ function Html({
           h6: tw`${getFontSize(6)}`,
           p: tw`${getFontSize(5)}`,
           a: tw`text-tint-secondary no-underline`,
+          li: tw`text-justify`,
           hr: {
             backgroundColor: tw.color(`border-tint-border`),
           },
