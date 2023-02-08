@@ -482,9 +482,9 @@ const MemberTopics = forwardRef<
         </SafeAreaView>
       }
       ListEmptyComponent={
-        <View style={tw`items-center justify-center py-16`}>
+        <View style={tw`items-center justify-center py-16 px-4`}>
           <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            {last(data?.pages)?.hidden ? '主题列表被隐藏' : '目前还没有主题'}
+            {last(data?.pages)?.hidden_text}
           </Text>
         </View>
       }

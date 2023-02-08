@@ -84,6 +84,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
         style as ViewStyle,
         isLoading && `bg-loading`
       )}
+      resizeMode={'stretch'}
     />
   )
 }

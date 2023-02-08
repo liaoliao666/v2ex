@@ -245,8 +245,6 @@ function LikeNode({
   const navigation = useNavigation()
 
   async function handleFavorite() {
-    console.log(111)
-
     if (!isSignined()) {
       navigation.navigate('Login')
       return

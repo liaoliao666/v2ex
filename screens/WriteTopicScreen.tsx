@@ -3,7 +3,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { compact, isString } from 'lodash-es'
 import { Fragment, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
-import { Pressable, Text, View } from 'react-native'
+import { Pressable, Text, View, useWindowDimensions } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
@@ -52,7 +52,21 @@ const WriteTopicArgs = z.object({
   syntax: z.enum(['default', 'markdown']),
 })
 
-const LazyPreviewTopic = withQuerySuspense(PreviewTopic)
+const LazyPreviewTopic = withQuerySuspense(PreviewTopic, {
+  Loading: () => {
+    const navbarHeight = useNavBarHeight()
+    const layout = useWindowDimensions()
+    return (
+      <View
+        style={{
+          height: layout.height - navbarHeight,
+        }}
+      >
+        <LoadingIndicator />
+      </View>
+    )
+  },
+})
 
 export default withQuerySuspense(WriteTopicScreen, {
   Loading: () => {

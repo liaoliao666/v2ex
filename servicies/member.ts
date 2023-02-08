@@ -44,7 +44,7 @@ export const useBlockMember = createMutation<
 )
 
 export const useMemberTopics = createInfiniteQuery<
-  PageData<Topic> & { hidden: boolean },
+  PageData<Topic> & { hidden_text?: string },
   { username: string }
 >(
   'useMemberTopics',
@@ -63,10 +63,7 @@ export const useMemberTopics = createInfiniteQuery<
       page,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
-      hidden: $('#Main .box .topic_content')
-        .eq(0)
-        .text()
-        .includes('主题列表被隐藏'),
+      hidden_text: $('#Main .box .topic_content').eq(0).text(),
     }
   },
   {

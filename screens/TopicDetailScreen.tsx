@@ -72,7 +72,10 @@ function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
           <View style={tw`flex-row items-center`}>
             <View style={tw`mr-3`}>
               <StyledImage
-                style={tw`w-12 h-12 rounded-full`}
+                style={tw.style(
+                  `w-12 h-12 rounded-full`,
+                  !params.member.avatar && `bg-loading`
+                )}
                 source={{
                   uri: params.member?.avatar,
                 }}
