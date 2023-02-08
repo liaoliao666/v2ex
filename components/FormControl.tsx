@@ -1,3 +1,4 @@
+import { ReactNode } from 'react'
 import {
   Controller,
   ControllerProps,
@@ -16,22 +17,35 @@ interface FormControlProps<
 > extends ControllerProps<TFieldValues, TName> {
   label?: string
   style?: ViewStyle
+  extra?: ReactNode
 }
 
 export default function FormControl<
   TFieldValues extends FieldValues = FieldValues,
   TName extends FieldPath<TFieldValues> = FieldPath<TFieldValues>
->({ label, style, render, ...rest }: FormControlProps<TFieldValues, TName>) {
+>({
+  label,
+  style,
+  render,
+  extra,
+  ...rest
+}: FormControlProps<TFieldValues, TName>) {
   return (
     <Controller
       {...rest}
       render={props => (
         <View style={style}>
-          {!!label && (
-            <Text style={tw.style(`text-tint-primary ${getFontSize(5)} mb-1`)}>
-              {label}
-            </Text>
-          )}
+          <View style={tw`flex flex-row justify-between items-center`}>
+            {!!label && (
+              <Text
+                style={tw.style(`text-tint-primary ${getFontSize(5)} mb-1`)}
+              >
+                {label}
+              </Text>
+            )}
+
+            {extra}
+          </View>
           {render(props)}
           <View style={tw`min-h-[16px]`}>
             {!!props.fieldState.error?.message && (

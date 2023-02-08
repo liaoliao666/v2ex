@@ -10,6 +10,7 @@ import {
   NavigationContainer,
 } from '@react-navigation/native'
 import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { Platform } from 'react-native'
@@ -75,7 +76,12 @@ export default function Navigation() {
   }, [colorScheme])
 
   return (
-    <NavigationContainer ref={navigationRef} linking={linking} theme={theme}>
+    <NavigationContainer
+      ref={navigationRef}
+      linking={linking}
+      theme={theme}
+      onReady={SplashScreen.hideAsync}
+    >
       <StackNavigator />
     </NavigationContainer>
   )

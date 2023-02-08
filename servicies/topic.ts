@@ -1,5 +1,5 @@
 import { load } from 'cheerio'
-import { isString } from 'lodash-es'
+import { isEqual, isString, pick } from 'lodash-es'
 import {
   createInfiniteQuery,
   createMutation,
@@ -33,7 +33,7 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>(
   }
 )
 
-export const useRecentTopics = createInfiniteQuery<PageData<Topic>, void>(
+export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
   'useRecentTopics',
   async ({ pageParam, signal }) => {
     const page = pageParam ?? 1
@@ -153,32 +153,50 @@ export const useWriteTopic = createMutation<
     title: string
     content?: string
     node_name: string
+    syntax: 'default' | 'markdown'
     once: string
   }
 >(args =>
-  request.post(
-    `/write`,
-    paramsSerializer({
-      ...args,
-      syntax: 'default',
-    }),
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
+  request.post(`/write`, paramsSerializer(args), {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+    },
+  })
+)
+
+export const useEditTopicInfo = createQuery<
+  { content: string; syntax: 'default' | 'markdown' },
+  { id: number }
+>(
+  'useEditTopicInfo',
+  async ({ queryKey: [, { id }], signal }) => {
+    const { data } = await request.get<string>(`/edit/topic/${id}`, {
+      responseType: 'text',
+      signal,
+    })
+    const $ = load(data)
+
+    return {
+      content: $('#topic_content').text(),
+      syntax:
+        $('#select_syntax option:selected').text() === 'Default'
+          ? 'default'
+          : 'markdown',
     }
-  )
+  },
+  { cacheTime: 0, staleTime: 0 }
 )
 
 export const useEditTopic = createMutation<
-  any,
+  void,
   {
     title: string
     content?: string
     node_name: string
+    syntax: 0 | 1
     prevTopic: Topic
   }
->(({ prevTopic, ...args }) => {
+>(async ({ prevTopic, ...args }) => {
   const promises = []
 
   if (args.node_name !== prevTopic.node?.name) {
@@ -197,15 +215,12 @@ export const useEditTopic = createMutation<
     )
   }
 
-  if (args.title !== prevTopic.title || args.content !== prevTopic.content) {
+  const keys = ['title', 'content', 'syntax']
+  if (!isEqual(pick(prevTopic, keys), pick(args, keys))) {
     promises.push(
       request.post(
         `/edit/topic/${prevTopic.id}`,
-        paramsSerializer({
-          title: args.title,
-          content: args.content,
-          syntax: 0,
-        }),
+        paramsSerializer(pick(args, keys)),
         {
           headers: {
             'Content-Type': 'application/x-www-form-urlencoded',
@@ -215,7 +230,7 @@ export const useEditTopic = createMutation<
     )
   }
 
-  return Promise.all(promises)
+  Promise.all(promises)
 })
 
 export const useAppendTopic = createMutation<

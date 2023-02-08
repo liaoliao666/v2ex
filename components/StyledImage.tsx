@@ -64,27 +64,27 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
     },
   }
 
-  return isStyle(style) && hasSize(style) ? (
+  const hasPassedSize = isStyle(style) && hasSize(style)
+
+  const isMiniImage =
+    isStyle(size) && hasSize(size) ? size.width < 50 && size.height < 50 : false
+
+  return (
     <FastImage
       {...imageProps}
-      style={isLoading ? tw.style(style, `bg-loading`) : style}
+      style={tw.style(
+        !hasPassedSize &&
+          (isMiniImage
+            ? size
+            : {
+                aspectRatio: size ? size.width / size.height : 1,
+                width: `100%`,
+              }),
+        !hasPassedSize && uriToSize.has(uri) && !uriToSize.get(uri) && `hidden`,
+        style as ViewStyle,
+        isLoading && `bg-loading`
+      )}
     />
-  ) : (
-    <View
-      style={{
-        aspectRatio: size ? size.width / size.height : 1,
-        display: uriToSize.has(uri) && !uriToSize.get(uri) ? 'none' : 'flex',
-      }}
-    >
-      <FastImage
-        {...imageProps}
-        style={tw.style(
-          style as ViewStyle,
-          `w-full h-full`,
-          isLoading && `bg-loading`
-        )}
-      />
-    </View>
   )
 }
 
@@ -103,7 +103,7 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
         wraperStyle: { aspectRatio: width / height },
       }
     },
-    { enabled: !!uri, staleTime: Infinity }
+    { enabled: !!uri, staleTime: Infinity, cacheTime: 1000 * 60 * 10 }
   )
 
   if (!svg?.xml) {

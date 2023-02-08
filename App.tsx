@@ -1,5 +1,6 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
+import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
@@ -28,6 +29,8 @@ import './utils/dayjsPlugins'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
 import { asyncStoragePersister, queryClient } from './utils/query'
 import tw from './utils/tw'
+
+SplashScreen.preventAutoHideAsync()
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',

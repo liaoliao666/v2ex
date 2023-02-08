@@ -1,23 +1,23 @@
 import { Ionicons } from '@expo/vector-icons'
 import { ComponentProps } from 'react'
 import {
+  Image,
   Modal,
   Pressable,
   Text,
   TouchableWithoutFeedback,
   View,
-  useWindowDimensions,
 } from 'react-native'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { isExpoGo } from '@/utils/isExpoGo'
 import { savePicture } from '@/utils/savePicture'
 import tw from '@/utils/tw'
 
 import { NAV_BAR_HEIGHT } from './NavBar'
-import StyledImage from './StyledImage'
 import StyledToast from './StyledToast'
 
 export interface StyledImageViewerProps
@@ -26,14 +26,17 @@ export interface StyledImageViewerProps
   onClose?: () => void
 }
 
+let FastImage = Image
+if (!isExpoGo) {
+  FastImage = require('react-native-fast-image')
+}
+
 export default function StyledImageViewer({
   visible,
   onClose,
   ...props
 }: StyledImageViewerProps) {
   const safeAreaInsets = useSafeAreaInsets()
-
-  const { width } = useWindowDimensions()
 
   return (
     <Modal
@@ -120,15 +123,7 @@ export default function StyledImageViewer({
             </Text>
           </View>
         )}
-        renderImage={imageProps => (
-          <StyledImage
-            {...imageProps}
-            style={{
-              ...props.style,
-              width,
-            }}
-          />
-        )}
+        renderImage={imageProps => <FastImage {...imageProps} />}
         {...props}
       />
 
