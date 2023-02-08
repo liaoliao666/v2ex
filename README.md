@@ -9,19 +9,21 @@
 ## 下载
 
 - [iOS App Store](https://apps.apple.com/cn/app/awesomev2ex/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.2.3/application-a5ee0dfe-8e6d-4e63-9bb4-75a62c2f6b85.apk)
+- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.2.4/application-f64ea4ad-61b3-4c6f-a577-b64d6b0802ea.apk)
 
 ## 本地运行
 
 [Expo 文档](https://docs.expo.dev/)
 
+## URL Scheme
+
+| 页面 | URL Scheme              | 例子                                   |
+| ---- | ----------------------- | -------------------------------------- |
+| 搜索 | `v2fun://search/query?` | `v2fun://search/v2fun这款应用怎么样？` |
+
 ## Issues
 
 希望做出贡献？ [Good First Issue][good-first-issue]
-
-## URL Scheme
-
-搜索页面 `v2fun://search/query?` 例子: `v2fun://search` or `v2fun://search/v2fun这款应用怎么样？`
 
 ### 🐛 Bugs
 
