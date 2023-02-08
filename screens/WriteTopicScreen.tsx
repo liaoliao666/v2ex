@@ -285,7 +285,6 @@ function WriteTopicScreen() {
               <StyledButton
                 shape="rounded"
                 onPress={() => setPreview(!preview)}
-                ghost={!preview}
               >
                 {preview ? '退出预览' : '预览'}
               </StyledButton>

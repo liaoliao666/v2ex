@@ -117,6 +117,7 @@ function NodeTopicsScreen() {
               type="button"
               stars={node?.stars}
               id={node?.id}
+              once={lastPage.once}
               liked={lastPage.liked}
               name={node?.name!}
             />
@@ -244,6 +245,8 @@ function LikeNode({
   const navigation = useNavigation()
 
   async function handleFavorite() {
+    console.log(111)
+
     if (!isSignined()) {
       navigation.navigate('Login')
       return
