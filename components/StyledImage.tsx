@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { load } from 'cheerio'
-import { isArray, isObject, isString } from 'lodash-es'
+import { isArray, isObject, isPlainObject, isString } from 'lodash-es'
 import { useState } from 'react'
 import {
   Image,
@@ -56,11 +56,9 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
       onLoad?.(ev)
     },
     onError(err) {
-      if (!uriToSize.has(uri)) {
-        setIsLoading(false)
-      }
-      onError?.(err)
       uriToSize.set(uri, undefined)
+      setIsLoading(false)
+      onError?.(err)
     },
   }
 
@@ -90,22 +88,35 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
 }
 
 function CustomSvgUri({ uri, style, ...props }: UriProps) {
-  const { data: svg } = useQuery(
+  const { data: svg, isError } = useQuery(
     [uri],
     async () => {
       const { data: xml } = await request.get<string>(uri!)
       const $ = load(xml)
       const $svg = $('svg')
-      const width = parseFloat($svg.attr('width') as string)
-      const height = parseFloat($svg.attr('height') as string)
+
+      let width: number
+      let height: number
+
+      if ($svg.attr('width') && $svg.attr('height')) {
+        width = parseFloat($svg.attr('width') as string)
+        height = parseFloat($svg.attr('height') as string)
+      } else {
+        const viewBox = $svg.attr('viewBox') || ''
+        ;[, , width, height] = viewBox
+          .split(viewBox.includes(',') ? ',' : ' ')
+          .map(parseFloat)
+      }
 
       return {
         xml,
-        wraperStyle: { aspectRatio: width / height },
+        wraperStyle: { aspectRatio: width / height || 1, width: '100%' },
       }
     },
     { enabled: !!uri, staleTime: Infinity, cacheTime: 1000 * 60 * 10 }
   )
+
+  if (isError) return null
 
   if (!svg?.xml) {
     return (
@@ -119,18 +130,21 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
     )
   }
 
-  return isStyle(style) && hasSize(style) ? (
-    <SvgXml {...props} xml={svg.xml} style={style} />
-  ) : (
-    <View style={svg.wraperStyle}>
-      <SvgXml
-        {...props}
-        xml={svg.xml}
-        width="100%"
-        height="100%"
-        style={style}
-      />
-    </View>
+  return (
+    <SvgXml
+      {...props}
+      xml={svg.xml}
+      style={
+        isArray(style)
+          ? [svg.wraperStyle, ...style]
+          : {
+              ...svg.wraperStyle,
+              // @ts-ignore
+              ...(isPlainObject(style) ? style : {}),
+            }
+      }
+      width="100%"
+    />
   )
 }
 

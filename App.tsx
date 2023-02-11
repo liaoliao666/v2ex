@@ -17,6 +17,7 @@ import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
+import { enabledParseImageAtom } from './jotai/enabledParseImage'
 import { fontScaleAtom } from './jotai/fontSacleAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
@@ -80,6 +81,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       enabledAutoCheckinAtom,
       enabledMsgPushAtom,
       fontScaleAtom,
+      enabledParseImageAtom,
     ])
   )
 

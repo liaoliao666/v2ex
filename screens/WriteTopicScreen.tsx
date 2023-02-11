@@ -331,7 +331,7 @@ function PreviewTopic({
         </Text>
       )}
 
-      {isString(data) && <Html source={{ html: data }} youtubePaddingX={32} />}
+      {isString(data) && <Html source={{ html: data }} paddingX={32} />}
     </Fragment>
   )
 }

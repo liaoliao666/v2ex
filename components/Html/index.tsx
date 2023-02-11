@@ -72,9 +72,9 @@ export default memo(
 
 function Html({
   inModalScreen,
-  youtubePaddingX,
+  paddingX = 32,
   ...renderHTMLProps
-}: RenderHTMLProps & { inModalScreen?: boolean; youtubePaddingX?: number }) {
+}: RenderHTMLProps & { inModalScreen?: boolean; paddingX?: number }) {
   const mergedProps = {
     ...defaultProps,
     ...renderHTMLProps,
@@ -122,9 +122,9 @@ function Html({
               imageUrls,
             })
           },
-          youtubePaddingX,
+          paddingX,
         }),
-        [imageUrls, setImageViewer, youtubePaddingX, inModalScreen]
+        [imageUrls, setImageViewer, paddingX, inModalScreen]
       )}
     >
       <RenderHtml

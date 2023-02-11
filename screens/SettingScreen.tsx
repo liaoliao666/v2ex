@@ -18,6 +18,7 @@ import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
+import { enabledParseImageAtom } from '@/jotai/enabledParseImage'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
@@ -47,6 +48,10 @@ function SettingScreen() {
   const [enabledMsgPush, setEnabledMsgPush] = useAtom(enabledMsgPushAtom)
 
   const [fontScale, setFontScale] = useAtom(fontScaleAtom)
+
+  const [enabledParseImage, setEnabledParseImage] = useAtom(
+    enabledParseImageAtom
+  )
 
   const isSignined = !!profile?.once
 
@@ -126,6 +131,40 @@ function SettingScreen() {
             />
           </Fragment>
         )}
+
+        <ListItem
+          label="图片解析"
+          icon={
+            <Feather
+              color={tw.color(`text-tint-primary`)}
+              size={24}
+              name={'image'}
+            />
+          }
+          action={
+            <Switch
+              value={enabledParseImage}
+              trackColor={
+                Platform.OS === 'android'
+                  ? undefined
+                  : { true: `rgb(26,140,216)` }
+              }
+              onValueChange={async () => {
+                try {
+                  if (!enabledParseImage)
+                    await confirm(
+                      '不限定图床',
+                      '并支持 3 种方式：图片URL、![]()、<img />'
+                    )
+                  setEnabledParseImage(!enabledParseImage)
+                } catch (error) {
+                  // empty
+                }
+              }}
+            />
+          }
+          pressable={false}
+        />
 
         <ListItem
           label="字体大小"

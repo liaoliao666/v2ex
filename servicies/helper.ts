@@ -1,4 +1,4 @@
-import { Cheerio, CheerioAPI, Element } from 'cheerio'
+import { Cheerio, CheerioAPI, Element, load } from 'cheerio'
 import { defaultTo } from 'lodash-es'
 import { isString } from 'twrnc/dist/esm/types'
 
@@ -225,7 +225,8 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
           id,
           no: +$reply.find('.no').text(),
           created: $reply.find('.ago').text().trim(),
-          content,
+          content: content,
+          parsed_content: parseImage(content),
           thanks: parseInt($reply.find('.small.fade').text() || '0', 10),
           thanked: !!$reply.find('.thanked').length,
           op: !!$reply.find('.badge.op').length,
@@ -409,4 +410,153 @@ export function parseRank($: CheerioAPI) {
     })
     .get()
     .filter(item => !!item.username)
+}
+
+export function parseImage(str: string) {
+  type Replacer = Parameters<typeof String['prototype']['replace']>[1]
+
+  const regex_common_imgurl = /\/.+\.(jpeg|jpg|gif|png|svg)$/
+  function is_common_img_url(url: string) {
+    // 常见的图片URL
+    return url.match(regex_common_imgurl) != null
+  }
+
+  const regex_imgur_imgurl = /^https?:\/\/imgur\.com\/[a-zA-Z0-9]{7}$/
+  function is_imgur_url(url: string) {
+    // 是否属于imgur的图片URL
+    return url.match(regex_imgur_imgurl) != null
+  }
+
+  function is_img_url(url: string) {
+    return is_common_img_url(url) || is_imgur_url(url)
+  }
+
+  function convert_img_url(url: string) {
+    url = url.replace(/ /g, '')
+    // https://imgur.com/s9vHWcC
+    if (is_imgur_url(url)) {
+      url += '.png'
+    }
+    if (is_img_url(url)) {
+      // not starts with `http`
+      if (
+        !(
+          url.startsWith('//') ||
+          url.startsWith('http://') ||
+          url.startsWith('https://')
+        )
+      ) {
+        url = 'https://' + url
+      }
+    }
+    return url
+  }
+
+  const regex_mdimg = /(?:!\[(.*?)\]\s*\((.*?)\))/g
+  const replacer_mdimg2htmlimg: Replacer = (
+    match,
+    p1,
+    p2,
+    _offset,
+    _string
+  ) => {
+    p2 = convert_img_url(p2)
+    if (is_common_img_url(p2)) {
+      show_parsed = true
+      let t = `<a target="_blank" href="${p2}"><img src="${p2}" alt="${p1}" /></a>`
+      return t
+    }
+    return match
+  }
+
+  // eslint-disable-next-line no-useless-escape
+  const regex_html_imgtag = /&lt;img.*?src="(.*?)"[^\>]*&gt;/g
+  const replacer_plainimgtag2imgtag: Replacer = (
+    match,
+    p,
+    _offset,
+    _string
+  ) => {
+    p = convert_img_url(p)
+    return `<a target="_blank" href="${p}"><img src="${p}" /></a>`
+  }
+
+  const regex_dirty_html = /<(?:\/|)script>/g
+  const replace_dirty2escape: Replacer = (p, _offset, _string) => {
+    return p.startsWith('<s') ? '&lt;script&gt;' : '&lt;/script&gt;'
+  }
+
+  const regex_url =
+    // eslint-disable-next-line no-useless-escape
+    /((http(s)?:)?\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
+  const replacer_url2img: Replacer = (match, _offset, _string) => {
+    if (is_common_img_url(match)) {
+      let t = `<a target="_blank" href="${match}"><img src="${match}" /></a>`
+      return t
+    }
+    return match
+  }
+
+  let show_parsed = false
+
+  let $ = load(str),
+    j = 0
+
+  // 1. 恢复出原始文本
+
+  let imgs = $('img'),
+    n_imgs = imgs.length
+  for (j = 0; j < n_imgs; j++) {
+    // 1.1 用<img>中的src替换<img>
+    let img = $(imgs[j]),
+      img_url = img.attr('src')
+    img.replaceWith(img_url || '')
+  }
+
+  let links = $(`a`),
+    n_links = links.length
+  for (j = 0; j < n_links; j++) {
+    // 1.2 用<a>中的text替换<a>
+    let a = $(links[j]),
+      href = a.attr('href'),
+      text = a.text()
+    text = text.replace(/ /g, '')
+    if (is_img_url(href || '') && is_img_url(text)) {
+      // or less strict: has_img_url(text)
+      a.replaceWith(convert_img_url(text))
+    }
+  }
+
+  // 2. 重新解析文本
+  let html = $.html()
+  html = html.replace(regex_mdimg, replacer_mdimg2htmlimg) // 2.1 转换markdown格式的图片![]()
+
+  $ = load(html)
+
+  html = html.replace(regex_html_imgtag, replacer_plainimgtag2imgtag) // 2.2 转换html <img>格式的图片<img />
+
+  $ = load(html)
+
+  let contents = $(`body`).eq(0).contents()
+
+  for (j = 0; j < contents.length; j++) {
+    // 2.3 转换plain image url
+    const content = $(contents[j])
+    if (content[0].nodeType === 3) {
+      // text
+      let text = $(content).text()
+      if (regex_url.test(text)) {
+        text = text.replace(regex_url, replacer_url2img)
+        $(contents[j]).replaceWith(text)
+      }
+    }
+  }
+
+  //3.替换脏字符为转义字符
+  html = $.html()
+  html = html.replace(regex_dirty_html, replace_dirty2escape) // 3.1 将脏字符替换为转义字符
+
+  return show_parsed || load(str)('img').length < $('img').length
+    ? html
+    : undefined
 }

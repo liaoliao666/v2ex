@@ -11,7 +11,7 @@ import { HtmlContext } from './HtmlContext'
 const aspectRatio = 1.778523489932886
 
 const IFrameRenderer: CustomBlockRenderer = ({ tnode }) => {
-  const { youtubePaddingX = 32 } = useContext(HtmlContext)
+  const { paddingX } = useContext(HtmlContext)
 
   const videoId = useMemo(() => {
     const $ = load(tnode.domNode as unknown as string)
@@ -23,7 +23,7 @@ const IFrameRenderer: CustomBlockRenderer = ({ tnode }) => {
 
   if (!videoId) return null
 
-  const witdh = layout.width - youtubePaddingX
+  const witdh = layout.width - paddingX
   const height = witdh / aspectRatio
 
   return (

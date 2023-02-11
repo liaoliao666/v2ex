@@ -82,6 +82,7 @@ export interface Reply {
   id: number
   no: number
   content: string
+  parsed_content?: string
   created: string
   member: {
     username: string
@@ -105,6 +106,7 @@ export interface Topic {
   last_touched?: string
   title: string
   content: string
+  parsed_content?: string
   last_modified?: string
   replies: Reply[]
   votes: number

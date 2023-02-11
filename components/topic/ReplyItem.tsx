@@ -4,11 +4,12 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact, find, findIndex, isBoolean } from 'lodash-es'
-import { Fragment, memo } from 'react'
+import { Fragment, memo, useState } from 'react'
 import { Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
+import { enabledParseImageAtom } from '@/jotai/enabledParseImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -28,6 +29,7 @@ import tw from '@/utils/tw'
 
 import Html from '../Html'
 import IconButton from '../IconButton'
+import Separator from '../Separator'
 import Space from '../Space'
 import StyledImage from '../StyledImage'
 
@@ -58,6 +60,10 @@ function ReplyItem({
 }) {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+
+  const [isParsingImage, setIsParsingImage] = useState(
+    store.get(enabledParseImageAtom)!
+  )
 
   return (
     <View
@@ -134,15 +140,39 @@ function ReplyItem({
             </Text>
           </View>
 
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            {reply.created}
-          </Text>
+          <Separator>
+            {compact([
+              <Text
+                key={'created'}
+                style={tw`text-tint-secondary ${getFontSize(6)}`}
+              >
+                {reply.created}
+              </Text>,
+
+              reply.parsed_content && (
+                <Text
+                  key={'isParsingImage'}
+                  style={tw`text-primary-focus ${getFontSize(6)}`}
+                  onPress={() => {
+                    setIsParsingImage(!isParsingImage)
+                  }}
+                >
+                  {isParsingImage ? `显示原始回复` : `隐藏原始回复`}
+                </Text>
+              ),
+            ])}
+          </Separator>
 
           <View style={tw`pt-0.5`}>
             <Html
-              source={{ html: reply.content }}
+              source={{
+                html:
+                  isParsingImage && reply.parsed_content
+                    ? reply.parsed_content
+                    : reply.content,
+              }}
               inModalScreen={inModalScreen}
-              youtubePaddingX={32 + 36}
+              paddingX={32 + 36}
             />
           </View>
 

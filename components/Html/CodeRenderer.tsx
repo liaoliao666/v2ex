@@ -2,7 +2,7 @@ import { load } from 'cheerio'
 import hljs from 'highlight.js'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import { ScrollView, useWindowDimensions } from 'react-native'
+import { ScrollView, View, useWindowDimensions } from 'react-native'
 import RenderHTML, {
   CustomBlockRenderer,
   MixedStyleDeclaration,
@@ -17,7 +17,7 @@ import TextRenderer from './TextRenderer'
 const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const { width } = useWindowDimensions()
 
-  const html = useMemo(() => {
+  const { html, hasHtmlTag } = useMemo(() => {
     const $ = load(tnode.domNode as unknown as string)
     const $code = $('code')
     const language = $code
@@ -26,23 +26,28 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
       .find(cls => cls.startsWith('language-'))
       ?.replace(`language-`, '')
     const text = $code.text()
-
-    return `<pre><code>${
+    const value =
       language && hljs.listLanguages().includes(language)
         ? hljs.highlight(text, { language }).value
         : hljs.highlightAuto(text).value
-    }</code></pre>`
+
+    return {
+      html: `<pre><code>${value}</code></pre>`,
+      hasHtmlTag: !!value?.match(/<\/\w+/),
+    }
   }, [tnode.domNode])
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const baseStyle = tw.style(getFontSize(5))
 
+  const Wrap = hasHtmlTag ? ScrollView : View
+
   return (
-    <ScrollView
+    <Wrap
       horizontal
       nestedScrollEnabled
-      style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded px-2`)}
+      style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded p-2`)}
     >
       <RenderHTML
         contentWidth={width}
@@ -77,7 +82,7 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         source={{ html }}
         renderers={{ _TEXT_: TextRenderer }}
       />
-    </ScrollView>
+    </Wrap>
   )
 }
 
