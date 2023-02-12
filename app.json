@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.2.5.2"
+      "buildNumber": "1.2.5.5"
     },
     "android": {
       "adaptiveIcon": {

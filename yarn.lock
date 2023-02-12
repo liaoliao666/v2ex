@@ -4238,6 +4238,11 @@ expo-modules-core@1.1.1:
     compare-versions "^3.4.0"
     invariant "^2.2.4"
 
+expo-sharing@~11.0.1:
+  version "11.0.1"
+  resolved "https://registry.yarnpkg.com/expo-sharing/-/expo-sharing-11.0.1.tgz#a2c6beb7458e04762a53b584c3b7b79ae422e2da"
+  integrity sha512-GlI2+fRxfdCNUftFPfqhbCSd6OQaVf/WNAADWZnRanRQRbQdQjM6L0oMmUTwQStc36cmzl+vGgNlouwdmTDseA==
+
 expo-splash-screen@~0.17.5:
   version "0.17.5"
   resolved "https://mirrors.cloud.tencent.com/npm/expo-splash-screen/-/expo-splash-screen-0.17.5.tgz#a18dc59c1cc28ebbedbf0a7529a419d18ab0b311"

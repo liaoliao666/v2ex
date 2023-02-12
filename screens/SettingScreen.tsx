@@ -153,7 +153,7 @@ function SettingScreen() {
                 try {
                   if (!enabledParseImage)
                     await confirm(
-                      '不限定图床',
+                      '开启后不限定图床',
                       '并支持 3 种方式：图片URL、![]()、<img />'
                     )
                   setEnabledParseImage(!enabledParseImage)
@@ -178,6 +178,7 @@ function SettingScreen() {
           action={
             <RadioButtonGroup
               options={[
+                { label: '小', value: 'small' },
                 { label: '中', value: 'medium' },
                 { label: '大', value: 'large' },
                 { label: '超大', value: 'super' },

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
+import * as Sharing from 'expo-sharing'
 import { ComponentProps } from 'react'
 import {
   Image,
@@ -60,6 +61,24 @@ export default function StyledImageViewer({
             >
               {[
                 {
+                  label: '分享',
+                  value: 'share',
+                  onPress: async () => {
+                    try {
+                      const url = await savePicture(
+                        props.imageUrls[props.index!].url
+                      )
+                      await Sharing.shareAsync(url)
+                    } catch (error) {
+                      Toast.show({
+                        type: 'error',
+                        text1:
+                          error instanceof Error ? error.message : '分享失败',
+                      })
+                    }
+                  },
+                },
+                {
                   label: '保存',
                   value: 'saveToLocal',
                   onPress: saveToLocal,
@@ -98,7 +117,7 @@ export default function StyledImageViewer({
           } catch (error) {
             Toast.show({
               type: 'error',
-              text1: '保存失败',
+              text1: error instanceof Error ? error.message : '保存失败',
             })
           }
         }}

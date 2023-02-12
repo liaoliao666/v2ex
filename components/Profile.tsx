@@ -13,7 +13,6 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Money from '@/components/Money'
-import Space from '@/components/Space'
 import StyledImage from '@/components/StyledImage'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -138,7 +137,7 @@ function Profile() {
               }}
               style={tw`flex-row items-center`}
             >
-              <Text style={tw`text-tint-secondary text-[15px] mr-1`}>
+              <Text style={tw`text-tint-secondary mr-1 ${getFontSize(5)}`}>
                 个人主页
               </Text>
               <SimpleLineIcons
@@ -149,8 +148,11 @@ function Profile() {
             </TouchableOpacity>
           </View>
 
-          <Space style={tw`pt-2`}>
-            <Text style={tw`text-tint-primary text-[20px] leading-6 font-bold`}>
+          <View style={tw`pt-2 flex-row items-center`}>
+            <Text
+              style={tw`text-tint-primary text-[20px] leading-6 font-bold flex-shrink mr-2`}
+              numberOfLines={1}
+            >
               {profile?.username}
             </Text>
 
@@ -158,7 +160,7 @@ function Profile() {
               style={tw`mt-1`}
               {...pick(profile, ['gold', 'silver', 'bronze'])}
             />
-          </Space>
+          </View>
 
           {!!profile?.motto && (
             <Text style={tw`text-tint-secondary ${getFontSize(5)} mt-2`}>

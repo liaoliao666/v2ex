@@ -8,22 +8,37 @@ module.exports = function androiManifestPlugin(config) {
     androidManifest.queries.push({
       intent: [
         {
-          action: [
-            {
-              $: {
-                'android:name': 'android.intent.action.SEND_MULTIPLE',
-              },
-            },
-          ],
-          data: [
-            {
-              $: {
-                'android:mimeType': '*/*',
-              },
-            },
-          ],
+          name: 'android.intent.action.VIEW',
+          scheme: 'http',
         },
-      ],
+        {
+          name: 'android.intent.action.VIEW',
+          scheme: 'https',
+        },
+        {
+          name: 'android.intent.action.VIEW',
+          scheme: 'geo',
+        },
+        {
+          name: 'android.intent.action.VIEW',
+          scheme: 'google.navigation',
+        },
+      ].map(item => ({
+        action: [
+          {
+            $: {
+              'android:name': item.name,
+            },
+          },
+        ],
+        data: [
+          {
+            $: {
+              'android:scheme': item.scheme,
+            },
+          },
+        ],
+      })),
     })
 
     return config

@@ -33,6 +33,7 @@
     "expo-font": "~11.0.1",
     "expo-linking": "~3.3.0",
     "expo-media-library": "~15.0.0",
+    "expo-sharing": "~11.0.1",
     "expo-splash-screen": "~0.17.5",
     "expo-status-bar": "~1.4.2",
     "expo-updates": "~0.15.6",
