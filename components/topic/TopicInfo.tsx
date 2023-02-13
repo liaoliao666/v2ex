@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact } from 'lodash-es'
 import { Fragment, ReactElement } from 'react'
-import { Pressable, Share, Text, View } from 'react-native'
+import { Platform, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
@@ -468,10 +468,17 @@ function MoreButton({
                 break
 
               case options.indexOf('分享'):
-                Share.share({
-                  title: topic.title,
-                  url: `${baseURL}/t/${topic.id}`,
-                })
+                Share.share(
+                  Platform.OS === 'android'
+                    ? {
+                        title: topic.title,
+                        message: `${baseURL}/t/${topic.id}`,
+                      }
+                    : {
+                        title: topic.title,
+                        url: `${baseURL}/t/${topic.id}`,
+                      }
+                )
                 break
 
               case destructiveButtonIndex: {

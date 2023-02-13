@@ -87,7 +87,7 @@ export default function StyledButton({
           {
             middle: tw`h-9 px-4`,
             large: tw`h-[52px] px-8`,
-            small: tw`h-7 px-3`,
+            small: tw`h-8 px-3`,
             mini: tw`px-1 py-0.5`,
           }[size],
           {

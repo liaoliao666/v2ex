@@ -264,6 +264,13 @@ function SoV2exList({
           ) : null}
         </SafeAreaView>
       }
+      ListEmptyComponent={
+        <View style={tw`items-center justify-center py-16`}>
+          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
+            暂无搜索结果
+          </Text>
+        </View>
+      }
     />
   )
 }

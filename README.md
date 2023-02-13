@@ -9,7 +9,7 @@
 ## 下载
 
 - [iOS App Store](https://apps.apple.com/cn/app/awesomev2ex/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.2.5/application-c59088b5-a047-48da-8122-36ce5af4ed41.apk)
+- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.2.5/application-ff08ef30-7b05-4ab3-832b-7e28497816fc.apk)
 
 ## 本地运行
 

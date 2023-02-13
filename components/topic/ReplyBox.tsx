@@ -163,7 +163,7 @@ const ReplyBox = forwardRef<
             shape="rounded"
             type="secondary"
             size="small"
-            pressable={getContent().length > 2}
+            pressable={!!getContent().trim()}
             onPress={async () => {
               if (!isSignined()) {
                 navigation.navigate('Login')

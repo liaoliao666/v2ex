@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo, useState } from 'react'
-import { Pressable, Share, Text, View } from 'react-native'
+import { Platform, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
@@ -376,12 +376,20 @@ function MoreButton({
           async selectedIndex => {
             switch (selectedIndex) {
               case options.indexOf('分享'):
-                Share.share({
-                  title: reply.content,
-                  url: `${baseURL}/t/${topicId}?p=${Math.ceil(
-                    reply.no / 100
-                  )}#r_${reply.id}`,
-                })
+                const url = `${baseURL}/t/${topicId}?p=${Math.ceil(
+                  reply.no / 100
+                )}#r_${reply.id}`
+                Share.share(
+                  Platform.OS === 'android'
+                    ? {
+                        title: reply.content,
+                        message: url,
+                      }
+                    : {
+                        title: reply.content,
+                        url: url,
+                      }
+                )
                 break
 
               case destructiveButtonIndex: {
