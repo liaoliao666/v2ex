@@ -17,7 +17,7 @@ import { request } from '@/utils/request'
 import tw from '@/utils/tw'
 
 export default withQuerySuspense(GItHubMDScreen, {
-  Loading: () => {
+  LoadingComponent: () => {
     const { params } = useRoute<RouteProp<RootStackParamList, 'GItHubMD'>>()
 
     return (

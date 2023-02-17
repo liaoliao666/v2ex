@@ -11,10 +11,8 @@ export function getURLSearchParams(url: string): Record<string, string> {
   return params
 }
 
-export function resolveUrl(url: string) {
-  if (url.startsWith('//')) {
-    return `https:${url}`
-  }
+export function resolveURL(url: string) {
+  if (url.startsWith('//')) return `https:${url}`
   if (url.startsWith('about://')) return url.replace('about://', baseURL)
   if (url.startsWith('https://v2ex.com'))
     return url.replace('https://v2ex.com', baseURL)
@@ -22,7 +20,7 @@ export function resolveUrl(url: string) {
   return url
 }
 
-export function isSvgUrl(url: string) {
+export function isSvgURL(url: string) {
   return url.endsWith('.svg')
 }
 

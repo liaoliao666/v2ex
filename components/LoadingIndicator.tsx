@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { ActivityIndicatorProps, ViewStyle } from 'react-native'
+import { ActivityIndicatorProps, Platform, ViewStyle } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import tw from '@/utils/tw'
@@ -8,7 +8,7 @@ import StyledActivityIndicator from './StyledActivityIndicator'
 
 export default function LoadingIndicator({
   style,
-  size = 'large',
+  size = Platform.OS === 'ios' ? 'small' : 'large',
 }: {
   style?: ViewStyle
   size?: ActivityIndicatorProps['size']

@@ -72,7 +72,7 @@ export default function TopicInfo({
 
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center`}>
-            <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
+            <Text style={tw`text-tint-primary ${getFontSize(4)} font-semibold`}>
               {topic.member?.username}
             </Text>
           </View>
@@ -104,7 +104,7 @@ export default function TopicInfo({
       </View>
 
       <Text
-        style={tw`text-tint-primary ${getFontSize(3)} font-bold pt-2`}
+        style={tw`text-tint-primary ${getFontSize(3)} font-medium pt-2`}
         selectable
       >
         {topic.title}
@@ -489,7 +489,7 @@ function MoreButton({
 
                 if (ignoreTopicMutation.isLoading) return
 
-                await confirm('确定忽略该主题么?')
+                if (!topic.ignored) await confirm(`确定忽略该主题么?`)
 
                 try {
                   await ignoreTopicMutation.mutateAsync({
@@ -507,14 +507,22 @@ function MoreButton({
                   const tab =
                     store.get(homeTabsAtom)?.[store.get(homeTabIndexAtom)!]?.key
                   if (tab === 'recent') {
-                    queryClient.refetchQueries(useRecentTopics.getKey())
+                    queryClient.refetchQueries(useRecentTopics.getKey(), {
+                      type: 'active',
+                    })
                   } else {
                     queryClient.refetchQueries(
                       useTabTopics.getKey({
                         tab,
-                      })
+                      }),
+                      {
+                        type: 'active',
+                      }
                     )
                   }
+                  queryClient.refetchQueries(useIgnoreTopic.getKey(), {
+                    type: 'active',
+                  })
 
                   Toast.show({
                     type: 'success',

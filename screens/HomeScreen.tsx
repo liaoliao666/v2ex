@@ -17,6 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
 import Badge from '@/components/Badge'
+import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
 import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import {
@@ -331,13 +332,7 @@ function TabTopics({
       ItemSeparatorComponent={LineSeparator}
       ListFooterComponent={<SafeAreaView edges={['bottom']} />}
       renderItem={renderItem}
-      ListEmptyComponent={
-        <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            目前还没有主题
-          </Text>
-        </View>
-      }
+      ListEmptyComponent={<Empty description="目前还没有主题" />}
     />
   )
 }

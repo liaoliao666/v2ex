@@ -20,6 +20,7 @@ import {
   Linking,
   ListRenderItem,
   NativeScrollEvent,
+  Platform,
   Pressable,
   ScrollViewProps,
   Text,
@@ -34,11 +35,12 @@ import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
-import DebouncePressable from '@/components/DebouncePressable'
+import DebouncedPressable from '@/components/DebouncedPressable'
+import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import Money from '@/components/Money'
-import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
+import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
@@ -50,7 +52,9 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
+import { blackListAtom } from '@/jotai/blackListAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
   useBlockMember,
@@ -67,10 +71,11 @@ import tw from '@/utils/tw'
 import useMount from '@/utils/useMount'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
-const topBarBgCls = `bg-[#333344]`
+const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
+const TAB_VIEW_MARGIN_TOP = -2
 
 export default withQuerySuspense(MemberDetailScreen, {
-  Loading: () => (
+  LoadingComponent: () => (
     <MemberDetailSkeleton>
       <LoadingIndicator />
     </MemberDetailSkeleton>
@@ -86,11 +91,11 @@ function MemberDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   useMount(() => {
-    queryClient.prefetchQuery(
+    queryClient.prefetchInfiniteQuery(
       useMemberTopics.getKey({ username: params.username }),
       useMemberTopics.queryFn
     )
-    queryClient.prefetchQuery(
+    queryClient.prefetchInfiniteQuery(
       useMemberReplies.getKey({ username: params.username }),
       useMemberReplies.queryFn
     )
@@ -120,24 +125,40 @@ function MemberDetailScreen() {
 
   const [index, setIndex] = useState(0)
 
-  const [headerHeight, setHeaderHeight] = useState(0)
-
   const [avatarVisible, setAvatarVisible] = useState(true)
+
+  const [headerHeight, setHeaderHeight] = useState(0)
 
   const scrollYRef = useRef(new Animated.Value(0))
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const bgCls = avatarVisible ? TOP_BAR_BG_CLS : `bg-[rgba(51,51,68,.95)]`
+
+  const contentContainerStyle = {
+    minHeight:
+      layout.height -
+      useNavBarHeight() +
+      headerHeight +
+      (Platform.OS === 'android' ? NAV_BAR_HEIGHT : 0) -
+      TAB_VIEW_MARGIN_TOP,
+    paddingTop: headerHeight ? headerHeight + NAV_BAR_HEIGHT : 0,
+  }
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
-      <NavBar
-        style={tw.style(topBarBgCls)}
-        tintColor="#fff"
-        statusBarStyle="light"
-      >
+      <NavBar style={tw.style(bgCls)} tintColor="#fff" statusBarStyle="light">
         {!avatarVisible && (
           <View style={tw`flex-row items-center flex-1`}>
-            <Text style={tw`text-white ${getFontSize(4)} font-bold mr-auto`}>
+            <StyledImage
+              style={tw`w-5 h-5 rounded-full mr-2`}
+              source={{ uri: member?.avatar }}
+            />
+
+            <Text
+              style={tw`text-white ${getFontSize(4)} font-semibold flex-1 mr-2`}
+              numberOfLines={1}
+            >
               {member?.username}
             </Text>
 
@@ -147,7 +168,7 @@ function MemberDetailScreen() {
       </NavBar>
 
       <TabView
-        style={tw`-mt-0.5`}
+        style={{ marginTop: TAB_VIEW_MARGIN_TOP }}
         key={colorScheme}
         navigationState={{ index, routes }}
         lazy
@@ -157,9 +178,7 @@ function MemberDetailScreen() {
 
           const senceProps = {
             ref: route.ref,
-            contentContainerStyle: {
-              paddingTop: headerHeight ? headerHeight + NAV_BAR_HEIGHT : 0,
-            },
+            contentContainerStyle,
             onScroll: Animated.event(
               [{ nativeEvent: { contentOffset: { y: scrollYRef.current } } }],
               {
@@ -231,7 +250,7 @@ function MemberDetailScreen() {
                 pointerEvents="box-none"
                 style={tw`bg-body-1`}
               >
-                <MemberHeader />
+                <MemberHeader bgCls={bgCls} />
               </View>
 
               <TabBar
@@ -278,7 +297,7 @@ function MemberDetailScreen() {
   )
 }
 
-const MemberHeader = memo(() => {
+const MemberHeader = memo(({ bgCls }: { bgCls: string }) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data: member } = useMember({
@@ -287,7 +306,7 @@ const MemberHeader = memo(() => {
 
   return (
     <Fragment>
-      <View pointerEvents="none" style={tw.style(topBarBgCls, `pt-10 px-4`)} />
+      <View pointerEvents="none" style={tw.style(bgCls, `pt-10 px-4`)} />
 
       <View style={tw`-mt-8 px-4 flex-row`}>
         <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
@@ -315,7 +334,10 @@ const MemberHeader = memo(() => {
         style={tw`mt-3 px-4`}
       >
         <Space>
-          <Text style={tw`text-tint-primary ${getFontSize(2)} font-extrabold`}>
+          <Text
+            style={tw`text-tint-primary ${getFontSize(2)} font-extrabold`}
+            selectable
+          >
             {member?.username}
           </Text>
 
@@ -355,7 +377,7 @@ const MemberHeader = memo(() => {
         {some([member?.company, member?.title]) && (
           <View style={tw`flex-row flex-wrap`}>
             {member?.company && (
-              <Text style={tw`font-bold text-tint-primary ${getFontSize(5)}`}>
+              <Text style={tw`font-medium text-tint-primary ${getFontSize(5)}`}>
                 🏢 {member.company}
               </Text>
             )}
@@ -447,7 +469,7 @@ const MemberTopics = forwardRef<
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
+    () => uniqBy(data?.pages?.map(page => page.list).flat(), 'id'),
     [data?.pages]
   )
 
@@ -482,11 +504,7 @@ const MemberTopics = forwardRef<
         </SafeAreaView>
       }
       ListEmptyComponent={
-        <View style={tw`items-center justify-center py-16 px-4`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            {last(data?.pages)?.hidden_text}
-          </Text>
-        </View>
+        <Empty description={last(data?.pages)?.hidden_text} />
       }
     />
   )
@@ -549,13 +567,7 @@ const MemberReplies = forwardRef<
           ) : null}
         </SafeAreaView>
       }
-      ListEmptyComponent={
-        <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            目前还没有回复
-          </Text>
-        </View>
-      }
+      ListEmptyComponent={<Empty description="目前还没有回复" />}
     />
   )
 })
@@ -574,7 +586,7 @@ const MemberReply = memo(
     const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
     return (
-      <DebouncePressable
+      <DebouncedPressable
         key={topic.id}
         style={tw`px-4 py-3 bg-body-1`}
         onPress={() => {
@@ -593,7 +605,7 @@ const MemberReply = memo(
           </StyledButton>
 
           <Separator>
-            <Text style={tw`text-tint-primary ${getFontSize(5)} font-bold`}>
+            <Text style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}>
               {topic.member?.username}
             </Text>
 
@@ -623,7 +635,7 @@ const MemberReply = memo(
             defaultTextProps={{ selectable: false }}
           />
         </View>
-      </DebouncePressable>
+      </DebouncedPressable>
     )
   },
   (prev, next) =>
@@ -695,7 +707,7 @@ function BlockMember({
     <StyledButton
       shape="rounded"
       ghost
-      textProps={{ style: tw`font-bold` }}
+      textProps={{ style: tw`font-semibold` }}
       onPress={async () => {
         if (!isSignined()) {
           navigation.navigate('Login')
@@ -716,6 +728,18 @@ function BlockMember({
             type: blocked ? 'unblock' : 'block',
             once,
           })
+
+          if (blocked) {
+            store.set(blackListAtom, prev => ({
+              ...prev,
+              blockers: prev.blockers.filter(o => o === id),
+            }))
+          } else {
+            store.set(blackListAtom, prev => ({
+              ...prev,
+              blockers: [...new Set([...prev.blockers, id])],
+            }))
+          }
         } catch (error) {
           updateMember({
             username,
@@ -737,11 +761,15 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <NavBar
-        style={tw.style(topBarBgCls)}
+        style={tw.style(TOP_BAR_BG_CLS)}
         tintColor="#fff"
         statusBarStyle="light"
       />
-      <View style={tw.style(topBarBgCls, `pt-10 px-4 -mt-0.5`)} />
+      <View
+        style={tw.style(TOP_BAR_BG_CLS, `pt-10 px-4`, {
+          marginTop: TAB_VIEW_MARGIN_TOP,
+        })}
+      />
 
       <View style={tw`-mt-8 px-4 flex-row`}>
         <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>

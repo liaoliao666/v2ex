@@ -17,6 +17,7 @@ import { Platform } from 'react-native'
 
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import BlackListScreen from '@/screens/BlackListScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import LoginScreen from '@/screens/LoginScreen'
@@ -41,6 +42,7 @@ import TopicDetailScreen from '@/screens/TopicDetailScreen'
 import WebSigninScreen from '@/screens/WebSigninScreen'
 import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
+import { sleep } from '@/utils/sleep'
 import tw from '@/utils/tw'
 
 import linking from './LinkingConfiguration'
@@ -80,7 +82,7 @@ export default function Navigation() {
       ref={navigationRef}
       linking={linking}
       theme={theme}
-      onReady={SplashScreen.hideAsync}
+      onReady={() => sleep(500).then(SplashScreen.hideAsync)}
     >
       <StackNavigator />
     </NavigationContainer>
@@ -192,6 +194,8 @@ function StackNavigator() {
       <Stack.Screen name="Setting" component={SettingScreen} />
 
       <Stack.Screen name="Rank" component={RankScreen} />
+
+      <Stack.Screen name="BlankList" component={BlackListScreen} />
     </Stack.Navigator>
   )
 }

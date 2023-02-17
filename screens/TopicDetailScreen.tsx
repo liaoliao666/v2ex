@@ -20,6 +20,7 @@ import {
   View,
 } from 'react-native'
 
+import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
@@ -50,7 +51,7 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(TopicDetailScreen, {
-  Loading: () => (
+  LoadingComponent: () => (
     <TopicDetailPlaceholder>
       <LoadingIndicator />
     </TopicDetailPlaceholder>
@@ -83,7 +84,9 @@ function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
             </View>
 
             <View style={tw`flex-1`}>
-              <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
+              <Text
+                style={tw`text-tint-primary ${getFontSize(4)} font-semibold`}
+              >
                 {params.member?.username}
               </Text>
 
@@ -98,7 +101,9 @@ function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
               </Text>
             </View>
           </View>
-          <Text style={tw`text-tint-primary ${getFontSize(3)} font-bold pt-2`}>
+          <Text
+            style={tw`text-tint-primary ${getFontSize(3)} font-medium pt-2`}
+          >
             {params.title}
           </Text>
         </View>
@@ -125,10 +130,6 @@ function TopicDetailScreen() {
   const topic = last(data?.pages)!
 
   const replyBoxRef = useRef<ReplyBoxRef>(null)
-
-  const handleReplyItem = useCallback((username: string) => {
-    replyBoxRef.current?.replyFor({ username })
-  }, [])
 
   const [orderBy, setOrderBy] = useState<OrderBy>('asc')
 
@@ -160,10 +161,10 @@ function TopicDetailScreen() {
             ? params.hightlightReplyNo === item.no
             : undefined
         }
-        onReply={handleReplyItem}
+        onReply={username => replyBoxRef.current?.replyFor({ username })}
       />
     ),
-    [topic.id, topic.once, params.hightlightReplyNo, handleReplyItem]
+    [topic.id, topic.once, params.hightlightReplyNo]
   )
 
   const [avatarVisible, setAvatarVisible] = useState(true)
@@ -266,13 +267,7 @@ function TopicDetailScreen() {
             <StyledActivityIndicator style={tw`py-4`} />
           ) : null
         }
-        ListEmptyComponent={
-          <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-              目前还没有回复
-            </Text>
-          </View>
-        }
+        ListEmptyComponent={<Empty description="目前还没有回复" />}
         onScroll={ev => {
           setAvatarVisible(ev.nativeEvent.contentOffset.y <= 64)
         }}
@@ -294,7 +289,7 @@ function TopicDetailScreen() {
                 <Text
                   style={tw`text-tint-primary ${getFontSize(
                     4
-                  )} font-bold w-4/5`}
+                  )} font-medium w-4/5`}
                   numberOfLines={1}
                 >
                   {topic.title}

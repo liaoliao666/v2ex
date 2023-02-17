@@ -2,7 +2,9 @@ import { Cheerio, CheerioAPI, Element, load } from 'cheerio'
 import { defaultTo } from 'lodash-es'
 import { isString } from 'twrnc/dist/esm/types'
 
+import { blackListAtom } from '@/jotai/blackListAtom'
 import { RecentTopic } from '@/jotai/recentTopicsAtom'
+import { store } from '@/jotai/store'
 import { invoke } from '@/utils/invoke'
 import { getURLSearchParams } from '@/utils/url'
 
@@ -71,18 +73,19 @@ export function parseBalance(
 }
 
 export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
-  const ignores = new Set(
-    $.text()
-      .match(/ignored_topics\s=\s\[(.+)\]/)?.[1]
-      ?.split(',')
-      .map(Number)
-  )
-  const blockers = new Set(
-    $.text()
-      .match(/blocked\s=\s\[(.+)\]/)?.[1]
-      ?.split(',')
-      .map(Number)
-  )
+  const matchedIgnoredTopics = $.text().match(
+    /ignored_topics\s=\s\[(.+)\]/
+  )?.[1]
+  const ignoredTopics = new Set(matchedIgnoredTopics?.split(',').map(Number))
+  const matchedBlockers = $.text().match(/blocked\s=\s\[(.+)\]/)?.[1]
+  const blockers = new Set(matchedBlockers?.split(',').map(Number))
+
+  if (matchedIgnoredTopics || matchedBlockers) {
+    store.set(blackListAtom, {
+      ignoredTopics: [...ignoredTopics],
+      blockers: [...blockers],
+    })
+  }
 
   return $(selector)
     .map((i, table) => {
@@ -91,7 +94,7 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
       const $topicInfo = $topicItem.find('.topic_info')
       const topic = parseTopicByATag($topicItem.find('.item_title a'))
 
-      if (ignores.has(topic.id)) return
+      if (ignoredTopics.has(topic.id)) return
       if (blockers.has(Number($this.attr('class')?.match(/from_(\d+)/)?.[1])))
         return
 
@@ -162,14 +165,14 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
       }
     }),
     ...invoke(() => {
-      const $topicButtons = $('.topic_buttons').find('.tb')
-      const url = $topicButtons.eq(0).attr('href')
+      const $topicButtons = $('.topic_buttons')
+      const url = $topicButtons.find('.tb').eq(0).attr('href')
       if (!url) return
 
       return {
         once: getURLSearchParams(url).once,
-        liked: url.includes('unfavorite'),
-        ignored: $topicButtons.eq(2).attr('href')?.includes('unignore'),
+        liked: !!$topicButtons.find('a[onclick*="unfavorite"]').length,
+        ignored: !!$topicButtons.find('a[onclick*="unignore"]').length,
       }
     }),
     ...invoke(() => {

@@ -5,6 +5,7 @@ import { useCallback, useState } from 'react'
 import { FlatList, ListRenderItem, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import Empty from '@/components/Empty'
 import NavBar from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import SearchBar from '@/components/SearchBar'
@@ -81,6 +82,7 @@ export default function SearchNodeScreen() {
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         data={matchNodes}
         renderItem={renderNodeItem}
+        ListEmptyComponent={<Empty description="暂无搜索结果" />}
       />
     </View>
   )

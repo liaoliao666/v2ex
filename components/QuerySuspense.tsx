@@ -16,7 +16,9 @@ import LoadingIndicator from './LoadingIndicator'
 import StyledButton from './StyledButton'
 
 export type QuerySuspenseProps = Partial<ErrorBoundaryProps> & {
-  Loading?: FC
+  LoadingComponent?: FC
+  loadingRender?: () => ReactNode
+  loading?: ReactNode
   children?: ReactNode
 }
 
@@ -65,7 +67,9 @@ export function FallbackComponent({
 }
 
 export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
-  Loading = LoadingIndicator,
+  LoadingComponent,
+  loadingRender,
+  loading,
   children,
   ...rest
 }) => {
@@ -82,7 +86,19 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
           }
           {...rest}
         >
-          <Suspense fallback={<Loading />}>{children}</Suspense>
+          <Suspense
+            fallback={
+              LoadingComponent ? (
+                <LoadingComponent />
+              ) : loadingRender ? (
+                loadingRender()
+              ) : (
+                loading ?? <LoadingIndicator />
+              )
+            }
+          >
+            {children}
+          </Suspense>
         </ErrorBoundary>
       )}
     </QueryErrorResetBoundary>

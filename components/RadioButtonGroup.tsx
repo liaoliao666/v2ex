@@ -35,7 +35,7 @@ export default function RadioButtonGroup<
             >
               <Text
                 style={tw.style(
-                  `${getFontSize(5)}`,
+                  getFontSize(5),
                   active ? `text-tint-primary` : `text-tint-secondary`
                 )}
               >

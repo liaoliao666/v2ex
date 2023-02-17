@@ -10,7 +10,7 @@ import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
-import DebouncePressable from '../DebouncePressable'
+import DebouncedPressable from '../DebouncedPressable'
 import Separator from '../Separator'
 import Space from '../Space'
 import StyledButton from '../StyledButton'
@@ -34,7 +34,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
   })
 
   return (
-    <DebouncePressable
+    <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-body-1`}
       onPress={() => {
         if (isDisabledPress?.()) return
@@ -136,6 +136,6 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
           ])}
         </Separator>
       </View>
-    </DebouncePressable>
+    </DebouncedPressable>
   )
 }

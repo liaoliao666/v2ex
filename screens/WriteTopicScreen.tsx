@@ -53,7 +53,7 @@ const WriteTopicArgs = z.object({
 })
 
 const LazyPreviewTopic = withQuerySuspense(PreviewTopic, {
-  Loading: () => {
+  LoadingComponent: () => {
     const navbarHeight = useNavBarHeight()
     const layout = useWindowDimensions()
     return (
@@ -69,7 +69,7 @@ const LazyPreviewTopic = withQuerySuspense(PreviewTopic, {
 })
 
 export default withQuerySuspense(WriteTopicScreen, {
-  Loading: () => {
+  LoadingComponent: () => {
     const {
       params: { topic },
     } = useRoute<RouteProp<RootStackParamList, 'WriteTopic'>>()
@@ -253,7 +253,10 @@ function WriteTopicScreen() {
                       })
 
                       queryClient.refetchQueries(
-                        useTopicDetail.getKey({ id: topic?.id })
+                        useTopicDetail.getKey({ id: topic?.id }),
+                        {
+                          type: 'active',
+                        }
                       )
                     } else {
                       await writeTopicMutation.mutateAsync({
@@ -324,7 +327,7 @@ function PreviewTopic({
     <Fragment>
       {title && (
         <Text
-          style={tw`text-tint-primary ${getFontSize(3)} font-bold pb-2`}
+          style={tw`text-tint-primary ${getFontSize(3)} font-medium pb-2`}
           selectable
         >
           {title}

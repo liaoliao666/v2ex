@@ -1,5 +1,6 @@
 import { load } from 'cheerio'
-import { isEqual, isString, pick } from 'lodash-es'
+import dayjs from 'dayjs'
+import { isArray, isEqual, isString, pick } from 'lodash-es'
 import {
   createInfiniteQuery,
   createMutation,
@@ -55,6 +56,26 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
     getNextPageParam,
     cacheTime: 1000 * 60 * 60 * 1, // 1 hours
     structuralSharing: false,
+  }
+)
+
+export const useTopicById = createQuery<Topic, { id: number }>(
+  'useTopicById',
+  async ({ signal, queryKey: [_, { id }] }) => {
+    const { data } = await request.get(`/api/topics/show.json?id=${id}`, {
+      signal,
+    })
+    const topic = (isArray(data) ? data[0] || {} : {}) as any
+    if (topic.member) {
+      topic.member.avatar = topic.member.avatar_large
+    }
+    if (topic.node) {
+      topic.node.avatar = topic.node.avatar_large
+    }
+    if (topic.last_touched) {
+      topic.last_touched = dayjs.unix(topic.last_touched).fromNow()
+    }
+    return topic as Topic
   }
 )
 
@@ -258,7 +279,7 @@ export const useAppendTopic = createMutation<
 export const useIgnoreTopic = createMutation<
   void,
   { id: number; once: string; type: 'ignore' | 'unignore' }
->(({ id, once }) => request.get(`/ignore/topic/${id}?once=${once}`))
+>(({ id, once, type }) => request.get(`/${type}/topic/${id}?once=${once}`))
 
 export const useIgnoreReply = createMutation<
   void,

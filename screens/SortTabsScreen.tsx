@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, isEmpty } from 'lodash-es'
 import { useMemo, useState } from 'react'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
@@ -30,7 +30,7 @@ export default function SortTabsScreen() {
     const allSelectedTabKeys = new Set(selectedItems.map(tab => tab.key))
     return allHomeTabs.filter(tab => !allSelectedTabKeys.has(tab.key))
   }, [selectedItems])
-  const setTabIndex = useSetAtom(homeTabIndexAtom)
+  const [tabIndex, setTabIndex] = useAtom(homeTabIndexAtom)
   const [isEdit, setIsEdit] = useState(false)
 
   function renderItem({
@@ -82,7 +82,7 @@ export default function SortTabsScreen() {
   return (
     <SafeAreaView edges={['top']} style={tw`flex-1`}>
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
-        <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
+        <Text style={tw`text-tint-primary ${getFontSize(4)} font-medium`}>
           首页板块
         </Text>
 
@@ -101,7 +101,7 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`px-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-tint-primary ${getFontSize(5)} font-bold`}>
+        <Text style={tw`text-tint-primary ${getFontSize(5)} font-medium`}>
           我的板块
         </Text>
         <Text style={tw`text-tint-secondary ${getFontSize(6)} ml-2`}>
@@ -131,8 +131,11 @@ export default function SortTabsScreen() {
           <Pressable
             onPress={() => {
               setIsEdit(!isEdit)
-
               if (isEdit) {
+                const nextTabIndex = findIndex(selectedItems, {
+                  key: homeTabs[tabIndex]?.key,
+                })
+                setTabIndex(nextTabIndex > -1 ? nextTabIndex : 0)
                 setHomeTabs(selectedItems)
               }
             }}
@@ -179,7 +182,7 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`pl-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-tint-primary ${getFontSize(5)} font-bold`}>
+        <Text style={tw`text-tint-primary ${getFontSize(5)} font-medium`}>
           更多板块
         </Text>
         <Text style={tw`text-tint-secondary ${getFontSize(6)} ml-2`}>

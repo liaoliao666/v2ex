@@ -7,7 +7,8 @@ import { FlatList, ListRenderItem, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { inferData } from 'react-query-kit'
 
-import DebouncePressable from '@/components/DebouncePressable'
+import DebouncedPressable from '@/components/DebouncedPressable'
+import Empty from '@/components/Empty'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledBlurView from '@/components/StyledBlurView'
@@ -58,13 +59,7 @@ export default function RecentTopicScreen() {
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-        ListEmptyComponent={
-          <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-              目前还没有已读主题
-            </Text>
-          </View>
-        }
+        ListEmptyComponent={<Empty description="目前还没有已读主题" />}
       />
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>
@@ -81,14 +76,14 @@ const RecentTopicItem = memo(
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
     return (
-      <DebouncePressable
+      <DebouncedPressable
         style={tw`px-4 py-3 flex-row bg-body-1`}
         onPress={() => {
           navigation.push('TopicDetail', recentTopic)
         }}
       >
         <View style={tw`mr-3`}>
-          <DebouncePressable
+          <DebouncedPressable
             onPress={() => {
               navigation.push('MemberDetail', {
                 username: recentTopic.member?.username!,
@@ -101,12 +96,12 @@ const RecentTopicItem = memo(
                 uri: recentTopic.member?.avatar,
               }}
             />
-          </DebouncePressable>
+          </DebouncedPressable>
         </View>
 
         <View style={tw`flex-1`}>
           <Text
-            style={tw`text-tint-primary ${getFontSize(5)} font-bold`}
+            style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
             numberOfLines={1}
           >
             {recentTopic.member?.username}
@@ -116,7 +111,7 @@ const RecentTopicItem = memo(
             {recentTopic.title}
           </Text>
         </View>
-      </DebouncePressable>
+      </DebouncedPressable>
     )
   }
 )

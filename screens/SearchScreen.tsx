@@ -15,7 +15,8 @@ import { memo } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import DebouncePressable from '@/components/DebouncePressable'
+import DebouncedPressable from '@/components/DebouncedPressable'
+import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
@@ -105,12 +106,7 @@ export default function SearchScreen() {
             <View>
               {!!searchText && (
                 <Pressable
-                  style={({ pressed }) =>
-                    tw.style(
-                      `px-4 py-2.5 border-tint-border border-b border-solid`,
-                      pressed && `bg-message-press`
-                    )
-                  }
+                  style={tw`px-4 py-2.5 border-tint-border border-b border-solid`}
                   onPress={() => {
                     setIsSearchNode(!searchText)
                   }}
@@ -225,19 +221,21 @@ function SoV2exList({
     <FlatList
       data={flatedData}
       ListHeaderComponent={
-        <View style={tw`px-4 py-2.5`}>
-          <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
-            以下搜索结果来自于{' '}
-            <Text
-              style={tw`text-primary`}
-              onPress={() => {
-                openURL(`https://www.sov2ex.com`)
-              }}
-            >
-              SOV2EX
+        !isEmpty(flatedData) ? (
+          <View style={tw`px-4 py-2.5`}>
+            <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+              以下搜索结果来自于{' '}
+              <Text
+                style={tw`text-primary`}
+                onPress={() => {
+                  openURL(`https://www.sov2ex.com`)
+                }}
+              >
+                SOV2EX
+              </Text>
             </Text>
-          </Text>
-        </View>
+          </View>
+        ) : null
       }
       refreshControl={
         <StyledRefreshControl
@@ -264,13 +262,7 @@ function SoV2exList({
           ) : null}
         </SafeAreaView>
       }
-      ListEmptyComponent={
-        <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            暂无搜索结果
-          </Text>
-        </View>
-      }
+      ListEmptyComponent={<Empty description="暂无搜索结果" />}
     />
   )
 }
@@ -298,7 +290,7 @@ const HitItem = memo(
     })
 
     return (
-      <DebouncePressable
+      <DebouncedPressable
         style={tw`px-4 py-3 flex-row bg-body-1`}
         onPress={() => {
           navigation.push('TopicDetail', topic)
@@ -318,7 +310,9 @@ const HitItem = memo(
               </StyledButton>
             )}
             <Text
-              style={tw`text-tint-primary ${getFontSize(5)} font-bold flex-1`}
+              style={tw`text-tint-primary ${getFontSize(
+                5
+              )} font-semibold flex-1`}
               numberOfLines={1}
             >
               {topic.member?.username}
@@ -368,7 +362,7 @@ const HitItem = memo(
             </View>
           )}
         </View>
-      </DebouncePressable>
+      </DebouncedPressable>
     )
   },
   isEqual

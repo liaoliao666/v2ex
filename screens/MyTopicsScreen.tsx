@@ -22,7 +22,7 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(MyTopicsScreen, {
-  Loading: () => (
+  LoadingComponent: () => (
     <View style={tw`flex-1`}>
       <NavBar title="主题收藏" />
       <LoadingIndicator />

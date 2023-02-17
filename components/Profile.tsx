@@ -1,6 +1,5 @@
 import {
   Feather,
-  Ionicons,
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons'
@@ -99,20 +98,6 @@ function Profile() {
       ),
       onPress: () => {
         navigation.navigate('Notifications')
-      },
-    },
-    {
-      label: '最近浏览',
-      value: 'RecentTopic',
-      icon: (
-        <MaterialCommunityIcons
-          color={tw.color(`text-tint-primary`)}
-          size={24}
-          name={'clock-check-outline'}
-        />
-      ),
-      onPress: () => {
-        navigation.navigate('RecentTopic')
       },
     },
   ]
@@ -218,6 +203,20 @@ function Profile() {
           />
 
           <ListItem
+            label="最近浏览"
+            icon={
+              <MaterialCommunityIcons
+                color={tw.color(`text-tint-primary`)}
+                size={24}
+                name={'clock-check-outline'}
+              />
+            }
+            onPress={() => {
+              navigation.navigate('RecentTopic')
+            }}
+          />
+
+          <ListItem
             label="节点导航"
             icon={
               <Feather
@@ -228,20 +227,6 @@ function Profile() {
             }
             onPress={() => {
               navigation.navigate('NavNodes')
-            }}
-          />
-
-          <ListItem
-            label="社区排行"
-            icon={
-              <Ionicons
-                color={tw.color(`text-tint-primary`)}
-                size={24}
-                name={'md-analytics-outline'}
-              />
-            }
-            onPress={() => {
-              navigation.navigate('Rank')
             }}
           />
 

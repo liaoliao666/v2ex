@@ -57,9 +57,12 @@ export default function NavBar({
             children
           ) : (
             <Text
-              style={tw.style(`text-tint-primary ${getFontSize(4)} font-bold`, {
-                color: tintColor,
-              })}
+              style={tw.style(
+                `text-tint-primary ${getFontSize(4)} font-semibold`,
+                {
+                  color: tintColor,
+                }
+              )}
             >
               {title}
             </Text>

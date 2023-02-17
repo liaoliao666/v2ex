@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
-import DebouncePressable from '@/components/DebouncePressable'
+import DebouncedPressable from '@/components/DebouncedPressable'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
@@ -35,7 +35,7 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(NotificationsScreen, {
-  Loading: () => (
+  LoadingComponent: () => (
     <View style={tw`flex-1`}>
       <NavBar title="未读提醒" />
       <LoadingIndicator />
@@ -117,7 +117,7 @@ const NoticeItem = memo(
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
     return (
-      <DebouncePressable
+      <DebouncedPressable
         style={tw`flex-row flex-wrap p-4`}
         onPress={() => {
           navigation.push('TopicDetail', {
@@ -179,7 +179,7 @@ const NoticeItem = memo(
             </View>
           )}
         </View>
-      </DebouncePressable>
+      </DebouncedPressable>
     )
   },
   (prev, next) => prev.notice.created === next.notice.created

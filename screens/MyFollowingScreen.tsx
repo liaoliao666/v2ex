@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
+import Empty from '@/components/Empty'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import {
@@ -32,7 +33,7 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(MyFollowingScreen, {
-  Loading: () => (
+  LoadingComponent: () => (
     <View style={tw`flex-1`}>
       <NavBar title="特别关注" />
       <LoadingIndicator />
@@ -154,7 +155,7 @@ function MyFollowingScreen() {
                       style={tw.style(
                         `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
-                          ? tw`text-tint-primary font-bold`
+                          ? tw`text-tint-primary font-semibold`
                           : tw`text-tint-secondary font-medium`
                       )}
                       numberOfLines={1}
@@ -276,11 +277,7 @@ function MemberTopics({
         </SafeAreaView>
       }
       ListEmptyComponent={
-        <View style={tw`items-center justify-center py-16`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            {last(data?.pages)?.hidden_text}
-          </Text>
-        </View>
+        <Empty description={last(data?.pages)?.hidden_text} />
       }
     />
   )

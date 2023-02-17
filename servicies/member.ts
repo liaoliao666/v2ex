@@ -1,10 +1,13 @@
 import { load } from 'cheerio'
+import { last } from 'lodash-es'
 import {
   createInfiniteQuery,
   createMutation,
   createQuery,
+  inferData,
 } from 'react-query-kit'
 
+import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
 
 import {
@@ -14,6 +17,13 @@ import {
   parseMemberReplies,
   parseTopicItems,
 } from './helper'
+import { useNodeTopics } from './node'
+import {
+  useRecentTopics,
+  useTabTopics,
+  useTopicById,
+  useTopicDetail,
+} from './topic'
 import { Member, PageData, Reply, Topic } from './types'
 
 export const useMember = createQuery<Member, { username: string }>(
@@ -159,5 +169,117 @@ export const useCheckin = createQuery(
   {
     cacheTime: 1000 * 60 * 60 * 24,
     staleTime: 1000 * 60 * 60 * 8,
+  }
+)
+
+export const useMemberById = createQuery<Member, { id: number }>(
+  'useMemberById',
+  async ({ signal, queryKey: [_, { id }] }) => {
+    const { data } = await request.get(`/api/members/show.json?id=${id}`, {
+      signal,
+    })
+    data.avatar = data.avatar_large
+    return data
+  }
+)
+
+export const useBlockers = createInfiniteQuery<
+  PageData<Member>,
+  { ids: number[] }
+>(
+  'useBlockers',
+  async ({ pageParam, queryKey: [, { ids }] }) => {
+    const page = pageParam ?? 1
+    const pageSize = 10
+    const chunkIds = ids.slice(page - 1, page * 10)
+    const cacheMemberMap = queryClient
+      .getQueriesData<inferData<typeof useMember>>(useMember.getKey())
+      .reduce((acc, [, member]) => {
+        if (member?.id) {
+          acc[member.id] = member
+        }
+        return acc
+      }, {} as Record<string, Member>)
+
+    return {
+      page,
+      last_page: Math.ceil(ids.length / pageSize),
+      list: await Promise.all(
+        chunkIds.map(async id => {
+          if (cacheMemberMap[id]) return cacheMemberMap[id]
+          return await queryClient.ensureQueryData({
+            queryKey: useMemberById.getKey({ id }),
+            queryFn: useMemberById.queryFn,
+          })
+        })
+      ),
+    }
+  },
+  {
+    getNextPageParam,
+    structuralSharing: false,
+  }
+)
+
+export const useIgnoredTopics = createInfiniteQuery<
+  PageData<Topic>,
+  { ids: number[] }
+>(
+  'useIgnoredTopics',
+  async ({ pageParam, queryKey: [, { ids }] }) => {
+    const page = pageParam ?? 1
+    const pageSize = 10
+    const chunkIds = ids.slice(page - 1, page * 10)
+    const cacheTopicMap = {} as Record<string, Topic>
+
+    queryClient
+      .getQueriesData<inferData<typeof useNodeTopics>>(useNodeTopics.getKey())
+      .forEach(([, data]) => {
+        data?.pages?.forEach(p => {
+          p.list.forEach(topic => {
+            cacheTopicMap[topic.id] = topic
+          })
+        })
+      })
+    queryClient
+      .getQueryData<inferData<typeof useRecentTopics>>(useRecentTopics.getKey())
+      ?.pages?.forEach(p => {
+        p.list.forEach(topic => {
+          cacheTopicMap[topic.id] = topic
+        })
+      })
+    queryClient
+      .getQueriesData<inferData<typeof useTabTopics>>(useTabTopics.getKey())
+      .forEach(([, data]) => {
+        data?.forEach(topic => {
+          cacheTopicMap[topic.id] = topic
+        })
+      })
+    queryClient
+      .getQueriesData<inferData<typeof useTopicDetail>>(useTopicDetail.getKey())
+      .forEach(([, data]) => {
+        const topic = last(data?.pages)
+        if (topic?.id) {
+          cacheTopicMap[topic.id] = topic
+        }
+      })
+
+    return {
+      page,
+      last_page: Math.ceil(ids.length / pageSize),
+      list: await Promise.all(
+        chunkIds.map(async id => {
+          if (cacheTopicMap[id]) return cacheTopicMap[id]
+          return await queryClient.ensureQueryData({
+            queryKey: useTopicById.getKey({ id }),
+            queryFn: useTopicById.queryFn,
+          })
+        })
+      ),
+    }
+  },
+  {
+    getNextPageParam,
+    structuralSharing: false,
   }
 )

@@ -1,10 +1,16 @@
-import { Feather, MaterialCommunityIcons } from '@expo/vector-icons'
+import {
+  Feather,
+  Ionicons,
+  MaterialCommunityIcons,
+  MaterialIcons,
+} from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { Fragment } from 'react'
 import { Platform, ScrollView, Switch, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import ListItem from '@/components/ListItem'
@@ -55,6 +61,8 @@ function SettingScreen() {
 
   const isSignined = !!profile?.once
 
+  const safeAreaInsets = useSafeAreaInsets()
+
   return (
     <View style={tw`flex-1`}>
       <ScrollView
@@ -62,7 +70,7 @@ function SettingScreen() {
           paddingTop: navbarHeight,
         }}
       >
-        <View style={tw`px-4 pt-6 -mt-3 pb-3 flex-row`}>
+        <View style={tw`px-4 pt-3 pb-3 flex-row`}>
           <StyledImage
             style={tw`w-12 h-12 mr-3 rounded`}
             source={{
@@ -71,7 +79,7 @@ function SettingScreen() {
           />
 
           <View style={tw`flex-1`}>
-            <Text style={tw`text-tint-primary ${getFontSize(4)} font-bold`}>
+            <Text style={tw`text-tint-primary ${getFontSize(4)} font-semibold`}>
               V2EX
             </Text>
             <Text style={tw`text-tint-primary ${getFontSize(5)} mt-1`}>
@@ -151,10 +159,10 @@ function SettingScreen() {
               }
               onValueChange={async () => {
                 try {
-                  if (!enabledParseImage)
+                  if (enabledParseImage)
                     await confirm(
-                      '开启后不限定图床',
-                      '并支持 3 种方式：图片URL、![]()、<img />'
+                      '图片解析',
+                      '关闭后将不会自动解析回复中的图片URL、![]()、<img />'
                     )
                   setEnabledParseImage(!enabledParseImage)
                 } catch (error) {
@@ -188,6 +196,34 @@ function SettingScreen() {
             />
           }
           pressable={false}
+        />
+
+        <ListItem
+          label="社区排行"
+          icon={
+            <Ionicons
+              color={tw.color(`text-tint-primary`)}
+              size={24}
+              name={'md-analytics-outline'}
+            />
+          }
+          onPress={() => {
+            navigation.navigate('Rank')
+          }}
+        />
+
+        <ListItem
+          label="屏蔽列表"
+          icon={
+            <MaterialIcons
+              color={tw.color(`text-tint-primary`)}
+              size={24}
+              name={'block'}
+            />
+          }
+          onPress={() => {
+            navigation.navigate('BlankList')
+          }}
         />
 
         <ListItem
@@ -227,36 +263,37 @@ function SettingScreen() {
           }}
         />
 
-        {isSignined ? (
-          <Fragment>
-            {Platform.OS !== 'android' && (
-              <ListItem
-                label="注销帐号"
-                icon={
-                  <Feather
-                    color={tw.color(`text-tint-primary`)}
-                    size={24}
-                    name={'delete'}
-                  />
-                }
-                onPress={async () => {
-                  try {
-                    await confirm(`确定注销当前账号 ${profile.username} 么？`)
-                    await sleep(500)
-                    Toast.show({
-                      type: 'success',
-                      text1: `注销成功`,
-                    })
-                    store.set(deletedNamesAtom, prev => [
-                      ...new Set([...prev, profile.username]),
-                    ])
-                    store.set(profileAtom, RESET)
-                  } catch (error) {}
-                }}
+        {isSignined && (
+          <ListItem
+            label="注销帐号"
+            icon={
+              <Feather
+                color={tw.color(`text-tint-primary`)}
+                size={24}
+                name={'delete'}
               />
-            )}
-            <SignoutItem once={profile.once!} />
-          </Fragment>
+            }
+            onPress={async () => {
+              try {
+                await confirm(`确定注销当前账号 ${profile.username} 么？`)
+                await sleep(500)
+                Toast.show({
+                  type: 'success',
+                  text1: `注销成功`,
+                })
+                store.set(deletedNamesAtom, prev => [
+                  ...new Set([...prev, profile.username]),
+                ])
+                store.set(profileAtom, RESET)
+              } catch (error) {}
+            }}
+          />
+        )}
+      </ScrollView>
+
+      <View style={tw`px-4 pt-4 pb-[${Math.max(safeAreaInsets.bottom, 16)}px]`}>
+        {isSignined ? (
+          <SignoutItem once={profile.once!} />
         ) : (
           <StyledButton
             onPress={() => {
@@ -264,12 +301,11 @@ function SettingScreen() {
             }}
             size="large"
             shape="rounded"
-            style={tw`mx-4 mt-12`}
           >
             登录
           </StyledButton>
         )}
-      </ScrollView>
+      </View>
 
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
@@ -300,12 +336,7 @@ function SignoutItem({ once }: { once: string }) {
   }
 
   return (
-    <StyledButton
-      onPress={logout}
-      size="large"
-      shape="rounded"
-      style={tw`mx-4 mt-12`}
-    >
+    <StyledButton onPress={logout} size="large" shape="rounded">
       退出登录
     </StyledButton>
   )

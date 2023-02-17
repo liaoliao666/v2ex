@@ -185,7 +185,7 @@ export default function RelatedRepliesScreen() {
                       style={tw.style(
                         `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
-                          ? tw`text-tint-primary font-bold`
+                          ? tw`text-tint-primary font-semibold`
                           : tw`text-tint-secondary font-medium`
                       )}
                       numberOfLines={1}

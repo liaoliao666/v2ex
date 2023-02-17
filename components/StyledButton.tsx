@@ -118,6 +118,7 @@ export default function StyledButton({
       <Text
         {...textProps}
         style={[
+          tw`font-medium`,
           pick(tw.style(tw.style(getFontSize(5))), ['fontSize']),
           ghost
             ? tw`dark:text-[${darkColor}] text-[${color}]`

@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
+import Empty from '@/components/Empty'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
@@ -29,7 +30,7 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(MyNodesScreen, {
-  Loading: () => (
+  LoadingComponent: () => (
     <View style={tw`flex-1`}>
       <NavBar title="节点收藏" />
       <LoadingIndicator />
@@ -117,13 +118,7 @@ function MyNodesScreen() {
             progressViewOffset={navbarHeight}
           />
         }
-        ListEmptyComponent={
-          <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-              目前还没有收藏节点
-            </Text>
-          </View>
-        }
+        ListEmptyComponent={<Empty description={`目前还没有收藏节点`} />}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
       />
 

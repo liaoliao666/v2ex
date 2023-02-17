@@ -4,7 +4,7 @@ import { PressableProps, Text } from 'react-native'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
-import DebouncePressable from './DebouncePressable'
+import DebouncedPressable from './DebouncedPressable'
 
 export default function ListItem({
   label,
@@ -21,7 +21,7 @@ export default function ListItem({
 }) {
   const fontSize = (tw.style(getFontSize(3)).fontSize as string) + 1
   return (
-    <DebouncePressable
+    <DebouncedPressable
       style={({ pressed }) =>
         tw.style(
           `px-4 h-[56px] flex-row items-center`,
@@ -41,6 +41,6 @@ export default function ListItem({
       </Text>
 
       {action}
-    </DebouncePressable>
+    </DebouncedPressable>
   )
 }

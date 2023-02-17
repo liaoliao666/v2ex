@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { load } from 'cheerio'
-import { isArray, isObject, isPlainObject, isString } from 'lodash-es'
+import { isArray, isObject, isString } from 'lodash-es'
 import { useState } from 'react'
 import {
   Image,
@@ -16,7 +16,7 @@ import { isExpoGo } from '@/utils/isExpoGo'
 import { isStyle } from '@/utils/isStyle'
 import { request } from '@/utils/request'
 import tw from '@/utils/tw'
-import { isSvgUrl, resolveUrl } from '@/utils/url'
+import { isSvgURL, resolveURL } from '@/utils/url'
 
 const uriToSize = new Map()
 
@@ -28,39 +28,12 @@ if (!isExpoGo) {
 function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
   const uri =
     isObject(source) && !isArray(source) && isString(source.uri)
-      ? resolveUrl(source.uri)
+      ? resolveURL(source.uri)
       : undefined
 
   const [isLoading, setIsLoading] = useState(uri ? !uriToSize.has(uri) : false)
 
   const [size, setSize] = useState<LayoutRectangle>(uriToSize.get(uri))
-
-  const imageProps: ImageProps = {
-    ...props,
-    source: isObject(source)
-      ? {
-          ...source,
-          uri,
-        }
-      : source,
-    onLoad: ev => {
-      const newSize: any =
-        FastImage === Image ? ev.nativeEvent.source : ev.nativeEvent
-
-      if (!uriToSize.has(uri) && hasSize(newSize)) {
-        uriToSize.set(uri, newSize)
-        setSize(newSize)
-      }
-
-      setIsLoading(false)
-      onLoad?.(ev)
-    },
-    onError(err) {
-      uriToSize.set(uri, undefined)
-      setIsLoading(false)
-      onError?.(err)
-    },
-  }
 
   const hasPassedSize = isStyle(style) && hasSize(style)
 
@@ -69,7 +42,32 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
 
   return (
     <FastImage
-      {...imageProps}
+      {...props}
+      source={
+        isObject(source)
+          ? {
+              ...source,
+              uri,
+            }
+          : source
+      }
+      onLoad={ev => {
+        const newSize: any =
+          FastImage === Image ? ev.nativeEvent.source : ev.nativeEvent
+
+        if (!uriToSize.has(uri) && hasSize(newSize)) {
+          uriToSize.set(uri, newSize)
+          setSize(newSize)
+        }
+
+        setIsLoading(false)
+        onLoad?.(ev)
+      }}
+      onError={err => {
+        uriToSize.set(uri, undefined)
+        setIsLoading(false)
+        onError?.(err)
+      }}
       style={tw.style(
         !hasPassedSize &&
           (isMiniImage
@@ -139,8 +137,7 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
           ? [svg.wraperStyle, ...style]
           : {
               ...svg.wraperStyle,
-              // @ts-ignore
-              ...(isPlainObject(style) ? style : {}),
+              ...(isStyle(style) ? style : {}),
             }
       }
       width="100%"
@@ -153,7 +150,7 @@ export default function StyledImage({ source, ...props }: ImageProps) {
     isObject(source) &&
     !isArray(source) &&
     isString(source.uri) &&
-    isSvgUrl(source.uri)
+    isSvgURL(source.uri)
   ) {
     return <CustomSvgUri uri={source.uri} {...(props as any)} />
   }

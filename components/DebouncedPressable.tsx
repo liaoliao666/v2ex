@@ -9,7 +9,7 @@ const debouncePress = debounce(invoke, 500, {
   trailing: false,
 })
 
-const DebouncePressable: typeof Pressable = forwardRef((props, ref) => {
+const DebouncedPressable: typeof Pressable = forwardRef((props, ref) => {
   return (
     <Pressable
       ref={ref}
@@ -19,4 +19,4 @@ const DebouncePressable: typeof Pressable = forwardRef((props, ref) => {
   )
 })
 
-export default DebouncePressable
+export default DebouncedPressable

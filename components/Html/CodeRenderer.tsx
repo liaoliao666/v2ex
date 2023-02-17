@@ -39,39 +39,24 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
-  const baseStyle = tw.style(getFontSize(5))
-
-  const Wrap = hasHtmlTag ? ScrollView : View
+  const WrapView = hasHtmlTag ? ScrollView : View
 
   return (
-    <Wrap
+    <WrapView
       horizontal
       nestedScrollEnabled
-      style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded p-2`)}
+      style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}
     >
       <RenderHTML
         contentWidth={width}
-        baseStyle={tw.style(`text-[#383a42] dark:text-[#abb2bf]`, {
-          ...baseStyle,
-          lineHeight: (baseStyle.lineHeight as number) - 4,
-        })}
+        baseStyle={tw.style(
+          `text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(
+            hasHtmlTag ? 6 : 5
+          )}`
+        )}
         tagsStyles={{
           pre: tw`my-2`,
-          h1: tw`${getFontSize(
-            3
-          )} pb-1.5 border-b border-solid border-tint-border`,
-          h2: tw`${getFontSize(
-            4
-          )} pb-1.5 border-b border-solid border-tint-border`,
-          h3: tw`${getFontSize(4)}`,
-          h4: tw`${getFontSize(4)}`,
-          h5: tw`${getFontSize(5)}`,
-          h6: tw`${getFontSize(6)}`,
-          p: tw`${getFontSize(5)}`,
           a: tw`text-tint-secondary no-underline`,
-          hr: {
-            backgroundColor: tw.color(`border-tint-border`),
-          },
           em: {
             fontStyle: 'italic',
           },
@@ -82,7 +67,7 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         source={{ html }}
         renderers={{ _TEXT_: TextRenderer }}
       />
-    </Wrap>
+    </WrapView>
   )
 }
 

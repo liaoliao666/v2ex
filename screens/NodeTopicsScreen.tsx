@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
+import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
@@ -32,13 +33,13 @@ import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
-const topBarBgCls = `bg-[#333344]`
+const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
 
 export default withQuerySuspense(NodeTopicsScreen, {
-  Loading: () => (
+  LoadingComponent: () => (
     <View style={tw`flex-1 bg-body-1`}>
       <NavBar
-        style={tw.style(topBarBgCls, 'border-b-0')}
+        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0')}
         title="节点"
         tintColor="#fff"
         statusBarStyle="light"
@@ -51,7 +52,7 @@ export default withQuerySuspense(NodeTopicsScreen, {
     <View style={tw`flex-1`}>
       <NavBar title="节点" />
       <NavBar
-        style={tw.style(topBarBgCls, 'border-b-0')}
+        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0')}
         title="节点"
         tintColor="#fff"
         statusBarStyle="light"
@@ -93,18 +94,20 @@ function NodeTopicsScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const bgCls = avatarVisible ? TOP_BAR_BG_CLS : `bg-[rgba(51,51,68,.95)]`
+
   return (
     <View style={tw`flex-1`}>
       <NavBar
         title="节点"
         statusBarStyle="light"
         tintColor="#fff"
-        style={tw.style(topBarBgCls, 'border-b-0')}
+        style={tw.style(bgCls, 'border-b-0')}
       >
         {!avatarVisible && (
           <View style={tw`flex-row items-center`}>
             <View style={tw`flex-1`}>
-              <Text style={tw`text-white ${getFontSize(4)} font-bold`}>
+              <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
                 {node?.title}
               </Text>
 
@@ -129,23 +132,17 @@ function NodeTopicsScreen() {
         key={colorScheme}
         data={flatedData}
         ListHeaderComponent={
-          <NodeInfo once={lastPage.once} liked={lastPage.liked} />
+          <NodeInfo once={lastPage.once} liked={lastPage.liked} bgCls={bgCls} />
         }
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
             onRefresh={refetchByUser}
-            style={tw.style(topBarBgCls)}
+            style={tw.style(TOP_BAR_BG_CLS)}
             tintColor={Platform.OS === 'ios' ? '#fff' : undefined}
           />
         }
-        ListEmptyComponent={
-          <View style={tw`items-center justify-center py-16`}>
-            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-              无法访问该节点
-            </Text>
-          </View>
-        }
+        ListEmptyComponent={<Empty description="无法访问该节点" />}
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         onEndReached={() => {
@@ -173,10 +170,12 @@ function NodeInfo({
   once,
   liked,
   hideLike,
+  bgCls = TOP_BAR_BG_CLS,
 }: {
   once?: string
   liked?: boolean
   hideLike?: boolean
+  bgCls?: string
 }) {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
@@ -185,7 +184,7 @@ function NodeInfo({
   })
 
   return (
-    <View style={tw`${topBarBgCls} px-4 pt-6 -mt-3 pb-3 flex-row`}>
+    <View style={tw`${bgCls} px-4 pt-6 -mt-3 pb-3 flex-row`}>
       <StyledImage
         style={tw`w-12 h-12 mr-3 rounded`}
         source={{
@@ -195,7 +194,7 @@ function NodeInfo({
 
       <View style={tw`flex-1`}>
         <View style={tw`flex-row items-center justify-between`}>
-          <Text style={tw`text-white ${getFontSize(4)} font-bold`}>
+          <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
             {node?.title}
           </Text>
 

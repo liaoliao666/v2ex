@@ -23,7 +23,9 @@ import { useNodes } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import tw from '@/utils/tw'
 
-export default withQuerySuspense(NavNodesScreen, { Loading: () => null })
+export default withQuerySuspense(NavNodesScreen, {
+  LoadingComponent: () => null,
+})
 
 function NavNodesScreen() {
   const navNodes = useAtomValue(navNodesAtom)
@@ -83,8 +85,8 @@ function NavNodesScreen() {
                 style={tw.style(
                   `${getFontSize(5)} text-tint-primary`,
                   i === index
-                    ? tw`text-tint-primary font-bold`
-                    : tw`text-tint-secondary font-medium`
+                    ? tw`text-tint-primary font-medium`
+                    : tw`text-tint-secondary`
                 )}
               >
                 {route.title}

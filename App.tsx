@@ -11,8 +11,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { useDeviceContext } from 'twrnc'
 
-import '@/utils/dayjsPlugins'
-
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
@@ -26,6 +24,7 @@ import { colorSchemeAtom } from './jotai/themeAtom'
 import Navigation from './navigation'
 import { useCheckin } from './servicies/member'
 import { useNodes } from './servicies/node'
+import './utils/dayjsPlugins'
 import './utils/dayjsPlugins'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
 import { asyncStoragePersister, queryClient } from './utils/query'
@@ -55,6 +54,7 @@ function App() {
         <PersistQueryClientProvider
           client={queryClient}
           persistOptions={{ persister: asyncStoragePersister }}
+          onSuccess={SplashScreen.hideAsync}
         >
           <SafeAreaProvider>
             <Suspense>

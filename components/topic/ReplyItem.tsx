@@ -5,7 +5,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo, useState } from 'react'
-import { Platform, Pressable, Share, Text, View } from 'react-native'
+import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
@@ -49,6 +49,7 @@ function ReplyItem({
   onReply,
   related,
   inModalScreen,
+  onLayout,
 }: {
   topicId: number
   once?: string
@@ -57,6 +58,7 @@ function ReplyItem({
   onReply: (username: string) => void
   related?: boolean
   inModalScreen?: boolean
+  onLayout?: ViewProps['onLayout']
 }) {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
@@ -72,6 +74,7 @@ function ReplyItem({
         hightlight && `bg-[#f0f3f5] dark:bg-[#262626]`,
         isBoolean(related) && !related && `opacity-64`
       )}
+      onLayout={onLayout}
     >
       <View style={tw`flex-row`}>
         <View style={tw`mr-3`}>

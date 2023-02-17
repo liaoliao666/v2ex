@@ -18,7 +18,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { RootStackParamList } from '@/types'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
-import { openURL, resolveUrl } from '@/utils/url'
+import { openURL, resolveURL } from '@/utils/url'
 
 import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
@@ -155,7 +155,7 @@ function Html({
         renderersProps={{
           a: {
             onPress: async (_, href: string) => {
-              const resolvedURI = resolveUrl(href)
+              const resolvedURI = resolveURL(href)
 
               if (resolvedURI.startsWith(baseURL)) {
                 if (inModalScreen) {
