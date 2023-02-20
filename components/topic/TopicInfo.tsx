@@ -9,6 +9,7 @@ import { Platform, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
+import { blackListAtom } from '@/jotai/blackListAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
@@ -309,7 +310,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
       style={tw`py-1 flex-row items-center border-tint-border border-solid border rounded-full`}
     >
       <Pressable
-        style={tw`px-2 flex-row items-center`}
+        style={tw`pl-2 pr-1 flex-row items-center`}
         onPress={async () => {
           if (!isSignined()) {
             navigation.navigate('Login')
@@ -346,17 +347,16 @@ export function VoteButton({ topic }: { topic: Topic }) {
                 pressed ? `text-[#ff4500]` : `text-tint-secondary`
               )}
             />
-            {!!topic.votes && (
-              <Text style={tw.style(`ml-1 text-tint-secondary`)}>
-                {topic.votes}
-              </Text>
-            )}
+
+            <Text style={tw.style(`ml-1 text-tint-secondary`)}>
+              {topic.votes ? topic.votes : '赞同'}
+            </Text>
           </Fragment>
         )}
       </Pressable>
 
       <Pressable
-        style={tw`px-2`}
+        style={tw`pr-2 pl-1`}
         onPress={async () => {
           if (!isSignined()) {
             navigation.navigate('Login')
@@ -520,18 +520,33 @@ function MoreButton({
                       }
                     )
                   }
+
+                  // set black list atom
+                  if (topic.ignored) {
+                    store.set(blackListAtom, prev => ({
+                      ...prev,
+                      ignoredTopics: prev.blockers.filter(o => o === topic.id),
+                    }))
+                  } else {
+                    store.set(blackListAtom, prev => ({
+                      ...prev,
+                      ignoredTopics: [
+                        ...new Set([...prev.ignoredTopics, topic.id]),
+                      ],
+                    }))
+                  }
                   queryClient.refetchQueries(useIgnoreTopic.getKey(), {
                     type: 'active',
                   })
 
                   Toast.show({
                     type: 'success',
-                    text1: '操作成功',
+                    text1: '忽略成功',
                   })
                 } catch (error) {
                   Toast.show({
                     type: 'error',
-                    text1: '操作失败',
+                    text1: '忽略失败',
                   })
                 }
                 break

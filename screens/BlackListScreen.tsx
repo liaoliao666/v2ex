@@ -28,8 +28,6 @@ import Space from '@/components/Space'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
-import StyledRefreshControl from '@/components/StyledRefreshControl'
-import TopicItem from '@/components/topic/TopicItem'
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
@@ -39,7 +37,6 @@ import { useResetBlockers, useResetIgnoredTopics } from '@/servicies/settings'
 import { Member, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
-import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(BlackListScreen, {
   LoadingComponent: () => (
@@ -234,12 +231,10 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
 function Blockers({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
-  const { data, refetch } = useBlockers({
+  const { data } = useBlockers({
     suspense: true,
     variables: { ids: blackList.blockers },
   })
-
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<Member> = useCallback(
     ({ item }) => <BlockerItem key={item.username} member={item} />,
@@ -254,13 +249,7 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
   return (
     <FlatList
       data={flatedData}
-      refreshControl={
-        <StyledRefreshControl
-          refreshing={isRefetchingByUser}
-          onRefresh={refetchByUser}
-          progressViewOffset={headerHeight}
-        />
-      }
+      removeClippedSubviews={true}
       contentContainerStyle={{
         paddingTop: headerHeight,
       }}
@@ -276,17 +265,15 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
 function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
-  const { data, refetch } = useIgnoredTopics({
+  const { data } = useIgnoredTopics({
     suspense: true,
     variables: {
       ids: blackList.ignoredTopics,
     },
   })
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
-
   const renderItem: ListRenderItem<Topic> = useCallback(
-    ({ item }) => <TopicItem key={item.id} topic={item} />,
+    ({ item }) => <IgnoreTopicItem key={item.id} topic={item} />,
     []
   )
 
@@ -298,13 +285,7 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   return (
     <FlatList
       data={flatedData}
-      refreshControl={
-        <StyledRefreshControl
-          refreshing={isRefetchingByUser}
-          onRefresh={refetchByUser}
-          progressViewOffset={headerHeight}
-        />
-      }
+      removeClippedSubviews={true}
       contentContainerStyle={{
         paddingTop: headerHeight,
       }}
@@ -316,6 +297,50 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
     />
   )
 }
+
+const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
+
+  return (
+    <DebouncedPressable
+      style={tw`px-4 py-3 flex-row bg-body-1`}
+      onPress={() => {
+        navigation.push('TopicDetail', topic)
+      }}
+    >
+      <View style={tw`mr-3`}>
+        <DebouncedPressable
+          onPress={() => {
+            navigation.push('MemberDetail', {
+              username: topic.member?.username!,
+            })
+          }}
+        >
+          <StyledImage
+            style={tw`w-6 h-6 rounded-full`}
+            source={{
+              uri: topic.member?.avatar,
+            }}
+          />
+        </DebouncedPressable>
+      </View>
+
+      <View style={tw`flex-1`}>
+        <Text
+          style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
+          numberOfLines={1}
+        >
+          {topic.member?.username}
+        </Text>
+
+        <Text style={tw.style(`${getFontSize(5)} pt-1 text-tint-primary`)}>
+          {topic.title}
+        </Text>
+      </View>
+    </DebouncedPressable>
+  )
+})
 
 function ResetBlockersButton() {
   const { isLoading, mutateAsync } = useResetBlockers()

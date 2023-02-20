@@ -1,5 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
 import { load } from 'cheerio'
 import { ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -13,7 +14,6 @@ import {
 } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
 import { RootStackParamList } from '@/types'
-import { request } from '@/utils/request'
 import tw from '@/utils/tw'
 
 export default withQuerySuspense(GItHubMDScreen, {
@@ -44,7 +44,7 @@ function GItHubMDScreen() {
   const { data: html } = useQuery(
     [params.url],
     async () => {
-      const { data } = await request.get(params.url, { responseType: 'text' })
+      const { data } = await axios.get(params.url, { responseType: 'text' })
       return load(data)('#readme').html()
     },
     { suspense: true }

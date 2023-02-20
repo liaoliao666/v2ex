@@ -7,6 +7,8 @@ import {
   inferData,
 } from 'react-query-kit'
 
+import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { store } from '@/jotai/store'
 import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
 
@@ -188,7 +190,7 @@ export const useBlockers = createInfiniteQuery<
   { ids: number[] }
 >(
   'useBlockers',
-  async ({ pageParam, queryKey: [, { ids }] }) => {
+  async ({ pageParam, queryKey: [, { ids = [] }] }) => {
     const page = pageParam ?? 1
     const pageSize = 10
     const chunkIds = ids.slice(page - 1, page * 10)
@@ -226,11 +228,16 @@ export const useIgnoredTopics = createInfiniteQuery<
   { ids: number[] }
 >(
   'useIgnoredTopics',
-  async ({ pageParam, queryKey: [, { ids }] }) => {
+  async ({ pageParam, queryKey: [, { ids = [] }] }) => {
     const page = pageParam ?? 1
     const pageSize = 10
     const chunkIds = ids.slice(page - 1, page * 10)
     const cacheTopicMap = {} as Record<string, Topic>
+
+    const recentTopics = await store.get(recentTopicsAtom)
+    recentTopics?.forEach(topic => {
+      cacheTopicMap[topic.id] = topic as Topic
+    })
 
     queryClient
       .getQueriesData<inferData<typeof useNodeTopics>>(useNodeTopics.getKey())

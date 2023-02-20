@@ -102,6 +102,7 @@ function NavNodesScreen() {
           contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
           renderItem={renderItem}
           data={routes[index].nodes}
+          removeClippedSubviews={true}
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         />
       </View>

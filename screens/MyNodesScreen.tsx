@@ -108,6 +108,7 @@ function MyNodesScreen() {
     <View style={tw`flex-1`}>
       <FlatList
         key={colorScheme}
+        removeClippedSubviews={true}
         contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
         renderItem={renderItem}
         data={myNodes}

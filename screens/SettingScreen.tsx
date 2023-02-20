@@ -212,19 +212,21 @@ function SettingScreen() {
           }}
         />
 
-        <ListItem
-          label="屏蔽列表"
-          icon={
-            <MaterialIcons
-              color={tw.color(`text-tint-primary`)}
-              size={24}
-              name={'block'}
-            />
-          }
-          onPress={() => {
-            navigation.navigate('BlankList')
-          }}
-        />
+        {isSignined && (
+          <ListItem
+            label="屏蔽列表"
+            icon={
+              <MaterialIcons
+                color={tw.color(`text-tint-primary`)}
+                size={24}
+                name={'block'}
+              />
+            }
+            onPress={() => {
+              navigation.navigate('BlankList')
+            }}
+          />
+        )}
 
         <ListItem
           label="问题反馈"
@@ -263,7 +265,7 @@ function SettingScreen() {
           }}
         />
 
-        {isSignined && (
+        {isSignined && Platform.OS === 'ios' && (
           <ListItem
             label="注销帐号"
             icon={

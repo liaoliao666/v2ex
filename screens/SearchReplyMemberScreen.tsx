@@ -77,6 +77,7 @@ export default function SearchReplyMemberScreen() {
 
       <FlatList
         key={colorScheme}
+        removeClippedSubviews={true}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         data={matchReplyMembers}
         renderItem={renderNodeItem}

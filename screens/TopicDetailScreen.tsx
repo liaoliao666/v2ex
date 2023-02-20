@@ -178,7 +178,7 @@ function TopicDetailScreen() {
       <FlatList
         key={colorScheme}
         data={flatedData}
-        removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
+        removeClippedSubviews={Platform.OS !== 'android'}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
@@ -205,7 +205,9 @@ function TopicDetailScreen() {
             }}
           >
             <View
-              style={tw.style(`flex-row items-center justify-between pt-2`)}
+              style={tw.style(
+                `flex-row items-center justify-between pt-3 mt-2 border-t border-solid border-tint-border`
+              )}
             >
               <View style={tw`flex-1 flex-row justify-between items-center`}>
                 <VoteButton topic={topic} />

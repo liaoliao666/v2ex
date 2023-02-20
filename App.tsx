@@ -21,7 +21,7 @@ import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
-import Navigation from './navigation'
+import Navigation, { isReadyNavigation } from './navigation'
 import { useCheckin } from './servicies/member'
 import { useNodes } from './servicies/node'
 import './utils/dayjsPlugins'
@@ -54,7 +54,7 @@ function App() {
         <PersistQueryClientProvider
           client={queryClient}
           persistOptions={{ persister: asyncStoragePersister }}
-          onSuccess={SplashScreen.hideAsync}
+          onSuccess={() => isReadyNavigation.then(SplashScreen.hideAsync)}
         >
           <SafeAreaProvider>
             <Suspense>

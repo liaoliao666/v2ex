@@ -131,6 +131,7 @@ function NodeTopicsScreen() {
       <FlatList
         key={colorScheme}
         data={flatedData}
+        removeClippedSubviews={true}
         ListHeaderComponent={
           <NodeInfo once={lastPage.once} liked={lastPage.liked} bgCls={bgCls} />
         }

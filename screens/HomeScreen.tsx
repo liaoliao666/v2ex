@@ -19,6 +19,7 @@ import { TabBar, TabView } from 'react-native-tab-view'
 import Badge from '@/components/Badge'
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
+import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
@@ -64,6 +65,11 @@ function TabPlaceholder({
           </View>
         )
       }}
+      loading={
+        <View style={{ paddingTop: headerHeight, flex: 1 }}>
+          <LoadingIndicator />
+        </View>
+      }
     >
       {children}
     </QuerySuspense>
@@ -94,6 +100,12 @@ let isSwiping = false
 function isDisabledPress() {
   return isSwiping
 }
+function enablePress() {
+  isSwiping = false
+}
+function disablePress() {
+  isSwiping = true
+}
 
 function HomeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
@@ -118,12 +130,8 @@ function HomeScreen() {
         navigationState={{ index, routes: tabs }}
         lazy
         lazyPreloadDistance={1}
-        onSwipeStart={() => {
-          isSwiping = true
-        }}
-        onSwipeEnd={() => {
-          isSwiping = false
-        }}
+        onSwipeStart={disablePress}
+        onSwipeEnd={enablePress}
         renderScene={({ route }) => {
           const refetchOnWindowFocus =
             index === findIndex(tabs, { key: route.key })
@@ -141,7 +149,7 @@ function HomeScreen() {
           )
         }}
         onIndexChange={i => {
-          isSwiping = false
+          enablePress()
 
           const tab = tabs[i].key
           const activeKey =
@@ -261,7 +269,10 @@ function RecentTopics({
   return (
     <FlatList
       data={flatedData}
+      removeClippedSubviews={true}
       automaticallyAdjustsScrollIndicatorInsets={false}
+      onMomentumScrollEnd={enablePress}
+      onScrollEndDrag={enablePress}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
@@ -318,7 +329,10 @@ function TabTopics({
   return (
     <FlatList
       data={data}
+      removeClippedSubviews={true}
       automaticallyAdjustsScrollIndicatorInsets={false}
+      onMomentumScrollEnd={enablePress}
+      onScrollEndDrag={enablePress}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}

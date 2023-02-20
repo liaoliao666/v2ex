@@ -194,6 +194,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
   return (
     <FlatList
       data={flatedData}
+      removeClippedSubviews={true}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
@@ -251,6 +252,7 @@ function MemberTopics({
   return (
     <FlatList
       data={flatedData}
+      removeClippedSubviews={true}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}

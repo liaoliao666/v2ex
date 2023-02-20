@@ -76,6 +76,7 @@ function NotificationsScreen() {
       <FlatList
         key={colorScheme}
         data={flatedData}
+        removeClippedSubviews={true}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
