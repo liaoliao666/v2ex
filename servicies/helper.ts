@@ -166,12 +166,10 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
     }),
     ...invoke(() => {
       const $topicButtons = $('.topic_buttons')
-      const url = $topicButtons.find('.tb').eq(0).attr('href')
-      if (!url) return
-
       return {
-        once: getURLSearchParams(url).once,
-        liked: !!$topicButtons.find('a[onclick*="unfavorite"]').length,
+        once: getURLSearchParams($topicButtons.find('.tb').eq(0).attr('href'))
+          .once,
+        liked: !!$('.topic_buttons').find('a[href*="unfavorite"]').length,
         ignored: !!$topicButtons.find('a[onclick*="unignore"]').length,
       }
     }),

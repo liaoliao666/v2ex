@@ -3,7 +3,8 @@ import Toast from 'react-native-toast-message'
 
 import { baseURL } from './request/baseURL'
 
-export function getURLSearchParams(url: string): Record<string, string> {
+export function getURLSearchParams(url?: string): Record<string, string> {
+  if (!url) return {}
   const query = url.includes('?') ? url.split('?')[1] : url
   const params = Object.fromEntries(
     query.split('&').map(pair => pair.split('='))

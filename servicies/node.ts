@@ -54,6 +54,7 @@ export const useNodeTopics = createInfiniteQuery<
   },
   {
     getNextPageParam,
+    cacheTime: 1000 * 60 * 60 * 1, // 1 hours
     structuralSharing: false,
   }
 )

@@ -21,7 +21,7 @@ import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
-import { QuerySuspense } from '@/components/QuerySuspense'
+import { FallbackComponent, QuerySuspense } from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
 import Separator, { LineSeparator } from '@/components/Separator'
 import Space from '@/components/Space'
@@ -29,6 +29,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -131,7 +132,16 @@ export default function SearchScreen() {
           renderItem={renderNodeItem}
         />
       ) : (
-        <QuerySuspense>
+        <QuerySuspense
+          loading={
+            <TopicPlaceholder hideAvatar style={{ paddingTop: navbarHeight }} />
+          }
+          fallbackRender={fallbackProps => (
+            <View style={{ paddingTop: navbarHeight }}>
+              <FallbackComponent {...fallbackProps} />
+            </View>
+          )}
+        >
           <SoV2exList
             key={colorScheme}
             searchText={searchText}

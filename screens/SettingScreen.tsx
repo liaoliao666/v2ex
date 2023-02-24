@@ -199,6 +199,20 @@ function SettingScreen() {
         />
 
         <ListItem
+          label="问题反馈"
+          icon={
+            <Feather
+              color={tw.color(`text-tint-primary`)}
+              size={24}
+              name="github"
+            />
+          }
+          onPress={() => {
+            openURL('https://github.com/liaoliao666/v2ex/issues')
+          }}
+        />
+
+        <ListItem
           label="社区排行"
           icon={
             <Ionicons
@@ -227,20 +241,6 @@ function SettingScreen() {
             }}
           />
         )}
-
-        <ListItem
-          label="问题反馈"
-          icon={
-            <Feather
-              color={tw.color(`text-tint-primary`)}
-              size={24}
-              name="github"
-            />
-          }
-          onPress={() => {
-            openURL('https://github.com/liaoliao666/v2ex/issues')
-          }}
-        />
 
         <ListItem
           label="清除缓存"

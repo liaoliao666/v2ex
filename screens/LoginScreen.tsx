@@ -131,7 +131,7 @@ export default function LoginScreen() {
                 style={tw`aspect-4 mb-2 w-full`}
               >
                 <StyledImage
-                  style={tw`w-full h-full rounded-lg bg-loading`}
+                  style={tw`w-full h-full rounded-lg img-loading`}
                   source={{
                     uri: SigninInfoQuery.data?.captcha,
                     headers: SigninInfoQuery.data?.cookie

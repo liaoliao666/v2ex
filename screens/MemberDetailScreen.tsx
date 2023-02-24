@@ -133,8 +133,6 @@ function MemberDetailScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
-  const bgCls = avatarVisible ? TOP_BAR_BG_CLS : `bg-[rgba(51,51,68,.95)]`
-
   const contentContainerStyle = {
     minHeight:
       layout.height -
@@ -147,7 +145,11 @@ function MemberDetailScreen() {
 
   return (
     <View style={tw`flex-1 bg-body-1`}>
-      <NavBar style={tw.style(bgCls)} tintColor="#fff" statusBarStyle="light">
+      <NavBar
+        style={tw.style(TOP_BAR_BG_CLS)}
+        tintColor="#fff"
+        statusBarStyle="light"
+      >
         {!avatarVisible && (
           <View style={tw`flex-row items-center flex-1`}>
             <StyledImage
@@ -250,7 +252,7 @@ function MemberDetailScreen() {
                 pointerEvents="box-none"
                 style={tw`bg-body-1`}
               >
-                <MemberHeader bgCls={bgCls} />
+                <MemberHeader />
               </View>
 
               <TabBar
@@ -297,7 +299,7 @@ function MemberDetailScreen() {
   )
 }
 
-const MemberHeader = memo(({ bgCls }: { bgCls: string }) => {
+const MemberHeader = memo(() => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data: member } = useMember({
@@ -306,7 +308,10 @@ const MemberHeader = memo(({ bgCls }: { bgCls: string }) => {
 
   return (
     <Fragment>
-      <View pointerEvents="none" style={tw.style(bgCls, `pt-10 px-4`)} />
+      <View
+        pointerEvents="none"
+        style={tw.style(TOP_BAR_BG_CLS, `pt-10 px-4`)}
+      />
 
       <View style={tw`-mt-8 px-4 flex-row`}>
         <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
@@ -773,7 +778,7 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
 
       <View style={tw`-mt-8 px-4 flex-row`}>
         <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
-          <View style={tw`w-[81.25px] h-[81.25px] rounded-full bg-loading`} />
+          <View style={tw`w-[81.25px] h-[81.25px] rounded-full img-loading`} />
         </View>
       </View>
       {children}

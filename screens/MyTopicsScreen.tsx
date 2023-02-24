@@ -4,7 +4,6 @@ import { useCallback, useMemo } from 'react'
 import { FlatList, ListRenderItem, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
@@ -14,6 +13,7 @@ import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useMyTopics } from '@/servicies/topic'
@@ -25,7 +25,7 @@ export default withQuerySuspense(MyTopicsScreen, {
   LoadingComponent: () => (
     <View style={tw`flex-1`}>
       <NavBar title="主题收藏" />
-      <LoadingIndicator />
+      <TopicPlaceholder />
     </View>
   ),
   fallbackRender: props => (

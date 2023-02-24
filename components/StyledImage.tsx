@@ -78,7 +78,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
               }),
         !hasPassedSize && uriToSize.has(uri) && !uriToSize.get(uri) && `hidden`,
         style as ViewStyle,
-        isLoading && `bg-loading`
+        isLoading && `img-loading`
       )}
       resizeMode={'stretch'}
     />
@@ -121,8 +121,8 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
       <View
         style={
           isStyle(style) && hasSize(style)
-            ? tw.style(style, `bg-loading`)
-            : tw.style(`bg-loading`, 'aspect-square')
+            ? tw.style(style, `img-loading`)
+            : tw.style(`img-loading`, 'aspect-square')
         }
       />
     )

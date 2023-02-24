@@ -4,7 +4,6 @@ import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
 import {
   Fragment,
-  ReactNode,
   useCallback,
   useEffect,
   useMemo,
@@ -22,7 +21,6 @@ import {
 
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
-import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
@@ -32,8 +30,9 @@ import RadioButtonGroup from '@/components/RadioButtonGroup'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
-import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicDetailPlaceholder from '@/components/placeholder/TopicDetailPlaceholder'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
 import ReplyItem from '@/components/topic/ReplyItem'
 import TopicInfo, {
@@ -51,67 +50,23 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(TopicDetailScreen, {
-  LoadingComponent: () => (
-    <TopicDetailPlaceholder>
-      <LoadingIndicator />
-    </TopicDetailPlaceholder>
-  ),
-  fallbackRender: props => (
-    <TopicDetailPlaceholder>
-      <FallbackComponent {...props} />
-    </TopicDetailPlaceholder>
-  ),
+  LoadingComponent: () => {
+    const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
+    return (
+      <TopicDetailPlaceholder topic={params}>
+        <TopicPlaceholder hideAnimation />
+      </TopicDetailPlaceholder>
+    )
+  },
+  FallbackComponent: props => {
+    const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
+    return (
+      <TopicDetailPlaceholder topic={params} isError>
+        <FallbackComponent {...props} />
+      </TopicDetailPlaceholder>
+    )
+  },
 })
-
-function TopicDetailPlaceholder({ children }: { children?: ReactNode }) {
-  const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
-  return (
-    <View style={tw`flex-1 bg-body-1`}>
-      <NavBar title="帖子" />
-      {params.member && (
-        <View style={tw`pt-3 px-4`}>
-          <View style={tw`flex-row items-center`}>
-            <View style={tw`mr-3`}>
-              <StyledImage
-                style={tw.style(
-                  `w-12 h-12 rounded-full`,
-                  !params.member.avatar && `bg-loading`
-                )}
-                source={{
-                  uri: params.member?.avatar,
-                }}
-              />
-            </View>
-
-            <View style={tw`flex-1`}>
-              <Text
-                style={tw`text-tint-primary ${getFontSize(4)} font-semibold`}
-              >
-                {params.member?.username}
-              </Text>
-
-              <Text
-                key="reply_count"
-                style={tw`text-tint-secondary ${getFontSize(
-                  5
-                )} flex-1 min-h-[24px]`}
-                numberOfLines={1}
-              >
-                {`${params.reply_count} 回复`}
-              </Text>
-            </View>
-          </View>
-          <Text
-            style={tw`text-tint-primary ${getFontSize(3)} font-medium pt-2`}
-          >
-            {params.title}
-          </Text>
-        </View>
-      )}
-      {children}
-    </View>
-  )
-}
 
 type OrderBy = 'asc' | 'desc'
 

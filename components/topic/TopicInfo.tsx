@@ -186,11 +186,6 @@ export function LikeTopic({ topic }: { topic: Topic }) {
             type: topic.liked ? 'unfavorite' : 'favorite',
             once: topic.once!,
           })
-
-          Toast.show({
-            type: 'success',
-            text1: '操作成功',
-          })
         } catch (error) {
           updateTopicDetail({
             id: topic.id,
@@ -200,7 +195,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 
           Toast.show({
             type: 'error',
-            text1: '操作失败',
+            text1: '收藏失败',
           })
         }
       }}

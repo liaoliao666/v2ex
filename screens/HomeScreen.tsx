@@ -19,7 +19,6 @@ import { TabBar, TabView } from 'react-native-tab-view'
 import Badge from '@/components/Badge'
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
-import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
@@ -32,6 +31,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
@@ -65,11 +65,7 @@ function TabPlaceholder({
           </View>
         )
       }}
-      loading={
-        <View style={{ paddingTop: headerHeight, flex: 1 }}>
-          <LoadingIndicator />
-        </View>
-      }
+      loading={<TopicPlaceholder style={{ paddingTop: headerHeight }} />}
     >
       {children}
     </QuerySuspense>
@@ -376,7 +372,7 @@ function TopNavBar() {
             </Badge>
           ) : (
             <View
-              style={tw`w-8 h-8 items-center justify-center rounded-full bg-loading`}
+              style={tw`w-8 h-8 items-center justify-center rounded-full img-loading`}
             />
           )}
         </Pressable>

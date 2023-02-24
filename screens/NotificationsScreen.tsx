@@ -12,7 +12,6 @@ import { inferData } from 'react-query-kit'
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
-import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
@@ -23,6 +22,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
@@ -38,7 +38,7 @@ export default withQuerySuspense(NotificationsScreen, {
   LoadingComponent: () => (
     <View style={tw`flex-1`}>
       <NavBar title="未读提醒" />
-      <LoadingIndicator />
+      <TopicPlaceholder />
     </View>
   ),
   fallbackRender: props => (

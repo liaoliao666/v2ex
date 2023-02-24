@@ -13,7 +13,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
 import Empty from '@/components/Empty'
-import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
@@ -24,6 +23,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -36,7 +36,7 @@ export default withQuerySuspense(MyFollowingScreen, {
   LoadingComponent: () => (
     <View style={tw`flex-1`}>
       <NavBar title="特别关注" />
-      <LoadingIndicator />
+      <TopicPlaceholder />
     </View>
   ),
   fallbackRender: props => (
@@ -63,6 +63,14 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
+      </View>
+    )
+  },
+  LoadingComponent: () => {
+    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    return (
+      <View style={{ paddingTop: headerHeight }}>
+        <TopicPlaceholder hideAvatar />
       </View>
     )
   },

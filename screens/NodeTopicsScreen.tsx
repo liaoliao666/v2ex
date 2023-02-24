@@ -11,7 +11,6 @@ import { inferData } from 'react-query-kit'
 import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
-import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
 import {
   FallbackComponent,
@@ -22,6 +21,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -45,7 +45,7 @@ export default withQuerySuspense(NodeTopicsScreen, {
         statusBarStyle="light"
       />
       <NodeInfo hideLike />
-      <LoadingIndicator />
+      <TopicPlaceholder />
     </View>
   ),
   fallbackRender: props => (
@@ -94,15 +94,13 @@ function NodeTopicsScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
-  const bgCls = avatarVisible ? TOP_BAR_BG_CLS : `bg-[rgba(51,51,68,.95)]`
-
   return (
     <View style={tw`flex-1`}>
       <NavBar
         title="节点"
         statusBarStyle="light"
         tintColor="#fff"
-        style={tw.style(bgCls, 'border-b-0')}
+        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0')}
       >
         {!avatarVisible && (
           <View style={tw`flex-row items-center`}>
@@ -133,7 +131,7 @@ function NodeTopicsScreen() {
         data={flatedData}
         removeClippedSubviews={true}
         ListHeaderComponent={
-          <NodeInfo once={lastPage.once} liked={lastPage.liked} bgCls={bgCls} />
+          <NodeInfo once={lastPage.once} liked={lastPage.liked} />
         }
         refreshControl={
           <StyledRefreshControl
@@ -171,12 +169,10 @@ function NodeInfo({
   once,
   liked,
   hideLike,
-  bgCls = TOP_BAR_BG_CLS,
 }: {
   once?: string
   liked?: boolean
   hideLike?: boolean
-  bgCls?: string
 }) {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
@@ -185,7 +181,7 @@ function NodeInfo({
   })
 
   return (
-    <View style={tw`${bgCls} px-4 pt-6 -mt-3 pb-3 flex-row`}>
+    <View style={tw`${TOP_BAR_BG_CLS} px-4 pt-6 -mt-3 pb-3 flex-row`}>
       <StyledImage
         style={tw`w-12 h-12 mr-3 rounded`}
         source={{
@@ -244,7 +240,7 @@ function LikeNode({
 
   const navigation = useNavigation()
 
-  async function handleFavorite() {
+  async function likeNode() {
     if (!isSignined()) {
       navigation.navigate('Login')
       return
@@ -278,7 +274,7 @@ function LikeNode({
 
   if (type === 'button') {
     return (
-      <StyledButton shape="rounded" onPress={handleFavorite}>
+      <StyledButton shape="rounded" onPress={likeNode}>
         {liked ? `已收藏` : `收藏`}
       </StyledButton>
     )
@@ -301,7 +297,7 @@ function LikeNode({
         color={'#e7e9ea'}
         activeColor="rgb(250,219,20)"
         active={liked}
-        onPress={handleFavorite}
+        onPress={likeNode}
       />
     </View>
   )
