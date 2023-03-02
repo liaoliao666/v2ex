@@ -1,4 +1,4 @@
-import { Pressable, Text, View } from 'react-native'
+import { Pressable, Text, View, ViewStyle } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
@@ -9,13 +9,15 @@ export default function RadioButtonGroup<
   value,
   onChange,
   options,
+  style,
 }: {
   value: T
   onChange: (value: T) => void
   options: { label: string; value: T }[]
+  style?: ViewStyle
 }) {
   return (
-    <View style={tw`flex-row`}>
+    <View style={tw.style(`flex-row`, style)}>
       <View
         style={tw`flex-row p-0.5 rounded-lg bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)]`}
       >

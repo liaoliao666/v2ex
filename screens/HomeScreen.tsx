@@ -33,6 +33,7 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
+import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -353,29 +354,33 @@ function TopNavBar() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
+  const isTablet = useAtomValue(isTabletAtom)
+
   return (
     <NavBar
       left={
-        <Pressable
-          onPress={() => {
-            navigation.dispatch(DrawerActions.openDrawer)
-          }}
-        >
-          {profile ? (
-            <Badge content={profile.my_notification}>
-              <StyledImage
-                style={tw`w-8 h-8 rounded-full`}
-                source={{
-                  uri: profile.avatar,
-                }}
+        !isTablet && (
+          <Pressable
+            onPress={() => {
+              navigation.dispatch(DrawerActions.openDrawer)
+            }}
+          >
+            {profile ? (
+              <Badge content={profile.my_notification}>
+                <StyledImage
+                  style={tw`w-8 h-8 rounded-full`}
+                  source={{
+                    uri: profile.avatar,
+                  }}
+                />
+              </Badge>
+            ) : (
+              <View
+                style={tw`w-8 h-8 items-center justify-center rounded-full img-loading`}
               />
-            </Badge>
-          ) : (
-            <View
-              style={tw`w-8 h-8 items-center justify-center rounded-full img-loading`}
-            />
-          )}
-        </Pressable>
+            )}
+          </Pressable>
+        )
       }
       right={
         <IconButton

@@ -17,7 +17,9 @@ import {
   Pressable,
   Text,
   View,
+  useWindowDimensions,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
@@ -128,6 +130,10 @@ function TopicDetailScreen() {
 
   const navbarHeight = useNavBarHeight()
 
+  const safeAreaInsets = useSafeAreaInsets()
+
+  const layout = useWindowDimensions()
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <FlatList
@@ -164,44 +170,40 @@ function TopicDetailScreen() {
                 `flex-row items-center justify-between pt-3 mt-2 border-t border-solid border-tint-border`
               )}
             >
-              <View style={tw`flex-1 flex-row justify-between items-center`}>
-                <VoteButton topic={topic} />
+              <VoteButton topic={topic} />
 
-                <Pressable
-                  style={tw.style(`flex-row items-center`)}
-                  onPress={() => {
-                    replyBoxRef.current?.replyFor()
-                  }}
-                >
-                  {({ pressed }) => (
-                    <Fragment>
-                      <IconButton
-                        color={tw.color(`text-tint-secondary`)}
-                        activeColor="rgb(29,155,240)"
-                        size={21}
-                        icon={<Octicons name="comment" />}
-                        pressed={pressed}
-                      />
+              <Pressable
+                style={tw.style(`flex-row items-center`)}
+                onPress={() => {
+                  replyBoxRef.current?.replyFor()
+                }}
+              >
+                {({ pressed }) => (
+                  <Fragment>
+                    <IconButton
+                      color={tw.color(`text-tint-secondary`)}
+                      activeColor="rgb(29,155,240)"
+                      size={21}
+                      icon={<Octicons name="comment" />}
+                      pressed={pressed}
+                    />
 
-                      {!!topic.reply_count && (
-                        <Text
-                          style={tw.style(
-                            `${getFontSize(6)} pl-1 text-tint-secondary`
-                          )}
-                        >
-                          {topic.reply_count}
-                        </Text>
-                      )}
-                    </Fragment>
-                  )}
-                </Pressable>
+                    {!!topic.reply_count && (
+                      <Text
+                        style={tw.style(
+                          `${getFontSize(6)} pl-1 text-tint-secondary`
+                        )}
+                      >
+                        {topic.reply_count}
+                      </Text>
+                    )}
+                  </Fragment>
+                )}
+              </Pressable>
 
-                {!isMe(topic.member?.username) && <ThankTopic topic={topic} />}
+              {!isMe(topic.member?.username) && <ThankTopic topic={topic} />}
 
-                <LikeTopic topic={topic} />
-              </View>
-
-              <View style={tw`flex-shrink-0 w-8`} />
+              <LikeTopic topic={topic} />
 
               <RadioButtonGroup
                 options={
@@ -224,7 +226,16 @@ function TopicDetailScreen() {
             <StyledActivityIndicator style={tw`py-4`} />
           ) : null
         }
-        ListEmptyComponent={<Empty description="目前还没有回复" />}
+        ListEmptyComponent={
+          <Empty
+            description="目前还没有回复"
+            style={{
+              minHeight:
+                layout.height -
+                (Math.max(safeAreaInsets.bottom, 16) + 16 + 36 + navbarHeight),
+            }}
+          />
+        }
         onScroll={ev => {
           setAvatarVisible(ev.nativeEvent.contentOffset.y <= 64)
         }}

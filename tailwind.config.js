@@ -16,6 +16,13 @@ module.exports = {
         'secondary-focus': 'rgb(26,140,216)',
       },
     },
+    screens: {
+      sm: '380px',
+      md: '420px',
+      lg: '680px',
+      // or maybe name them after devices for `tablet:flex-row`
+      tablet: '1024px',
+    },
   },
   plugins: [
     plugin(({ addUtilities }) => {

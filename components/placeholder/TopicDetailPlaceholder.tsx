@@ -1,10 +1,10 @@
 import { ReactNode } from 'react'
 import { Text, View } from 'react-native'
 import {
+  Fade,
   Placeholder,
   PlaceholderLine,
   PlaceholderMedia,
-  ShineOverlay,
 } from 'rn-placeholder'
 
 import StyledImage from '@/components/StyledImage'
@@ -35,7 +35,7 @@ export default function TopicDetailPlaceholder({
   topic: Partial<Topic>
 }) {
   return (
-    <Placeholder style={tw`flex-1 bg-body-1`}>
+    <View style={tw`flex-1 bg-body-1`}>
       <NavBar title="帖子" />
       {!!topic.member && (
         <View>
@@ -84,9 +84,7 @@ export default function TopicDetailPlaceholder({
         children
       ) : (
         <Placeholder
-          Animation={
-            store.get(colorSchemeAtom) === 'light' ? ShineOverlay : undefined
-          }
+          Animation={store.get(colorSchemeAtom) === 'light' ? Fade : undefined}
         >
           {!topic?.member && (
             <Placeholder style={tw`pt-3 px-4`} Left={AvatarPlaceholder}>
@@ -99,14 +97,10 @@ export default function TopicDetailPlaceholder({
             </Placeholder>
           )}
 
-          <Placeholder style={tw`pt-2 px-4`}>
-            <PlaceholderLine color={tw.color('bg-loading')} />
-            <PlaceholderLine width={40} color={tw.color('bg-loading')} />
-          </Placeholder>
-
           <Placeholder
             style={tw`pt-2 px-4 border-b border-tint-border border-solid`}
           >
+            <PlaceholderLine color={tw.color('bg-loading')} />
             <PlaceholderLine color={tw.color('bg-loading')} />
             <PlaceholderLine color={tw.color('bg-loading')} />
             <PlaceholderLine width={30} color={tw.color('bg-loading')} />
@@ -115,6 +109,6 @@ export default function TopicDetailPlaceholder({
           {children}
         </Placeholder>
       )}
-    </Placeholder>
+    </View>
   )
 }

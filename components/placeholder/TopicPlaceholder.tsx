@@ -1,9 +1,9 @@
 import { ViewStyle } from 'react-native'
 import {
+  Fade,
   Placeholder,
   PlaceholderLine,
   PlaceholderMedia,
-  ShineOverlay,
 } from 'rn-placeholder'
 
 import { store } from '@/jotai/store'
@@ -53,9 +53,9 @@ export default function TopicPlaceholder({
   return (
     <Placeholder
       Animation={
-        store.get(colorSchemeAtom) === 'dark' || !hideAnimation
+        store.get(colorSchemeAtom) === 'dark' || hideAnimation
           ? undefined
-          : ShineOverlay
+          : Fade
       }
       style={style}
     >

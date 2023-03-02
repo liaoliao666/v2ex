@@ -3,8 +3,6 @@ import {
   MaterialCommunityIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom, useAtomValue } from 'jotai'
 import { omit, pick } from 'lodash-es'
 import { memo } from 'react'
@@ -13,10 +11,11 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Money from '@/components/Money'
 import StyledImage from '@/components/StyledImage'
+import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
-import { RootStackParamList } from '@/types'
+import { getNavigation } from '@/navigation/navigationRef'
 import { clearCookie } from '@/utils/cookie'
 import tw from '@/utils/tw'
 
@@ -36,9 +35,6 @@ function Profile() {
 
   const profile = useAtomValue(profileAtom)
 
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   const isLogin = !!profile?.once
 
   const userOptions = [
@@ -53,7 +49,7 @@ function Profile() {
         />
       ),
       onPress: () => {
-        navigation.navigate('MyNodes')
+        getNavigation()?.navigate('MyNodes')
       },
     },
     {
@@ -67,7 +63,7 @@ function Profile() {
         />
       ),
       onPress: () => {
-        navigation.navigate('MyTopics')
+        getNavigation()?.navigate('MyTopics')
       },
     },
     {
@@ -81,7 +77,7 @@ function Profile() {
         />
       ),
       onPress: () => {
-        navigation.navigate('MyFollowing')
+        getNavigation()?.navigate('MyFollowing')
       },
     },
     {
@@ -97,13 +93,19 @@ function Profile() {
         </Badge>
       ),
       onPress: () => {
-        navigation.navigate('Notifications')
+        getNavigation()?.navigate('Notifications')
       },
     },
   ]
 
+  const isTablet = useAtomValue(isTabletAtom)
+
   return (
-    <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`} key={fontScale}>
+    <SafeAreaView
+      edges={['top']}
+      style={tw`flex-1 bg-body-1`}
+      key={isTablet ? 'profile' : fontScale}
+    >
       {isLogin ? (
         <View style={tw`p-4`}>
           <View style={tw`flex-row justify-between items-center`}>
@@ -116,7 +118,7 @@ function Profile() {
 
             <TouchableOpacity
               onPress={() => {
-                navigation.navigate('MemberDetail', {
+                getNavigation()?.navigate('MemberDetail', {
                   username: profile?.username!,
                 })
               }}
@@ -135,7 +137,9 @@ function Profile() {
 
           <View style={tw`pt-2 flex-row items-center`}>
             <Text
-              style={tw`text-tint-primary text-[20px] leading-6 font-bold flex-shrink mr-2`}
+              style={tw`text-tint-primary ${getFontSize(
+                2
+              )} font-bold flex-shrink mr-2`}
               numberOfLines={1}
             >
               {profile?.username}
@@ -158,7 +162,7 @@ function Profile() {
           style={tw`px-4 py-8 flex-row items-center`}
           onPress={async () => {
             await clearCookie()
-            navigation.navigate('Login')
+            getNavigation()?.navigate('Login')
           }}
         >
           <StyledImage style={tw`w-16 h-16 mb-2 rounded-full img-loading`} />
@@ -212,7 +216,7 @@ function Profile() {
               />
             }
             onPress={() => {
-              navigation.navigate('RecentTopic')
+              getNavigation()?.navigate('RecentTopic')
             }}
           />
 
@@ -226,7 +230,7 @@ function Profile() {
               />
             }
             onPress={() => {
-              navigation.navigate('NavNodes')
+              getNavigation()?.navigate('NavNodes')
             }}
           />
 
@@ -240,7 +244,7 @@ function Profile() {
               />
             }
             onPress={() => {
-              navigation.navigate('Setting')
+              getNavigation()?.navigate('Setting')
             }}
           />
         </View>

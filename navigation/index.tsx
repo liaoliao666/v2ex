@@ -15,6 +15,7 @@ import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 import { Platform } from 'react-native'
 
+import PageLayout from '@/components/PageLayout'
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
@@ -83,17 +84,19 @@ export default function Navigation() {
   }, [colorScheme])
 
   return (
-    <NavigationContainer
-      ref={navigationRef}
-      linking={linking}
-      theme={theme}
-      onReady={() => {
-        handleReadyNavigation()
-        sleep(500).then(SplashScreen.hideAsync)
-      }}
-    >
-      <StackNavigator />
-    </NavigationContainer>
+    <PageLayout>
+      <NavigationContainer
+        ref={navigationRef}
+        linking={linking}
+        theme={theme}
+        onReady={() => {
+          handleReadyNavigation()
+          sleep(500).then(SplashScreen.hideAsync)
+        }}
+      >
+        <StackNavigator />
+      </NavigationContainer>
+    </PageLayout>
   )
 }
 

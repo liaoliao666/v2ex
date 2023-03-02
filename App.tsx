@@ -13,6 +13,7 @@ import { useDeviceContext } from 'twrnc'
 
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
+import { deviceTypeAtom } from './jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
 import { enabledParseImageAtom } from './jotai/enabledParseImage'
@@ -82,6 +83,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       enabledMsgPushAtom,
       fontScaleAtom,
       enabledParseImageAtom,
+      deviceTypeAtom,
     ])
   )
 
