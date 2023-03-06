@@ -75,7 +75,8 @@ function updateStoreWithData(data: any) {
           getCurrentRouteName() !== 'HomeScreen' &&
           store.get(enabledMsgPushAtom) &&
           newProfile.my_notification !== prev?.my_notification &&
-          isInteger(newProfile.my_notification)
+          isInteger(newProfile.my_notification) &&
+          newProfile.my_notification! > 0
         ) {
           Toast.show({
             type: 'success',
