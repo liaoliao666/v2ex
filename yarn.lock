@@ -2029,10 +2029,10 @@
   dependencies:
     "@tanstack/query-persist-client-core" "4.20.4"
 
-"@tanstack/query-core@4.22.4":
-  version "4.22.4"
-  resolved "https://registry.yarnpkg.com/@tanstack/query-core/-/query-core-4.22.4.tgz#aca622d2f8800a147ece5520d956a076ab92f0ea"
-  integrity sha512-t79CMwlbBnj+yL82tEcmRN93bL4U3pae2ota4t5NN2z3cIeWw74pzdWrKRwOfTvLcd+b30tC+ciDlfYOKFPGUw==
+"@tanstack/query-core@4.26.0":
+  version "4.26.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-4.26.0.tgz#fc65c8c117e72baead3a82a1f272a4ec210c7650"
+  integrity sha512-9CRqXmCH82KZDKmezoGU4FOn1Oqbzlp2/zf71n+9nC58e7NSqCIjfSCMpqQWcu9YqUcUykxZEUunOyKHVc6BJA==
 
 "@tanstack/query-persist-client-core@4.20.4":
   version "4.20.4"
@@ -2051,12 +2051,12 @@
   dependencies:
     "@tanstack/query-persist-client-core" "4.22.4"
 
-"@tanstack/react-query@^4.23.0":
-  version "4.23.0"
-  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-4.23.0.tgz#0b9e14269a48cf5a4ffe46c8525cdb9df2ebd9cf"
-  integrity sha512-cfQsrecZQjYYueiow4WcK8ItokXJnv+b2OrK8Lf5kF7lM9uCo1ilyygFB8wo4MfxchUBVM6Cs8wq4Ed7fouwkA==
+"@tanstack/react-query@^4.26.0":
+  version "4.26.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-4.26.0.tgz#379b3f7e068b0baf296cff706f4f9dd191c08f8e"
+  integrity sha512-Y5qKyr9AtreTHBPAsn+ulR02E7SyZXPQbwL2tkOcgUAGH2KHHcf7j7NHBhKpaAGB6/vPqkxGYW46epu29V0HqA==
   dependencies:
-    "@tanstack/query-core" "4.22.4"
+    "@tanstack/query-core" "4.26.0"
     use-sync-external-store "^1.2.0"
 
 "@trivago/prettier-plugin-sort-imports@^3.3.0":
@@ -7296,10 +7296,10 @@ react-native@0.70.5:
     whatwg-fetch "^3.0.0"
     ws "^6.1.4"
 
-react-query-kit@^1.3.6:
-  version "1.3.6"
-  resolved "https://mirrors.cloud.tencent.com/npm/react-query-kit/-/react-query-kit-1.3.6.tgz#7cdb8ce0cb6adf86c411550a90dc5250349ad54c"
-  integrity sha512-WCl0CvIModmuVPE9r1z9PL9s5OgfvwFxjHA0i+ZZ9mZRy5LrsWU23PIZIg54ZToI1Ak3NcjydO6oKFZzrS4nMg==
+react-query-kit@^1.3.7:
+  version "1.3.7"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-query-kit/-/react-query-kit-1.3.7.tgz#302c48b479a58c876fe51c5775f5cdde77d57122"
+  integrity sha512-6SMoY0Z+h18YZfdJ+VW502t/mblu+qcbYYDczuLgYDBCwq4a82GgYVmSoC2Kz9gLtSKiqlavGLZI79km1yhRJA==
 
 react-refresh@^0.4.0:
   version "0.4.3"

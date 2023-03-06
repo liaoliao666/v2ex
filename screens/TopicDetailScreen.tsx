@@ -17,11 +17,8 @@ import {
   Pressable,
   Text,
   View,
-  useWindowDimensions,
 } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
@@ -130,10 +127,6 @@ function TopicDetailScreen() {
 
   const navbarHeight = useNavBarHeight()
 
-  const safeAreaInsets = useSafeAreaInsets()
-
-  const layout = useWindowDimensions()
-
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <FlatList
@@ -227,14 +220,11 @@ function TopicDetailScreen() {
           ) : null
         }
         ListEmptyComponent={
-          <Empty
-            description="目前还没有回复"
-            style={{
-              minHeight:
-                layout.height -
-                (Math.max(safeAreaInsets.bottom, 16) + 16 + 36 + navbarHeight),
-            }}
-          />
+          <View style={tw.style(`items-center py-16`)}>
+            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
+              目前还没有回复
+            </Text>
+          </View>
         }
         onScroll={ev => {
           setAvatarVisible(ev.nativeEvent.contentOffset.y <= 64)

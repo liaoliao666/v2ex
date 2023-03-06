@@ -22,13 +22,14 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
+import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
 import { enabledParseImageAtom } from '@/jotai/enabledParseImage'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
-import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { useSignout } from '@/servicies/authentication'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
@@ -39,8 +40,6 @@ import { openURL } from '@/utils/url'
 export default withQuerySuspense(SettingScreen)
 
 function SettingScreen() {
-  useAtomValue(colorSchemeAtom)
-
   const navbarHeight = useNavBarHeight()
 
   const profile = useAtomValue(profileAtom)
@@ -58,6 +57,12 @@ function SettingScreen() {
   const [enabledParseImage, setEnabledParseImage] = useAtom(
     enabledParseImageAtom
   )
+
+  const isTablet = useAtomValue(isTabletAtom)
+
+  const colorScheme = useAtomValue(colorSchemeAtom)
+
+  const [theme, setTheme] = useAtom(themeAtom)
 
   const isSignined = !!profile?.once
 
@@ -197,6 +202,30 @@ function SettingScreen() {
           }
           pressable={false}
         />
+
+        {isTablet && (
+          <ListItem
+            label="外观"
+            icon={
+              <Feather
+                color={tw.color(`text-tint-primary`)}
+                size={24}
+                name={colorScheme === 'light' ? 'sun' : 'moon'}
+              />
+            }
+            action={
+              <RadioButtonGroup
+                options={[
+                  { label: '浅色', value: 'light' },
+                  { label: '深色', value: 'dark' },
+                  { label: '系统', value: 'system' },
+                ]}
+                value={theme}
+                onChange={setTheme}
+              />
+            }
+          />
+        )}
 
         <ListItem
           label="问题反馈"

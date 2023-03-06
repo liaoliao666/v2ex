@@ -13,7 +13,7 @@ export default function ListItem({
   onPress,
   pressable = true,
 }: {
-  label: string
+  label?: string
   icon: ReactNode
   action?: ReactNode
   onPress?: PressableProps['onPress']
@@ -25,20 +25,22 @@ export default function ListItem({
       style={({ pressed }) =>
         tw.style(
           `px-4 h-[56px] flex-row items-center`,
-          pressed && pressable && `bg-message-press`
+          pressed && pressable && !!label && `bg-message-press`
         )
       }
       onPress={onPress}
     >
       {icon}
 
-      <Text
-        style={tw.style(`ml-6 font-medium text-tint-primary mr-auto`, {
-          fontSize,
-        })}
-      >
-        {label}
-      </Text>
+      {!!label && (
+        <Text
+          style={tw.style(`ml-6 font-medium text-tint-primary mr-auto`, {
+            fontSize,
+          })}
+        >
+          {label}
+        </Text>
+      )}
 
       {action}
     </DebouncedPressable>

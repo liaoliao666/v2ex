@@ -1,5 +1,5 @@
 import { load } from 'cheerio'
-import { last } from 'lodash-es'
+import { compact, last } from 'lodash-es'
 import {
   createInfiniteQuery,
   createMutation,
@@ -206,14 +206,18 @@ export const useBlockers = createInfiniteQuery<
     return {
       page,
       last_page: Math.ceil(ids.length / pageSize),
-      list: await Promise.all(
-        chunkIds.map(async id => {
-          if (cacheMemberMap[id]) return cacheMemberMap[id]
-          return await queryClient.ensureQueryData({
-            queryKey: useMemberById.getKey({ id }),
-            queryFn: useMemberById.queryFn,
+      list: compact(
+        await Promise.all(
+          chunkIds.map(async id => {
+            if (cacheMemberMap[id]) return cacheMemberMap[id]
+            return await queryClient
+              .ensureQueryData({
+                queryKey: useMemberById.getKey({ id }),
+                queryFn: useMemberById.queryFn,
+              })
+              .catch(() => null)
           })
-        })
+        )
       ),
     }
   },
@@ -274,14 +278,18 @@ export const useIgnoredTopics = createInfiniteQuery<
     return {
       page,
       last_page: Math.ceil(ids.length / pageSize),
-      list: await Promise.all(
-        chunkIds.map(async id => {
-          if (cacheTopicMap[id]) return cacheTopicMap[id]
-          return await queryClient.ensureQueryData({
-            queryKey: useTopicById.getKey({ id }),
-            queryFn: useTopicById.queryFn,
+      list: compact(
+        await Promise.all(
+          chunkIds.map(async id => {
+            if (cacheTopicMap[id]) return cacheTopicMap[id]
+            return await queryClient
+              .ensureQueryData({
+                queryKey: useTopicById.getKey({ id }),
+                queryFn: useTopicById.queryFn,
+              })
+              .catch(() => null)
           })
-        })
+        )
       ),
     }
   },

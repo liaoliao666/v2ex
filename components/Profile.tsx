@@ -21,6 +21,7 @@ import tw from '@/utils/tw'
 
 import Badge from './Badge'
 import ListItem from './ListItem'
+import { NAV_BAR_HEIGHT } from './NavBar'
 import { withQuerySuspense } from './QuerySuspense'
 import RadioButtonGroup from './RadioButtonGroup'
 
@@ -36,6 +37,8 @@ function Profile() {
   const profile = useAtomValue(profileAtom)
 
   const isLogin = !!profile?.once
+
+  const isTablet = useAtomValue(isTabletAtom)
 
   const userOptions = [
     {
@@ -56,10 +59,10 @@ function Profile() {
       label: '主题收藏',
       value: 'my_topics',
       icon: (
-        <MaterialCommunityIcons
+        <Feather
           color={tw.color(`text-tint-primary`)}
           size={24}
-          name={'comment-outline'}
+          name={'bookmark'}
         />
       ),
       onPress: () => {
@@ -98,8 +101,6 @@ function Profile() {
     },
   ]
 
-  const isTablet = useAtomValue(isTabletAtom)
-
   return (
     <SafeAreaView
       edges={['top']}
@@ -107,56 +108,84 @@ function Profile() {
       key={isTablet ? 'profile' : fontScale}
     >
       {isLogin ? (
-        <View style={tw`p-4`}>
-          <View style={tw`flex-row justify-between items-center`}>
+        isTablet ? (
+          <TouchableOpacity
+            style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
+            onPress={() => {
+              getNavigation()?.navigate('MemberDetail', {
+                username: profile?.username!,
+              })
+            }}
+          >
             <StyledImage
-              style={tw`w-10 h-10 rounded-full`}
+              style={tw`w-8 h-8 rounded-full`}
               source={{
                 uri: profile?.avatar,
               }}
             />
-
-            <TouchableOpacity
-              onPress={() => {
-                getNavigation()?.navigate('MemberDetail', {
-                  username: profile?.username!,
-                })
-              }}
-              style={tw`flex-row items-center`}
-            >
-              <Text style={tw`text-tint-secondary mr-1 ${getFontSize(5)}`}>
-                个人主页
-              </Text>
-              <SimpleLineIcons
-                name="arrow-right"
-                color={tw.color(`text-tint-secondary`)}
-                size={10}
+          </TouchableOpacity>
+        ) : (
+          <View style={tw`p-4`}>
+            <View style={tw`flex-row justify-between items-center`}>
+              <StyledImage
+                style={tw`w-10 h-10 rounded-full`}
+                source={{
+                  uri: profile?.avatar,
+                }}
               />
-            </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  getNavigation()?.navigate('MemberDetail', {
+                    username: profile?.username!,
+                  })
+                }}
+                style={tw`flex-row items-center`}
+              >
+                <Text style={tw`text-tint-secondary mr-1 ${getFontSize(5)}`}>
+                  个人主页
+                </Text>
+                <SimpleLineIcons
+                  name="arrow-right"
+                  color={tw.color(`text-tint-secondary`)}
+                  size={10}
+                />
+              </TouchableOpacity>
+            </View>
+
+            <View style={tw`pt-2 flex-row items-center`}>
+              <Text
+                style={tw`text-tint-primary ${getFontSize(
+                  2
+                )} font-bold flex-shrink mr-2`}
+                numberOfLines={1}
+              >
+                {profile?.username}
+              </Text>
+
+              <Money
+                style={tw`mt-1`}
+                {...pick(profile, ['gold', 'silver', 'bronze'])}
+              />
+            </View>
+
+            {!!profile?.motto && (
+              <Text style={tw`text-tint-secondary ${getFontSize(5)} mt-2`}>
+                {profile?.motto}
+              </Text>
+            )}
           </View>
-
-          <View style={tw`pt-2 flex-row items-center`}>
-            <Text
-              style={tw`text-tint-primary ${getFontSize(
-                2
-              )} font-bold flex-shrink mr-2`}
-              numberOfLines={1}
-            >
-              {profile?.username}
-            </Text>
-
-            <Money
-              style={tw`mt-1`}
-              {...pick(profile, ['gold', 'silver', 'bronze'])}
-            />
-          </View>
-
-          {!!profile?.motto && (
-            <Text style={tw`text-tint-secondary ${getFontSize(5)} mt-2`}>
-              {profile?.motto}
-            </Text>
-          )}
-        </View>
+        )
+      ) : isTablet ? (
+        <TouchableOpacity
+          style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
+          onPress={async () => {
+            await clearCookie()
+            getNavigation()?.navigate('Login')
+          }}
+        >
+          <View style={tw`w-8 h-8 rounded-full img-loading`} />
+        </TouchableOpacity>
       ) : (
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
@@ -165,7 +194,7 @@ function Profile() {
             getNavigation()?.navigate('Login')
           }}
         >
-          <StyledImage style={tw`w-16 h-16 mb-2 rounded-full img-loading`} />
+          <View style={tw`w-16 h-16 mb-2 rounded-full img-loading`} />
           <View style={tw`flex-row items-center ml-2`}>
             <Text style={tw`text-[24px] text-tint-primary`}>点我登录</Text>
             <SimpleLineIcons
@@ -180,34 +209,39 @@ function Profile() {
       <ScrollView>
         {isLogin &&
           userOptions.map(item => (
-            <ListItem key={item.value} {...omit(item, ['value'])} />
+            <ListItem
+              key={item.value}
+              {...omit(item, isTablet ? ['value', 'label'] : ['value'])}
+            />
           ))}
 
-        <View style={tw`border-t border-solid border-tint-border`}>
-          <ListItem
-            label="外观"
-            icon={
-              <Feather
-                color={tw.color(`text-tint-primary`)}
-                size={24}
-                name={colorScheme === 'light' ? 'sun' : 'moon'}
-              />
-            }
-            action={
-              <RadioButtonGroup
-                options={[
-                  { label: '浅色', value: 'light' },
-                  { label: '深色', value: 'dark' },
-                  { label: '系统', value: 'system' },
-                ]}
-                value={theme}
-                onChange={setTheme}
-              />
-            }
-          />
+        <View style={!isTablet && tw`border-t border-solid border-tint-border`}>
+          {!isTablet && (
+            <ListItem
+              label="外观"
+              icon={
+                <Feather
+                  color={tw.color(`text-tint-primary`)}
+                  size={24}
+                  name={colorScheme === 'light' ? 'sun' : 'moon'}
+                />
+              }
+              action={
+                <RadioButtonGroup
+                  options={[
+                    { label: '浅色', value: 'light' },
+                    { label: '深色', value: 'dark' },
+                    { label: '系统', value: 'system' },
+                  ]}
+                  value={theme}
+                  onChange={setTheme}
+                />
+              }
+            />
+          )}
 
           <ListItem
-            label="最近浏览"
+            label={!isTablet ? '最近浏览' : undefined}
             icon={
               <MaterialCommunityIcons
                 color={tw.color(`text-tint-primary`)}
@@ -221,7 +255,7 @@ function Profile() {
           />
 
           <ListItem
-            label="节点导航"
+            label={!isTablet ? '节点导航' : undefined}
             icon={
               <Feather
                 color={tw.color(`text-tint-primary`)}
@@ -235,7 +269,7 @@ function Profile() {
           />
 
           <ListItem
-            label="更多选项"
+            label={!isTablet ? '更多选项' : undefined}
             icon={
               <Feather
                 color={tw.color(`text-tint-primary`)}

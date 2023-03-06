@@ -2,7 +2,7 @@ import axios from 'axios'
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { RESET } from 'jotai/utils'
-import { isNumber, isObjectLike } from 'lodash-es'
+import { isInteger, isObjectLike } from 'lodash-es'
 import { isEqual } from 'lodash-es'
 import Toast from 'react-native-toast-message'
 
@@ -75,9 +75,7 @@ function updateStoreWithData(data: any) {
           getCurrentRouteName() !== 'HomeScreen' &&
           store.get(enabledMsgPushAtom) &&
           newProfile.my_notification !== prev?.my_notification &&
-          isNumber(newProfile.my_notification) &&
-          isFinite(newProfile.my_notification) &&
-          newProfile.my_notification > 0
+          isInteger(newProfile.my_notification)
         ) {
           Toast.show({
             type: 'success',
