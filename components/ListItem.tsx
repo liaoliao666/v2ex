@@ -19,7 +19,6 @@ export default function ListItem({
   onPress?: PressableProps['onPress']
   pressable?: boolean
 }) {
-  const fontSize = (tw.style(getFontSize(3)).fontSize as string) + 1
   return (
     <DebouncedPressable
       style={({ pressed }) =>
@@ -34,9 +33,9 @@ export default function ListItem({
 
       {!!label && (
         <Text
-          style={tw.style(`ml-6 font-medium text-tint-primary mr-auto`, {
-            fontSize,
-          })}
+          style={tw`ml-6 font-medium text-tint-primary mr-auto ${getFontSize(
+            3
+          )}`}
         >
           {label}
         </Text>

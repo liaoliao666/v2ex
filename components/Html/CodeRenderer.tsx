@@ -50,9 +50,7 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
       <RenderHTML
         contentWidth={width}
         baseStyle={tw.style(
-          `text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(
-            hasHtmlTag ? 6 : 5
-          )}`
+          `text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(5)}`
         )}
         tagsStyles={{
           pre: tw`my-2`,
