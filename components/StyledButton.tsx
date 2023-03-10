@@ -1,14 +1,45 @@
 import { pick } from 'lodash-es'
-import {
-  Pressable,
-  PressableProps,
-  Text,
-  TextProps,
-  ViewStyle,
-} from 'react-native'
+import { PressableProps, Text, TextProps, ViewStyle } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
+
+import DebouncedPressable from './DebouncedPressable'
+
+const colors = {
+  default: {
+    color: `#0f1419`,
+    darkColor: `rgb(239,243,244)`,
+    textColor: '#fff',
+    darkTextColor: '#0f1419',
+    activeColor: `rgb(63,67,71)`,
+    activeDarkColor: `rgb(191,194,195)`,
+  },
+  primary: {
+    color: `#4d5256`,
+    darkColor: `#4d5256`,
+    textColor: '#fff',
+    darkTextColor: '#fff',
+    activeColor: `#778087`,
+    activeDarkColor: `#778087`,
+  },
+  secondary: {
+    color: `rgb(29,155,240)`,
+    darkColor: `rgb(239,243,244)`,
+    textColor: '#fff',
+    darkTextColor: 'rgb(29,155,240)',
+    activeColor: `rgb(26,140,216)`,
+    activeDarkColor: `rgb(26,140,216)`,
+  },
+  tag: {
+    color: `rgb(239,243,244)`,
+    darkColor: `rgb(32,35,39)`,
+    textColor: '#536471',
+    darkTextColor: '#71767b',
+    activeColor: `rgba(239,243,244,0.5)`,
+    activeDarkColor: `rgba(32,35,39,0.5)`,
+  },
+}
 
 export default function StyledButton({
   size = 'middle',
@@ -45,43 +76,10 @@ export default function StyledButton({
     activeDarkColor: string
     textColor: string
     darkTextColor: string
-  } = {
-    default: {
-      color: `#0f1419`,
-      darkColor: `rgb(239,243,244)`,
-      textColor: '#fff',
-      darkTextColor: '#0f1419',
-      activeColor: `rgb(63,67,71)`,
-      activeDarkColor: `rgb(191,194,195)`,
-    },
-    primary: {
-      color: `#4d5256`,
-      darkColor: `#4d5256`,
-      textColor: '#fff',
-      darkTextColor: '#fff',
-      activeColor: `#778087`,
-      activeDarkColor: `#778087`,
-    },
-    secondary: {
-      color: `rgb(29,155,240)`,
-      darkColor: `rgb(239,243,244)`,
-      textColor: '#fff',
-      darkTextColor: 'rgb(29,155,240)',
-      activeColor: `rgb(26,140,216)`,
-      activeDarkColor: `rgb(26,140,216)`,
-    },
-    tag: {
-      color: `rgb(239,243,244)`,
-      darkColor: `rgb(32,35,39)`,
-      textColor: '#536471',
-      darkTextColor: '#71767b',
-      activeColor: `rgba(239,243,244,0.5)`,
-      activeDarkColor: `rgba(32,35,39,0.5)`,
-    },
-  }[type]
+  } = colors[type]
 
   return (
-    <Pressable
+    <DebouncedPressable
       style={({ pressed }) =>
         tw.style(
           {
@@ -129,6 +127,6 @@ export default function StyledButton({
       >
         {children}
       </Text>
-    </Pressable>
+    </DebouncedPressable>
   )
 }

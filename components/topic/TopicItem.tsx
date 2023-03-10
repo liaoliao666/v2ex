@@ -2,7 +2,7 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { compact, isEqual } from 'lodash-es'
 import { memo } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import { Text, View } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { useTopicDetail } from '@/servicies/topic'
@@ -19,12 +19,11 @@ import StyledImage from '../StyledImage'
 export interface TopicItemProps {
   topic: Topic
   hideAvatar?: boolean
-  isDisabledPress?: () => boolean
 }
 
 export default memo(TopicItem, isEqual)
 
-function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
+function TopicItem({ topic, hideAvatar }: TopicItemProps) {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
@@ -37,15 +36,13 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
     <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-body-1`}
       onPress={() => {
-        if (isDisabledPress?.()) return
         navigation.push('TopicDetail', topic)
       }}
     >
       {!hideAvatar && (
         <View style={tw`mr-3`}>
-          <Pressable
+          <DebouncedPressable
             onPress={() => {
-              if (isDisabledPress?.()) return
               navigation.push('MemberDetail', {
                 username: topic.member?.username!,
               })
@@ -57,7 +54,7 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
                 uri: topic.member?.avatar,
               }}
             />
-          </Pressable>
+          </DebouncedPressable>
         </View>
       )}
       <View style={tw`flex-1`}>
@@ -66,7 +63,6 @@ function TopicItem({ topic, hideAvatar, isDisabledPress }: TopicItemProps) {
             style={tw`text-tint-primary ${getFontSize(5)} flex-1`}
             numberOfLines={1}
             onPress={() => {
-              if (isDisabledPress?.()) return
               navigation.push('MemberDetail', {
                 username: topic.member?.username!,
               })

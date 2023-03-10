@@ -63,6 +63,7 @@ export default function NavBar({
                   color: tintColor,
                 }
               )}
+              numberOfLines={1}
             >
               {title}
             </Text>

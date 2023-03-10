@@ -50,6 +50,8 @@ export default function SearchScreen() {
 
   const [searchText, setSearchText] = useState(params?.query || '')
 
+  const trimedSearchText = searchText.trim()
+
   const [isSearchNode, setIsSearchNode] = useState(!params?.query)
 
   const { data: matchNodes } = useNodes({
@@ -64,11 +66,12 @@ export default function SearchScreen() {
             ...(node.aliases || []),
           ].some(
             text =>
-              isString(text) && upperCase(text).includes(upperCase(searchText))
+              isString(text) &&
+              upperCase(text).includes(upperCase(trimedSearchText))
           )
         )
       },
-      [isSearchNode, searchText]
+      [isSearchNode, trimedSearchText]
     ),
   })
 
@@ -106,15 +109,16 @@ export default function SearchScreen() {
           }}
           ListHeaderComponent={
             <View>
-              {!!searchText && (
+              {!!trimedSearchText && (
                 <Pressable
                   style={tw`px-4 py-2.5 border-tint-border border-b border-solid`}
                   onPress={() => {
-                    setIsSearchNode(!searchText)
+                    setIsSearchNode(!trimedSearchText)
                   }}
                 >
                   <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
-                    SOV2EX: <Text style={tw`text-primary`}>{searchText}</Text>
+                    SOV2EX:{' '}
+                    <Text style={tw`text-primary`}>{trimedSearchText}</Text>
                   </Text>
                 </Pressable>
               )}
@@ -144,7 +148,7 @@ export default function SearchScreen() {
         >
           <SoV2exList
             key={colorScheme}
-            searchText={searchText}
+            query={trimedSearchText}
             navbarHeight={navbarHeight}
           />
         </QuerySuspense>
@@ -170,7 +174,7 @@ export default function SearchScreen() {
             value={searchText}
             onChangeText={text => {
               setIsSearchNode(true)
-              setSearchText(text.trim())
+              setSearchText(text)
             }}
             onSubmitEditing={() => {
               setIsSearchNode(!searchText)
@@ -185,15 +189,15 @@ export default function SearchScreen() {
 
 function SoV2exList({
   navbarHeight,
-  searchText,
+  query,
 }: {
   navbarHeight: number
-  searchText: string
+  query: string
 }) {
   const sov2exArgs = useAtomValue(sov2exArgsAtom)
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSov2ex({ suspense: true, variables: { ...sov2exArgs, q: searchText } })
+    useSov2ex({ suspense: true, variables: { ...sov2exArgs, q: query } })
 
   const { data: nodeMap } = useNodes({
     select: useCallback(

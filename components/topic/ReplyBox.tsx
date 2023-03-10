@@ -68,6 +68,14 @@ const ReplyBox = forwardRef<
 
   const appendTopicMutation = useAppendTopic()
 
+  function isAppend() {
+    return !!replyTypeRef.current.isAppend
+  }
+
+  function getMutation() {
+    return isAppend() ? appendTopicMutation : replyMutation
+  }
+
   const navigation = useNavigation()
 
   return (
@@ -107,10 +115,8 @@ const ReplyBox = forwardRef<
             textAlignVertical={'top'}
             multiline
             numberOfLines={3}
-            placeholder={
-              replyTypeRef.current.isAppend ? '发送你的附言' : '发送你的评论'
-            }
-            onChangeText={text => {
+            placeholder={isAppend() ? '发送你的附言' : '发送你的评论'}
+            onChangeText={function handleAtName(text) {
               if (!isFocus) return
 
               if (text.endsWith('@')) {
@@ -170,9 +176,7 @@ const ReplyBox = forwardRef<
                 return
               }
 
-              const { isLoading, mutateAsync } = replyTypeRef.current.isAppend
-                ? appendTopicMutation
-                : replyMutation
+              const { isLoading, mutateAsync } = getMutation()
 
               if (isLoading) return
 
@@ -198,12 +202,7 @@ const ReplyBox = forwardRef<
               }
             }}
           >
-            {(replyTypeRef.current.isAppend
-              ? appendTopicMutation
-              : replyMutation
-            ).isLoading
-              ? '发送中'
-              : '发送'}
+            {getMutation().isLoading ? '发送中' : '发送'}
           </StyledButton>
         </View>
       </KeyboardAvoidingView>

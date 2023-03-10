@@ -33,7 +33,7 @@ export async function openURL(url: string) {
       type: 'error',
       text1: '不支持打开该链接',
     })
-    return Promise.reject(new Error(`This url is not unsupported`))
+    return Promise.reject(new Error(`This url is unsupported`))
   }
 
   try {

@@ -93,17 +93,6 @@ export default withQuerySuspense(HomeScreen, {
   ),
 })
 
-let isSwiping = false
-function isDisabledPress() {
-  return isSwiping
-}
-function enablePress() {
-  isSwiping = false
-}
-function disablePress() {
-  isSwiping = true
-}
-
 function HomeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
@@ -127,27 +116,19 @@ function HomeScreen() {
         navigationState={{ index, routes: tabs }}
         lazy
         lazyPreloadDistance={1}
-        onSwipeStart={disablePress}
-        onSwipeEnd={enablePress}
         renderScene={({ route }) => {
-          const refetchOnWindowFocus =
-            index === findIndex(tabs, { key: route.key })
+          const isActive = index === findIndex(tabs, { key: route.key })
           return route.key === 'recent' ? (
-            <MemoRecentTopics
-              refetchOnWindowFocus={refetchOnWindowFocus}
-              headerHeight={headerHeight}
-            />
+            <MemoRecentTopics isActive={isActive} headerHeight={headerHeight} />
           ) : (
             <MemoTabTopics
-              refetchOnWindowFocus={refetchOnWindowFocus}
+              isActive={isActive}
               headerHeight={headerHeight}
               tab={route.key}
             />
           )
         }}
         onIndexChange={i => {
-          enablePress()
-
           const tab = tabs[i].key
           const activeKey =
             tab === 'recent'
@@ -237,24 +218,22 @@ function HomeScreen() {
 }
 
 function RecentTopics({
-  refetchOnWindowFocus,
+  isActive,
   headerHeight,
 }: {
-  refetchOnWindowFocus: boolean
+  isActive: boolean
   headerHeight: number
 }) {
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useRecentTopics({
       suspense: true,
-      refetchOnWindowFocus,
+      refetchOnWindowFocus: isActive,
     })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<Topic> = useCallback(
-    ({ item }) => (
-      <TopicItem key={item.id} topic={item} isDisabledPress={isDisabledPress} />
-    ),
+    ({ item }) => <TopicItem key={item.id} topic={item} />,
     []
   )
 
@@ -268,8 +247,6 @@ function RecentTopics({
       data={flatedData}
       removeClippedSubviews={true}
       automaticallyAdjustsScrollIndicatorInsets={false}
-      onMomentumScrollEnd={enablePress}
-      onScrollEndDrag={enablePress}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
@@ -301,25 +278,23 @@ function RecentTopics({
 
 function TabTopics({
   tab,
-  refetchOnWindowFocus,
+  isActive,
   headerHeight,
 }: {
   tab: string
-  refetchOnWindowFocus: boolean
+  isActive: boolean
   headerHeight: number
 }) {
   const { data, refetch } = useTabTopics({
     variables: { tab },
     suspense: true,
-    refetchOnWindowFocus,
+    refetchOnWindowFocus: isActive,
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<Topic> = useCallback(
-    ({ item }) => (
-      <TopicItem key={item.id} topic={item} isDisabledPress={isDisabledPress} />
-    ),
+    ({ item }) => <TopicItem key={item.id} topic={item} />,
     []
   )
 
@@ -328,8 +303,6 @@ function TabTopics({
       data={data}
       removeClippedSubviews={true}
       automaticallyAdjustsScrollIndicatorInsets={false}
-      onMomentumScrollEnd={enablePress}
-      onScrollEndDrag={enablePress}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
