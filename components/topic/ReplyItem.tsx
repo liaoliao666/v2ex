@@ -9,7 +9,7 @@ import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
-import { enabledParseImageAtom } from '@/jotai/enabledParseImage'
+import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -63,8 +63,8 @@ function ReplyItem({
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const [isParsingImage, setIsParsingImage] = useState(
-    store.get(enabledParseImageAtom)!
+  const [isParsing, setIsParsing] = useState(
+    store.get(enabledParseContentAtom)!
   )
 
   return (
@@ -154,13 +154,13 @@ function ReplyItem({
 
               reply.parsed_content && (
                 <Text
-                  key={'isParsingImage'}
-                  style={tw`text-primary-focus ${getFontSize(6)}`}
+                  key={'isParsing'}
+                  style={tw`text-tint-secondary ${getFontSize(6)}`}
                   onPress={() => {
-                    setIsParsingImage(!isParsingImage)
+                    setIsParsing(!isParsing)
                   }}
                 >
-                  {isParsingImage ? `显示原始回复` : `隐藏原始回复`}
+                  {isParsing ? `显示原始回复` : `隐藏原始回复`}
                 </Text>
               ),
             ])}
@@ -170,7 +170,7 @@ function ReplyItem({
             <Html
               source={{
                 html:
-                  isParsingImage && reply.parsed_content
+                  isParsing && reply.parsed_content
                     ? reply.parsed_content
                     : reply.content,
               }}

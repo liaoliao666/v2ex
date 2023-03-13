@@ -32,10 +32,7 @@ export default function SearchBar({
 }) {
   return (
     <Pressable
-      style={tw.style(
-        `flex-row items-center h-9 bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)] rounded-full`,
-        style
-      )}
+      style={tw.style(`flex-row items-center h-9 bg-input rounded-full`, style)}
       onPress={onPress}
     >
       <Ionicons

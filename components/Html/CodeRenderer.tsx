@@ -61,7 +61,10 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         }}
         enableExperimentalMarginCollapsing
         defaultTextProps={{ selectable: true }}
-        classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
+        classesStyles={{
+          ...(colorScheme === 'dark' ? atomDark : atomLight),
+          'text-tint-secondary': tw`text-tint-secondary`,
+        }}
         source={{ html }}
         renderers={{ _TEXT_: TextRenderer }}
       />

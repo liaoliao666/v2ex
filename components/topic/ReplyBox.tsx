@@ -1,4 +1,5 @@
 import { useNavigation } from '@react-navigation/native'
+import { encode } from 'js-base64'
 import { pick } from 'lodash-es'
 import {
   Fragment,
@@ -20,6 +21,7 @@ import Toast from 'react-native-toast-message'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { useAppendTopic, useReply } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
+import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
 import useUpdate from '@/utils/useUpdate'
 
@@ -78,6 +80,11 @@ const ReplyBox = forwardRef<
 
   const navigation = useNavigation()
 
+  const selectionRef = useRef<{
+    start: number
+    end: number
+  }>()
+
   return (
     <Fragment>
       {isFocus && (
@@ -108,9 +115,7 @@ const ReplyBox = forwardRef<
                 paddingVertical: 0,
               },
               `text-tint-primary flex-1 py-2 px-3`,
-              isFocus
-                ? `h-20 pt-4 rounded-lg`
-                : `h-9 rounded-full bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)]`
+              isFocus ? `h-20 pt-4 rounded-lg` : `h-9 rounded-full bg-input`
             )}
             textAlignVertical={'top'}
             multiline
@@ -155,16 +160,48 @@ const ReplyBox = forwardRef<
             onBlur={() => {
               setIsFocus(false)
             }}
+            onSelectionChange={ev => {
+              selectionRef.current = ev.nativeEvent.selection
+            }}
             autoCapitalize="none"
           />
         </View>
 
         <View
           style={tw.style(
-            `py-2 px-4 flex-row justify-end bg-body-1`,
+            `py-2 px-4 flex-row gap-2 justify-end bg-body-1`,
             !isFocus && `hidden`
           )}
         >
+          <StyledButton
+            shape="rounded"
+            type="secondary"
+            size="small"
+            onPress={() => {
+              const selection = selectionRef.current
+              if (!selection || selection.start === selection.end) {
+                Toast.show({
+                  type: 'error',
+                  text1: '请选择文字后再点击',
+                })
+                return
+              }
+              const content = getContent()
+              const replacedText = `${content.substring(
+                0,
+                selection.start
+              )}${encode(
+                content.substring(selection.start, selection.end)
+              )}${content.substring(selection.end, content.length)}`
+              setContent(replacedText)
+              inputRef.current?.setNativeProps({
+                text: replacedText,
+              })
+            }}
+          >
+            + Base64
+          </StyledButton>
+
           <StyledButton
             shape="rounded"
             type="secondary"
@@ -179,6 +216,8 @@ const ReplyBox = forwardRef<
               const { isLoading, mutateAsync } = getMutation()
 
               if (isLoading) return
+
+              await confirm('确定发送评论吗？')
 
               try {
                 await mutateAsync({

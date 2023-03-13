@@ -3,10 +3,10 @@ import { atomWithStorage } from 'jotai/utils'
 import { storage } from './storage'
 
 /**
- * 是否图片解析
+ * 是否内容解析
  */
-export const enabledParseImageAtom = atomWithStorage<boolean>(
-  'enabledParseImage',
+export const enabledParseContentAtom = atomWithStorage<boolean>(
+  'enabledParseContent',
   true,
   storage
 )

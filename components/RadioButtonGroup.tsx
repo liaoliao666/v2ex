@@ -18,9 +18,7 @@ export default function RadioButtonGroup<
 }) {
   return (
     <View style={tw.style(`flex-row`, style)}>
-      <View
-        style={tw`flex-row p-0.5 rounded-lg bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)]`}
-      >
+      <View style={tw`flex-row p-0.5 rounded-lg bg-input`}>
         {options.map(item => {
           const active = value === item.value
 

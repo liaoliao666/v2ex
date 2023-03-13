@@ -75,6 +75,7 @@ export interface Node {
 
 export interface Supplement {
   content: string
+  parsed_content?: string
   created: string
 }
 

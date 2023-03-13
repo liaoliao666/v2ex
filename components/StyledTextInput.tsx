@@ -16,7 +16,7 @@ const StyledTextInput = forwardRef<
       placeholderTextColor={tw.color(`text-tint-secondary`)}
       {...props}
       style={tw.style(
-        `bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)] h-9 px-3 rounded-lg text-tint-primary`,
+        `bg-input h-9 px-3 rounded-lg text-tint-primary`,
         size === 'large' ? `h-12` : `h-9`,
         {
           paddingTop: 0,

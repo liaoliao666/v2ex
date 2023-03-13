@@ -1,5 +1,6 @@
 import { Cheerio, CheerioAPI, Element, load } from 'cheerio'
-import { defaultTo } from 'lodash-es'
+import { decode } from 'js-base64'
+import { defaultTo, unescape } from 'lodash-es'
 import { isString } from 'twrnc/dist/esm/types'
 
 import { blackListAtom } from '@/jotai/blackListAtom'
@@ -186,14 +187,32 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
     }),
     title: $('h1').eq(0).text(),
     created: $('small.gray > span').text().trim(),
-    content: $('.topic_content').html()!,
+    ...invoke(() => {
+      const content = $('.topic_content').html()!
+      const parsedImage = parseImage(content)
+
+      return {
+        content,
+        parsed_content: parsedImage
+          ? parseBase64Text(parsedImage)
+          : parseBase64Text(content),
+      }
+    }),
     thanked: !!$('.topic_thanked').length,
     votes: parseInt($($('.votes').find('a').get(0)).text() || '0', 10),
     supplements: $('.subtle')
-      .map((i, subtle) => ({
-        created: $(subtle).find('.fade>span').text().trim(),
-        content: $(subtle).find('.topic_content').html()!,
-      }))
+      .map((i, subtle) => {
+        const content = $(subtle).find('.topic_content').html()!
+        const parsedImage = parseImage(content)
+
+        return {
+          created: $(subtle).find('.fade>span').text().trim(),
+          content,
+          parsed_content: parsedImage
+            ? parseBase64Text(parsedImage)
+            : parseBase64Text(content),
+        }
+      })
       .get(),
     node: parseNodeByATag($('.header > a:nth-child(4)')),
     member: invoke(() => {
@@ -226,8 +245,13 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
           id,
           no: +$reply.find('.no').text(),
           created: $reply.find('.ago').text().trim(),
-          content: content,
-          parsed_content: parseImage(content),
+          content,
+          parsed_content: invoke(() => {
+            const parsedImage = parseImage(content)
+            return parsedImage
+              ? parseBase64Text(parsedImage)
+              : parseBase64Text(content)
+          }),
           thanks: parseInt($reply.find('.small.fade').text() || '0', 10),
           thanked: !!$reply.find('.thanked').length,
           op: !!$reply.find('.badge.op').length,
@@ -411,6 +435,8 @@ export function parseRank($: CheerioAPI) {
 }
 
 export function parseImage(str: string) {
+  if (!str) return str
+
   type Replacer = Parameters<typeof String['prototype']['replace']>[1]
 
   const regex_common_imgurl = /\/.+\.(jpeg|jpg|gif|png|svg)$/
@@ -557,4 +583,48 @@ export function parseImage(str: string) {
   return show_parsed || load(str)('img').length < $('img').length
     ? html
     : undefined
+}
+
+function parseBase64Text(str?: string) {
+  if (!str) return str
+  const blacklist = [
+    'bilibili',
+    'Bilibili',
+    'MyTomato',
+    'InDesign',
+    'Encrypto',
+    'encrypto',
+    'Window10',
+    'USERNAME',
+    'airpords',
+    'Windows7',
+    'Windows11',
+  ]
+  const $ = load(str)
+  const linkTexts = $('a')
+    .map((i, o) => $(o).toString())
+    .get()
+  const rawText = $.html()
+  const specialCharReg =
+    /[^\u4e00-\u9fa5!-~\u3002|\uff1f|\uff01|\uff0c|\u3001|\uff1b|\uff1a|\u201c|\u201d|\u2018|\u2019|\uff08|\uff09|\u300a|\u300b|\u3008|\u3009|\u3010|\u3011|\u300e|\u300f|\u300c|\u300d|\ufe43|\ufe44|\u3014|\u3015|\u2026|\u2014|\uff5e|\ufe4f|\uffe5]/
+  const parsedText = rawText.replace(/[A-z0-9+/=]+/g, text => {
+    if (text.length % 4 !== 0 || text.length < 8) return text
+    if (linkTexts.some(o => o.includes(text))) return text
+    if (blacklist.includes(text)) return text
+
+    try {
+      const decodedText = unescape(
+        decode(text)
+          .replace(/\r?\n?/g, '')
+          .trim()
+      )
+      return specialCharReg.test(decodedText)
+        ? text
+        : `${text}<span class="text-tint-secondary">(${decodedText})</span>`
+    } catch (error) {
+      return text
+    }
+  })
+
+  return rawText !== parsedText ? parsedText : undefined
 }

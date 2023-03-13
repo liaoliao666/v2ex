@@ -4,12 +4,13 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact } from 'lodash-es'
-import { Fragment, ReactElement } from 'react'
+import { Fragment, ReactElement, useState } from 'react'
 import { Platform, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
 import { blackListAtom } from '@/jotai/blackListAtom'
+import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
@@ -51,6 +52,13 @@ export default function TopicInfo({
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
+  const [isParsing, setIsParsing] = useState(
+    store.get(enabledParseContentAtom)!
+  )
+
+  const hasParsedText =
+    !!topic.parsed_content || topic.supplements?.some(o => !!o.parsed_content)
+
   return (
     <View style={tw`py-3 px-4 border-b border-solid border-tint-border`}>
       <View style={tw`flex-row items-center`}>
@@ -72,13 +80,32 @@ export default function TopicInfo({
         </View>
 
         <View style={tw`flex-1`}>
-          <View style={tw`flex-row items-center`}>
-            <Text style={tw`text-tint-primary ${getFontSize(4)} font-semibold`}>
-              {topic.member?.username}
-            </Text>
-          </View>
+          <Separator style={tw`flex-nowrap`}>
+            {compact([
+              <Text
+                key={'username'}
+                style={tw`text-tint-primary ${getFontSize(
+                  4
+                )} font-semibold flex-shrink`}
+                numberOfLines={1}
+              >
+                {topic.member?.username}
+              </Text>,
+              hasParsedText && (
+                <Text
+                  key={'isParsing'}
+                  style={tw`text-tint-secondary ${getFontSize(6)} mr-2`}
+                  onPress={() => {
+                    setIsParsing(!isParsing)
+                  }}
+                >
+                  {isParsing ? `显示原始内容` : `隐藏原始内容`}
+                </Text>
+              ),
+            ])}
+          </Separator>
 
-          <Separator style={tw`flex-1`}>
+          <Separator style={tw`flex-1 flex-nowrap`}>
             {compact([
               topic.created && (
                 <Text
@@ -91,7 +118,7 @@ export default function TopicInfo({
               topic.views && (
                 <Text
                   key="views"
-                  style={tw`text-tint-secondary ${getFontSize(5)} flex-1`}
+                  style={tw`text-tint-secondary ${getFontSize(5)} flex-shrink`}
                   numberOfLines={1}
                 >
                   {`${topic.views} 点击`}
@@ -113,7 +140,15 @@ export default function TopicInfo({
 
       {!!topic.content && (
         <View style={tw`pt-2`}>
-          <Html source={{ html: topic.content }} paddingX={32} />
+          <Html
+            source={{
+              html:
+                isParsing && topic.parsed_content
+                  ? topic.parsed_content
+                  : topic.content,
+            }}
+            paddingX={32}
+          />
         </View>
       )}
 
@@ -144,7 +179,10 @@ export default function TopicInfo({
               <View style={tw`pt-1`}>
                 <Html
                   source={{
-                    html: supplement.content,
+                    html:
+                      isParsing && supplement.parsed_content
+                        ? supplement.parsed_content
+                        : supplement.content,
                   }}
                 />
               </View>

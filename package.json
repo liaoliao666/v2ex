@@ -10,7 +10,6 @@
     "postinstall": "npx patch-package"
   },
   "dependencies": {
-    "@alentoma/react-native-selectable-text": "^1.6.0",
     "@expo/react-native-action-sheet": "^4.0.1",
     "@expo/vector-icons": "^13.0.0",
     "@hookform/resolvers": "^2.9.10",
@@ -21,9 +20,9 @@
     "@react-navigation/drawer": "^6.5.0",
     "@react-navigation/native": "^6.0.13",
     "@react-navigation/native-stack": "^6.9.1",
-    "@tanstack/query-async-storage-persister": "^4.19.1",
-    "@tanstack/react-query": "^4.26.0",
-    "@tanstack/react-query-persist-client": "^4.23.0",
+    "@tanstack/query-async-storage-persister": "^4.26.1",
+    "@tanstack/react-query": "^4.26.1",
+    "@tanstack/react-query-persist-client": "^4.26.1",
     "axios": "^0.27.2",
     "cheerio": "^1.0.0-rc.12",
     "dayjs": "^1.11.5",
@@ -42,6 +41,7 @@
     "highlight.js": "^11.6.0",
     "immer": "^9.0.15",
     "jotai": "^1.12.0",
+    "js-base64": "^3.7.5",
     "lodash-es": "^4.17.21",
     "react": "18.2.0",
     "react-dom": "18.2.0",

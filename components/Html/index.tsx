@@ -40,9 +40,7 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
       }
     },
   },
-  classesStyles: {
-    'mt-0': tw`mt-0`,
-  },
+
   renderers: {
     pre: CodeRenderer,
     img: ImageRenderer,
@@ -151,6 +149,10 @@ function Html({
             fontStyle: 'italic',
           },
           ...mergedProps.tagsStyles,
+        }}
+        classesStyles={{
+          'mt-0': tw`mt-0`,
+          'text-tint-secondary': tw`text-tint-secondary`,
         }}
         renderersProps={{
           a: {

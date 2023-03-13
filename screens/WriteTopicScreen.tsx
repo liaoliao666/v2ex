@@ -1,9 +1,11 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { encode } from 'js-base64'
 import { compact, isString } from 'lodash-es'
-import { Fragment, useState } from 'react'
+import { Fragment, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
+import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
@@ -110,7 +112,7 @@ function WriteTopicScreen() {
 
   const prevTopic = { ...topic, ...editTopicInfo } as Topic
 
-  const { control, handleSubmit, getValues } = useForm<
+  const { control, handleSubmit, getValues, setValue } = useForm<
     z.infer<typeof WriteTopicArgs>
   >({
     resolver: zodResolver(WriteTopicArgs),
@@ -130,6 +132,13 @@ function WriteTopicScreen() {
   const [showPreviewButton, setShowPreviewButton] = useState(
     !!prevTopic.content
   )
+
+  const inputRef = useRef<TextInput>(null)
+
+  const selectionRef = useRef<{
+    start: number
+    end: number
+  }>()
 
   return (
     <View style={tw`bg-body-1 flex-1`}>
@@ -212,18 +221,52 @@ function WriteTopicScreen() {
                 </View>
               }
               render={({ field: { value, onChange, onBlur } }) => (
-                <StyledTextInput
-                  placeholder="标题如果能够表达完整内容，则正文可以为空"
-                  onChangeText={text => {
-                    setShowPreviewButton(!!text)
-                    onChange(text)
-                  }}
-                  onBlur={onBlur}
-                  defaultValue={value}
-                  multiline
-                  style={tw`h-50 py-2`}
-                  textAlignVertical="top"
-                />
+                <View style={tw`bg-input pb-2`}>
+                  <StyledTextInput
+                    ref={inputRef}
+                    placeholder="标题如果能够表达完整内容，则正文可以为空"
+                    onChangeText={text => {
+                      setShowPreviewButton(!!text)
+                      onChange(text)
+                    }}
+                    onSelectionChange={ev => {
+                      selectionRef.current = ev.nativeEvent.selection
+                    }}
+                    onBlur={onBlur}
+                    defaultValue={value}
+                    multiline
+                    style={tw`h-50 py-2`}
+                    textAlignVertical="top"
+                  />
+                  <StyledButton
+                    shape="rounded"
+                    size="small"
+                    style={tw`ml-auto mr-2`}
+                    onPress={() => {
+                      const selection = selectionRef.current
+                      if (!selection || selection.start === selection.end) {
+                        Toast.show({
+                          type: 'error',
+                          text1: '请选择文字后再点击',
+                        })
+                        return
+                      }
+                      const content = getValues('content') || ''
+                      const replacedText = `${content.substring(
+                        0,
+                        selection.start
+                      )}${encode(
+                        content.substring(selection.start, selection.end)
+                      )}${content.substring(selection.end, content.length)}`
+                      setValue('content', replacedText)
+                      inputRef.current?.setNativeProps({
+                        text: replacedText,
+                      })
+                    }}
+                  >
+                    + Base64
+                  </StyledButton>
+                </View>
               )}
             />
 

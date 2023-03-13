@@ -40,6 +40,7 @@ module.exports = {
           'bg-mask': 'bg-[rgba(0,0,0,0.4)] dark:bg-[rgba(91,112,131,0.4)]',
           'bg-message-press':
             'bg-[rgba(230,236,240,0.7)] dark:bg-[rgba(18,21,23,0.7)]',
+          'bg-input': 'bg-[rgb(239,243,244)] dark:bg-[rgb(32,35,39)]',
           'bg-tab-press': 'dark:bg-[rgba(231,233,234,0.2)] bg-[#e7e9ea]',
           'border-tint-border': 'border-[#eff3f4] dark:border-[#2f3336]',
         })

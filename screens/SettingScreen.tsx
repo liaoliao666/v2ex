@@ -25,7 +25,7 @@ import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
-import { enabledParseImageAtom } from '@/jotai/enabledParseImage'
+import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
@@ -54,8 +54,8 @@ function SettingScreen() {
 
   const [fontScale, setFontScale] = useAtom(fontScaleAtom)
 
-  const [enabledParseImage, setEnabledParseImage] = useAtom(
-    enabledParseImageAtom
+  const [enabledParseContent, setEnabledParseContent] = useAtom(
+    enabledParseContentAtom
   )
 
   const isTablet = useAtomValue(isTabletAtom)
@@ -156,7 +156,7 @@ function SettingScreen() {
           }
           action={
             <Switch
-              value={enabledParseImage}
+              value={enabledParseContent}
               trackColor={
                 Platform.OS === 'android'
                   ? undefined
@@ -164,12 +164,12 @@ function SettingScreen() {
               }
               onValueChange={async () => {
                 try {
-                  if (enabledParseImage)
+                  if (enabledParseContent)
                     await confirm(
                       '图片解析',
                       '关闭后将不会自动解析回复中的图片URL、![]()、<img />'
                     )
-                  setEnabledParseImage(!enabledParseImage)
+                  setEnabledParseContent(!enabledParseContent)
                 } catch (error) {
                   // empty
                 }
