@@ -28,10 +28,12 @@ module.exports = {
     plugin(({ addUtilities }) => {
       addUtilities(
         withTailWindHint({
-          'text-tint-primary': 'text-[#0f1419] dark:text-[#e7e9ea]',
-          'text-tint-primary-invert': 'dark:text-[#0f1419] text-[#e7e9ea]',
-          'text-tint-secondary': 'text-[#536471] dark:text-[#71767b]',
-          'text-tint-secondary-invert': 'dark:text-[#536471] text-[#71767b]',
+          'text-tint-primary': 'text-[#0f1419] dark:text-[rgb(219,219,219)]',
+          'text-tint-primary-invert':
+            'dark:text-[#0f1419] text-[gb(219,219,219)]',
+          'text-tint-secondary': 'text-[#536471] dark:text-[rgb(128,128,128)]',
+          'text-tint-secondary-invert':
+            'dark:text-[#536471] text-[rgb(128,128,128)]',
           'img-loading': 'bg-[rgb(185,202,211)] dark:bg-[rgb(62,65,68)]',
           'bg-loading': 'bg-[#0000000f] dark:bg-[#ffffff0f]',
           'bg-body-1': 'bg-white dark:bg-[#1a1a1a]',

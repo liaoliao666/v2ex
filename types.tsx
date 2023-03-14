@@ -4,7 +4,7 @@
  */
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
 
-import { Member, Node, Topic } from './servicies/types'
+import { Node, Topic } from './servicies/types'
 
 declare global {
   namespace ReactNavigation {
@@ -35,7 +35,7 @@ export type RootStackParamList = {
   }
   SearchReplyMember: {
     topicId: number
-    onPressReplyMemberItem: (member: Member) => void
+    onAtNames: (atNames: string) => void
   }
   Login: undefined
   TopicDetail: Partial<Topic> & { hightlightReplyNo?: number; id: number }
@@ -66,6 +66,9 @@ export type RootStackParamList = {
   Setting: undefined
   Rank: undefined
   BlankList: undefined
+  Webview: {
+    url: string
+  }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

@@ -146,33 +146,26 @@ export const useMyFollowing = createInfiniteQuery<
   }
 )
 
-export const useCheckin = createQuery(
-  'useCheckin',
-  async () => {
-    // https://gist.github.com/VitoVan/bf00ce496b44c56417a675c521fe67e8
-    const { data: result } = await request.get('/mission/daily', {
-      responseType: 'text',
-    })
-    const giftLink = load(result)('input[value^="领取"]')
-      .attr('onclick')
-      ?.match(/\/mission\/daily\/redeem\?once=\d+/g)?.[0]
-    if (!giftLink) return Promise.resolve(0)
-    const { data: checkResult } = await request.get(giftLink, {
-      responseType: 'text',
-    })
-    const okSign = load(checkResult)('li.fa.fa-ok-sign')
-    if (okSign.length <= 0) return Promise.reject(new Error('签到失败'))
-    const { data: balanceResult } = await request.get('/balance')
-    const amount = load(balanceResult)(
-      'table>tbody>tr:contains("每日登录"):first>td:nth(2)'
-    ).text()
-    return Number(amount) || 0
-  },
-  {
-    cacheTime: 1000 * 60 * 60 * 24,
-    staleTime: 1000 * 60 * 60 * 8,
-  }
-)
+export const useCheckin = createQuery('useCheckin', async () => {
+  // https://gist.github.com/VitoVan/bf00ce496b44c56417a675c521fe67e8
+  const { data: result } = await request.get('/mission/daily', {
+    responseType: 'text',
+  })
+  const giftLink = load(result)('input[value^="领取"]')
+    .attr('onclick')
+    ?.match(/\/mission\/daily\/redeem\?once=\d+/g)?.[0]
+  if (!giftLink) return Promise.resolve(0)
+  const { data: checkResult } = await request.get(giftLink, {
+    responseType: 'text',
+  })
+  const okSign = load(checkResult)('li.fa.fa-ok-sign')
+  if (okSign.length <= 0) return Promise.reject(new Error('签到失败'))
+  const { data: balanceResult } = await request.get('/balance')
+  const amount = load(balanceResult)(
+    'table>tbody>tr:contains("每日登录"):first>td:nth(2)'
+  ).text()
+  return Number(amount) || 0
+})
 
 export const useMemberById = createQuery<Member, { id: number }>(
   'useMemberById',

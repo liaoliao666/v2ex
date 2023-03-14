@@ -39,7 +39,6 @@ import { useTopicDetail } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
-import { openURL } from '@/utils/url'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default function SearchScreen() {
@@ -232,6 +231,8 @@ function SoV2exList({
     [data?.pages]
   )
 
+  const navigation = useNavigation()
+
   return (
     <FlatList
       data={flatedData}
@@ -244,7 +245,9 @@ function SoV2exList({
               <Text
                 style={tw`text-primary`}
                 onPress={() => {
-                  openURL(`https://www.sov2ex.com`)
+                  navigation.navigate('Webview', {
+                    url: `https://www.sov2ex.com`,
+                  })
                 }}
               >
                 SOV2EX

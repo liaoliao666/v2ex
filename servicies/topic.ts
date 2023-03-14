@@ -22,10 +22,13 @@ import { PageData, Topic } from './types'
 export const useTabTopics = createQuery<Topic[], { tab?: string }>(
   'useTabTopics',
   async ({ queryKey: [_, { tab }], signal }) => {
-    const { data } = await request.get(`?tab=${tab}`, {
-      responseType: 'text',
-      signal,
-    })
+    const { data } = await request.get(
+      tab === 'changes' ? '/changes' : `?tab=${tab}`,
+      {
+        responseType: 'text',
+        signal,
+      }
+    )
     const $ = load(data)
     return parseTopicItems($, '#Main .box .cell.item')
   },

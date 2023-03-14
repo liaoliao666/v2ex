@@ -18,7 +18,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { RootStackParamList } from '@/types'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
-import { openURL, resolveURL } from '@/utils/url'
+import { resolveURL } from '@/utils/url'
 
 import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
@@ -183,10 +183,10 @@ function Html({
                     })
                     break
                   default:
-                    openURL(resolvedURI)
+                    navigation.navigate('Webview', { url: resolvedURI })
                 }
               } else {
-                openURL(resolvedURI)
+                navigation.navigate('Webview', { url: resolvedURI })
               }
             },
           },

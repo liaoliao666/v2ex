@@ -17,7 +17,6 @@ import {
 import {
   Animated,
   FlatList,
-  Linking,
   ListRenderItem,
   NativeScrollEvent,
   Platform,
@@ -306,6 +305,8 @@ const MemberHeader = memo(() => {
     variables: { username: params.username },
   })
 
+  const navigation = useNavigation()
+
   return (
     <Fragment>
       <View
@@ -420,17 +421,8 @@ const MemberHeader = memo(() => {
             <TouchableOpacity
               key={widget.link}
               style={tw`bg-[#f0f3f5] dark:bg-[#262626] rounded-full py-1.5 pl-2 pr-2.5 flex-row items-center`}
-              onPress={async () => {
-                const supported = await Linking.canOpenURL(widget.link)
-
-                if (supported) {
-                  await Linking.openURL(widget.link)
-                } else {
-                  Toast.show({
-                    type: 'error',
-                    text1: '打开链接失败',
-                  })
-                }
+              onPress={() => {
+                navigation.navigate('Webview', { url: widget.link })
               }}
             >
               <StyledImage
@@ -439,7 +431,10 @@ const MemberHeader = memo(() => {
                   uri: widget.uri,
                 }}
               />
-              <Text style={tw`${getFontSize(5)} text-tint-secondary`}>
+              <Text
+                style={tw`${getFontSize(5)} text-tint-secondary flex-shrink`}
+                numberOfLines={1}
+              >
                 {widget.title}
               </Text>
             </TouchableOpacity>

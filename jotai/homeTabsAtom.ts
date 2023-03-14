@@ -9,7 +9,7 @@ export type HomeTab = {
 }
 
 export const allHomeTabs: HomeTab[] = [
-  { title: '最新', key: 'recent' },
+  { title: '最近', key: 'recent' },
   { title: '最热', key: 'hot' },
   { title: '技术', key: 'tech' },
   { title: '创意', key: 'creative' },
@@ -23,6 +23,7 @@ export const allHomeTabs: HomeTab[] = [
   { title: 'R2', key: 'r2' },
   { title: '节点', key: 'nodes' },
   { title: '关注', key: 'members' },
+  { title: '刚更新', key: 'changes' },
 ]
 
 export const homeTabsAtom = atomWithStorage<typeof allHomeTabs>(

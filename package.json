@@ -60,7 +60,7 @@
     "react-native-screens": "~3.20.0",
     "react-native-svg": "13.4.0",
     "react-native-tab-view": "^3.3.0",
-    "react-native-toast-message": "^2.1.5",
+    "react-native-toast-message": "^2.1.6",
     "react-native-webview": "11.26.0",
     "react-native-youtube-iframe": "^2.2.2",
     "react-query-kit": "^1.3.7",

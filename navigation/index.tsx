@@ -41,6 +41,7 @@ import SettingScreen from '@/screens/SettingScreen'
 import SortTabsScreen from '@/screens/SortTabsScreen'
 import TopicDetailScreen from '@/screens/TopicDetailScreen'
 import WebSigninScreen from '@/screens/WebSigninScreen'
+import WebviewScreen from '@/screens/WebviewScreen'
 import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import { sleep } from '@/utils/sleep'
@@ -207,6 +208,8 @@ function StackNavigator() {
       <Stack.Screen name="Rank" component={RankScreen} />
 
       <Stack.Screen name="BlankList" component={BlackListScreen} />
+
+      <Stack.Screen name="Webview" component={WebviewScreen} />
     </Stack.Navigator>
   )
 }

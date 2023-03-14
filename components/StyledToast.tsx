@@ -1,3 +1,4 @@
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast, {
   BaseToast,
   ErrorToast,
@@ -24,10 +25,15 @@ function getToastProps(props: ToastConfigParams<any>) {
       !props.text2 && `font-normal`
     ),
     text2Style: tw`${getFontSize(6)}`,
-    topOffset: 55,
   }
 }
 
 export default function StyledToast() {
-  return <Toast config={toastConfig} />
+  const safeAreaInsets = useSafeAreaInsets()
+  return (
+    <Toast
+      config={toastConfig}
+      topOffset={Math.max(40, safeAreaInsets.top + 8)}
+    />
+  )
 }

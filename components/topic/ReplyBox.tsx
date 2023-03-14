@@ -127,8 +127,8 @@ const ReplyBox = forwardRef<
               if (text.endsWith('@')) {
                 navigation.navigate('SearchReplyMember', {
                   topicId,
-                  onPressReplyMemberItem(member) {
-                    setContent(`${text}${member.username} `)
+                  onAtNames(atNames) {
+                    setContent(`${text.slice(0, text.length - 1)}${atNames} `)
                   },
                 })
                 return

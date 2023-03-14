@@ -33,7 +33,6 @@ import { useTopPlayer, useTopRich } from '@/servicies/top'
 import { Member } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
-import { openURL } from '@/utils/url'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default withQuerySuspense(RankScreen, {
@@ -296,7 +295,7 @@ const RankItem = memo(
           {member.website && (
             <Text
               onPress={() => {
-                openURL(member.website!)
+                navigation.navigate('Webview', { url: member.website! })
               }}
               style={tw.style(`${getFontSize(6)} text-tint-primary`)}
               numberOfLines={1}

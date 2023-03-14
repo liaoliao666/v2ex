@@ -7562,10 +7562,10 @@ react-native-tab-view@^3.3.0:
   dependencies:
     use-latest-callback "^0.1.5"
 
-react-native-toast-message@^2.1.5:
-  version "2.1.5"
-  resolved "https://registry.yarnpkg.com/react-native-toast-message/-/react-native-toast-message-2.1.5.tgz#550acb9c6c0f1ee49c6b57b65a56d34e297eb723"
-  integrity sha512-mk3rELtBEhrhWBCN6CTaw0gypgL9ZNauX3xx1LUs4uee9vc0pVsghrKxO57vroUCcNL2hDeZSLJWdQNMCkGeaQ==
+react-native-toast-message@^2.1.6:
+  version "2.1.6"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-native-toast-message/-/react-native-toast-message-2.1.6.tgz#322827c66901fa22cb3db614c7383cc717f5bbe2"
+  integrity sha512-VctXuq20vmRa9AE13acaNZhrLcS3FaBS2zEevS3+vhBsnVZYG0FIlWIis9tVnpnNxUb3ART+BWtwQjzSttXTng==
 
 react-native-webview@11.26.0:
   version "11.26.0"

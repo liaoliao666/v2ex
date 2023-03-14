@@ -33,11 +33,16 @@ import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { useSignout } from '@/servicies/authentication'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
+import { isExpoGo } from '@/utils/isExpoGo'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
-import { openURL } from '@/utils/url'
 
 export default withQuerySuspense(SettingScreen)
+
+let FastImage: any
+if (!isExpoGo) {
+  FastImage = require('react-native-fast-image')
+}
 
 function SettingScreen() {
   const navbarHeight = useNavBarHeight()
@@ -237,7 +242,9 @@ function SettingScreen() {
             />
           }
           onPress={() => {
-            openURL('https://github.com/liaoliao666/v2ex/issues')
+            navigation.navigate('Webview', {
+              url: 'https://github.com/liaoliao666/v2ex/issues',
+            })
           }}
         />
 
@@ -284,6 +291,7 @@ function SettingScreen() {
             try {
               await confirm(`确认清除缓存吗？`, `该动作会导致删除所有缓存数据`)
               queryClient.removeQueries()
+              FastImage?.clearDiskCache?.()
               Toast.show({
                 type: 'success',
                 text1: `清除缓存成功`,
