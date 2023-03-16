@@ -151,7 +151,7 @@ function SettingScreen() {
         )}
 
         <ListItem
-          label="图片解析"
+          label="内容解析"
           icon={
             <Feather
               color={tw.color(`text-tint-primary`)}
@@ -171,8 +171,8 @@ function SettingScreen() {
                 try {
                   if (enabledParseContent)
                     await confirm(
-                      '图片解析',
-                      '关闭后将不会自动解析回复中的图片URL、![]()、<img />'
+                      '内容解析',
+                      '关闭后将不会自动解析回复中的Base64和图片URL、![]()、<img />'
                     )
                   setEnabledParseContent(!enabledParseContent)
                 } catch (error) {
