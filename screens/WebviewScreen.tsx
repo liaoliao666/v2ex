@@ -38,26 +38,31 @@ export default function WebviewScreen() {
     <View style={tw`flex-1`}>
       {isLoading && <LoadingIndicator style={{ paddingTop: navbarHeight }} />}
 
-      <WebView
-        onLoadEnd={() => {
-          setIsLoading(false)
-        }}
-        style={tw.style(`flex-1`, isLoading && `hidden`, {
-          marginTop: navbarHeight,
-        })}
-        source={{ uri: params.url }}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        decelerationRate="normal"
-        sharedCookiesEnabled={true}
-        startInLoadingState={true}
-        scalesPageToFit={true}
-        renderLoading={() => <View />}
-        injectedJavaScript={getTitleScript}
-        onMessage={({ nativeEvent }) => {
-          setTitle(nativeEvent.data)
-        }}
-      />
+      <View style={tw.style(isLoading ? `hidden` : `flex-1`)}>
+        <WebView
+          onLoadEnd={() => {
+            setIsLoading(false)
+          }}
+          onError={() => {
+            setIsLoading(false)
+          }}
+          style={tw.style(`flex-1`, {
+            marginTop: navbarHeight,
+          })}
+          source={{ uri: params.url }}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          decelerationRate="normal"
+          sharedCookiesEnabled={true}
+          startInLoadingState={true}
+          scalesPageToFit={true}
+          renderLoading={() => <View />}
+          injectedJavaScript={getTitleScript}
+          onMessage={({ nativeEvent }) => {
+            setTitle(nativeEvent.data)
+          }}
+        />
+      </View>
 
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />

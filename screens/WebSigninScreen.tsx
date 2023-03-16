@@ -39,66 +39,68 @@ export default function WebSigninScreen() {
       {isLoading && <LoadingIndicator style={{ paddingTop: navbarHeight }} />}
 
       {webviewVisible && (
-        <WebView
-          ref={webViewRef}
-          // originWhitelist={['*']}
-          onLoadEnd={() => {
-            setIsLoading(false)
-          }}
-          style={tw.style(`flex-1`, isLoading && `hidden`, {
-            marginTop: navbarHeight,
-          })}
-          source={{ uri: `${baseURL}/signin` }}
-          // source={{ uri: `${baseURL}/signin` }}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          decelerationRate="normal"
-          sharedCookiesEnabled={true}
-          startInLoadingState={true}
-          scalesPageToFit={true}
-          // cacheEnabled={false}
-          // cacheMode="LOAD_NO_CACHE"
-          // incognito={true}
-          renderLoading={() => <View />}
-          onNavigationStateChange={async state => {
-            if (state.url.startsWith(`${baseURL}/auth/google?code`)) {
-              setIsLoading(true)
-              setWebviewVisible(false)
+        <View style={tw.style(isLoading ? `hidden` : `flex-1`)}>
+          <WebView
+            ref={webViewRef}
+            // originWhitelist={['*']}
+            onLoadEnd={() => {
+              setIsLoading(false)
+            }}
+            style={tw.style(`flex-1`, {
+              marginTop: navbarHeight,
+            })}
+            source={{ uri: `${baseURL}/signin` }}
+            // source={{ uri: `${baseURL}/signin` }}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            decelerationRate="normal"
+            sharedCookiesEnabled={true}
+            startInLoadingState={true}
+            scalesPageToFit={true}
+            // cacheEnabled={false}
+            // cacheMode="LOAD_NO_CACHE"
+            // incognito={true}
+            renderLoading={() => <View />}
+            onNavigationStateChange={async state => {
+              if (state.url.startsWith(`${baseURL}/auth/google?code`)) {
+                setIsLoading(true)
+                setWebviewVisible(false)
 
-              const { data } = await request.get(state.url, {
-                headers: {
-                  Referer: `https://accounts.google.com/`,
-                },
-              })
+                const { data } = await request.get(state.url, {
+                  headers: {
+                    Referer: `https://accounts.google.com/`,
+                  },
+                })
 
-              const $ = load(data)
+                const $ = load(data)
 
-              if ($('#otp_code').length) {
-                params.onTwoStepOnce($("input[name='once']").attr('value')!)
-                getNavigation()?.goBack()
-              } else {
+                if ($('#otp_code').length) {
+                  params.onTwoStepOnce($("input[name='once']").attr('value')!)
+                  getNavigation()?.goBack()
+                } else {
+                  goBackWithRefetch()
+                }
+              }
+            }}
+            onLoad={() => {
+              webViewRef.current?.injectJavaScript(
+                `ReactNativeWebView.postMessage($('#menu-body > div:last > a').attr("href").includes("signout"))`
+              )
+            }}
+            onMessage={async event => {
+              const isSignin = event.nativeEvent.data
+
+              if (isSignin === 'true') {
                 goBackWithRefetch()
               }
+            }}
+            userAgent={
+              Platform.OS === 'android'
+                ? `Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36`
+                : `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`
             }
-          }}
-          onLoad={() => {
-            webViewRef.current?.injectJavaScript(
-              `ReactNativeWebView.postMessage($('#menu-body > div:last > a').attr("href").includes("signout"))`
-            )
-          }}
-          onMessage={async event => {
-            const isSignin = event.nativeEvent.data
-
-            if (isSignin === 'true') {
-              goBackWithRefetch()
-            }
-          }}
-          userAgent={
-            Platform.OS === 'android'
-              ? `Mozilla/5.0 (Linux; Android 11; Pixel 5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.91 Mobile Safari/537.36`
-              : `Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1`
-          }
-        />
+          />
+        </View>
       )}
 
       <View style={tw`absolute top-0 inset-x-0`}>
