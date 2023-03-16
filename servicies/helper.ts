@@ -191,7 +191,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
       const content = $('.topic_content').html()!
       return {
         content,
-        parsed_content: parseBase64Text(content) || content,
+        parsed_content: parseBase64Text(content),
       }
     }),
     thanked: !!$('.topic_thanked').length,
@@ -202,7 +202,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
         return {
           created: $(subtle).find('.fade>span').text().trim(),
           content,
-          parsed_content: parseBase64Text(content) || content,
+          parsed_content: parseBase64Text(content),
         }
       })
       .get(),
@@ -241,7 +241,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
           parsed_content: invoke(() => {
             const parsedImage = parseImage(content)
             return parsedImage
-              ? parseBase64Text(parsedImage)
+              ? parseBase64Text(parsedImage) || parsedImage
               : parseBase64Text(content)
           }),
           thanks: parseInt($reply.find('.small.fade').text() || '0', 10),
@@ -618,5 +618,5 @@ function parseBase64Text(str?: string) {
     }
   })
 
-  return rawText !== parsedText ? parsedText : str
+  return rawText !== parsedText ? parsedText : undefined
 }

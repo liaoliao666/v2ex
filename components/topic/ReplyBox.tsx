@@ -21,7 +21,6 @@ import Toast from 'react-native-toast-message'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { useAppendTopic, useReply } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
-import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
 import useUpdate from '@/utils/useUpdate'
 
@@ -216,8 +215,6 @@ const ReplyBox = forwardRef<
               const { isLoading, mutateAsync } = getMutation()
 
               if (isLoading) return
-
-              await confirm('确定发送评论吗？')
 
               try {
                 await mutateAsync({
