@@ -39,7 +39,7 @@ export default function WebSigninScreen() {
       {isLoading && <LoadingIndicator style={{ paddingTop: navbarHeight }} />}
 
       {webviewVisible && (
-        <View style={tw.style(isLoading ? `hidden` : `flex-1`)}>
+        <View style={tw.style(isLoading ? `h-0` : `flex-1`)}>
           <WebView
             ref={webViewRef}
             // originWhitelist={['*']}
@@ -105,7 +105,10 @@ export default function WebSigninScreen() {
 
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
-        <NavBar title="网页登录" />
+        <NavBar
+          title="网页登录"
+          style={tw`border-b border-solid border-tint-border`}
+        />
       </View>
     </View>
   )

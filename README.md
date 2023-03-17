@@ -9,7 +9,7 @@
 ## 下载
 
 - [iOS App Store](https://apps.apple.com/cn/app/v2fun/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.3.1/application-56f9f039-a0e3-46d8-8d15-2372bee5805b.apk)
+- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.3.2/application-42cdd5a2-5459-4c30-a2bf-769e49f6a589.apk)
 
 ## 本地运行
 
@@ -19,7 +19,8 @@
 
 | 页面 | URL Scheme              | 例子                                   |
 | ---- | ----------------------- | -------------------------------------- |
-| 搜索 | `v2fun://search/query?` | `v2fun://search/v2fun这款应用怎么样？` |
+| 搜索 | `v2fun://search/query?` | `v2fun://search/v2fun这款应用怎么样` |
+| 帖子详情 | `v2fun://topic/id` | `v2fun://topic/904226` |
 
 ## Issues
 

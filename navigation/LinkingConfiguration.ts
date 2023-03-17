@@ -13,6 +13,7 @@ const linking: LinkingOptions<RootStackParamList> = {
   config: {
     screens: {
       Search: 'search/:query?',
+      TopicDetail: 'topic/:id',
       NotFound: '*',
     },
   },

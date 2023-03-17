@@ -38,7 +38,7 @@ export default function WebviewScreen() {
     <View style={tw`flex-1`}>
       {isLoading && <LoadingIndicator style={{ paddingTop: navbarHeight }} />}
 
-      <View style={tw.style(isLoading ? `hidden` : `flex-1`)}>
+      <View style={tw.style(isLoading ? `h-0` : `flex-1`)}>
         <WebView
           onLoadEnd={() => {
             setIsLoading(false)
@@ -67,6 +67,7 @@ export default function WebviewScreen() {
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar
+          style={tw`border-b border-solid border-tint-border`}
           title={title}
           right={
             <StyledButton
