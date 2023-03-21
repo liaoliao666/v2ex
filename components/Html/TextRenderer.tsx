@@ -1,4 +1,3 @@
-// import { SelectableText } from '@alentoma/react-native-selectable-text'
 import { Platform, Text, TextInput } from 'react-native'
 import {
   CustomTextualRenderer,
@@ -13,20 +12,6 @@ const resetTextInputStyle = {
   marginTop: -3,
   paddingBottom: 3,
 }
-
-// const TextRenderer: CustomTextualRenderer = props => {
-//   const renderProps = getNativePropsForTNode(props)
-
-//   return (
-//     <SelectableText
-//       value={renderProps.children as string}
-//       style={[renderProps.style, resetTextInputStyle]}
-//       menuItems={[]}
-//       onSelection={() => {}}
-//       prependToChild={null}
-//     />
-//   )
-// }
 
 const TextRenderer: CustomTextualRenderer = props => {
   const renderProps = getNativePropsForTNode(props)

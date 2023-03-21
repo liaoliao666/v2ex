@@ -18,6 +18,7 @@ import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import RefetchingIndicator from '@/components/RefetchingIndicator'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
@@ -182,10 +183,16 @@ function MyFollowingScreen() {
 }
 
 function MyFollowing({ headerHeight }: { headerHeight: number }) {
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useMyFollowing({
-      suspense: true,
-    })
+  const {
+    data,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetching,
+  } = useMyFollowing({
+    suspense: true,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -200,35 +207,40 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
   )
 
   return (
-    <FlatList
-      data={flatedData}
-      removeClippedSubviews={true}
-      refreshControl={
-        <StyledRefreshControl
-          refreshing={isRefetchingByUser}
-          onRefresh={refetchByUser}
-          progressViewOffset={headerHeight}
-        />
-      }
-      contentContainerStyle={{
-        paddingTop: headerHeight,
-      }}
-      ItemSeparatorComponent={LineSeparator}
-      renderItem={renderItem}
-      onEndReached={() => {
-        if (hasNextPage) {
-          fetchNextPage()
+    <RefetchingIndicator
+      isRefetching={isFetching && !isRefetchingByUser}
+      progressViewOffset={headerHeight}
+    >
+      <FlatList
+        data={flatedData}
+        removeClippedSubviews={true}
+        refreshControl={
+          <StyledRefreshControl
+            refreshing={isRefetchingByUser}
+            onRefresh={refetchByUser}
+            progressViewOffset={headerHeight}
+          />
         }
-      }}
-      onEndReachedThreshold={0.3}
-      ListFooterComponent={
-        <SafeAreaView edges={['bottom']}>
-          {isFetchingNextPage ? (
-            <StyledActivityIndicator style={tw`py-4`} />
-          ) : null}
-        </SafeAreaView>
-      }
-    />
+        contentContainerStyle={{
+          paddingTop: headerHeight,
+        }}
+        ItemSeparatorComponent={LineSeparator}
+        renderItem={renderItem}
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage()
+          }
+        }}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          <SafeAreaView edges={['bottom']}>
+            {isFetchingNextPage ? (
+              <StyledActivityIndicator style={tw`py-4`} />
+            ) : null}
+          </SafeAreaView>
+        }
+      />
+    </RefetchingIndicator>
   )
 }
 
@@ -239,11 +251,17 @@ function MemberTopics({
   username: string
   headerHeight: number
 }) {
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useMemberTopics({
-      variables: { username },
-      suspense: true,
-    })
+  const {
+    data,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetching,
+  } = useMemberTopics({
+    variables: { username },
+    suspense: true,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -258,37 +276,42 @@ function MemberTopics({
   )
 
   return (
-    <FlatList
-      data={flatedData}
-      removeClippedSubviews={true}
-      refreshControl={
-        <StyledRefreshControl
-          refreshing={isRefetchingByUser}
-          onRefresh={refetchByUser}
-          progressViewOffset={headerHeight}
-        />
-      }
-      contentContainerStyle={{
-        paddingTop: headerHeight,
-      }}
-      ItemSeparatorComponent={LineSeparator}
-      renderItem={renderItem}
-      onEndReached={() => {
-        if (hasNextPage) {
-          fetchNextPage()
+    <RefetchingIndicator
+      isRefetching={isFetching && !isRefetchingByUser}
+      progressViewOffset={headerHeight}
+    >
+      <FlatList
+        data={flatedData}
+        removeClippedSubviews={true}
+        refreshControl={
+          <StyledRefreshControl
+            refreshing={isRefetchingByUser}
+            onRefresh={refetchByUser}
+            progressViewOffset={headerHeight}
+          />
         }
-      }}
-      onEndReachedThreshold={0.3}
-      ListFooterComponent={
-        <SafeAreaView edges={['bottom']}>
-          {isFetchingNextPage ? (
-            <StyledActivityIndicator style={tw`py-4`} />
-          ) : null}
-        </SafeAreaView>
-      }
-      ListEmptyComponent={
-        <Empty description={last(data?.pages)?.hidden_text} />
-      }
-    />
+        contentContainerStyle={{
+          paddingTop: headerHeight,
+        }}
+        ItemSeparatorComponent={LineSeparator}
+        renderItem={renderItem}
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage()
+          }
+        }}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          <SafeAreaView edges={['bottom']}>
+            {isFetchingNextPage ? (
+              <StyledActivityIndicator style={tw`py-4`} />
+            ) : null}
+          </SafeAreaView>
+        }
+        ListEmptyComponent={
+          <Empty description={last(data?.pages)?.hidden_text} />
+        }
+      />
+    </RefetchingIndicator>
   )
 }

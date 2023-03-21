@@ -81,6 +81,7 @@ export const useMemberTopics = createInfiniteQuery<
   {
     getNextPageParam,
     structuralSharing: false,
+    cacheTime: 1000 * 60 * 10,
   }
 )
 
@@ -108,6 +109,8 @@ export const useMemberReplies = createInfiniteQuery<
   },
   {
     getNextPageParam,
+    structuralSharing: false,
+    cacheTime: 1000 * 60 * 10,
   }
 )
 
@@ -143,6 +146,7 @@ export const useMyFollowing = createInfiniteQuery<
   {
     getNextPageParam,
     structuralSharing: false,
+    cacheTime: 1000 * 60 * 10,
   }
 )
 

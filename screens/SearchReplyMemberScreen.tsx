@@ -83,9 +83,13 @@ export default function SearchReplyMemberScreen() {
               )
 
               params.onAtNames(
-                [...checkedIds]
-                  .map(id => `@${toReply[id]?.member.username}`)
-                  .join(' ')
+                [
+                  ...new Set(
+                    [...checkedIds].map(
+                      id => `@${toReply[id]?.member.username}`
+                    )
+                  ),
+                ].join(' ')
               )
               navigation.goBack()
             }}

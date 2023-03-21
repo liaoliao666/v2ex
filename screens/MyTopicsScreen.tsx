@@ -9,6 +9,7 @@ import {
   FallbackComponent,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import RefetchingIndicator from '@/components/RefetchingIndicator'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
@@ -37,10 +38,16 @@ export default withQuerySuspense(MyTopicsScreen, {
 })
 
 function MyTopicsScreen() {
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useMyTopics({
-      suspense: true,
-    })
+  const {
+    data,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetching,
+  } = useMyTopics({
+    suspense: true,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -60,36 +67,41 @@ function MyTopicsScreen() {
 
   return (
     <View style={tw`flex-1`}>
-      <FlatList
-        key={colorScheme}
-        data={flatedData}
-        removeClippedSubviews={true}
-        refreshControl={
-          <StyledRefreshControl
-            refreshing={isRefetchingByUser}
-            onRefresh={refetchByUser}
-            progressViewOffset={navbarHeight}
-          />
-        }
-        contentContainerStyle={{
-          paddingTop: navbarHeight,
-        }}
-        ItemSeparatorComponent={LineSeparator}
-        renderItem={renderItem}
-        onEndReached={() => {
-          if (hasNextPage) {
-            fetchNextPage()
+      <RefetchingIndicator
+        isRefetching={isFetching && !isRefetchingByUser}
+        progressViewOffset={navbarHeight}
+      >
+        <FlatList
+          key={colorScheme}
+          data={flatedData}
+          removeClippedSubviews={true}
+          refreshControl={
+            <StyledRefreshControl
+              refreshing={isRefetchingByUser}
+              onRefresh={refetchByUser}
+              progressViewOffset={navbarHeight}
+            />
           }
-        }}
-        onEndReachedThreshold={0.3}
-        ListFooterComponent={
-          <SafeAreaView edges={['bottom']}>
-            {isFetchingNextPage ? (
-              <StyledActivityIndicator style={tw`py-4`} />
-            ) : null}
-          </SafeAreaView>
-        }
-      />
+          contentContainerStyle={{
+            paddingTop: navbarHeight,
+          }}
+          ItemSeparatorComponent={LineSeparator}
+          renderItem={renderItem}
+          onEndReached={() => {
+            if (hasNextPage) {
+              fetchNextPage()
+            }
+          }}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            <SafeAreaView edges={['bottom']}>
+              {isFetchingNextPage ? (
+                <StyledActivityIndicator style={tw`py-4`} />
+              ) : null}
+            </SafeAreaView>
+          }
+        />
+      </RefetchingIndicator>
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>
         <StyledBlurView style={tw`absolute inset-0`} />

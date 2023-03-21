@@ -1823,11 +1823,6 @@
   dependencies:
     merge-options "^3.0.4"
 
-"@react-native-community/blur@^4.3.0":
-  version "4.3.0"
-  resolved "https://mirrors.cloud.tencent.com/npm/@react-native-community%2fblur/-/blur-4.3.0.tgz#e5018b3b0bd6de9632ac6cf34e9f8e0f1a9a28ec"
-  integrity sha512-d6phh39kKcbZ4IluDftiVWqfeFOgjl1AbQWzN47x+hLKQ5GvQJ6QhRvgAuDZ+xbJksrbXgNpMjVYkjsbcVehxg==
-
 "@react-native-community/cli-clean@^10.1.1":
   version "10.1.1"
   resolved "https://mirrors.cloud.tencent.com/npm/@react-native-community/cli-clean/-/cli-clean-10.1.1.tgz#4c73ce93a63a24d70c0089d4025daac8184ff504"
@@ -4288,6 +4283,11 @@ expo-blur@~12.2.2:
   version "12.2.2"
   resolved "https://mirrors.cloud.tencent.com/npm/expo-blur/-/expo-blur-12.2.2.tgz#b7f94499255afbd3468302d02f3c4e39a0e562d5"
   integrity sha512-SvGbEZbB0VFNGqCW7FcqzWOEb3lrRgBnQKGrsKo49KwhMyHTYjYVYWnmrk9l8Tr7lIaNnd55QD6dPAzcXjZYMg==
+
+expo-clipboard@~4.1.2:
+  version "4.1.2"
+  resolved "https://mirrors.cloud.tencent.com/npm/expo-clipboard/-/expo-clipboard-4.1.2.tgz#0844566ae8ad1cf72854dc1bbd704c3b09c5d391"
+  integrity sha512-YSuIs4CV+3gypl7X74sp2ruwAVuhnOngsWs7EGkcvRdX0BBrZZMk3GXGw9a59sU6SW4wGWAfwrhyCT41GUaN+A==
 
 expo-constants@~14.2.0, expo-constants@~14.2.1:
   version "14.2.1"

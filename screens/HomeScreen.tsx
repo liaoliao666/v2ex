@@ -25,6 +25,7 @@ import {
   QuerySuspense,
   withQuerySuspense,
 } from '@/components/QuerySuspense'
+import RefetchingIndicator from '@/components/RefetchingIndicator'
 import SearchBar from '@/components/SearchBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
@@ -109,6 +110,21 @@ function HomeScreen() {
 
   const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
 
+  function handleInexChange(i: number) {
+    const tab = tabs[i].key
+    const activeKey =
+      tab === 'recent' ? useRecentTopics.getKey() : useTabTopics.getKey({ tab })
+    const query = queryClient.getQueryCache().find(activeKey)
+
+    if (query?.state.error) {
+      errorResetMap[tab]?.()
+    } else if (query?.getObserversCount() && query?.isStale()) {
+      queryClient.refetchQueries(activeKey)
+    }
+
+    setIndex(i)
+  }
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <TabView
@@ -128,21 +144,7 @@ function HomeScreen() {
             />
           )
         }}
-        onIndexChange={i => {
-          const tab = tabs[i].key
-          const activeKey =
-            tab === 'recent'
-              ? useRecentTopics.getKey()
-              : useTabTopics.getKey({ tab })
-
-          if (queryClient.getQueryState(activeKey)?.error) {
-            errorResetMap[tab]?.()
-          } else {
-            queryClient.refetchQueries(activeKey)
-          }
-
-          setIndex(i)
-        }}
+        onIndexChange={handleInexChange}
         initialLayout={{
           width: layout.width,
         }}
@@ -176,7 +178,7 @@ function HomeScreen() {
                         )
                       }
                       onPress={() => {
-                        setIndex(findIndex(tabs, { key: route.key }))
+                        handleInexChange(findIndex(tabs, { key: route.key }))
                       }}
                     >
                       <Text
@@ -224,11 +226,17 @@ function RecentTopics({
   isActive: boolean
   headerHeight: number
 }) {
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useRecentTopics({
-      suspense: true,
-      refetchOnWindowFocus: isActive,
-    })
+  const {
+    data,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetching,
+  } = useRecentTopics({
+    suspense: true,
+    refetchOnWindowFocus: isActive,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -243,36 +251,42 @@ function RecentTopics({
   )
 
   return (
-    <FlatList
-      data={flatedData}
-      removeClippedSubviews={true}
-      automaticallyAdjustsScrollIndicatorInsets={false}
-      refreshControl={
-        <StyledRefreshControl
-          refreshing={isRefetchingByUser}
-          onRefresh={refetchByUser}
-          progressViewOffset={headerHeight}
-        />
-      }
-      contentContainerStyle={{
-        paddingTop: headerHeight,
-      }}
-      ItemSeparatorComponent={LineSeparator}
-      renderItem={renderItem}
-      onEndReached={() => {
-        if (hasNextPage) {
-          fetchNextPage()
+    <RefetchingIndicator
+      isRefetching={isFetching && !isRefetchingByUser}
+      progressViewOffset={headerHeight}
+    >
+      <FlatList
+        data={flatedData}
+        removeClippedSubviews={true}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        refreshControl={
+          <StyledRefreshControl
+            refreshing={isRefetchingByUser}
+            onRefresh={refetchByUser}
+            progressViewOffset={headerHeight}
+          />
         }
-      }}
-      onEndReachedThreshold={0.3}
-      ListFooterComponent={
-        <SafeAreaView edges={['bottom']}>
-          {isFetchingNextPage ? (
-            <StyledActivityIndicator style={tw`py-4`} />
-          ) : null}
-        </SafeAreaView>
-      }
-    />
+        contentContainerStyle={{
+          paddingTop: headerHeight,
+          opacity: isFetching ? 0.75 : undefined,
+        }}
+        ItemSeparatorComponent={LineSeparator}
+        renderItem={renderItem}
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage()
+          }
+        }}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          <SafeAreaView edges={['bottom']}>
+            {isFetchingNextPage ? (
+              <StyledActivityIndicator style={tw`py-4`} />
+            ) : null}
+          </SafeAreaView>
+        }
+      />
+    </RefetchingIndicator>
   )
 }
 
@@ -285,7 +299,7 @@ function TabTopics({
   isActive: boolean
   headerHeight: number
 }) {
-  const { data, refetch } = useTabTopics({
+  const { data, refetch, isFetching } = useTabTopics({
     variables: { tab },
     suspense: true,
     refetchOnWindowFocus: isActive,
@@ -299,25 +313,30 @@ function TabTopics({
   )
 
   return (
-    <FlatList
-      data={data}
-      removeClippedSubviews={true}
-      automaticallyAdjustsScrollIndicatorInsets={false}
-      refreshControl={
-        <StyledRefreshControl
-          refreshing={isRefetchingByUser}
-          onRefresh={refetchByUser}
-          progressViewOffset={headerHeight}
-        />
-      }
-      contentContainerStyle={{
-        paddingTop: headerHeight,
-      }}
-      ItemSeparatorComponent={LineSeparator}
-      ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-      renderItem={renderItem}
-      ListEmptyComponent={<Empty description="目前还没有主题" />}
-    />
+    <RefetchingIndicator
+      isRefetching={isFetching && !isRefetchingByUser}
+      progressViewOffset={headerHeight}
+    >
+      <FlatList
+        data={data}
+        removeClippedSubviews={true}
+        automaticallyAdjustsScrollIndicatorInsets={false}
+        refreshControl={
+          <StyledRefreshControl
+            refreshing={isRefetchingByUser}
+            onRefresh={refetchByUser}
+            progressViewOffset={headerHeight}
+          />
+        }
+        contentContainerStyle={{
+          paddingTop: headerHeight,
+        }}
+        ItemSeparatorComponent={LineSeparator}
+        ListFooterComponent={<SafeAreaView edges={['bottom']} />}
+        renderItem={renderItem}
+        ListEmptyComponent={<Empty description="目前还没有主题" />}
+      />
+    </RefetchingIndicator>
   )
 }
 

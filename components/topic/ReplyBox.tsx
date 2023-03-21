@@ -127,7 +127,11 @@ const ReplyBox = forwardRef<
                 navigation.navigate('SearchReplyMember', {
                   topicId,
                   onAtNames(atNames) {
-                    setContent(`${text.slice(0, text.length - 1)}${atNames} `)
+                    setContent(
+                      atNames
+                        ? `${text.slice(0, text.length - 1)}${atNames} `
+                        : text
+                    )
                   },
                 })
                 return

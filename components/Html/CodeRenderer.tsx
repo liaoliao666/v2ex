@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import hljs from 'highlight.js'
 import { useAtomValue } from 'jotai'
-import { useMemo } from 'react'
+import { useContext, useMemo } from 'react'
 import { ScrollView, View, useWindowDimensions } from 'react-native'
 import RenderHTML, {
   CustomBlockRenderer,
@@ -12,9 +12,13 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import tw from '@/utils/tw'
 
+import { HtmlContext } from './HtmlContext'
 import TextRenderer from './TextRenderer'
+import { getDefaultProps } from './helper'
 
 const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
+  const { inModalScreen } = useContext(HtmlContext)
+
   const { width } = useWindowDimensions()
 
   const { html, hasHtmlTag } = useMemo(() => {
@@ -59,14 +63,10 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
             fontStyle: 'italic',
           },
         }}
-        enableExperimentalMarginCollapsing
-        defaultTextProps={{ selectable: true }}
-        classesStyles={{
-          ...(colorScheme === 'dark' ? atomDark : atomLight),
-          'text-tint-secondary': tw`text-tint-secondary`,
-        }}
+        classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
         source={{ html }}
         renderers={{ _TEXT_: TextRenderer }}
+        {...getDefaultProps({ inModalScreen })}
       />
     </WrapView>
   )

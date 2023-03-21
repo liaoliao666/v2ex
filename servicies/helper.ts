@@ -577,6 +577,8 @@ export function parseImage(str: string) {
     : undefined
 }
 
+export const BASE64_PREFIX = 'base64:'
+
 function parseBase64Text(str?: string) {
   if (!str) return str
   const blacklist = [
@@ -612,7 +614,7 @@ function parseBase64Text(str?: string) {
       )
       return specialCharReg.test(decodedText)
         ? text
-        : `${text}<span class="text-tint-secondary">(${decodedText})</span>`
+        : `${text}<a href="${BASE64_PREFIX}${decodedText}">(${decodedText})</a>`
     } catch (error) {
       return text
     }

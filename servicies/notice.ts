@@ -56,6 +56,7 @@ export const useNotifications = createInfiniteQuery<PageData<Notice>>(
   {
     getNextPageParam,
     structuralSharing: false,
+    cacheTime: 1000 * 60 * 10,
   }
 )
 

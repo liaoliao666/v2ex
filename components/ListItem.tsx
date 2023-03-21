@@ -34,7 +34,7 @@ export default function ListItem({
       {!!label && (
         <Text
           style={tw`ml-6 font-medium text-tint-primary mr-auto ${getFontSize(
-            3
+            4
           )}`}
         >
           {label}

@@ -34,6 +34,7 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>(
   },
   {
     structuralSharing: false,
+    staleTime: 10 * 1000,
   }
 )
 
@@ -57,7 +58,8 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
   },
   {
     getNextPageParam,
-    cacheTime: 1000 * 60 * 60 * 1, // 1 hours
+    cacheTime: 1000 * 60 * 10,
+    staleTime: 10 * 1000,
     structuralSharing: false,
   }
 )
@@ -157,6 +159,7 @@ export const useMyTopics = createInfiniteQuery<PageData<Topic>>(
   {
     getNextPageParam,
     structuralSharing: false,
+    cacheTime: 1000 * 60 * 10,
   }
 )
 
