@@ -12,25 +12,28 @@ import { getURLSearchParams } from '@/utils/url'
 import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
 import { Node, PageData, Topic } from './types'
 
-export const useNodes = createQuery<Node[]>('useNodes', ({ signal }) =>
-  request.get(`/api/nodes/all.json`, { signal }).then(res => res.data)
-)
+export const useNodes = createQuery<Node[]>({
+  primaryKey: 'useNodes',
+  queryFn: ({ signal }) =>
+    request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),
+})
 
 export const useLikeNode = createMutation<
   void,
   { id: number; once: string; type: 'unfavorite' | 'favorite' }
->(({ id, once, type: type }) =>
-  request.get(`/${type}/node/${id}?once=${once}`, {
-    responseType: 'text',
-  })
-)
+>({
+  mutationFn: ({ id, once, type: type }) =>
+    request.get(`/${type}/node/${id}?once=${once}`, {
+      responseType: 'text',
+    }),
+})
 
 export const useNodeTopics = createInfiniteQuery<
   PageData<Topic> & { liked?: boolean; once?: string },
   { name: string }
->(
-  'useNodeTopics',
-  async ({ queryKey: [_, { name }], pageParam, signal }) => {
+>({
+  primaryKey: 'useNodeTopics',
+  queryFn: async ({ queryKey: [_, { name }], pageParam, signal }) => {
     const page = pageParam ?? 1
     const { data } = await request.get(`/go/${name}?p=${page}`, {
       responseType: 'text',
@@ -52,20 +55,18 @@ export const useNodeTopics = createInfiniteQuery<
       }),
     }
   },
-  {
-    getNextPageParam,
-    cacheTime: 1000 * 60 * 10,
-    structuralSharing: false,
-  }
-)
+  getNextPageParam,
+  cacheTime: 1000 * 60 * 10,
+  structuralSharing: false,
+})
 
-export const useMyNodes = createQuery<string[]>(
-  'useMyNodes',
-  async ({ signal }) => {
+export const useMyNodes = createQuery<string[], void>({
+  primaryKey: 'useMyNodes',
+  queryFn: async ({ signal }) => {
     const { data } = await request.get(`/my/nodes`, { signal })
     const $ = load(data)
     return $('#my-nodes a')
       .map((i, a) => $(a).attr('href')?.replace('/go/', '').trim()!)
       .get()
-  }
-)
+  },
+})

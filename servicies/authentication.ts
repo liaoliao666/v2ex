@@ -12,8 +12,8 @@ import { sleep } from '@/utils/sleep'
 
 import { isLogined } from './helper'
 
-export const useSignout = createMutation<void, { once: string }>(
-  async ({ once }) => {
+export const useSignout = createMutation<void, { once: string }>({
+  mutationFn: async ({ once }) => {
     const { data } = await request.get(`/signout?once=${once}`, {
       responseType: 'text',
     })
@@ -22,12 +22,12 @@ export const useSignout = createMutation<void, { once: string }>(
     if (isLogined($)) {
       return Promise.reject(new Error('Failed to logout'))
     }
-  }
-)
+  },
+})
 
-export const useSigninInfo = createQuery(
-  'useSigninInfo',
-  async ({ signal }) => {
+export const useSigninInfo = createQuery({
+  primaryKey: 'useSigninInfo',
+  queryFn: async ({ signal }) => {
     const { data } = await request.get(`/signin`, {
       responseType: 'text',
       signal,
@@ -54,11 +54,9 @@ export const useSigninInfo = createQuery(
       cookie: await getCookie(),
     }
   },
-  {
-    cacheTime: 0,
-    staleTime: 0,
-  }
-)
+  cacheTime: 0,
+  staleTime: 0,
+})
 
 export const useSignin = createMutation<
   {
@@ -68,56 +66,58 @@ export const useSignin = createMutation<
   },
   Record<string, any>,
   Error
->(async ({ username, ...args }) => {
-  if (await store.get(deletedNamesAtom)?.includes(username)) {
-    await sleep(1000)
-    return Promise.reject(new Error('该帐号已注销'))
-  }
-
-  const { headers, data } = await request.post(
-    '/signin',
-    paramsSerializer(args),
-    {
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-        Referer: `${baseURL}/signin`,
-        origin: baseURL,
-      },
+>({
+  mutationFn: async ({ username, ...args }) => {
+    if (await store.get(deletedNamesAtom)?.includes(username)) {
+      await sleep(1000)
+      return Promise.reject(new Error('该帐号已注销'))
     }
-  )
 
-  const $ = load(data)
-
-  if ($('#otp_code').length) {
-    return {
-      '2fa': true,
-      once: $("input[name='once']").attr('value'),
-    }
-  }
-
-  const problem = $(`#Main > div.box > div.problem > ul > li`)
-    .eq(0)
-    .text()
-    .trim()
-
-  if (isLogined($) && !problem) {
-    return {
-      cookie: isArray(headers['set-cookie'])
-        ? headers['set-cookie'].join(';')
-        : '',
-    }
-  }
-
-  return Promise.reject(
-    new Error(
-      `${
-        problem ||
-        ($('#captcha-image').attr('src')
-          ? '登录失败'
-          : '由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。')
-      }`
+    const { headers, data } = await request.post(
+      '/signin',
+      paramsSerializer(args),
+      {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          Referer: `${baseURL}/signin`,
+          origin: baseURL,
+        },
+      }
     )
-  )
+
+    const $ = load(data)
+
+    if ($('#otp_code').length) {
+      return {
+        '2fa': true,
+        once: $("input[name='once']").attr('value'),
+      }
+    }
+
+    const problem = $(`#Main > div.box > div.problem > ul > li`)
+      .eq(0)
+      .text()
+      .trim()
+
+    if (isLogined($) && !problem) {
+      return {
+        cookie: isArray(headers['set-cookie'])
+          ? headers['set-cookie'].join(';')
+          : '',
+      }
+    }
+
+    return Promise.reject(
+      new Error(
+        `${
+          problem ||
+          ($('#captcha-image').attr('src')
+            ? '登录失败'
+            : '由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。')
+        }`
+      )
+    )
+  },
 })
 
 export const useTwoStepSignin = createMutation<
@@ -127,25 +127,33 @@ export const useTwoStepSignin = createMutation<
     once: string
   },
   Error
->(async args => {
-  const { headers, data } = await request.post('/2fa', paramsSerializer(args), {
-    headers: {
-      'content-type': 'application/x-www-form-urlencoded',
-      Referer: `${baseURL}/2fa`,
-      origin: baseURL,
-    },
-  })
+>({
+  mutationFn: async args => {
+    const { headers, data } = await request.post(
+      '/2fa',
+      paramsSerializer(args),
+      {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+          Referer: `${baseURL}/2fa`,
+          origin: baseURL,
+        },
+      }
+    )
 
-  const $ = load(data)
+    const $ = load(data)
 
-  const problem = $(`#Main > div.box > div.problem > ul > li`)
-    .eq(0)
-    .text()
-    .trim()
+    const problem = $(`#Main > div.box > div.problem > ul > li`)
+      .eq(0)
+      .text()
+      .trim()
 
-  if (isLogined($) && !problem) {
-    return isArray(headers['set-cookie']) ? headers['set-cookie'].join(';') : ''
-  }
+    if (isLogined($) && !problem) {
+      return isArray(headers['set-cookie'])
+        ? headers['set-cookie'].join(';')
+        : ''
+    }
 
-  return Promise.reject(new Error(`${problem || '登录失败'}`))
+    return Promise.reject(new Error(`${problem || '登录失败'}`))
+  },
 })

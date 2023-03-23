@@ -7,9 +7,9 @@ import { request } from '@/utils/request'
 import { getNextPageParam, parseLastPage, parseTopicByATag } from './helper'
 import { Member, Notice, PageData, Topic } from './types'
 
-export const useNotifications = createInfiniteQuery<PageData<Notice>>(
-  'useNotifications',
-  async ({ pageParam, signal }) => {
+export const useNotifications = createInfiniteQuery<PageData<Notice>>({
+  primaryKey: 'useNotifications',
+  queryFn: async ({ pageParam, signal }) => {
     const page = pageParam ?? 1
     const { data } = await request.get(`/notifications?p=${page}`, {
       responseType: 'text',
@@ -53,18 +53,17 @@ export const useNotifications = createInfiniteQuery<PageData<Notice>>(
         .get(),
     }
   },
-  {
-    getNextPageParam,
-    structuralSharing: false,
-    cacheTime: 1000 * 60 * 10,
-  }
-)
+  getNextPageParam,
+  structuralSharing: false,
+  cacheTime: 1000 * 60 * 10,
+})
 
 export const useDeleteNotice = createMutation<
   void,
   { id: number; once: string }
->(({ id, once }) =>
-  request.post(`/delete/notification/${id}?once=${once}`, {
-    responseType: 'text',
-  })
-)
+>({
+  mutationFn: ({ id, once }) =>
+    request.post(`/delete/notification/${id}?once=${once}`, {
+      responseType: 'text',
+    }),
+})

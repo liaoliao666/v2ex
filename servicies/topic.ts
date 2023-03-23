@@ -19,9 +19,9 @@ import {
 } from './helper'
 import { PageData, Topic } from './types'
 
-export const useTabTopics = createQuery<Topic[], { tab?: string }>(
-  'useTabTopics',
-  async ({ queryKey: [_, { tab }], signal }) => {
+export const useTabTopics = createQuery<Topic[], { tab?: string }>({
+  primaryKey: 'useTabTopics',
+  queryFn: async ({ queryKey: [_, { tab }], signal }) => {
     const { data } = await request.get(
       tab === 'changes' ? '/changes' : `?tab=${tab}`,
       {
@@ -32,15 +32,13 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>(
     const $ = load(data)
     return parseTopicItems($, '#Main .box .cell.item')
   },
-  {
-    structuralSharing: false,
-    staleTime: 10 * 1000,
-  }
-)
+  structuralSharing: false,
+  staleTime: 10 * 1000,
+})
 
-export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
-  'useRecentTopics',
-  async ({ pageParam, signal }) => {
+export const useRecentTopics = createInfiniteQuery<PageData<Topic>>({
+  primaryKey: 'useRecentTopics',
+  queryFn: async ({ pageParam, signal }) => {
     const page = pageParam ?? 1
 
     const { data } = await request.get(`/recent?p=${page}`, {
@@ -56,17 +54,15 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>(
       list: parseTopicItems($, '#Main .box .cell.item'),
     }
   },
-  {
-    getNextPageParam,
-    cacheTime: 1000 * 60 * 10,
-    staleTime: 10 * 1000,
-    structuralSharing: false,
-  }
-)
+  getNextPageParam,
+  cacheTime: 1000 * 60 * 10,
+  staleTime: 10 * 1000,
+  structuralSharing: false,
+})
 
-export const useTopicById = createQuery<Topic, { id: number }>(
-  'useTopicById',
-  async ({ signal, queryKey: [_, { id }] }) => {
+export const useTopicById = createQuery<Topic, { id: number }>({
+  primaryKey: 'useTopicById',
+  queryFn: async ({ signal, queryKey: [_, { id }] }) => {
     const { data } = await request.get(`/api/topics/show.json?id=${id}`, {
       signal,
     })
@@ -81,15 +77,15 @@ export const useTopicById = createQuery<Topic, { id: number }>(
       topic.last_touched = dayjs.unix(topic.last_touched).fromNow()
     }
     return topic as Topic
-  }
-)
+  },
+})
 
 export const useTopicDetail = createInfiniteQuery<
   Topic & { page: number; last_page: number },
   { id: number }
->(
-  'useTopicDetail',
-  async ({ queryKey: [_, { id }], pageParam, signal }) => {
+>({
+  primaryKey: 'useTopicDetail',
+  queryFn: async ({ queryKey: [_, { id }], pageParam, signal }) => {
     const page = pageParam ?? 1
     const { data } = await request.get(`/t/${id}?p=${page}`, {
       responseType: 'text',
@@ -105,44 +101,51 @@ export const useTopicDetail = createInfiniteQuery<
       ...parseTopic($),
     }
   },
-  {
-    getNextPageParam,
-    structuralSharing: false,
-  }
-)
+  getNextPageParam,
+  structuralSharing: false,
+})
 
 export const useLikeTopic = createMutation<
   void,
   { id: number; once: string; type: 'unfavorite' | 'favorite' }
->(({ id, once, type: type }) =>
-  request.get(`/${type}/topic/${id}?once=${once}`, {
-    responseType: 'text',
-  })
-)
+>({
+  mutationFn: ({ id, once, type: type }) =>
+    request.get(`/${type}/topic/${id}?once=${once}`, {
+      responseType: 'text',
+    }),
+})
 
 export const useThankTopic = createMutation<void, { id: number; once: string }>(
-  ({ id, once }) => request.post(`/thank/topic/${id}?once=${once}`)
+  {
+    mutationFn: ({ id, once }) =>
+      request.post(`/thank/topic/${id}?once=${once}`),
+  }
 )
 
 export const useVoteTopic = createMutation<
   number,
   { id: number; once: string; type: 'up' | 'down' }
->(async ({ id, once, type: type }) => {
-  const { data } = await request.post(`/${type}/topic/${id}?once=${once}`)
-  if (!isObject(data) || !isString(data.html)) return Promise.reject()
-  const $ = load(data.html as string)
-  const votes = parseInt($('.vote').eq(0).text().trim(), 10)
+>({
+  mutationFn: async ({ id, once, type: type }) => {
+    const { data } = await request.post(`/${type}/topic/${id}?once=${once}`)
+    if (!isObject(data) || !isString(data.html)) return Promise.reject()
+    const $ = load(data.html as string)
+    const votes = parseInt($('.vote').eq(0).text().trim(), 10)
 
-  return votes
+    return votes
+  },
 })
 
 export const useThankReply = createMutation<void, { id: number; once: string }>(
-  ({ id, once }) => request.post(`/thank/reply/${id}?once=${once}`)
+  {
+    mutationFn: ({ id, once }) =>
+      request.post(`/thank/reply/${id}?once=${once}`),
+  }
 )
 
-export const useMyTopics = createInfiniteQuery<PageData<Topic>>(
-  'useMyTopics',
-  async ({ pageParam, signal }) => {
+export const useMyTopics = createInfiniteQuery<PageData<Topic>>({
+  primaryKey: 'useMyTopics',
+  queryFn: async ({ pageParam, signal }) => {
     const page = pageParam ?? 1
     const { data } = await request.get(`/my/topics?p=${page}`, {
       responseType: 'text',
@@ -156,22 +159,22 @@ export const useMyTopics = createInfiniteQuery<PageData<Topic>>(
       list: parseTopicItems($, '#Main .box .cell.item'),
     }
   },
-  {
-    getNextPageParam,
-    structuralSharing: false,
-    cacheTime: 1000 * 60 * 10,
-  }
-)
+  getNextPageParam,
+  structuralSharing: false,
+  cacheTime: 1000 * 60 * 10,
+})
 
 export const useReply = createMutation<
   void,
   { content: string; once: string; topicId: number }
->(({ topicId, ...args }) => {
-  return request.post(`/t/${topicId}`, paramsSerializer(args), {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  })
+>({
+  mutationFn: ({ topicId, ...args }) => {
+    return request.post(`/t/${topicId}`, paramsSerializer(args), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
+  },
 })
 
 export const useWriteTopic = createMutation<
@@ -183,20 +186,21 @@ export const useWriteTopic = createMutation<
     syntax: 'default' | 'markdown'
     once: string
   }
->(args =>
-  request.post(`/write`, paramsSerializer(args), {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  })
-)
+>({
+  mutationFn: args =>
+    request.post(`/write`, paramsSerializer(args), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    }),
+})
 
 export const useEditTopicInfo = createQuery<
   { content: string; syntax: 'default' | 'markdown' },
   { id: number }
->(
-  'useEditTopicInfo',
-  async ({ queryKey: [, { id }], signal }) => {
+>({
+  primaryKey: 'useEditTopicInfo',
+  queryFn: async ({ queryKey: [, { id }], signal }) => {
     const { data } = await request.get<string>(`/edit/topic/${id}`, {
       responseType: 'text',
       signal,
@@ -211,8 +215,9 @@ export const useEditTopicInfo = createQuery<
           : 'markdown',
     }
   },
-  { cacheTime: 0, staleTime: 0 }
-)
+  cacheTime: 0,
+  staleTime: 0,
+})
 
 export const useEditTopic = createMutation<
   void,
@@ -223,41 +228,43 @@ export const useEditTopic = createMutation<
     syntax: 0 | 1
     prevTopic: Topic
   }
->(async ({ prevTopic, ...args }) => {
-  const promises = []
+>({
+  mutationFn: async ({ prevTopic, ...args }) => {
+    const promises = []
 
-  if (args.node_name !== prevTopic.node?.name) {
-    promises.push(
-      request.post(
-        `/move/topic/${prevTopic.id}`,
-        paramsSerializer({
-          destination: args.node_name,
-        }),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
+    if (args.node_name !== prevTopic.node?.name) {
+      promises.push(
+        request.post(
+          `/move/topic/${prevTopic.id}`,
+          paramsSerializer({
+            destination: args.node_name,
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          }
+        )
       )
-    )
-  }
+    }
 
-  const keys = ['title', 'content', 'syntax']
-  if (!isEqual(pick(prevTopic, keys), pick(args, keys))) {
-    promises.push(
-      request.post(
-        `/edit/topic/${prevTopic.id}`,
-        paramsSerializer(pick(args, keys)),
-        {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-        }
+    const keys = ['title', 'content', 'syntax']
+    if (!isEqual(pick(prevTopic, keys), pick(args, keys))) {
+      promises.push(
+        request.post(
+          `/edit/topic/${prevTopic.id}`,
+          paramsSerializer(pick(args, keys)),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          }
+        )
       )
-    )
-  }
+    }
 
-  Promise.all(promises)
+    Promise.all(promises)
+  },
 })
 
 export const useAppendTopic = createMutation<
@@ -267,32 +274,41 @@ export const useAppendTopic = createMutation<
     once: string
     topicId: number
   }
->(({ topicId, ...args }) =>
-  request.post(
-    `/append/topic/${topicId}`,
-    paramsSerializer({
-      ...args,
-      syntax: 'default',
-    }),
-    {
-      headers: {
-        'content-type': 'application/x-www-form-urlencoded',
-      },
-    }
-  )
-)
+>({
+  mutationFn: ({ topicId, ...args }) =>
+    request.post(
+      `/append/topic/${topicId}`,
+      paramsSerializer({
+        ...args,
+        syntax: 'default',
+      }),
+      {
+        headers: {
+          'content-type': 'application/x-www-form-urlencoded',
+        },
+      }
+    ),
+})
 
 export const useIgnoreTopic = createMutation<
   void,
   { id: number; once: string; type: 'ignore' | 'unignore' }
->(({ id, once, type }) => request.get(`/${type}/topic/${id}?once=${once}`))
+>({
+  mutationFn: ({ id, once, type }) =>
+    request.get(`/${type}/topic/${id}?once=${once}`),
+})
 
 export const useIgnoreReply = createMutation<
   void,
   { id: number; once: string }
->(({ id, once }) => request.post(`/ignore/reply/${id}?once=${once}`))
+>({
+  mutationFn: ({ id, once }) =>
+    request.post(`/ignore/reply/${id}?once=${once}`),
+})
 
 export const useReportTopic = createMutation<
   void,
   { id: number; once: string }
->(({ id, once }) => request.get(`/report/topic/${id}?once=${once}`))
+>({
+  mutationFn: ({ id, once }) => request.get(`/report/topic/${id}?once=${once}`),
+})

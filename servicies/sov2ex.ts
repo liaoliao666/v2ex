@@ -27,9 +27,9 @@ export const Sov2exArgs = z.object({
 export const useSov2ex = createInfiniteQuery<
   Sov2exResult,
   z.infer<typeof Sov2exArgs>
->(
-  'useSov2ex',
-  async ({ queryKey: [, params], pageParam, signal }) => {
+>({
+  primaryKey: 'useSov2ex',
+  queryFn: async ({ queryKey: [, params], pageParam, signal }) => {
     const page = pageParam ?? 0
     const { data } = await axios.get(`https://www.sov2ex.com/api/search`, {
       params: {
@@ -47,12 +47,10 @@ export const useSov2ex = createInfiniteQuery<
       size: params.size,
     }
   },
-  {
-    getNextPageParam: page => {
-      const nextFrom = page.from + page.size
-      return nextFrom < page.total ? nextFrom : undefined
-    },
-    structuralSharing: false,
-    cacheTime: 1000 * 60 * 10,
-  }
-)
+  getNextPageParam: page => {
+    const nextFrom = page.from + page.size
+    return nextFrom < page.total ? nextFrom : undefined
+  },
+  structuralSharing: false,
+  cacheTime: 1000 * 60 * 10,
+})

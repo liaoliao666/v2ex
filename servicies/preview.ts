@@ -9,9 +9,9 @@ export const usePreview = createQuery<
     text: string
     syntax: 'default' | 'markdown'
   }
->(
-  'usePreview',
-  async ({ signal, queryKey: [_, { text, syntax }] }) => {
+>({
+  primaryKey: 'usePreview',
+  queryFn: async ({ signal, queryKey: [_, { text, syntax }] }) => {
     const { data } = await request.post(
       `/preview/${syntax}`,
       paramsSerializer({ text }),
@@ -25,8 +25,6 @@ export const usePreview = createQuery<
     )
     return data
   },
-  {
-    cacheTime: 10 * 60 * 10,
-    staleTime: 10 * 60 * 10,
-  }
-)
+  cacheTime: 10 * 60 * 10,
+  staleTime: 10 * 60 * 10,
+})
