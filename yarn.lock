@@ -7622,10 +7622,10 @@ react-native@0.71.3:
     whatwg-fetch "^3.0.0"
     ws "^6.2.2"
 
-react-query-kit@^1.4.0:
-  version "1.4.0"
-  resolved "https://mirrors.cloud.tencent.com/npm/react-query-kit/-/react-query-kit-1.4.0.tgz#644ac64005387825d2ae6f148132097c2fea2fd8"
-  integrity sha512-kl6E16ZQzDeJWQN2qJ50mQiy9XdKFZ0OWv07eMwm1RD4rVN8boPb/jlgoZCtPnwVIH5TAjhXpvhNm1b/dA1lwg==
+react-query-kit@^1.4.1:
+  version "1.4.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-query-kit/-/react-query-kit-1.4.1.tgz#49bb4d897ab0785a5170766dc5a4922d30b8e34d"
+  integrity sha512-xIBczviAj/PUSVYXfwfpwutADXu1U1/n+37cH2IRLHONWXmHlnTzIQdMmsh5txzBcp2Xe/N2kmAehG+/eBaoMA==
 
 react-refresh@^0.4.0:
   version "0.4.3"

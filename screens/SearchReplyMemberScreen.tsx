@@ -111,7 +111,6 @@ export default function SearchReplyMemberScreen() {
 
       <FlatList
         key={colorScheme}
-        removeClippedSubviews={true}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         data={flatedData}
         renderItem={renderNodeItem}

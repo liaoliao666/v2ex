@@ -63,7 +63,7 @@
     "react-native-toast-message": "^2.1.6",
     "react-native-webview": "11.26.0",
     "react-native-youtube-iframe": "^2.2.2",
-    "react-query-kit": "^1.4.0",
+    "react-query-kit": "^1.4.1",
     "rn-placeholder": "^3.0.3",
     "twrnc": "^3.6.0",
     "zod": "^3.19.1"

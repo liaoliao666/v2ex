@@ -257,7 +257,6 @@ function RecentTopics({
     >
       <FlatList
         data={flatedData}
-        removeClippedSubviews={true}
         automaticallyAdjustsScrollIndicatorInsets={false}
         refreshControl={
           <StyledRefreshControl
@@ -268,7 +267,6 @@ function RecentTopics({
         }
         contentContainerStyle={{
           paddingTop: headerHeight,
-          opacity: isFetching ? 0.75 : undefined,
         }}
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
@@ -319,7 +317,6 @@ function TabTopics({
     >
       <FlatList
         data={data}
-        removeClippedSubviews={true}
         automaticallyAdjustsScrollIndicatorInsets={false}
         refreshControl={
           <StyledRefreshControl

@@ -102,7 +102,6 @@ export default function SearchScreen() {
       {isSearchNode ? (
         <FlatList
           key={colorScheme}
-          removeClippedSubviews={true}
           contentContainerStyle={{
             paddingTop: navbarHeight,
           }}
@@ -236,7 +235,6 @@ function SoV2exList({
   return (
     <FlatList
       data={flatedData}
-      removeClippedSubviews={true}
       ListHeaderComponent={
         !isEmpty(flatedData) ? (
           <View style={tw`px-4 py-2.5`}>

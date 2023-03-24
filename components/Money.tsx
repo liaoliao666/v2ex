@@ -1,5 +1,5 @@
 import { some } from 'lodash-es'
-import { Text, View, ViewProps } from 'react-native'
+import { Text, View, ViewStyle } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
@@ -13,7 +13,7 @@ export default function Money({
   silver,
   bronze,
 }: {
-  style?: ViewProps
+  style?: ViewStyle
   gold?: number
   silver?: number
   bronze?: number

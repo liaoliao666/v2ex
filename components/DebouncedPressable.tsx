@@ -27,18 +27,16 @@ const DebouncedPressable: typeof Pressable = forwardRef((props, ref) => {
         }
         props.onPressIn?.(ev)
       }}
-      onPress={ev =>
-        debouncePress(() => {
-          const { pageX, pageY } = ev.nativeEvent
-          const absX = Math.abs(touchActivatePositionRef.current.pageX - pageX)
-          const absY = Math.abs(touchActivatePositionRef.current.pageY - pageY)
-          const dragged = absX > 2 || absY > 2
+      onPress={ev => {
+        const { pageX, pageY } = ev.nativeEvent
+        const absX = Math.abs(touchActivatePositionRef.current.pageX - pageX)
+        const absY = Math.abs(touchActivatePositionRef.current.pageY - pageY)
+        const dragged = absX > 2 || absY > 2
 
-          if (!dragged) {
-            props.onPress?.(ev)
-          }
-        })
-      }
+        if (!dragged) {
+          debouncePress(() => props.onPress?.(ev))
+        }
+      }}
     />
   )
 })

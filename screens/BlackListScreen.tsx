@@ -249,7 +249,6 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
   return (
     <FlatList
       data={flatedData}
-      removeClippedSubviews={true}
       contentContainerStyle={{
         paddingTop: headerHeight,
       }}
@@ -285,7 +284,6 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   return (
     <FlatList
       data={flatedData}
-      removeClippedSubviews={true}
       contentContainerStyle={{
         paddingTop: headerHeight,
       }}

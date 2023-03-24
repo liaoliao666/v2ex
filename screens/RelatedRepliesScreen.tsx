@@ -234,7 +234,6 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
   return (
     <FlatList
       data={replies}
-      removeClippedSubviews={true}
       renderItem={renderItem}
       onEndReached={() => {
         if (hasNextPage) {

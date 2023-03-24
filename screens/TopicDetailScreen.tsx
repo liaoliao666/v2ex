@@ -132,7 +132,7 @@ function TopicDetailScreen() {
       <FlatList
         key={colorScheme}
         data={flatedData}
-        removeClippedSubviews={Platform.OS !== 'android'}
+        removeClippedSubviews={Platform.OS === 'android' ? false : undefined}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}

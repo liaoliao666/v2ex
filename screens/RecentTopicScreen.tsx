@@ -66,7 +66,6 @@ export default function RecentTopicScreen() {
     <View style={tw`flex-1`}>
       <FlatList
         data={allRecentTopics}
-        removeClippedSubviews={true}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}

@@ -183,7 +183,6 @@ function TopRichList({ headerHeight }: { headerHeight: number }) {
   return (
     <FlatList
       data={data}
-      removeClippedSubviews={true}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
@@ -219,7 +218,6 @@ function TopPlayerList({ headerHeight }: { headerHeight: number }) {
   return (
     <FlatList
       data={data}
-      removeClippedSubviews={true}
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}
