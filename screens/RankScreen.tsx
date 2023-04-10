@@ -23,7 +23,6 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import { LineSeparator } from '@/components/Separator'
-import Space from '@/components/Space'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
@@ -267,8 +266,8 @@ const RankItem = memo(
           </DebouncedPressable>
         </View>
 
-        <Space direction="vertical" gap={4} style={tw`flex-1`}>
-          <Space>
+        <View style={tw`flex-1 gap-1`}>
+          <View style={tw`flex-row gap-2`}>
             <Text
               style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
               numberOfLines={1}
@@ -282,7 +281,7 @@ const RankItem = memo(
             ) : (
               <Money {...member} />
             )}
-          </Space>
+          </View>
 
           {member.motto && (
             <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
@@ -305,7 +304,7 @@ const RankItem = memo(
           <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
             第 {member.id} 号会员
           </Text>
-        </Space>
+        </View>
       </DebouncedPressable>
     )
   }

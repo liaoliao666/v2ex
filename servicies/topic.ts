@@ -1,6 +1,6 @@
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
-import { isArray, isEqual, isString, pick } from 'lodash-es'
+import { isArray, isEqual, isString, noop, pick } from 'lodash-es'
 import {
   createInfiniteQuery,
   createMutation,
@@ -263,7 +263,7 @@ export const useEditTopic = createMutation<
       )
     }
 
-    Promise.all(promises)
+    return Promise.all(promises).then(noop)
   },
 })
 

@@ -45,7 +45,6 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import Separator, { LineSeparator } from '@/components/Separator'
-import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
@@ -325,21 +324,16 @@ const MemberHeader = memo(() => {
         </View>
 
         {!isMe(params.username) && (
-          <Space style={tw`mt-10 ml-auto`}>
+          <View style={tw`mt-10 ml-auto flex-row gap-2`}>
             <BlockMember {...member!} />
 
             <FollowMember {...member!} />
-          </Space>
+          </View>
         )}
       </View>
 
-      <Space
-        pointerEvents="none"
-        direction="vertical"
-        gap={4}
-        style={tw`mt-3 px-4`}
-      >
-        <Space>
+      <View pointerEvents="none" style={tw`mt-3 px-4 gap-1`}>
+        <View style={tw`flex-row gap-2`}>
           <Text
             style={tw`text-tint-primary ${getFontSize(2)} font-extrabold`}
             selectable
@@ -347,7 +341,7 @@ const MemberHeader = memo(() => {
             {member?.username}
           </Text>
 
-          <Space pointerEvents="none">
+          <View style={tw`flex-row gap-2`} pointerEvents="none">
             <View style={tw`rounded-full overflow-hidden`}>
               <Svg height="100%" width="100%" style={tw`absolute inset-0`}>
                 <Defs>
@@ -369,8 +363,8 @@ const MemberHeader = memo(() => {
             </View>
 
             <Money {...pick(member, ['gold', 'silver', 'bronze'])} />
-          </Space>
-        </Space>
+          </View>
+        </View>
 
         {!!member?.motto && (
           <View pointerEvents="none">
@@ -413,10 +407,13 @@ const MemberHeader = memo(() => {
             <Html source={{ html: member.overview }} />
           </View>
         )}
-      </Space>
+      </View>
 
       {!!member?.widgets?.length && (
-        <Space wrap style={tw`mt-2 px-4`} pointerEvents="box-none">
+        <View
+          style={tw`mt-2 px-4 flex-row flex-wrap gap-2`}
+          pointerEvents="box-none"
+        >
           {member.widgets.map(widget => (
             <TouchableOpacity
               key={widget.link}
@@ -439,7 +436,7 @@ const MemberHeader = memo(() => {
               </Text>
             </TouchableOpacity>
           ))}
-        </Space>
+        </View>
       )}
     </Fragment>
   )
@@ -593,7 +590,7 @@ const MemberReply = memo(
           navigation.push('TopicDetail', topic)
         }}
       >
-        <Space>
+        <View style={tw`flex-row gap-2`}>
           <StyledButton
             size="mini"
             type="tag"
@@ -615,7 +612,7 @@ const MemberReply = memo(
               </Text>
             )}
           </Separator>
-        </Space>
+        </View>
 
         <Text style={tw`text-tint-primary ${getFontSize(5)} pt-2`}>
           {topic.title}

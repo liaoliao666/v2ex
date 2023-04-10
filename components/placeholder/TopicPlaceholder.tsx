@@ -1,4 +1,4 @@
-import { ViewStyle } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import {
   Fade,
   Placeholder,
@@ -9,8 +9,6 @@ import {
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import tw from '@/utils/tw'
-
-import Space from '../Space'
 
 function AvatarPlaceholder() {
   return (
@@ -27,7 +25,7 @@ export function TopicItemPlaceholder({ hideAvatar }: { hideAvatar?: boolean }) {
       style={tw`px-4 py-3 flex-row bg-body-1 border-b border-solid border-tint-border`}
       Left={hideAvatar ? undefined : AvatarPlaceholder}
     >
-      <Space direction="vertical">
+      <View style={tw`gap-2`}>
         <PlaceholderLine
           width={40}
           noMargin
@@ -36,7 +34,7 @@ export function TopicItemPlaceholder({ hideAvatar }: { hideAvatar?: boolean }) {
         />
         <PlaceholderLine noMargin color={tw.color('bg-loading')} />
         <PlaceholderLine width={80} noMargin color={tw.color('bg-loading')} />
-      </Space>
+      </View>
     </Placeholder>
   )
 }

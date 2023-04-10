@@ -1,10 +1,9 @@
-import { some } from 'lodash-es'
+import { isEmpty } from 'lodash-es'
 import { Text, View, ViewStyle } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import tw from '@/utils/tw'
 
-import Space from './Space'
 import StyledImage from './StyledImage'
 
 export default function Money({
@@ -18,39 +17,23 @@ export default function Money({
   silver?: number
   bronze?: number
 }) {
-  return some([gold, silver, bronze], Boolean) ? (
-    <Space style={style} gap={4}>
-      {!!gold && (
-        <View style={tw`flex-row items-center`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>{gold}</Text>
-          <StyledImage
-            style={tw`w-4 h-4 ml-0.5`}
-            source={{ uri: `/static/img/gold@2x.png` }}
-          />
-        </View>
-      )}
-      {!!silver && (
-        <View style={tw`flex-row items-center`}>
+  const moneyOptions = [
+    { uri: `/static/img/gold@2x.png`, value: gold },
+    { uri: `/static/img/silver@2x.png`, value: silver },
+    { uri: `/static/img/bronze@2x.png`, value: bronze },
+  ].filter(o => !!o.value)
+
+  if (isEmpty(moneyOptions)) return null
+  return (
+    <View style={tw.style(`flex-row gap-1`, style)}>
+      {moneyOptions.map(o => (
+        <View style={tw`flex-row items-center`} key={o.uri}>
           <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            {silver}
+            {o.value}
           </Text>
-          <StyledImage
-            style={tw`w-4 h-4 ml-0.5`}
-            source={{ uri: `/static/img/silver@2x.png` }}
-          />
+          <StyledImage style={tw`w-4 h-4 ml-0.5`} source={{ uri: o.uri }} />
         </View>
-      )}
-      {!!bronze && (
-        <View style={tw`flex-row items-center`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-            {bronze}
-          </Text>
-          <StyledImage
-            style={tw`w-4 h-4 ml-0.5`}
-            source={{ uri: `/static/img/bronze@2x.png` }}
-          />
-        </View>
-      )}
-    </Space>
-  ) : null
+      ))}
+    </View>
+  )
 }

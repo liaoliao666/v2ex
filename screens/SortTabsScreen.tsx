@@ -7,7 +7,6 @@ import { Pressable, Text, View, useWindowDimensions } from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import Space from '@/components/Space'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
   HomeTab,
@@ -108,7 +107,7 @@ export default function SortTabsScreen() {
           {isEdit ? '长按拖拽排序' : '点击进入板块'}
         </Text>
 
-        <Space style={tw`ml-auto`}>
+        <View style={tw`ml-auto flex-row gap-2`}>
           {isEdit && (
             <Pressable
               onPress={() => {
@@ -151,7 +150,7 @@ export default function SortTabsScreen() {
               </Text>
             )}
           </Pressable>
-        </Space>
+        </View>
       </View>
 
       <View style={tw`px-3 pt-1.5`}>

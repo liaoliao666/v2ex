@@ -12,7 +12,6 @@ import tw from '@/utils/tw'
 
 import DebouncedPressable from '../DebouncedPressable'
 import Separator from '../Separator'
-import Space from '../Space'
 import StyledButton from '../StyledButton'
 import StyledImage from '../StyledImage'
 
@@ -58,7 +57,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
         </View>
       )}
       <View style={tw`flex-1`}>
-        <Space>
+        <View style={tw`flex-row gap-2`}>
           <Text
             style={tw`text-tint-primary ${getFontSize(5)} flex-1`}
             numberOfLines={1}
@@ -82,7 +81,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
               {topic.node?.title}
             </StyledButton>
           )}
-        </Space>
+        </View>
 
         <Text
           style={tw.style(

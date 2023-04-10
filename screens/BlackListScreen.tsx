@@ -24,7 +24,6 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import { LineSeparator } from '@/components/Separator'
-import Space from '@/components/Space'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
@@ -210,20 +209,20 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
         </DebouncedPressable>
       </View>
 
-      <Space direction="vertical" gap={4} style={tw`flex-1`}>
-        <Space>
+      <View style={tw`flex-1 gap-1`}>
+        <View style={tw`flex-row gap-2`}>
           <Text
             style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
             numberOfLines={1}
           >
             {member?.username}
           </Text>
-        </Space>
+        </View>
 
         <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
           第 {member.id} 号会员
         </Text>
-      </Space>
+      </View>
     </DebouncedPressable>
   )
 })

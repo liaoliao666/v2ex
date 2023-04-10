@@ -30,7 +30,6 @@ import tw from '@/utils/tw'
 import Html from '../Html'
 import IconButton from '../IconButton'
 import Separator from '../Separator'
-import Space from '../Space'
 import StyledImage from '../StyledImage'
 
 export default memo(
@@ -100,7 +99,7 @@ function ReplyItem({
 
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center`}>
-            <Space style={tw`mr-auto`}>
+            <View style={tw`flex-row gap-2 mr-auto`}>
               <Text
                 key="username"
                 style={tw`text-tint-primary ${getFontSize(5)} font-medium`}
@@ -136,7 +135,7 @@ function ReplyItem({
                   </View>
                 )}
               </View>
-            </Space>
+            </View>
 
             <Text style={tw`${getFontSize(6)} text-tint-secondary`}>
               #{reply.no}
@@ -180,7 +179,7 @@ function ReplyItem({
           </View>
 
           <View style={tw`flex-row items-center pt-2`}>
-            <Space style={tw`mr-auto`} gap={16}>
+            <View style={tw`flex-row gap-4 mr-auto`}>
               {isBoolean(related) && !related && (
                 <Text style={tw`${getFontSize(5)} text-tint-secondary`}>
                   可能是无关内容
@@ -247,7 +246,7 @@ function ReplyItem({
                   )}
                 </Pressable>
               )}
-            </Space>
+            </View>
 
             <MoreButton once={once} reply={reply} topicId={topicId} />
           </View>

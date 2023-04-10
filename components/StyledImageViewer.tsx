@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import * as Sharing from 'expo-sharing'
+import { isObjectLike } from 'lodash-es'
 import { ComponentProps } from 'react'
 import {
   Image,
@@ -142,7 +143,17 @@ export default function StyledImageViewer({
             </Text>
           </View>
         )}
-        renderImage={imageProps => <FastImage {...imageProps} />}
+        renderImage={imageProps => (
+          <FastImage
+            {...imageProps}
+            source={{
+              ...imageProps.source,
+              priority: isObjectLike((FastImage as any).priority)
+                ? (FastImage as any).priority.normal
+                : undefined,
+            }}
+          />
+        )}
         {...props}
       />
 

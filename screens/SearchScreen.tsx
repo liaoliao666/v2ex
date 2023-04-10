@@ -24,7 +24,6 @@ import NodeItem from '@/components/NodeItem'
 import { FallbackComponent, QuerySuspense } from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
 import Separator, { LineSeparator } from '@/components/Separator'
-import Space from '@/components/Space'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
@@ -314,7 +313,7 @@ const HitItem = memo(
         }}
       >
         <View style={tw`flex-1`}>
-          <Space>
+          <View style={tw`flex-row gap-2`}>
             {!!topic.node?.title && (
               <StyledButton
                 size="mini"
@@ -353,7 +352,7 @@ const HitItem = memo(
                 ),
               ])}
             </Separator>
-          </Space>
+          </View>
 
           <Text
             style={tw.style(
