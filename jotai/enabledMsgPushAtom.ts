@@ -1,12 +1,9 @@
-import { atomWithStorage } from 'jotai/utils'
-
-import { storage } from './storage'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 /**
  * 是否启动消息推送
  */
-export const enabledMsgPushAtom = atomWithStorage<boolean>(
+export const enabledMsgPushAtom = atomWithAsyncStorage<boolean>(
   'enabledMsgPush',
-  true,
-  storage
+  true
 )

@@ -1,15 +1,14 @@
 import { atom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
 import { AppState, Appearance } from 'react-native'
 
 import tw from '@/utils/tw'
 
-import { storage } from './storage'
 import { store } from './store'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 export type ThemeScheme = 'light' | 'dark' | 'system'
 
-const baseThemeAtom = atomWithStorage<ThemeScheme>('theme', 'system', storage)
+const baseThemeAtom = atomWithAsyncStorage<ThemeScheme>('theme', 'system')
 
 export const themeAtom = atom(
   get => get(baseThemeAtom),

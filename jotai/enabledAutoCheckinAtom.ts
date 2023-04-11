@@ -1,12 +1,9 @@
-import { atomWithStorage } from 'jotai/utils'
-
-import { storage } from './storage'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 /**
  * 是否启动自动签到
  */
-export const enabledAutoCheckinAtom = atomWithStorage<boolean>(
+export const enabledAutoCheckinAtom = atomWithAsyncStorage<boolean>(
   'enabledAutoCheckin',
-  true,
-  storage
+  true
 )

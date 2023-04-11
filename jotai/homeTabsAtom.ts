@@ -1,7 +1,6 @@
 import { atom } from 'jotai'
-import { atomWithStorage } from 'jotai/utils'
 
-import { storage } from './storage'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 export type HomeTab = {
   title: string
@@ -26,10 +25,9 @@ export const allHomeTabs: HomeTab[] = [
   { title: '刚更新', key: 'changes' },
 ]
 
-export const homeTabsAtom = atomWithStorage<typeof allHomeTabs>(
+export const homeTabsAtom = atomWithAsyncStorage<typeof allHomeTabs>(
   'tabs',
-  allHomeTabs,
-  storage
+  allHomeTabs
 )
 
 export const homeTabIndexAtom = atom(0)

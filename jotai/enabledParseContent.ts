@@ -1,12 +1,9 @@
-import { atomWithStorage } from 'jotai/utils'
-
-import { storage } from './storage'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 /**
  * 是否内容解析
  */
-export const enabledParseContentAtom = atomWithStorage<boolean>(
+export const enabledParseContentAtom = atomWithAsyncStorage<boolean>(
   'enabledParseContent',
-  true,
-  storage
+  true
 )

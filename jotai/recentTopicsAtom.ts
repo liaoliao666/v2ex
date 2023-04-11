@@ -1,6 +1,4 @@
-import { atomWithStorage } from 'jotai/utils'
-
-import { storage } from './storage'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 export interface RecentTopic {
   member: {
@@ -14,8 +12,7 @@ export interface RecentTopic {
 /**
  * 最近浏览节点
  */
-export const recentTopicsAtom = atomWithStorage<RecentTopic[]>(
+export const recentTopicsAtom = atomWithAsyncStorage<RecentTopic[]>(
   'recentTopics',
-  [],
-  storage
+  []
 )

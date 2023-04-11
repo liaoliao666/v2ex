@@ -1,12 +1,9 @@
-import { atomWithStorage } from 'jotai/utils'
-
-import { storage } from './storage'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 /**
  * 模拟注销帐号
  */
-export const deletedNamesAtom = atomWithStorage<string[]>(
+export const deletedNamesAtom = atomWithAsyncStorage<string[]>(
   'deletedNames',
-  [],
-  storage
+  []
 )

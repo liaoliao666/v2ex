@@ -1,11 +1,5 @@
-import { atomWithStorage } from 'jotai/utils'
-
 import { Profile } from '@/servicies/types'
 
-import { storage } from './storage'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
-export const profileAtom = atomWithStorage<Profile | null>(
-  'profile',
-  null,
-  storage
-)
+export const profileAtom = atomWithAsyncStorage<Profile | null>('profile', null)

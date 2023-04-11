@@ -1,17 +1,14 @@
-import { atomWithStorage } from 'jotai/utils'
-
-import { storage } from './storage'
 import { store } from './store'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
 export type FontScale = 'small' | 'medium' | 'large' | 'super'
 
 /**
  * 字体缩放大小
  */
-export const fontScaleAtom = atomWithStorage<FontScale>(
+export const fontScaleAtom = atomWithAsyncStorage<FontScale>(
   'fontScale',
-  'medium',
-  storage
+  'medium'
 )
 
 type Level = 1 | 2 | 3 | 4 | 5 | 6
