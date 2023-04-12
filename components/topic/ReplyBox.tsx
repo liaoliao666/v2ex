@@ -115,7 +115,7 @@ const ReplyBox = forwardRef<
                 paddingVertical: 0,
               },
               `text-tint-primary flex-1 py-2 px-3`,
-              isFocus ? `h-20 pt-4 rounded-lg` : `h-9 rounded-full bg-input`
+              isFocus ? `h-32 pt-4 rounded-lg` : `h-9 rounded-full bg-input`
             )}
             textAlignVertical={'top'}
             multiline
@@ -173,43 +173,48 @@ const ReplyBox = forwardRef<
 
         <View
           style={tw.style(
-            `py-2 px-4 flex-row gap-2 justify-end bg-body-1`,
+            `py-2 px-4 flex-row gap-2 justify-between bg-body-1`,
             !isFocus && `hidden`
           )}
         >
-          <StyledButton
-            shape="rounded"
-            type="secondary"
-            size="small"
-            onPress={() => {
-              const replacedText = convertSelectedTextToBase64(
-                getContent(),
-                selectionRef.current
-              )
+          <View style={tw`flex-row gap-2`}>
+            <StyledButton
+              shape="rounded"
+              type="secondary"
+              size="small"
+              onPress={() => {
+                const replacedText = convertSelectedTextToBase64(
+                  getContent(),
+                  selectionRef.current
+                )
 
-              if (replacedText) {
-                setContent(replacedText)
+                if (replacedText) {
+                  setContent(replacedText)
+                  inputRef.current?.setNativeProps({
+                    text: replacedText,
+                  })
+                }
+              }}
+            >
+              + Base64
+            </StyledButton>
+
+            <UploadImageButton
+              shape="rounded"
+              size="small"
+              type="secondary"
+              onUploaded={url => {
+                const newContent = getContent()
+                  ? `${getContent()}\n${url}`
+                  : url
+
+                setContent(newContent)
                 inputRef.current?.setNativeProps({
-                  text: replacedText,
+                  text: newContent,
                 })
-              }
-            }}
-          >
-            + Base64
-          </StyledButton>
-
-          <UploadImageButton
-            size="small"
-            type="secondary"
-            onUploaded={url => {
-              const newContent = getContent() ? `${getContent()}\n${url}` : url
-
-              setContent(newContent)
-              inputRef.current?.setNativeProps({
-                text: newContent,
-              })
-            }}
-          />
+              }}
+            />
+          </View>
 
           <StyledButton
             shape="rounded"

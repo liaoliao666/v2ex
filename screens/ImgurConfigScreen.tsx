@@ -3,6 +3,7 @@ import { useNavigation } from '@react-navigation/native'
 import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { ScrollView, Text, View } from 'react-native'
+import Toast from 'react-native-toast-message'
 import { z } from 'zod'
 
 import FormControl from '@/components/FormControl'
@@ -13,6 +14,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
+import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
 import { openURL } from '@/utils/url'
 import { stripString } from '@/utils/zodHelper'
@@ -47,7 +49,8 @@ function ImgurConfigScreen() {
         <View style={tw`w-3/4 mx-auto mt-8`}>
           <Text style={tw`${getFontSize(5)} text-tint-primary`}>
             由于上传图片依赖 Imgur 的服务，请输入你的 Imgur 账户的
-            clientId，如果你还没有 Imgur 账户，你需要按照下面两步注册去账户
+            clientId，如果你还没有 Imgur 账户，你需要按照下面两步去创建一个
+            Imgur 应用
           </Text>
 
           <Text
@@ -103,6 +106,31 @@ function ImgurConfigScreen() {
         <NavBar
           style={tw`border-b border-solid border-tint-border`}
           title="Imgur配置"
+          right={
+            <StyledButton
+              shape="rounded"
+              onPress={async () => {
+                try {
+                  await confirm(
+                    `确认清除缓存吗？`,
+                    `该操作会导致重复上传之前已上传过的图片`
+                  )
+                  setImgurConfig(prev => ({
+                    ...prev,
+                    uploadedFiles: {},
+                  }))
+                  Toast.show({
+                    type: 'success',
+                    text1: `清除成功`,
+                  })
+                } catch (error) {
+                  // empty
+                }
+              }}
+            >
+              清除缓存
+            </StyledButton>
+          }
         />
       </View>
     </View>
