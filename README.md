@@ -19,8 +19,8 @@
 
 | 页面     | URL Scheme              | 例子                                 |
 | -------- | ----------------------- | ------------------------------------ |
-| 搜索     | `v2fun://search/query?` | `v2fun://search/v2fun这款应用怎么样` |
-| 帖子详情 | `v2fun://topic/id`      | `v2fun://topic/904226`               |
+| 搜索     | `v2fun://search/:query?` | `v2fun://search/v2fun这款应用怎么样` |
+| 帖子详情 | `v2fun://topic/:id`      | `v2fun://topic/904226`               |
 
 ## Issues
 

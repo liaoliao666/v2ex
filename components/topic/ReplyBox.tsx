@@ -1,5 +1,4 @@
 import { useNavigation } from '@react-navigation/native'
-import { encode } from 'js-base64'
 import { pick } from 'lodash-es'
 import {
   Fragment,
@@ -21,10 +20,12 @@ import Toast from 'react-native-toast-message'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { useAppendTopic, useReply } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
+import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
 import tw from '@/utils/tw'
 import useUpdate from '@/utils/useUpdate'
 
 import StyledButton from '../StyledButton'
+import UploadImageButton from '../UploadImageButton'
 
 export interface ReplyBoxRef {
   replyFor: (replyTYpe?: ReplyType) => void
@@ -181,29 +182,34 @@ const ReplyBox = forwardRef<
             type="secondary"
             size="small"
             onPress={() => {
-              const selection = selectionRef.current
-              if (!selection || selection.start === selection.end) {
-                Toast.show({
-                  type: 'error',
-                  text1: '请选择文字后再点击',
+              const replacedText = convertSelectedTextToBase64(
+                getContent(),
+                selectionRef.current
+              )
+
+              if (replacedText) {
+                setContent(replacedText)
+                inputRef.current?.setNativeProps({
+                  text: replacedText,
                 })
-                return
               }
-              const content = getContent()
-              const replacedText = `${content.substring(
-                0,
-                selection.start
-              )}${encode(
-                content.substring(selection.start, selection.end)
-              )}${content.substring(selection.end, content.length)}`
-              setContent(replacedText)
-              inputRef.current?.setNativeProps({
-                text: replacedText,
-              })
             }}
           >
             + Base64
           </StyledButton>
+
+          <UploadImageButton
+            size="small"
+            type="secondary"
+            onUploaded={url => {
+              const newContent = getContent() ? `${getContent()}\n${url}` : url
+
+              setContent(newContent)
+              inputRef.current?.setNativeProps({
+                text: newContent,
+              })
+            }}
+          />
 
           <StyledButton
             shape="rounded"

@@ -21,6 +21,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
 import HomeScreen from '@/screens/HomeScreen'
+import ImgurConfigScreen from '@/screens/ImgurConfigScreen'
 import LoginScreen from '@/screens/LoginScreen'
 import MemberDetailScreen from '@/screens/MemberDetailScreen'
 import MyFollowingScreen from '@/screens/MyFollowingScreen'
@@ -210,6 +211,8 @@ function StackNavigator() {
       <Stack.Screen name="BlankList" component={BlackListScreen} />
 
       <Stack.Screen name="Webview" component={WebviewScreen} />
+
+      <Stack.Screen name="ImgurConfig" component={ImgurConfigScreen} />
     </Stack.Navigator>
   )
 }

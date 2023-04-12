@@ -1,6 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
-import { encode } from 'js-base64'
 import { compact, isString } from 'lodash-es'
 import { Fragment, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
@@ -24,6 +23,7 @@ import RadioButtonGroup from '@/components/RadioButtonGroup'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
+import UploadImageButton from '@/components/UploadImageButton'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
@@ -37,6 +37,7 @@ import {
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
+import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
@@ -238,34 +239,42 @@ function WriteTopicScreen() {
                     style={tw`h-50 py-2`}
                     textAlignVertical="top"
                   />
-                  <StyledButton
-                    shape="rounded"
-                    size="small"
-                    style={tw`ml-auto mr-2`}
-                    onPress={() => {
-                      const selection = selectionRef.current
-                      if (!selection || selection.start === selection.end) {
-                        Toast.show({
-                          type: 'error',
-                          text1: '请选择文字后再点击',
+                  <View style={tw`flex-row gap-2 justify-end px-2`}>
+                    <StyledButton
+                      size="small"
+                      type="secondary"
+                      onPress={() => {
+                        const replacedText = convertSelectedTextToBase64(
+                          getValues('content'),
+                          selectionRef.current
+                        )
+
+                        if (replacedText) {
+                          setValue('content', replacedText)
+                          inputRef.current?.setNativeProps({
+                            text: replacedText,
+                          })
+                        }
+                      }}
+                    >
+                      + Base64
+                    </StyledButton>
+
+                    <UploadImageButton
+                      size="small"
+                      type="secondary"
+                      onUploaded={url => {
+                        const newContent = getValues('content')
+                          ? `${getValues('content')}\n${url}`
+                          : url
+
+                        setValue('content', newContent)
+                        inputRef.current?.setNativeProps({
+                          text: newContent,
                         })
-                        return
-                      }
-                      const content = getValues('content') || ''
-                      const replacedText = `${content.substring(
-                        0,
-                        selection.start
-                      )}${encode(
-                        content.substring(selection.start, selection.end)
-                      )}${content.substring(selection.end, content.length)}`
-                      setValue('content', replacedText)
-                      inputRef.current?.setNativeProps({
-                        text: replacedText,
-                      })
-                    }}
-                  >
-                    + Base64
-                  </StyledButton>
+                      }}
+                    />
+                  </View>
                 </View>
               )}
             />

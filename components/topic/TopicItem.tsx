@@ -59,7 +59,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
       <View style={tw`flex-1`}>
         <View style={tw`flex-row gap-2`}>
           <Text
-            style={tw`text-tint-primary ${getFontSize(5)} flex-1`}
+            style={tw`text-tint-primary ${getFontSize(5)} flex-shrink`}
             numberOfLines={1}
             onPress={() => {
               navigation.push('MemberDetail', {

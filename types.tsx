@@ -69,6 +69,7 @@ export type RootStackParamList = {
   Webview: {
     url: string
   }
+  ImgurConfig: undefined
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

@@ -262,6 +262,20 @@ function SettingScreen() {
           }}
         />
 
+        <ListItem
+          label="Imgur配置"
+          icon={
+            <Feather
+              color={tw.color(`text-tint-primary`)}
+              size={24}
+              name="image"
+            />
+          }
+          onPress={() => {
+            navigation.navigate('ImgurConfig')
+          }}
+        />
+
         {isSignined && (
           <ListItem
             label="屏蔽列表"

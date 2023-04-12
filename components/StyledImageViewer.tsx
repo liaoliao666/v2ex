@@ -15,8 +15,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { useDownloadImage } from '@/servicies/image'
 import { isExpoGo } from '@/utils/isExpoGo'
-import { savePicture } from '@/utils/savePicture'
 import tw from '@/utils/tw'
 
 import { NAV_BAR_HEIGHT } from './NavBar'
@@ -39,6 +39,8 @@ export default function StyledImageViewer({
   ...props
 }: StyledImageViewerProps) {
   const safeAreaInsets = useSafeAreaInsets()
+
+  const downloadImageMutation = useDownloadImage()
 
   return (
     <Modal
@@ -65,11 +67,19 @@ export default function StyledImageViewer({
                   label: '分享',
                   value: 'share',
                   onPress: async () => {
+                    const url = props.imageUrls[props.index!].url
+
+                    if (
+                      downloadImageMutation.isLoading &&
+                      downloadImageMutation.variables === url
+                    )
+                      return
+
                     try {
-                      const url = await savePicture(
-                        props.imageUrls[props.index!].url
+                      const assetUrl = await downloadImageMutation.mutateAsync(
+                        url
                       )
-                      await Sharing.shareAsync(url)
+                      await Sharing.shareAsync(assetUrl)
                     } catch (error) {
                       Toast.show({
                         type: 'error',
@@ -110,7 +120,13 @@ export default function StyledImageViewer({
         )}
         onSave={async url => {
           try {
-            await savePicture(url)
+            if (
+              downloadImageMutation.isLoading &&
+              downloadImageMutation.variables === url
+            )
+              return
+
+            await downloadImageMutation.mutateAsync(url)
             Toast.show({
               type: 'success',
               text1: '保存成功',

@@ -1,4 +1,5 @@
 import { pick } from 'lodash-es'
+import { ReactNode } from 'react'
 import { PressableProps, Text, TextProps, ViewStyle } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
@@ -41,6 +42,19 @@ const colors = {
   },
 }
 
+export interface StyledButtonProps {
+  size?: 'middle' | 'large' | 'small' | 'mini'
+  type?: 'default' | 'secondary' | 'primary' | 'tag'
+  shape?: 'default' | 'rounded' | 'rectangular'
+  onPress?: PressableProps['onPress']
+  children?: string
+  ghost?: boolean
+  style?: ViewStyle
+  textProps?: TextProps
+  pressable?: boolean
+  icon?: ReactNode
+}
+
 export default function StyledButton({
   size = 'middle',
   type = 'default',
@@ -51,17 +65,8 @@ export default function StyledButton({
   textProps,
   shape = 'default',
   pressable = true,
-}: {
-  size?: 'middle' | 'large' | 'small' | 'mini'
-  type?: 'default' | 'secondary' | 'primary' | 'tag'
-  shape?: 'default' | 'rounded' | 'rectangular'
-  onPress?: PressableProps['onPress']
-  children?: string
-  ghost?: boolean
-  style?: ViewStyle
-  textProps?: TextProps
-  pressable?: boolean
-}) {
+  icon,
+}: StyledButtonProps) {
   const {
     color,
     activeColor,
@@ -93,7 +98,7 @@ export default function StyledButton({
             rounded: tw`rounded-full`,
             rectangular: tw`rounded-none`,
           }[shape],
-          `flex-row items-center justify-center rounded-full border border-solid`,
+          `flex-row items-center justify-center rounded-full border border-solid gap-1`,
           pressed && pressable
             ? tw.style(
                 `border-[${activeColor}] dark:border-[${activeDarkColor}]`,
@@ -113,6 +118,7 @@ export default function StyledButton({
         }
       }}
     >
+      {icon}
       <Text
         {...textProps}
         style={[
