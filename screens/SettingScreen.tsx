@@ -13,6 +13,7 @@ import { Platform, ScrollView, Switch, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
+import Badge from '@/components/Badge'
 import ListItem from '@/components/ListItem'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
@@ -31,11 +32,13 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { useSignout } from '@/servicies/authentication'
+import { useLatestVersion } from '@/servicies/version'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
 import { isExpoGo } from '@/utils/isExpoGo'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
+import { openURL } from '@/utils/url'
 
 export default withQuerySuspense(SettingScreen)
 
@@ -276,6 +279,8 @@ function SettingScreen() {
           }}
         />
 
+        <CheckAppVersion />
+
         {isSignined && (
           <ListItem
             label="屏蔽列表"
@@ -392,5 +397,45 @@ function SignoutItem({ once }: { once: string }) {
     <StyledButton onPress={logout} size="large" shape="rounded">
       退出登录
     </StyledButton>
+  )
+}
+
+function CheckAppVersion() {
+  const { data, refetch, isFetching } = useLatestVersion()
+
+  return (
+    <ListItem
+      label={
+        data?.need_upgrade
+          ? '更新版本'
+          : isFetching
+          ? '检查更新中...'
+          : '检查更新'
+      }
+      icon={
+        data?.need_upgrade ? (
+          <Badge>
+            <MaterialIcons
+              color={tw.color(`text-tint-primary`)}
+              size={24}
+              name="upgrade"
+            />
+          </Badge>
+        ) : (
+          <MaterialIcons
+            color={tw.color(`text-tint-primary`)}
+            size={24}
+            name="upgrade"
+          />
+        )
+      }
+      onPress={() => {
+        if (data?.need_upgrade) {
+          openURL(data.download_url)
+        } else {
+          refetch()
+        }
+      }}
+    />
   )
 }

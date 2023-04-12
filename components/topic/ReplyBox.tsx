@@ -172,12 +172,9 @@ const ReplyBox = forwardRef<
         </View>
 
         <View
-          style={tw.style(
-            `py-2 px-4 flex-row gap-2 justify-between bg-body-1`,
-            !isFocus && `hidden`
-          )}
+          style={tw.style(`py-2 px-4 flex-row bg-body-1`, !isFocus && `hidden`)}
         >
-          <View style={tw`flex-row gap-2`}>
+          <View style={tw`flex-row gap-2 mr-auto`}>
             <StyledButton
               shape="rounded"
               type="secondary"

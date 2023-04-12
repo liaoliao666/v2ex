@@ -19,7 +19,7 @@ export type BadgeProps = {
 
 export default function Badge(props: BadgeProps) {
   const {
-    content,
+    content = dot,
     color = '#ff411c',
     children,
     top = -dotSize / 2,
