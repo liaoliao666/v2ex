@@ -113,7 +113,7 @@ function ImgurConfigScreen() {
                 try {
                   await confirm(
                     `确认清除缓存吗？`,
-                    `该操作会导致重复上传之前已上传过的图片`
+                    `该操作会导致重复上传已上传的图片`
                   )
                   setImgurConfig(prev => ({
                     ...prev,

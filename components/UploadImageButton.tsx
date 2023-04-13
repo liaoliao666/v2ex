@@ -22,7 +22,7 @@ export default function UploadImageButton({
     <StyledButton
       {...styledBUttonProps}
       onPress={async () => {
-        if (!store.get(imgurConfigAtom)?.clientId) {
+        if (!(await store.get(imgurConfigAtom)?.clientId)) {
           navigation.navigate('ImgurConfig')
           return
         }

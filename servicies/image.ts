@@ -42,14 +42,16 @@ export const useDownloadImage = createMutation({
 
 export const useUploadImage = createMutation({
   mutationFn: async () => {
+    const clientId = await store.get(imgurConfigAtom)?.clientId
+
+    if (!clientId) return Promise.reject(new Error('请先配置你的Imgur'))
+
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
       quality: 1,
     })
 
-    if (result.canceled) {
-      return Promise.reject(new Error('已取消选择图片'))
-    }
+    if (result.canceled) return Promise.reject(new Error('已取消选择图片'))
 
     const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
       encoding: 'base64',
@@ -67,7 +69,7 @@ export const useUploadImage = createMutation({
       data: { data },
     } = await axios.post('https://api.imgur.com/3/image', formData, {
       headers: {
-        Authorization: `Client-ID ${store.get(imgurConfigAtom)?.clientId}`,
+        Authorization: `Client-ID ${clientId}`,
         'Content-Type': 'multipart/form-data',
       },
     })

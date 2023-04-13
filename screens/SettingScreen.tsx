@@ -433,9 +433,28 @@ function CheckAppVersion() {
         if (data?.need_upgrade) {
           openURL(data.download_url)
         } else {
-          refetch()
+          refetch().then(query => {
+            if (query.data?.need_upgrade) {
+              Toast.show({
+                type: 'success',
+                text1: `你有新的版本需要更新`,
+              })
+            } else {
+              Toast.show({
+                type: 'info',
+                text1: `无可用更新`,
+              })
+            }
+          })
         }
       }}
+      action={
+        !!data?.version && (
+          <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+            v{data.version}
+          </Text>
+        )
+      }
     />
   )
 }
