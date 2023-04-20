@@ -7,7 +7,7 @@ import { request } from '@/utils/request'
 import { getNextPageParam, parseLastPage, parseTopicByATag } from './helper'
 import { Member, Notice, PageData, Topic } from './types'
 
-export const useNotifications = createInfiniteQuery<PageData<Notice>>({
+export const useNotifications = createInfiniteQuery<PageData<Notice>, void>({
   primaryKey: 'useNotifications',
   queryFn: async ({ pageParam, signal }) => {
     const { data } = await request.get(`/notifications?p=${pageParam}`, {
@@ -55,7 +55,6 @@ export const useNotifications = createInfiniteQuery<PageData<Notice>>({
   defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  gcTime: 1000 * 60 * 10,
 })
 
 export const useDeleteNotice = createMutation<

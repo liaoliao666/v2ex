@@ -40,6 +40,7 @@ export function createBaseQuery(
     variables,
     ...currOptions
   }: QueryBaseHookOptions = {}) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { select: _select, ...prevOptions } = {
       ...defaultOptions,
       ...useDefaultOptions?.(),
@@ -55,7 +56,7 @@ export function createBaseQuery(
       queryKey,
     }
 
-    const queryClient = useQueryClient({ context: mergedOptions.context })
+    const queryClient = useQueryClient()
 
     const setData = (
       updater: Updater<any, any>,

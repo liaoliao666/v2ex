@@ -49,7 +49,7 @@ function SearchOptionsScreen() {
               onChangeText={onChange}
               value={value?.toString()}
               keyboardType="numeric"
-              placeholder="默认每页显示 10 条数据，取值范围在 10 ~ 50"
+              placeholder="默认每页显示 20 条数据，取值范围在 10 ~ 50"
             />
           )}
         />
@@ -162,8 +162,8 @@ function SearchOptionsScreen() {
             ghost
             onPress={() => {
               reset({
-                size: 10,
-                sort: 'sumup',
+                size: 20,
+                sort: 'created',
                 order: '0',
                 gte: '',
                 lte: '',

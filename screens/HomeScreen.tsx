@@ -43,7 +43,7 @@ import { useRecentTopics, useTabTopics } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient } from '@/utils/query'
+import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -121,6 +121,9 @@ function HomeScreen() {
     if (query?.state.error) {
       errorResetMap[tab]?.()
     } else if (query?.getObserversCount() && query?.isStale()) {
+      if (tab === 'recent') {
+        resetInfiniteQueriesWithHugeData(useRecentTopics.getKey())
+      }
       queryClient.refetchQueries({ queryKey: activeKey })
     }
 
@@ -254,7 +257,7 @@ function RecentTopics({
 
   return (
     <RefetchingIndicator
-      isRefetching={isFetching && !isRefetchingByUser}
+      isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
       progressViewOffset={headerHeight}
     >
       <FlatList

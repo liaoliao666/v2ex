@@ -10,8 +10,8 @@ import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 export const sov2exArgsAtom = atomWithAsyncStorage<z.infer<typeof Sov2exArgs>>(
   'sov2exArgs',
   {
-    size: 10,
-    sort: 'sumup',
+    size: 20,
+    sort: 'created',
     order: '0',
   }
 )

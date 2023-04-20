@@ -2,14 +2,7 @@ import { Octicons } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
-import {
-  Fragment,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
+import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -18,6 +11,7 @@ import {
   Text,
   View,
 } from 'react-native'
+import { inferData } from 'react-query-kit'
 
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
@@ -45,6 +39,7 @@ import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe } from '@/utils/authentication'
+import { resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -72,12 +67,22 @@ type OrderBy = 'asc' | 'desc'
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
 
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useTopicDetail({
-      variables: { id: params.id },
-      enabled: !!params.id,
-      suspense: true,
-    })
+  useMemo(() => {
+    resetInfiniteQueriesWithHugeData(useTopicDetail.getKey({ id: params.id }))
+  }, [params.id])
+
+  const {
+    data,
+    setData,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useTopicDetail({
+    variables: { id: params.id },
+    enabled: !!params.id,
+    suspense: true,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -86,13 +91,6 @@ function TopicDetailScreen() {
   const replyBoxRef = useRef<ReplyBoxRef>(null)
 
   const [orderBy, setOrderBy] = useState<OrderBy>('asc')
-
-  useEffect(() => {
-    // fetch all pages when order equals to `desc`
-    if (orderBy === 'desc' && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage()
-    }
-  }, [orderBy, hasNextPage, fetchNextPage, isFetchingNextPage])
 
   const flatedData = useMemo(() => {
     const result = uniqBy(
@@ -126,6 +124,8 @@ function TopicDetailScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const navbarHeight = useNavBarHeight()
+
+  const isFetchingAllPageRef = useRef(false)
 
   return (
     <View style={tw`flex-1 bg-body-1`}>
@@ -209,7 +209,67 @@ function TopicDetailScreen() {
                   }[]
                 }
                 value={orderBy}
-                onChange={setOrderBy}
+                onChange={async v => {
+                  setOrderBy(v)
+
+                  // using fetchNextPage if the topic has only a next page
+                  if (
+                    v === 'desc' &&
+                    hasNextPage &&
+                    topic.last_page - topic.page === 1
+                  ) {
+                    fetchNextPage()
+                    return
+                  }
+
+                  // fetch all page
+                  if (
+                    v === 'desc' &&
+                    hasNextPage &&
+                    !isFetchingAllPageRef.current
+                  ) {
+                    isFetchingAllPageRef.current = true
+                    try {
+                      const pageToData = Object.fromEntries(
+                        data!.pageParams.map((page, i) => [
+                          page,
+                          data!.pages[i],
+                        ])
+                      )
+                      const allPageNo = Array.from({
+                        length: topic.last_page,
+                      }).map((_, i) => i + 1)
+                      const pageDatas = await Promise.all(
+                        allPageNo.map(page => {
+                          if (pageToData[page]) return pageToData[page]
+                          // @ts-ignore
+                          return useTopicDetail.queryFn({
+                            queryKey: useTopicDetail.getKey({ id: params.id }),
+                            pageParam: page,
+                          })
+                        })
+                      )
+
+                      setData(
+                        allPageNo.reduce(
+                          (acc, p, i) => {
+                            acc.pageParams[i] = p
+                            acc.pages[i] = pageDatas[i]
+                            return acc
+                          },
+                          {
+                            pages: [],
+                            pageParams: [],
+                          } as inferData<typeof useTopicDetail>
+                        )
+                      )
+                    } catch (error) {
+                      // empty
+                    } finally {
+                      isFetchingAllPageRef.current = false
+                    }
+                  }
+                }}
               />
             </View>
           </TopicInfo>

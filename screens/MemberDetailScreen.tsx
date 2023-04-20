@@ -64,9 +64,8 @@ import {
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe, isSignined } from '@/utils/authentication'
-import { queryClient } from '@/utils/query'
+import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
-import useMount from '@/utils/useMount'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
@@ -88,7 +87,13 @@ export default withQuerySuspense(MemberDetailScreen, {
 function MemberDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  useMount(() => {
+  useMemo(() => {
+    resetInfiniteQueriesWithHugeData(
+      useMemberTopics.getKey({ username: params.username })
+    )
+    resetInfiniteQueriesWithHugeData(
+      useMemberReplies.getKey({ username: params.username })
+    )
     queryClient.prefetchInfiniteQuery({
       queryKey: useMemberTopics.getKey({ username: params.username }),
       queryFn: useMemberTopics.queryFn,
@@ -99,7 +104,7 @@ function MemberDetailScreen() {
       queryFn: useMemberReplies.queryFn,
       defaultPageParam: 1,
     })
-  })
+  }, [params.username])
 
   const { data: member } = useMember({
     variables: { username: params.username },
@@ -731,7 +736,7 @@ function BlockMember({
           if (blocked) {
             store.set(blackListAtom, prev => ({
               ...prev,
-              blockers: prev.blockers.filter(o => o === id),
+              blockers: prev.blockers.filter(o => o !== id),
             }))
           } else {
             store.set(blackListAtom, prev => ({

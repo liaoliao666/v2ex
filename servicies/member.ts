@@ -82,7 +82,6 @@ export const useMemberTopics = createInfiniteQuery<
   defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  gcTime: 1000 * 60 * 10,
 })
 
 export const useMemberReplies = createInfiniteQuery<
@@ -109,7 +108,6 @@ export const useMemberReplies = createInfiniteQuery<
   defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  gcTime: 1000 * 60 * 10,
 })
 
 export const useMyFollowing = createInfiniteQuery<
@@ -143,7 +141,6 @@ export const useMyFollowing = createInfiniteQuery<
   defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  gcTime: 1000 * 60 * 10,
 })
 
 export const useCheckin = createQuery({

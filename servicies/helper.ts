@@ -81,7 +81,7 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
   const matchedBlockers = $.text().match(/blocked\s=\s\[(.+)\]/)?.[1]
   const blockers = new Set(matchedBlockers?.split(',').map(Number))
 
-  if (matchedIgnoredTopics || matchedBlockers) {
+  if ($.text().match(/ignored_topics\s=/)) {
     store.set(blackListAtom, {
       ignoredTopics: [...ignoredTopics],
       blockers: [...blockers],

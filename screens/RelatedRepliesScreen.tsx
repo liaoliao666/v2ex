@@ -208,11 +208,16 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
     params: { onReply, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
-  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useTopicDetail({
-      variables: { id: topicId },
-      enabled: false,
-    })
+  const {
+    data,
+    hasNextPage,
+    isFetchedAfterMount,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useTopicDetail({
+    variables: { id: topicId },
+    enabled: false,
+  })
 
   const lastPage = last(data?.pages)!
 
@@ -236,7 +241,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
       data={replies}
       renderItem={renderItem}
       onEndReached={() => {
-        if (hasNextPage) {
+        if (hasNextPage && !isFetchedAfterMount) {
           fetchNextPage()
         }
       }}

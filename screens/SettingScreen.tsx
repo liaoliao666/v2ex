@@ -279,7 +279,7 @@ function SettingScreen() {
           }}
         />
 
-        <CheckAppVersion />
+        {Platform.OS === 'android' && <CheckAppVersion />}
 
         {isSignined && (
           <ListItem

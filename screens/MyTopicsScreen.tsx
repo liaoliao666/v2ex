@@ -19,6 +19,7 @@ import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useMyTopics } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
+import { resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -38,6 +39,10 @@ export default withQuerySuspense(MyTopicsScreen, {
 })
 
 function MyTopicsScreen() {
+  useMemo(() => {
+    resetInfiniteQueriesWithHugeData(useMyTopics.getKey())
+  }, [])
+
   const {
     data,
     refetch,

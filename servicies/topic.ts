@@ -54,7 +54,6 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>, void>({
   },
   defaultPageParam: 1,
   getNextPageParam,
-  gcTime: 1000 * 60 * 10,
   staleTime: 10 * 1000,
   structuralSharing: false,
 })
@@ -160,7 +159,6 @@ export const useMyTopics = createInfiniteQuery<PageData<Topic>, void>({
   defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  gcTime: 1000 * 60 * 10,
 })
 
 export const useReply = createMutation<

@@ -19,6 +19,7 @@ import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from './jotai/enabledParseContent'
 import { fontScaleAtom } from './jotai/fontSacleAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
+import { imgurConfigAtom } from './jotai/imgurConfigAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
@@ -27,7 +28,11 @@ import { useCheckin } from './servicies/member'
 import { useNodes } from './servicies/node'
 import './utils/dayjsPlugins'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
-import { asyncStoragePersister, queryClient } from './utils/query'
+import {
+  asyncStoragePersister,
+  queryClient,
+  resetInfiniteQueriesWithHugeData,
+} from './utils/query'
 import tw from './utils/tw'
 
 SplashScreen.preventAutoHideAsync()
@@ -53,8 +58,13 @@ function App() {
       <Provider unstable_createStore={() => store}>
         <PersistQueryClientProvider
           client={queryClient}
-          persistOptions={{ persister: asyncStoragePersister }}
-          onSuccess={() => isReadyNavigation.then(SplashScreen.hideAsync)}
+          persistOptions={{
+            persister: asyncStoragePersister,
+          }}
+          onSuccess={() => {
+            resetInfiniteQueriesWithHugeData()
+            isReadyNavigation.then(SplashScreen.hideAsync)
+          }}
         >
           <SafeAreaProvider>
             <Suspense>
@@ -83,6 +93,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       fontScaleAtom,
       enabledParseContentAtom,
       deviceTypeAtom,
+      imgurConfigAtom,
     ])
   )
 

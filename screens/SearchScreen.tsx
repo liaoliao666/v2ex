@@ -37,6 +37,7 @@ import { useSov2ex } from '@/servicies/sov2ex'
 import { useTopicDetail } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
+import { resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -170,8 +171,10 @@ export default function SearchScreen() {
             style={tw`flex-1`}
             value={searchText}
             onChangeText={text => {
-              setIsSearchNode(true)
-              setSearchText(text)
+              if (text !== searchText) {
+                setIsSearchNode(true)
+                setSearchText(text)
+              }
             }}
             onSubmitEditing={() => {
               setIsSearchNode(!searchText)
@@ -193,8 +196,17 @@ function SoV2exList({
 }) {
   const sov2exArgs = useAtomValue(sov2exArgsAtom)
 
+  const variables = useMemo(
+    () => ({ ...sov2exArgs, q: query }),
+    [sov2exArgs, query]
+  )
+
+  useMemo(() => {
+    resetInfiniteQueriesWithHugeData(useSov2ex.getKey(variables))
+  }, [variables])
+
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSov2ex({ suspense: true, variables: { ...sov2exArgs, q: query } })
+    useSov2ex({ suspense: true, variables })
 
   const { data: nodeMap } = useNodes({
     select: useCallback(

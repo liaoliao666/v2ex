@@ -52,5 +52,4 @@ export const useSov2ex = createInfiniteQuery<
     return nextFrom < page.total ? nextFrom : undefined
   },
   structuralSharing: false,
-  gcTime: 1000 * 60 * 10,
 })
