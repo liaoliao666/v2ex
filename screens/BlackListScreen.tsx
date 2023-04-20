@@ -340,13 +340,13 @@ const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
 })
 
 function ResetBlockersButton() {
-  const { isLoading, mutateAsync } = useResetBlockers()
+  const { isPending, mutateAsync } = useResetBlockers()
 
   return (
     <StyledButton
       shape="rounded"
       onPress={async () => {
-        if (isLoading) return
+        if (isPending) return
 
         try {
           await mutateAsync()
@@ -368,19 +368,19 @@ function ResetBlockersButton() {
         }
       }}
     >
-      {isLoading ? '清除中...' : '清除屏蔽用户'}
+      {isPending ? '清除中...' : '清除屏蔽用户'}
     </StyledButton>
   )
 }
 
 function ResetIgnoredTopicsButton() {
-  const { isLoading, mutateAsync } = useResetIgnoredTopics()
+  const { isPending, mutateAsync } = useResetIgnoredTopics()
 
   return (
     <StyledButton
       shape="rounded"
       onPress={async () => {
-        if (isLoading) return
+        if (isPending) return
 
         try {
           await mutateAsync()
@@ -402,7 +402,7 @@ function ResetIgnoredTopicsButton() {
         }
       }}
     >
-      {isLoading ? '清除中...' : '清除忽略主题'}
+      {isPending ? '清除中...' : '清除忽略主题'}
     </StyledButton>
   )
 }

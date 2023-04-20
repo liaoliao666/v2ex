@@ -1,5 +1,4 @@
-import { createQuery } from 'react-query-kit'
-
+import { createQuery } from '@/react-query-kit'
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
@@ -25,6 +24,6 @@ export const usePreview = createQuery<
     )
     return data
   },
-  cacheTime: 10 * 60 * 10,
+  gcTime: 10 * 60 * 10,
   staleTime: 10 * 60 * 10,
 })

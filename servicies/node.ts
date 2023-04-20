@@ -1,10 +1,10 @@
 import { load } from 'cheerio'
+
 import {
   createInfiniteQuery,
   createMutation,
   createQuery,
-} from 'react-query-kit'
-
+} from '@/react-query-kit'
 import { invoke } from '@/utils/invoke'
 import { request } from '@/utils/request'
 import { getURLSearchParams } from '@/utils/url'
@@ -12,7 +12,7 @@ import { getURLSearchParams } from '@/utils/url'
 import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
 import { Node, PageData, Topic } from './types'
 
-export const useNodes = createQuery<Node[]>({
+export const useNodes = createQuery<Node[], void>({
   primaryKey: 'useNodes',
   queryFn: ({ signal }) =>
     request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),
@@ -34,15 +34,14 @@ export const useNodeTopics = createInfiniteQuery<
 >({
   primaryKey: 'useNodeTopics',
   queryFn: async ({ queryKey: [_, { name }], pageParam, signal }) => {
-    const page = pageParam ?? 1
-    const { data } = await request.get(`/go/${name}?p=${page}`, {
+    const { data } = await request.get(`/go/${name}?p=${pageParam}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#TopicsNode .cell'),
       ...invoke(() => {
@@ -55,8 +54,9 @@ export const useNodeTopics = createInfiniteQuery<
       }),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
   structuralSharing: false,
 })
 

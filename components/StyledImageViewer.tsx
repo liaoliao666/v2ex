@@ -70,7 +70,7 @@ export default function StyledImageViewer({
                     const url = props.imageUrls[props.index!].url
 
                     if (
-                      downloadImageMutation.isLoading &&
+                      downloadImageMutation.isPending &&
                       downloadImageMutation.variables === url
                     )
                       return
@@ -121,7 +121,7 @@ export default function StyledImageViewer({
         onSave={async url => {
           try {
             if (
-              downloadImageMutation.isLoading &&
+              downloadImageMutation.isPending &&
               downloadImageMutation.variables === url
             )
               return

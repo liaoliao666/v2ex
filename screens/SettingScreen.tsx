@@ -374,7 +374,7 @@ function SettingScreen() {
 }
 
 function SignoutItem({ once }: { once: string }) {
-  const { isLoading, mutateAsync } = useSignout({
+  const { isPending, mutateAsync } = useSignout({
     onError: () => {},
   })
 
@@ -382,7 +382,7 @@ function SignoutItem({ once }: { once: string }) {
 
   async function logout() {
     try {
-      if (isLoading) return
+      if (isPending) return
       await mutateAsync({ once })
     } catch (error) {
       // empty

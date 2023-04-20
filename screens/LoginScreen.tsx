@@ -166,7 +166,7 @@ export default function LoginScreen() {
           size="large"
           style={tw`w-full mt-4`}
           onPress={handleSubmit(async () => {
-            if (signinMutation.isLoading) return
+            if (signinMutation.isPending) return
             if (!signinInfoQuery.isSuccess) return
 
             try {
@@ -192,7 +192,7 @@ export default function LoginScreen() {
             }
           })}
         >
-          {signinMutation.isLoading ? '登录中...' : '登录'}
+          {signinMutation.isPending ? '登录中...' : '登录'}
         </StyledButton>
 
         <FormControl
@@ -295,7 +295,7 @@ function TwoStepSignin({ once }: { once: string }) {
     resolver: zodResolver(TwoStepSigninArgs),
   })
 
-  const { mutateAsync, isLoading, error } = useTwoStepSignin()
+  const { mutateAsync, isPending, error } = useTwoStepSignin()
 
   const navigation = useNavigation()
 
@@ -331,7 +331,7 @@ function TwoStepSignin({ once }: { once: string }) {
         size="large"
         style={tw`w-full mt-4`}
         onPress={handleSubmit(async () => {
-          if (isLoading) return
+          if (isPending) return
           await mutateAsync({
             ...getValues(),
             once,
@@ -340,7 +340,7 @@ function TwoStepSignin({ once }: { once: string }) {
           queryClient.refetchQueries({ type: 'active' })
         })}
       >
-        {isLoading ? '登录中...' : '登录'}
+        {isPending ? '登录中...' : '登录'}
       </StyledButton>
 
       <Text style={tw`${getFontSize(5)} text-tint-primary mt-2`}>

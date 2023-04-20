@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { defaultTo } from 'lodash-es'
-import { createInfiniteQuery, createMutation } from 'react-query-kit'
 
+import { createInfiniteQuery, createMutation } from '@/react-query-kit'
 import { request } from '@/utils/request'
 
 import { getNextPageParam, parseLastPage, parseTopicByATag } from './helper'
@@ -10,15 +10,14 @@ import { Member, Notice, PageData, Topic } from './types'
 export const useNotifications = createInfiniteQuery<PageData<Notice>>({
   primaryKey: 'useNotifications',
   queryFn: async ({ pageParam, signal }) => {
-    const page = pageParam ?? 1
-    const { data } = await request.get(`/notifications?p=${page}`, {
+    const { data } = await request.get(`/notifications?p=${pageParam}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       list: $('#notifications .cell')
         .map((i, cell) => {
@@ -53,9 +52,10 @@ export const useNotifications = createInfiniteQuery<PageData<Notice>>({
         .get(),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
 })
 
 export const useDeleteNotice = createMutation<

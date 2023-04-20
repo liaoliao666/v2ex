@@ -1,8 +1,8 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { createInfiniteQuery } from 'react-query-kit'
 import { z } from 'zod'
 
+import { createInfiniteQuery } from '@/react-query-kit'
 import { stripString, stripStringToNumber } from '@/utils/zodHelper'
 
 import { Sov2exResult } from './types'
@@ -30,11 +30,10 @@ export const useSov2ex = createInfiniteQuery<
 >({
   primaryKey: 'useSov2ex',
   queryFn: async ({ queryKey: [, params], pageParam, signal }) => {
-    const page = pageParam ?? 0
     const { data } = await axios.get(`https://www.sov2ex.com/api/search`, {
       params: {
         ...params,
-        from: page,
+        from: pageParam,
         gte: params.gte ? dayjs(params.gte).valueOf() : undefined,
         lte: params.lte ? dayjs(params.lte).valueOf() : undefined,
       },
@@ -43,14 +42,15 @@ export const useSov2ex = createInfiniteQuery<
 
     return {
       ...data,
-      from: page,
+      from: pageParam,
       size: params.size,
     }
   },
+  defaultPageParam: 0,
   getNextPageParam: page => {
     const nextFrom = page.from + page.size
     return nextFrom < page.total ? nextFrom : undefined
   },
   structuralSharing: false,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
 })

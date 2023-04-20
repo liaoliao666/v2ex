@@ -41,14 +41,14 @@ export default withQuerySuspense(GItHubMDScreen, {
 function GItHubMDScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'GItHubMD'>>()
 
-  const { data: html } = useQuery(
-    [params.url],
-    async () => {
+  const { data: html } = useQuery({
+    queryKey: [params.url],
+    queryFn: async () => {
       const { data } = await axios.get(params.url, { responseType: 'text' })
       return load(data)('#readme').html()
     },
-    { suspense: true }
-  )
+    suspense: true,
+  })
 
   const navbarHeight = useNavBarHeight()
 

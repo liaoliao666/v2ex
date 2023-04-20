@@ -7,7 +7,6 @@ import { memo, useCallback, useMemo } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Html from '@/components/Html'
@@ -26,6 +25,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { inferData } from '@/react-query-kit'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
 import { Notice } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -198,7 +198,7 @@ const NoticeItem = memo(
 )
 
 function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
-  const { mutateAsync, isLoading } = useDeleteNotice()
+  const { mutateAsync, isPending } = useDeleteNotice()
 
   const navigation = useNavigation()
 
@@ -214,7 +214,7 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
           return
         }
 
-        if (isLoading) return
+        if (isPending) return
 
         await confirm(`确认删除这条提醒么？`)
 

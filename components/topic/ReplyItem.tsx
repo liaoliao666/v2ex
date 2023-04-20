@@ -7,12 +7,12 @@ import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo, useState } from 'react'
 import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { inferData } from '@/react-query-kit'
 import {
   useIgnoreReply,
   useThankReply,
@@ -265,7 +265,7 @@ function ThankReply({
   once?: string
   reply: Reply
 }) {
-  const { mutateAsync, isLoading } = useThankReply()
+  const { mutateAsync, isPending } = useThankReply()
 
   const navigation = useNavigation()
 
@@ -279,7 +279,7 @@ function ThankReply({
           return
         }
 
-        if (isLoading || disabled) return
+        if (isPending || disabled) return
 
         await confirm(
           `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`
@@ -400,7 +400,7 @@ function MoreButton({
                   return
                 }
 
-                if (ignoreReplyMutation.isLoading) return
+                if (ignoreReplyMutation.isPending) return
 
                 await confirm('确定隐藏该回复么?')
 

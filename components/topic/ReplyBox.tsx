@@ -224,9 +224,9 @@ const ReplyBox = forwardRef<
                 return
               }
 
-              const { isLoading, mutateAsync } = getMutation()
+              const { isPending, mutateAsync } = getMutation()
 
-              if (isLoading) return
+              if (isPending) return
 
               try {
                 await mutateAsync({
@@ -250,7 +250,7 @@ const ReplyBox = forwardRef<
               }
             }}
           >
-            {getMutation().isLoading ? '发送中' : '发送'}
+            {getMutation().isPending ? '发送中' : '发送'}
           </StyledButton>
         </View>
       </KeyboardAvoidingView>

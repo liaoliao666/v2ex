@@ -7,7 +7,6 @@ import { compact } from 'lodash-es'
 import { Fragment, ReactElement, useState } from 'react'
 import { Platform, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
@@ -15,6 +14,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { inferData } from '@/react-query-kit'
 import { useNodeTopics } from '@/servicies/node'
 import {
   useIgnoreTopic,
@@ -197,7 +197,7 @@ export default function TopicInfo({
 }
 
 export function LikeTopic({ topic }: { topic: Topic }) {
-  const { mutateAsync, isLoading } = useLikeTopic()
+  const { mutateAsync, isPending } = useLikeTopic()
 
   const navigation = useNavigation()
 
@@ -210,7 +210,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
           return
         }
 
-        if (isLoading) return
+        if (isPending) return
 
         try {
           updateTopicDetail({
@@ -265,7 +265,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 }
 
 export function ThankTopic({ topic }: { topic: Topic }) {
-  const { mutateAsync, isLoading } = useThankTopic()
+  const { mutateAsync, isPending } = useThankTopic()
 
   const navigation = useNavigation()
 
@@ -278,7 +278,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
           return
         }
 
-        if (isLoading || topic.thanked) return
+        if (isPending || topic.thanked) return
 
         await confirm('你确定要向本主题创建者发送谢意？')
 
@@ -334,7 +334,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 }
 
 export function VoteButton({ topic }: { topic: Topic }) {
-  const { mutateAsync, isLoading } = useVoteTopic()
+  const { mutateAsync, isPending } = useVoteTopic()
 
   const navigation = useNavigation()
 
@@ -350,7 +350,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
             return
           }
 
-          if (isLoading) return
+          if (isPending) return
 
           try {
             const newVotes = await mutateAsync({
@@ -396,7 +396,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
             return
           }
 
-          if (isLoading) return
+          if (isPending) return
 
           try {
             const newVotes = await mutateAsync({
@@ -478,7 +478,7 @@ function MoreButton({
                   return
                 }
 
-                if (reportTopicMutation.isLoading) return
+                if (reportTopicMutation.isPending) return
 
                 await confirm('确定举报该主题么?')
 
@@ -520,7 +520,7 @@ function MoreButton({
                   return
                 }
 
-                if (ignoreTopicMutation.isLoading) return
+                if (ignoreTopicMutation.isPending) return
 
                 if (!topic.ignored) await confirm(`确定忽略该主题么?`)
 
@@ -534,24 +534,23 @@ function MoreButton({
                   navigation.goBack()
 
                   // refetch related queries
-                  queryClient.refetchQueries(
-                    useNodeTopics.getKey({ name: topic.node?.name })
-                  )
+                  queryClient.refetchQueries({
+                    queryKey: useNodeTopics.getKey({ name: topic.node?.name }),
+                  })
                   const tab =
                     store.get(homeTabsAtom)?.[store.get(homeTabIndexAtom)!]?.key
                   if (tab === 'recent') {
-                    queryClient.refetchQueries(useRecentTopics.getKey(), {
+                    queryClient.refetchQueries({
+                      queryKey: useRecentTopics.getKey(),
                       type: 'active',
                     })
                   } else {
-                    queryClient.refetchQueries(
-                      useTabTopics.getKey({
+                    queryClient.refetchQueries({
+                      queryKey: useTabTopics.getKey({
                         tab,
                       }),
-                      {
-                        type: 'active',
-                      }
-                    )
+                      type: 'active',
+                    })
                   }
 
                   // set black list atom
@@ -568,7 +567,8 @@ function MoreButton({
                       ],
                     }))
                   }
-                  queryClient.refetchQueries(useIgnoreTopic.getKey(), {
+                  queryClient.refetchQueries({
+                    queryKey: useIgnoreTopic.getKey(),
                     type: 'active',
                   })
 

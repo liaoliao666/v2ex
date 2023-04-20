@@ -8,7 +8,6 @@ import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferVariables } from 'react-query-kit'
 import { z } from 'zod'
 
 import FormControl from '@/components/FormControl'
@@ -27,6 +26,7 @@ import UploadImageButton from '@/components/UploadImageButton'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
+import { inferVariables } from '@/react-query-kit'
 import { usePreview } from '@/servicies/preview'
 import {
   useEditTopic,
@@ -290,8 +290,8 @@ function WriteTopicScreen() {
                 handleSubmit(async values => {
                   try {
                     if (
-                      writeTopicMutation.isLoading ||
-                      editTopicMutation.isLoading
+                      writeTopicMutation.isPending ||
+                      editTopicMutation.isPending
                     )
                       return
 
@@ -304,12 +304,10 @@ function WriteTopicScreen() {
                         prevTopic,
                       })
 
-                      queryClient.refetchQueries(
-                        useTopicDetail.getKey({ id: topic?.id }),
-                        {
-                          type: 'active',
-                        }
-                      )
+                      queryClient.refetchQueries({
+                        queryKey: useTopicDetail.getKey({ id: topic?.id }),
+                        type: 'active',
+                      })
                     } else {
                       await writeTopicMutation.mutateAsync({
                         title: values.title.trim(),

@@ -14,7 +14,7 @@ export default function UploadImageButton({
 }: StyledButtonProps & {
   onUploaded: (url: string) => void
 }) {
-  const { mutateAsync, isLoading } = useUploadImage()
+  const { mutateAsync, isPending } = useUploadImage()
 
   const navigation = useNavigation()
 
@@ -27,7 +27,7 @@ export default function UploadImageButton({
           return
         }
 
-        if (isLoading) return
+        if (isPending) return
         try {
           onUploaded(await mutateAsync())
         } catch (error) {
@@ -39,7 +39,7 @@ export default function UploadImageButton({
       }}
       icon={<Feather name="image" color="white" size={16} />}
     >
-      {isLoading ? '上传中' : '图片'}
+      {isPending ? '上传中' : '图片'}
     </StyledButton>
   )
 }

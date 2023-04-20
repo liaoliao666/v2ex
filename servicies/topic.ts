@@ -1,13 +1,13 @@
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { isArray, isEqual, isString, noop, pick } from 'lodash-es'
+import { isObject } from 'twrnc/dist/esm/types'
+
 import {
   createInfiniteQuery,
   createMutation,
   createQuery,
-} from 'react-query-kit'
-import { isObject } from 'twrnc/dist/esm/types'
-
+} from '@/react-query-kit'
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
@@ -36,12 +36,10 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>({
   staleTime: 10 * 1000,
 })
 
-export const useRecentTopics = createInfiniteQuery<PageData<Topic>>({
+export const useRecentTopics = createInfiniteQuery<PageData<Topic>, void>({
   primaryKey: 'useRecentTopics',
   queryFn: async ({ pageParam, signal }) => {
-    const page = pageParam ?? 1
-
-    const { data } = await request.get(`/recent?p=${page}`, {
+    const { data } = await request.get(`/recent?p=${pageParam}`, {
       responseType: 'text',
       signal,
     })
@@ -49,13 +47,14 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>>({
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
   staleTime: 10 * 1000,
   structuralSharing: false,
 })
@@ -86,8 +85,7 @@ export const useTopicDetail = createInfiniteQuery<
 >({
   primaryKey: 'useTopicDetail',
   queryFn: async ({ queryKey: [_, { id }], pageParam, signal }) => {
-    const page = pageParam ?? 1
-    const { data } = await request.get(`/t/${id}?p=${page}`, {
+    const { data } = await request.get(`/t/${id}?p=${pageParam}`, {
       responseType: 'text',
       signal,
     })
@@ -95,12 +93,13 @@ export const useTopicDetail = createInfiniteQuery<
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       id,
       ...parseTopic($),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })
@@ -143,25 +142,25 @@ export const useThankReply = createMutation<void, { id: number; once: string }>(
   }
 )
 
-export const useMyTopics = createInfiniteQuery<PageData<Topic>>({
+export const useMyTopics = createInfiniteQuery<PageData<Topic>, void>({
   primaryKey: 'useMyTopics',
   queryFn: async ({ pageParam, signal }) => {
-    const page = pageParam ?? 1
-    const { data } = await request.get(`/my/topics?p=${page}`, {
+    const { data } = await request.get(`/my/topics?p=${pageParam}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
 })
 
 export const useReply = createMutation<
@@ -215,7 +214,7 @@ export const useEditTopicInfo = createQuery<
           : 'markdown',
     }
   },
-  cacheTime: 0,
+  gcTime: 0,
   staleTime: 0,
 })
 

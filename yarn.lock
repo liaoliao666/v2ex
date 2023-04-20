@@ -2131,39 +2131,38 @@
   dependencies:
     "@sinonjs/commons" "^2.0.0"
 
-"@tanstack/query-async-storage-persister@^4.26.1":
-  version "4.26.1"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-async-storage-persister/-/query-async-storage-persister-4.26.1.tgz#2cad356e7575ebb40f876e443fc8ab3728c44c1f"
-  integrity sha512-Yfd+Z0lRL/vs2xf13KpsDXXylLGyQ40m1QYS0miie+BF0BIGsWIshSgN08+tTtVfCbeVxGeDKHQWzCE8K9gtMQ==
+"@tanstack/query-async-storage-persister@^5.0.0-alpha.12":
+  version "5.0.0-alpha.12"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.0.0-alpha.12.tgz#52ca1f730d3c48e7186e99f224748da232c60c81"
+  integrity sha512-xp90p50msnEie71B8vcabrvxs/2+b/D4dKL3haCTqwKzjzi3xgEx+016PGv32KjHQTdY9nL12a60XjePCxIIqQ==
   dependencies:
-    "@tanstack/query-persist-client-core" "4.26.1"
+    "@tanstack/query-persist-client-core" "5.0.0-alpha.12"
 
-"@tanstack/query-core@4.26.1":
-  version "4.26.1"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-4.26.1.tgz#7a441086c4d3d79e1d156c0a355bd3567213626e"
-  integrity sha512-Zrx2pVQUP4ndnsu6+K/m8zerXSVY8QM+YSbxA1/jbBY21GeCd5oKfYl92oXPK0hPEUtoNuunIdiq0ZMqLos+Zg==
+"@tanstack/query-core@5.0.0-alpha.12":
+  version "5.0.0-alpha.12"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-5.0.0-alpha.12.tgz#be9596f234e831c627c9d17f2eda2ab213550d99"
+  integrity sha512-kd53UD6pasczOQ0Y+59Ku0Ep3W+7qjjhxnn2PGIEqioqa4g27Vnt77yTb8SwrXQR92ugazGpjOsGylDtwh31QA==
 
-"@tanstack/query-persist-client-core@4.26.1":
-  version "4.26.1"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-persist-client-core/-/query-persist-client-core-4.26.1.tgz#7bf43eccbb58fdd883c8d9a69ac75e838035f927"
-  integrity sha512-gKO5VQuvNlMMTNSxRtB4tm3zGSx3/U9YluFkdumsHana9YMh3ngc76gUCbQZsnf5DDCwdI673F7A7oSphp/vgA==
+"@tanstack/query-persist-client-core@5.0.0-alpha.12":
+  version "5.0.0-alpha.12"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-persist-client-core/-/query-persist-client-core-5.0.0-alpha.12.tgz#814d4e64b325f7ba41090b7852e3d1cd61d9699e"
+  integrity sha512-OMZTsmjhC/f1872oooPdqyAUYUHpl7/ItV1gJUEUO5VOZWferGXYhoSzVVuBXuxaO4FsFM31V83Yw1tHeC9VSA==
   dependencies:
-    "@tanstack/query-core" "4.26.1"
+    "@tanstack/query-core" "5.0.0-alpha.12"
 
-"@tanstack/react-query-persist-client@^4.26.1":
-  version "4.26.1"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query-persist-client/-/react-query-persist-client-4.26.1.tgz#4b6b8a6736c19eaeb42d81c76186cd7fe60abe88"
-  integrity sha512-efS2hPz8z+ySCTIy1DJ4uuT7LSi8F0E4bMXwP/aj2dDuMRFn6AV3z7LItInpp0Em3JKhi90GP2vxDyvQTOhO2A==
+"@tanstack/react-query-persist-client@^5.0.0-alpha.12":
+  version "5.0.0-alpha.12"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query-persist-client/-/react-query-persist-client-5.0.0-alpha.12.tgz#4ed0a3a491b36c4f685f093d7e415a465d58a221"
+  integrity sha512-vyem0HyaMc+gFj1BjEV6/B1LQN1p2CUS/A40Oh2uqQEOmeLhEftNO9czeI0VT/JBXRfQ9D6sxKk8/Q5SiKgpCA==
   dependencies:
-    "@tanstack/query-persist-client-core" "4.26.1"
+    "@tanstack/query-persist-client-core" "5.0.0-alpha.12"
 
-"@tanstack/react-query@^4.26.1":
-  version "4.26.1"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-4.26.1.tgz#d254f6b7b297b5ae4204c84e6622506e5ec77d09"
-  integrity sha512-i3dnz4TOARGIXrXQ5P7S25Zfi4noii/bxhcwPurh2nrf5EUCcAt/95TB2HSmMweUBx206yIMWUMEQ7ptd6zwDg==
+"@tanstack/react-query@^5.0.0-alpha.12":
+  version "5.0.0-alpha.12"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-5.0.0-alpha.12.tgz#7e449118733affcecae7d9e233ff0a53e9dbef93"
+  integrity sha512-aiAHqq+G2+I+x3PGhQU1q/SHxoQZcOp8cB40qPR/UMvMC5wLPH3fX28AT1U3bQlfsrzt1+BZWqqoVPq4db5EqA==
   dependencies:
-    "@tanstack/query-core" "4.26.1"
-    use-sync-external-store "^1.2.0"
+    "@tanstack/query-core" "5.0.0-alpha.12"
 
 "@trivago/prettier-plugin-sort-imports@^3.3.0":
   version "3.4.0"
@@ -8898,7 +8897,7 @@ use-latest-callback@^0.1.5:
   resolved "https://registry.yarnpkg.com/use-latest-callback/-/use-latest-callback-0.1.5.tgz#a4a836c08fa72f6608730b5b8f4bbd9c57c04f51"
   integrity sha512-HtHatS2U4/h32NlkhupDsPlrbiD27gSH5swBdtXbCAlc6pfOFzaj0FehW/FO12rx8j2Vy4/lJScCiJyM01E+bQ==
 
-use-sync-external-store@^1.0.0, use-sync-external-store@^1.2.0:
+use-sync-external-store@^1.0.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/use-sync-external-store/-/use-sync-external-store-1.2.0.tgz#7dbefd6ef3fe4e767a0cf5d7287aacfb5846928a"
   integrity sha512-eEgnFxGQ1Ife9bzYs6VLi8/4X6CObHMw9Qr9tPY43iKwsPw8xE8+EFsf/2cFZ5S3esXgpWgtSCtLNS41F+sKPA==

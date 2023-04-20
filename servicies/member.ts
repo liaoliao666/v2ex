@@ -1,14 +1,14 @@
 import { load } from 'cheerio'
 import { compact, last } from 'lodash-es'
+
+import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { store } from '@/jotai/store'
 import {
   createInfiniteQuery,
   createMutation,
   createQuery,
   inferData,
-} from 'react-query-kit'
-
-import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
-import { store } from '@/jotai/store'
+} from '@/react-query-kit'
 import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
 
@@ -63,9 +63,8 @@ export const useMemberTopics = createInfiniteQuery<
 >({
   primaryKey: 'useMemberTopics',
   queryFn: async ({ pageParam, signal, queryKey: [, variables] }) => {
-    const page = pageParam ?? 1
     const { data } = await request.get(
-      `/member/${variables.username}/topics?p=${page}`,
+      `/member/${variables.username}/topics?p=${pageParam}`,
       {
         responseType: 'text',
         signal,
@@ -74,15 +73,16 @@ export const useMemberTopics = createInfiniteQuery<
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
       hidden_text: $('#Main .box .topic_content').eq(0).text(),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
 })
 
 export const useMemberReplies = createInfiniteQuery<
@@ -91,9 +91,8 @@ export const useMemberReplies = createInfiniteQuery<
 >({
   primaryKey: 'useMemberReplies',
   queryFn: async ({ pageParam, signal, queryKey: [, variables] }) => {
-    const page = pageParam ?? 1
     const { data } = await request.get(
-      `/member/${variables.username}/replies?p=${page}`,
+      `/member/${variables.username}/replies?p=${pageParam}`,
       {
         responseType: 'text',
         signal,
@@ -102,14 +101,15 @@ export const useMemberReplies = createInfiniteQuery<
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       list: parseMemberReplies($),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
 })
 
 export const useMyFollowing = createInfiniteQuery<
@@ -117,15 +117,14 @@ export const useMyFollowing = createInfiniteQuery<
 >({
   primaryKey: 'useMyFollowing',
   queryFn: async ({ pageParam, signal }) => {
-    const page = pageParam ?? 1
-    const { data } = await request.get(`/my/following?p=${page}`, {
+    const { data } = await request.get(`/my/following?p=${pageParam}`, {
       responseType: 'text',
       signal,
     })
     const $ = load(data)
 
     return {
-      page,
+      page: pageParam,
       last_page: parseLastPage($),
       list: parseTopicItems($, '#Main .box .cell.item'),
       following: $('#Rightbar .box')
@@ -141,9 +140,10 @@ export const useMyFollowing = createInfiniteQuery<
         .get(),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
-  cacheTime: 1000 * 60 * 10,
+  gcTime: 1000 * 60 * 10,
 })
 
 export const useCheckin = createQuery({
@@ -187,11 +187,12 @@ export const useBlockers = createInfiniteQuery<
 >({
   primaryKey: 'useBlockers',
   queryFn: async ({ pageParam, queryKey: [, { ids = [] }] }) => {
-    const page = pageParam ?? 1
     const pageSize = 10
-    const chunkIds = ids.slice(page - 1, page * 10)
+    const chunkIds = ids.slice(pageParam - 1, pageParam * 10)
     const cacheMemberMap = queryClient
-      .getQueriesData<inferData<typeof useMember>>(useMember.getKey())
+      .getQueriesData<inferData<typeof useMember>>({
+        queryKey: useMember.getKey(),
+      })
       .reduce((acc, [, member]) => {
         if (member?.id) {
           acc[member.id] = member
@@ -200,7 +201,7 @@ export const useBlockers = createInfiniteQuery<
       }, {} as Record<string, Member>)
 
     return {
-      page,
+      page: pageParam,
       last_page: Math.ceil(ids.length / pageSize),
       list: compact(
         await Promise.all(
@@ -217,6 +218,7 @@ export const useBlockers = createInfiniteQuery<
       ),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })
@@ -227,9 +229,8 @@ export const useIgnoredTopics = createInfiniteQuery<
 >({
   primaryKey: 'useIgnoredTopics',
   queryFn: async ({ pageParam, queryKey: [, { ids = [] }] }) => {
-    const page = pageParam ?? 1
     const pageSize = 10
-    const chunkIds = ids.slice(page - 1, page * 10)
+    const chunkIds = ids.slice(pageParam - 1, pageParam * 10)
     const cacheTopicMap = {} as Record<string, Topic>
 
     const recentTopics = await store.get(recentTopicsAtom)
@@ -238,7 +239,9 @@ export const useIgnoredTopics = createInfiniteQuery<
     })
 
     queryClient
-      .getQueriesData<inferData<typeof useNodeTopics>>(useNodeTopics.getKey())
+      .getQueriesData<inferData<typeof useNodeTopics>>({
+        queryKey: useNodeTopics.getKey(),
+      })
       .forEach(([, data]) => {
         data?.pages?.forEach(p => {
           p.list.forEach(topic => {
@@ -254,14 +257,18 @@ export const useIgnoredTopics = createInfiniteQuery<
         })
       })
     queryClient
-      .getQueriesData<inferData<typeof useTabTopics>>(useTabTopics.getKey())
+      .getQueriesData<inferData<typeof useTabTopics>>({
+        queryKey: useTabTopics.getKey(),
+      })
       .forEach(([, data]) => {
         data?.forEach(topic => {
           cacheTopicMap[topic.id] = topic
         })
       })
     queryClient
-      .getQueriesData<inferData<typeof useTopicDetail>>(useTopicDetail.getKey())
+      .getQueriesData<inferData<typeof useTopicDetail>>({
+        queryKey: useTopicDetail.getKey(),
+      })
       .forEach(([, data]) => {
         const topic = last(data?.pages)
         if (topic?.id) {
@@ -270,7 +277,7 @@ export const useIgnoredTopics = createInfiniteQuery<
       })
 
     return {
-      page,
+      page: pageParam,
       last_page: Math.ceil(ids.length / pageSize),
       list: compact(
         await Promise.all(
@@ -287,6 +294,7 @@ export const useIgnoredTopics = createInfiniteQuery<
       ),
     }
   },
+  defaultPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })

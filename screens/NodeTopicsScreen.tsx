@@ -6,7 +6,6 @@ import { useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Platform, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import Empty from '@/components/Empty'
 import Html from '@/components/Html'
@@ -25,6 +24,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { inferData } from '@/react-query-kit'
 import { useLikeNode, useNodeTopics, useNodes } from '@/servicies/node'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -235,7 +235,7 @@ function LikeNode({
   liked?: boolean
   type: 'button' | 'icon'
 }) {
-  const { mutateAsync, isLoading } = useLikeNode()
+  const { mutateAsync, isPending } = useLikeNode()
 
   const navigation = useNavigation()
 
@@ -245,7 +245,7 @@ function LikeNode({
       return
     }
 
-    if (isLoading) return
+    if (isPending) return
     if (!id || !once) return
 
     try {

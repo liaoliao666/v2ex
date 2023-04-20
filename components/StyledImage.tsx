@@ -86,9 +86,9 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
 }
 
 function CustomSvgUri({ uri, style, ...props }: UriProps) {
-  const { data: svg, isError } = useQuery(
-    [uri],
-    async () => {
+  const { data: svg, isError } = useQuery({
+    queryKey: [uri],
+    queryFn: async () => {
       const { data: xml } = await request.get<string>(uri!)
       const $ = load(xml)
       const $svg = $('svg')
@@ -111,8 +111,10 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
         wraperStyle: { aspectRatio: width / height || 1, width: '100%' },
       }
     },
-    { enabled: !!uri, staleTime: Infinity, cacheTime: 1000 * 60 * 10 }
-  )
+    enabled: !!uri,
+    staleTime: Infinity,
+    gcTime: 1000 * 60 * 10,
+  })
 
   if (isError) return null
 

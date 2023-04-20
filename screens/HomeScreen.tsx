@@ -114,12 +114,14 @@ function HomeScreen() {
     const tab = tabs[i].key
     const activeKey =
       tab === 'recent' ? useRecentTopics.getKey() : useTabTopics.getKey({ tab })
-    const query = queryClient.getQueryCache().find(activeKey)
+    const query = queryClient.getQueryCache().find({
+      queryKey: activeKey,
+    })
 
     if (query?.state.error) {
       errorResetMap[tab]?.()
     } else if (query?.getObserversCount() && query?.isStale()) {
-      queryClient.refetchQueries(activeKey)
+      queryClient.refetchQueries({ queryKey: activeKey })
     }
 
     setIndex(i)

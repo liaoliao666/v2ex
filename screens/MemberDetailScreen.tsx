@@ -32,7 +32,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -54,6 +53,7 @@ import { blackListAtom } from '@/jotai/blackListAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { inferData } from '@/react-query-kit'
 import {
   useBlockMember,
   useFollowMember,
@@ -89,14 +89,16 @@ function MemberDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   useMount(() => {
-    queryClient.prefetchInfiniteQuery(
-      useMemberTopics.getKey({ username: params.username }),
-      useMemberTopics.queryFn
-    )
-    queryClient.prefetchInfiniteQuery(
-      useMemberReplies.getKey({ username: params.username }),
-      useMemberReplies.queryFn
-    )
+    queryClient.prefetchInfiniteQuery({
+      queryKey: useMemberTopics.getKey({ username: params.username }),
+      queryFn: useMemberTopics.queryFn,
+      defaultPageParam: 1,
+    })
+    queryClient.prefetchInfiniteQuery({
+      queryKey: useMemberReplies.getKey({ username: params.username }),
+      queryFn: useMemberReplies.queryFn,
+      defaultPageParam: 1,
+    })
   })
 
   const { data: member } = useMember({
@@ -646,7 +648,7 @@ function FollowMember({
   once,
   followed,
 }: Pick<Member, 'username' | 'id' | 'once' | 'followed'>) {
-  const { mutateAsync, isLoading } = useFollowMember()
+  const { mutateAsync, isPending } = useFollowMember()
 
   const navigation = useNavigation()
 
@@ -659,7 +661,7 @@ function FollowMember({
           return
         }
 
-        if (isLoading) return
+        if (isPending) return
         if (!id || !once) return
 
         try {
@@ -696,7 +698,7 @@ function BlockMember({
   once,
   blocked,
 }: Pick<Member, 'username' | 'id' | 'once' | 'blocked'>) {
-  const { mutateAsync, isLoading } = useBlockMember()
+  const { mutateAsync, isPending } = useBlockMember()
 
   const navigation = useNavigation()
 
@@ -711,7 +713,7 @@ function BlockMember({
           return
         }
 
-        if (isLoading) return
+        if (isPending) return
         if (!id || !once) return
 
         try {
