@@ -1,6 +1,6 @@
 import { load } from 'cheerio'
+import { createQuery } from 'react-query-kit'
 
-import { createQuery } from '@/react-query-kit'
 import { request } from '@/utils/request'
 
 import { parseRank } from './helper'

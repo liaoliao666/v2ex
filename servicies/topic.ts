@@ -1,13 +1,13 @@
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { isArray, isEqual, isString, noop, pick } from 'lodash-es'
-import { isObject } from 'twrnc/dist/esm/types'
-
 import {
   createInfiniteQuery,
   createMutation,
   createQuery,
-} from '@/react-query-kit'
+} from 'react-query-kit'
+import { isObject } from 'twrnc/dist/esm/types'
+
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 

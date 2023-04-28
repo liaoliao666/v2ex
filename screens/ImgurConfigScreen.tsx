@@ -48,7 +48,7 @@ function ImgurConfigScreen() {
       >
         <View style={tw`w-3/4 mx-auto mt-8`}>
           <Text style={tw`${getFontSize(5)} text-tint-primary`}>
-            由于上传图片依赖 Imgur 的服务，请输入你的 Imgur 账户的
+            由于图片上传依赖 Imgur 的服务，请输入你的 Imgur 账户的
             clientId，如果你还没有 Imgur 账户，你需要按照下面两步去创建一个
             Imgur 应用
           </Text>
@@ -105,7 +105,7 @@ function ImgurConfigScreen() {
         <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar
           style={tw`border-b border-solid border-tint-border`}
-          title="Imgur配置"
+          title="图片上传"
           right={
             <StyledButton
               shape="rounded"

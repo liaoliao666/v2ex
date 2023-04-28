@@ -1,4 +1,5 @@
-import { createQuery } from '@/react-query-kit'
+import { createQuery } from 'react-query-kit'
+
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 

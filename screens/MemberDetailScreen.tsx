@@ -20,7 +20,6 @@ import {
   ListRenderItem,
   NativeScrollEvent,
   Platform,
-  Pressable,
   ScrollViewProps,
   Text,
   TouchableOpacity,
@@ -32,6 +31,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -53,7 +53,6 @@ import { blackListAtom } from '@/jotai/blackListAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { inferData } from '@/react-query-kit'
 import {
   useBlockMember,
   useFollowMember,
@@ -270,14 +269,10 @@ function MemberDetailScreen() {
                   const active = routes[index].key === route.key
 
                   return (
-                    <Pressable
+                    <TouchableOpacity
                       key={route.key}
-                      style={({ pressed }) =>
-                        tw.style(
-                          `w-[80px] items-center p-4 h-[${NAV_BAR_HEIGHT}px]`,
-                          pressed && tw`bg-tab-press`
-                        )
-                      }
+                      style={tw`w-[80px] items-center p-4 h-[${NAV_BAR_HEIGHT}px]`}
+                      activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
                         setIndex(findIndex(routes, { key: route.key }))
                       }}
@@ -292,7 +287,7 @@ function MemberDetailScreen() {
                       >
                         {route.title}
                       </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                   )
                 }}
               />

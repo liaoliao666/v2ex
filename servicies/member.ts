@@ -1,14 +1,14 @@
 import { load } from 'cheerio'
 import { compact, last } from 'lodash-es'
-
-import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
-import { store } from '@/jotai/store'
 import {
   createInfiniteQuery,
   createMutation,
   createQuery,
   inferData,
-} from '@/react-query-kit'
+} from 'react-query-kit'
+
+import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { store } from '@/jotai/store'
 import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
 

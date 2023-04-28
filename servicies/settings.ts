@@ -1,6 +1,7 @@
+import { createMutation } from 'react-query-kit'
+
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
-import { createMutation } from '@/react-query-kit'
 import { request } from '@/utils/request'
 
 export const useResetBlockers = createMutation({

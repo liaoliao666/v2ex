@@ -1,10 +1,10 @@
 import { load } from 'cheerio'
-
 import {
   createInfiniteQuery,
   createMutation,
   createQuery,
-} from '@/react-query-kit'
+} from 'react-query-kit'
+
 import { invoke } from '@/utils/invoke'
 import { request } from '@/utils/request'
 import { getURLSearchParams } from '@/utils/url'

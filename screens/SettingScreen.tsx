@@ -156,10 +156,10 @@ function SettingScreen() {
         <ListItem
           label="内容解析"
           icon={
-            <Feather
+            <MaterialCommunityIcons
               color={tw.color(`text-tint-primary`)}
               size={24}
-              name={'image'}
+              name={'format-text'}
             />
           }
           action={
@@ -266,7 +266,7 @@ function SettingScreen() {
         />
 
         <ListItem
-          label="Imgur配置"
+          label="图片上传"
           icon={
             <Feather
               color={tw.color(`text-tint-primary`)}

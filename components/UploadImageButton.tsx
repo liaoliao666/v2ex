@@ -5,6 +5,7 @@ import Toast from 'react-native-toast-message'
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
 import { useUploadImage } from '@/servicies/image'
+import tw from '@/utils/tw'
 
 import StyledButton, { StyledButtonProps } from './StyledButton'
 
@@ -22,7 +23,7 @@ export default function UploadImageButton({
     <StyledButton
       {...styledBUttonProps}
       onPress={async () => {
-        if (!(await store.get(imgurConfigAtom)?.clientId)) {
+        if (!store.get(imgurConfigAtom)?.clientId) {
           navigation.navigate('ImgurConfig')
           return
         }
@@ -37,7 +38,13 @@ export default function UploadImageButton({
           })
         }
       }}
-      icon={<Feather name="image" color="white" size={16} />}
+      icon={
+        <Feather
+          name="image"
+          color={tw.color(`text-white dark:text-secondary`)}
+          size={16}
+        />
+      }
     >
       {isPending ? '上传中' : '图片'}
     </StyledButton>

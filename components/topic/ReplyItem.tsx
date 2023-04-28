@@ -7,12 +7,12 @@ import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo, useState } from 'react'
 import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { inferData } from '@/react-query-kit'
 import {
   useIgnoreReply,
   useThankReply,

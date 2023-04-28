@@ -1,9 +1,9 @@
 import { load } from 'cheerio'
 import { isArray } from 'lodash-es'
+import { createMutation, createQuery } from 'react-query-kit'
 
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { store } from '@/jotai/store'
-import { createMutation, createQuery } from '@/react-query-kit'
 import { getCookie } from '@/utils/cookie'
 import { request } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'

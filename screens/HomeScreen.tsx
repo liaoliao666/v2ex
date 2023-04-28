@@ -174,14 +174,10 @@ function HomeScreen() {
                   const active = tabs[index].key === route.key
 
                   return (
-                    <Pressable
+                    <TouchableOpacity
                       key={route.key}
-                      style={({ pressed }) =>
-                        tw.style(
-                          `w-[60px] items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
-                          pressed && tw`bg-tab-press`
-                        )
-                      }
+                      style={tw`w-[60px] items-center justify-center h-[${NAV_BAR_HEIGHT}px]`}
+                      activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
                         handleInexChange(findIndex(tabs, { key: route.key }))
                       }}
@@ -196,7 +192,7 @@ function HomeScreen() {
                       >
                         {route.title}
                       </Text>
-                    </Pressable>
+                    </TouchableOpacity>
                   )
                 }}
               />
@@ -205,7 +201,7 @@ function HomeScreen() {
                 onPress={() => {
                   navigation.navigate('SortTabs')
                 }}
-                style={tw`h-full flex-row items-center justify-center z-50`}
+                style={tw`h-full flex-row items-center justify-center z-50 bg-body-1`}
               >
                 <Feather
                   name="menu"

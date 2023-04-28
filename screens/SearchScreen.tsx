@@ -340,7 +340,7 @@ const HitItem = memo(
             <Text
               style={tw`text-tint-primary ${getFontSize(
                 5
-              )} font-semibold flex-1`}
+              )} font-semibold flex-shrink`}
               numberOfLines={1}
             >
               {topic.member?.username}

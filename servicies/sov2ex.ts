@@ -1,8 +1,8 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
+import { createInfiniteQuery } from 'react-query-kit'
 import { z } from 'zod'
 
-import { createInfiniteQuery } from '@/react-query-kit'
 import { stripString, stripStringToNumber } from '@/utils/zodHelper'
 
 import { Sov2exResult } from './types'

@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { defaultTo } from 'lodash-es'
+import { createInfiniteQuery, createMutation } from 'react-query-kit'
 
-import { createInfiniteQuery, createMutation } from '@/react-query-kit'
 import { request } from '@/utils/request'
 
 import { getNextPageParam, parseLastPage, parseTopicByATag } from './helper'

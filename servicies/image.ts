@@ -3,11 +3,11 @@ import dayjs from 'dayjs'
 import * as FileSystem from 'expo-file-system'
 import * as ImagePicker from 'expo-image-picker'
 import * as MediaLibrary from 'expo-media-library'
+import { createMutation } from 'react-query-kit'
 import SparkMD5 from 'spark-md5'
 
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
-import { createMutation } from '@/react-query-kit'
 
 export const useDownloadImage = createMutation({
   mutationFn: async (uri: string) => {
@@ -42,7 +42,7 @@ export const useDownloadImage = createMutation({
 
 export const useUploadImage = createMutation({
   mutationFn: async () => {
-    const clientId = await store.get(imgurConfigAtom)?.clientId
+    const clientId = store.get(imgurConfigAtom)?.clientId
 
     if (!clientId) return Promise.reject(new Error('请先配置你的Imgur'))
 

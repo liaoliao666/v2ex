@@ -1,8 +1,7 @@
 import axios from 'axios'
 import Constants from 'expo-constants'
 import { Platform } from 'react-native'
-
-import { createQuery } from '@/react-query-kit'
+import { createQuery } from 'react-query-kit'
 
 function compareVersion(version1: string, version2: string) {
   const newVersion1 =

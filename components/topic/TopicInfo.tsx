@@ -7,6 +7,7 @@ import { compact } from 'lodash-es'
 import { Fragment, ReactElement, useState } from 'react'
 import { Platform, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
@@ -14,7 +15,6 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { inferData } from '@/react-query-kit'
 import { useNodeTopics } from '@/servicies/node'
 import {
   useIgnoreTopic,

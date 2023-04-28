@@ -8,6 +8,7 @@ import { TextInput } from 'react-native'
 import { ScrollView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
+import { inferVariables } from 'react-query-kit'
 import { z } from 'zod'
 
 import FormControl from '@/components/FormControl'
@@ -26,7 +27,6 @@ import UploadImageButton from '@/components/UploadImageButton'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
-import { inferVariables } from '@/react-query-kit'
 import { usePreview } from '@/servicies/preview'
 import {
   useEditTopic,
@@ -242,7 +242,6 @@ function WriteTopicScreen() {
                   <View style={tw`flex-row gap-2 justify-end px-2`}>
                     <StyledButton
                       size="small"
-                      type="secondary"
                       onPress={() => {
                         const replacedText = convertSelectedTextToBase64(
                           getValues('content'),
@@ -262,7 +261,6 @@ function WriteTopicScreen() {
 
                     <UploadImageButton
                       size="small"
-                      type="secondary"
                       onUploaded={url => {
                         const newContent = getValues('content')
                           ? `${getValues('content')}\n${url}`

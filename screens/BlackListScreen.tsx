@@ -6,8 +6,8 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
-  Pressable,
   Text,
+  TouchableOpacity,
   View,
   useWindowDimensions,
 } from 'react-native'
@@ -145,14 +145,10 @@ function BlackListScreen() {
                 const active = routes[index].key === route.key
 
                 return (
-                  <Pressable
+                  <TouchableOpacity
                     key={route.key}
-                    style={({ pressed }) =>
-                      tw.style(
-                        `w-[80px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`,
-                        pressed && tw`bg-tab-press`
-                      )
-                    }
+                    style={tw`w-[80px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`}
+                    activeOpacity={active ? 1 : 0.5}
                     onPress={() => {
                       setIndex(findIndex(routes, { key: route.key }))
                     }}
@@ -168,7 +164,7 @@ function BlackListScreen() {
                     >
                       {route.title}
                     </Text>
-                  </Pressable>
+                  </TouchableOpacity>
                 )
               }}
             />
