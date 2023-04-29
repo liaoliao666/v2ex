@@ -1,14 +1,12 @@
 import { Platform, Text, TextInput } from 'react-native'
 import {
   CustomTextualRenderer,
-  TPhrasing,
-  TText,
+  TNode,
   getNativePropsForTNode,
 } from 'react-native-render-html'
 
 const resetTextInputStyle = {
   paddingTop: 0,
-  paddingVertical: 0,
   marginTop: -3,
   paddingBottom: 3,
 }
@@ -36,11 +34,8 @@ const TextRenderer: CustomTextualRenderer = props => {
   )
 }
 
-function hasLink(tnode: TText | TPhrasing) {
-  return (
-    tnode.domNode?.name === 'a' ||
-    tnode.children.some(child => child.domNode?.name === 'a')
-  )
+function hasLink(tnode: TNode): boolean {
+  return tnode.domNode?.name === 'a' || tnode.children.some(hasLink)
 }
 
 export default TextRenderer
