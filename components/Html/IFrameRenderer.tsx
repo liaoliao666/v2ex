@@ -23,12 +23,12 @@ const IFrameRenderer: CustomBlockRenderer = ({ tnode }) => {
 
   if (!videoId) return null
 
-  const witdh = layout.width - paddingX
-  const height = witdh / aspectRatio
+  const width = layout.width - paddingX
+  const height = width / aspectRatio
 
   return (
     <View style={tw`bg-black`}>
-      <YoutubePlayer width={witdh} height={height} videoId={videoId} />
+      <YoutubePlayer width={width} height={height} videoId={videoId} />
     </View>
   )
 }

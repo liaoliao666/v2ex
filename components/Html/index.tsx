@@ -28,8 +28,13 @@ export default memo(
 function Html({
   inModalScreen,
   paddingX = 32,
+  disabledPartialSelectable,
   ...renderHTMLProps
-}: RenderHTMLProps & { inModalScreen?: boolean; paddingX?: number }) {
+}: RenderHTMLProps & {
+  inModalScreen?: boolean
+  paddingX?: number
+  disabledPartialSelectable?: boolean
+}) {
   const mergedProps = {
     ...getDefaultProps({ inModalScreen }),
     ...renderHTMLProps,
@@ -75,8 +80,15 @@ function Html({
             })
           },
           paddingX,
+          disabledPartialSelectable,
         }),
-        [imageUrls, setImageViewer, paddingX, inModalScreen]
+        [
+          imageUrls,
+          setImageViewer,
+          paddingX,
+          inModalScreen,
+          disabledPartialSelectable,
+        ]
       )}
     >
       <RenderHtml

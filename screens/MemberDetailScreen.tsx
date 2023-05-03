@@ -38,7 +38,7 @@ import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import Money from '@/components/Money'
-import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
@@ -67,6 +67,7 @@ import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
+const TAB_BAR_HEIGHT = 40
 const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
 const TAB_VIEW_MARGIN_TOP = -2
 
@@ -142,9 +143,9 @@ function MemberDetailScreen() {
       layout.height -
       useNavBarHeight() +
       headerHeight +
-      (Platform.OS === 'android' ? NAV_BAR_HEIGHT : 0) -
+      (Platform.OS === 'android' ? TAB_BAR_HEIGHT : 0) -
       TAB_VIEW_MARGIN_TOP,
-    paddingTop: headerHeight ? headerHeight + NAV_BAR_HEIGHT : 0,
+    paddingTop: headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0,
   }
 
   return (
@@ -263,15 +264,15 @@ function MemberDetailScreen() {
                 {...props}
                 scrollEnabled
                 style={tw`bg-body-1 flex-row shadow-none border-b border-tint-border border-solid`}
-                tabStyle={tw`w-[80px] h-[${NAV_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[40px] ml-[20px] bg-primary h-1 rounded-full`}
+                tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`w-[30px] ml-[25px] bg-primary h-1 rounded-full`}
                 renderTabBarItem={({ route }) => {
                   const active = routes[index].key === route.key
 
                   return (
                     <TouchableOpacity
                       key={route.key}
-                      style={tw`w-[80px] items-center p-4 h-[${NAV_BAR_HEIGHT}px]`}
+                      style={tw`w-[80px] items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                       activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
                         setIndex(findIndex(routes, { key: route.key }))

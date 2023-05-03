@@ -18,7 +18,7 @@ import { Toast } from 'react-native-toast-message/lib/src/Toast'
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
@@ -37,6 +37,8 @@ import { Member, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
+const TAB_BAR_HEIGHT = 40
+
 export default withQuerySuspense(BlackListScreen, {
   LoadingComponent: () => (
     <View style={tw`flex-1`}>
@@ -54,7 +56,7 @@ export default withQuerySuspense(BlackListScreen, {
 
 const MemoBlockers = withQuerySuspense(memo(Blockers), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -64,7 +66,7 @@ const MemoBlockers = withQuerySuspense(memo(Blockers), {
 })
 const MemoIgnoreTopics = withQuerySuspense(memo(IgnoreTopics), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -96,7 +98,7 @@ function BlackListScreen() {
 
   const layout = useWindowDimensions()
 
-  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
   const blackList = useAtomValue(blackListAtom)
 
@@ -138,7 +140,7 @@ function BlackListScreen() {
               {...props}
               scrollEnabled
               style={tw`flex-row shadow-none border-b border-tint-border border-solid bg-transparent`}
-              tabStyle={tw`w-[80px] h-[${NAV_BAR_HEIGHT}px]`}
+              tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
               indicatorStyle={tw`w-[40px] ml-[20px] bg-primary h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
@@ -147,7 +149,7 @@ function BlackListScreen() {
                 return (
                   <TouchableOpacity
                     key={route.key}
-                    style={tw`w-[80px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`}
+                    style={tw`w-[80px] flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                     activeOpacity={active ? 1 : 0.5}
                     onPress={() => {
                       setIndex(findIndex(routes, { key: route.key }))

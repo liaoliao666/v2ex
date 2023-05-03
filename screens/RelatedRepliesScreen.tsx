@@ -13,7 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
-import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
+import NavBar from '@/components/NavBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
@@ -25,6 +25,8 @@ import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
+
+const TAB_BAR_HEIGHT = 40
 
 interface RelatedReply extends Reply {
   related: boolean
@@ -114,6 +116,8 @@ export default function RelatedRepliesScreen() {
 
   const currentRoute = routes[index]
 
+  const isSingleRoute = routes.length <= 1
+
   return (
     <View style={tw`bg-body-1 flex-1`}>
       <NavBar
@@ -132,15 +136,20 @@ export default function RelatedRepliesScreen() {
             </StyledButton>
           )
         }
+        style={
+          isSingleRoute
+            ? tw`border-tint-border border-b border-solid`
+            : undefined
+        }
       />
 
-      {routes.length === 1 && (
+      {isSingleRoute && (
         <Replies
           replies={isSmartMode ? currentRoute.relatedData : currentRoute.data}
         />
       )}
 
-      {routes.length > 1 && (
+      {!isSingleRoute && (
         <TabView
           key={colorScheme}
           navigationState={{ index, routes }}
@@ -160,7 +169,7 @@ export default function RelatedRepliesScreen() {
                 {...props}
                 scrollEnabled
                 style={tw`bg-body-1 flex-row shadow-none`}
-                tabStyle={tw`w-[100px] h-[${NAV_BAR_HEIGHT}px]`}
+                tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
                 indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-0`}
                 renderTabBarItem={({ route }) => {
@@ -169,7 +178,7 @@ export default function RelatedRepliesScreen() {
                   return (
                     <TouchableOpacity
                       key={route.key}
-                      style={tw`w-[100px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`}
+                      style={tw`w-[100px] flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                       activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
                         setIndex(findIndex(routes, { key: route.key }))

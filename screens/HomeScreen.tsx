@@ -19,7 +19,7 @@ import { TabBar, TabView } from 'react-native-tab-view'
 import Badge from '@/components/Badge'
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
-import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   QuerySuspense,
@@ -47,6 +47,8 @@ import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
+const TAB_BAR_HEIGHT = 40
+
 const errorResetMap: Record<string, () => void> = {}
 
 function TabPlaceholder({
@@ -56,7 +58,7 @@ function TabPlaceholder({
   children: ReactNode
   tab: string
 }) {
-  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
   return (
     <QuerySuspense
       fallbackRender={fallbackProps => {
@@ -108,7 +110,7 @@ function HomeScreen() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
   function handleInexChange(i: number) {
     const tab = tabs[i].key
@@ -167,8 +169,8 @@ function HomeScreen() {
                 {...props}
                 scrollEnabled
                 style={tw`flex-row flex-1 shadow-none bg-transparent`}
-                tabStyle={tw`w-[60px] h-[${NAV_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[40px] ml-[10px] bg-primary h-1 rounded-full`}
+                tabStyle={tw`w-[60px] h-[${TAB_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`w-[30px] ml-[15px] bg-primary h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-b-0`}
                 renderTabBarItem={({ route }) => {
                   const active = tabs[index].key === route.key
@@ -176,7 +178,7 @@ function HomeScreen() {
                   return (
                     <TouchableOpacity
                       key={route.key}
-                      style={tw`w-[60px] items-center justify-center h-[${NAV_BAR_HEIGHT}px]`}
+                      style={tw`w-[60px] items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                       activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
                         handleInexChange(findIndex(tabs, { key: route.key }))

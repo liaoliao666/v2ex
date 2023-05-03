@@ -1,9 +1,13 @@
+import { some } from 'lodash-es'
+import { useContext } from 'react'
 import { Platform, Text, TextInput } from 'react-native'
 import {
   CustomTextualRenderer,
   TNode,
   getNativePropsForTNode,
 } from 'react-native-render-html'
+
+import { HtmlContext } from './HtmlContext'
 
 const resetTextInputStyle = {
   paddingTop: 0,
@@ -14,7 +18,10 @@ const resetTextInputStyle = {
 const TextRenderer: CustomTextualRenderer = props => {
   const renderProps = getNativePropsForTNode(props)
 
+  const { disabledPartialSelectable } = useContext(HtmlContext)
+
   if (
+    disabledPartialSelectable ||
     !renderProps.selectable ||
     Platform.OS === 'android' ||
     hasLink(props.tnode)
@@ -35,7 +42,7 @@ const TextRenderer: CustomTextualRenderer = props => {
 }
 
 function hasLink(tnode: TNode): boolean {
-  return tnode.domNode?.name === 'a' || tnode.children.some(hasLink)
+  return tnode.domNode?.name === 'a' || some(tnode.children, hasLink)
 }
 
 export default TextRenderer

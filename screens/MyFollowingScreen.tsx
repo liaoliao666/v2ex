@@ -14,7 +14,7 @@ import { TabBar, TabView } from 'react-native-tab-view'
 import { inferData } from 'react-query-kit'
 
 import Empty from '@/components/Empty'
-import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
   FallbackComponent,
   withQuerySuspense,
@@ -35,6 +35,8 @@ import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
+const TAB_BAR_HEIGHT = 40
+
 export default withQuerySuspense(MyFollowingScreen, {
   LoadingComponent: () => (
     <View style={tw`flex-1`}>
@@ -52,7 +54,7 @@ export default withQuerySuspense(MyFollowingScreen, {
 
 const MemoMyFollowing = withQuerySuspense(memo(MyFollowing), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -62,7 +64,7 @@ const MemoMyFollowing = withQuerySuspense(memo(MyFollowing), {
 })
 const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -70,7 +72,7 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
     )
   },
   LoadingComponent: () => {
-    const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
     return (
       <View style={{ paddingTop: headerHeight }}>
         <TopicPlaceholder hideAvatar />
@@ -116,7 +118,7 @@ function MyFollowingScreen() {
 
   const layout = useWindowDimensions()
 
-  const headerHeight = useNavBarHeight() + NAV_BAR_HEIGHT
+  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
   return (
     <View style={tw`flex-1`}>
@@ -150,7 +152,7 @@ function MyFollowingScreen() {
               {...props}
               scrollEnabled
               style={tw`flex-row shadow-none border-b border-tint-border border-solid bg-transparent`}
-              tabStyle={tw`w-[100px] h-[${NAV_BAR_HEIGHT}px]`}
+              tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
               indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
@@ -159,7 +161,7 @@ function MyFollowingScreen() {
                 return (
                   <TouchableOpacity
                     key={route.key}
-                    style={tw`w-[100px] flex-row items-center justify-center h-[${NAV_BAR_HEIGHT}px]`}
+                    style={tw`w-[100px] flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                     activeOpacity={active ? 1 : 0.5}
                     onPress={() => {
                       setIndex(findIndex(routes, { key: route.key }))
