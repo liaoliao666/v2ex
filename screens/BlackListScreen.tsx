@@ -134,6 +134,7 @@ function BlackListScreen() {
                       <ResetIgnoredTopicsButton />
                     )
               }
+              style={tw`border-b-0`}
             />
 
             <TabBar

@@ -351,6 +351,7 @@ function TopNavBar() {
 
   return (
     <NavBar
+      style={tw`border-b-0`}
       left={
         !isTablet && (
           <Pressable

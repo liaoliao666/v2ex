@@ -137,7 +137,7 @@ function MyFollowingScreen() {
           <View style={tw`absolute top-0 inset-x-0 z-10`}>
             <StyledBlurView style={tw`absolute inset-0`} />
 
-            <NavBar title="特别关注" />
+            <NavBar title="特别关注" style={tw`border-b-0`} />
 
             <TabBar
               {...props}
