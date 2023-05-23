@@ -11,7 +11,6 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
-import { inferData } from 'react-query-kit'
 
 import Empty from '@/components/Empty'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
@@ -31,7 +30,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useMemberTopics, useMyFollowing } from '@/servicies/member'
 import { Topic } from '@/servicies/types'
-import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
+import { removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -83,16 +82,8 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
 
 function MyFollowingScreen() {
   useMemo(() => {
-    resetInfiniteQueriesWithHugeData(useMyFollowing.getKey())
-    queryClient
-      .getQueryData<inferData<typeof useMyFollowing>>(useMyFollowing.getKey())
-      ?.pages?.[0]?.following.forEach(member => {
-        resetInfiniteQueriesWithHugeData(
-          useMemberTopics.getKey({
-            username: member.username,
-          })
-        )
-      })
+    removeUnnecessaryPages(useMyFollowing.getKey())
+    removeUnnecessaryPages(useMemberTopics.getKey())
   }, [])
 
   const { data } = useMyFollowing({

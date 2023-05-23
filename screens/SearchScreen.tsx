@@ -37,7 +37,7 @@ import { useSov2ex } from '@/servicies/sov2ex'
 import { useTopicDetail } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { resetInfiniteQueriesWithHugeData } from '@/utils/query'
+import { removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -202,7 +202,7 @@ function SoV2exList({
   )
 
   useMemo(() => {
-    resetInfiniteQueriesWithHugeData(useSov2ex.getKey(variables))
+    removeUnnecessaryPages(useSov2ex.getKey(variables))
   }, [variables])
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =

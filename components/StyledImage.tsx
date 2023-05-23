@@ -38,7 +38,9 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
   const hasPassedSize = isStyle(style) && hasSize(style)
 
   const isMiniImage =
-    isStyle(size) && hasSize(size) ? size.width < 50 && size.height < 50 : false
+    isStyle(size) && hasSize(size)
+      ? size.width < 100 && size.height < 100
+      : false
 
   return (
     <FastImage

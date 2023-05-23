@@ -31,7 +31,7 @@ import { Notice } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
-import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
+import { queryClient, removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -52,7 +52,7 @@ export default withQuerySuspense(NotificationsScreen, {
 
 function NotificationsScreen() {
   useMemo(() => {
-    resetInfiniteQueriesWithHugeData(useNotifications.getKey())
+    removeUnnecessaryPages(useNotifications.getKey())
   }, [])
 
   const {

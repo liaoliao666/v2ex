@@ -31,7 +31,7 @@ import './utils/dayjsPlugins'
 import {
   asyncStoragePersister,
   queryClient,
-  resetInfiniteQueriesWithHugeData,
+  removeUnnecessaryPages,
 } from './utils/query'
 import tw from './utils/tw'
 
@@ -62,7 +62,7 @@ function App() {
             persister: asyncStoragePersister,
           }}
           onSuccess={() => {
-            resetInfiniteQueriesWithHugeData()
+            removeUnnecessaryPages()
             isReadyNavigation.then(SplashScreen.hideAsync)
           }}
         >

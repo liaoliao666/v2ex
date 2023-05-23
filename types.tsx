@@ -20,6 +20,7 @@ declare module 'axios' {
 
 export type RootStackParamList = {
   Root: undefined
+  Home: undefined
   SortTabs: undefined
   NotFound: undefined
   MyNodes: undefined

@@ -3,7 +3,6 @@ import {
   createNavigationContainerRef,
 } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { isFunction } from 'lodash-es'
 
 import { RootStackParamList } from '../types'
 
@@ -33,8 +32,7 @@ export function getNavigation() {
   return navigation
 }
 
-export function getCurrentRouteName(): string {
+export function getCurrentRouteName(): keyof RootStackParamList {
   // @ts-ignore
-  const getCurrentRoute: any = getNavigation()?.getCurrentRoute
-  return isFunction(getCurrentRoute) ? getCurrentRoute()?.name : undefined
+  return getNavigation()?.getCurrentRoute?.()?.name
 }

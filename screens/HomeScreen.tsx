@@ -39,11 +39,12 @@ import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { getCurrentRouteName } from '@/navigation/navigationRef'
 import { useRecentTopics, useTabTopics } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
+import { queryClient, removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -124,7 +125,7 @@ function HomeScreen() {
       errorResetMap[tab]?.()
     } else if (query?.getObserversCount() && query?.isStale()) {
       if (tab === 'recent') {
-        resetInfiniteQueriesWithHugeData(useRecentTopics.getKey())
+        removeUnnecessaryPages(useRecentTopics.getKey())
       }
       queryClient.refetchQueries({ queryKey: activeKey })
     }
@@ -203,13 +204,13 @@ function HomeScreen() {
                 onPress={() => {
                   navigation.navigate('SortTabs')
                 }}
-                style={tw`h-full flex-row items-center justify-center z-50 bg-body-1`}
+                style={tw`h-full flex-row items-center justify-center z-50`}
               >
                 <Feather
                   name="menu"
                   size={17}
                   color={tw.color(`text-tint-secondary`)}
-                  style={tw`-mt-1 pr-4 pl-1`}
+                  style={tw`pr-4 pl-2`}
                 />
               </TouchableOpacity>
             </View>
@@ -238,7 +239,7 @@ function RecentTopics({
     isFetching,
   } = useRecentTopics({
     suspense: true,
-    refetchOnWindowFocus: isActive,
+    refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -303,7 +304,7 @@ function TabTopics({
   const { data, refetch, isFetching } = useTabTopics({
     variables: { tab },
     suspense: true,
-    refetchOnWindowFocus: isActive,
+    refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)

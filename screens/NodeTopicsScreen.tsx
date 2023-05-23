@@ -29,7 +29,7 @@ import { useLikeNode, useNodeTopics, useNodes } from '@/servicies/node'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
+import { queryClient, removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -67,9 +67,7 @@ function NodeTopicsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
   useMemo(() => {
-    resetInfiniteQueriesWithHugeData(
-      useNodeTopics.getKey({ name: params.name })
-    )
+    removeUnnecessaryPages(useNodeTopics.getKey({ name: params.name }))
   }, [params.name])
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =

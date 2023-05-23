@@ -25,7 +25,7 @@ AppState.addEventListener('change', status => {
   }
 })
 
-export function resetInfiniteQueriesWithHugeData(queryKey?: unknown[]) {
+export function removeUnnecessaryPages(queryKey?: unknown[]) {
   queryClient
     .getQueryCache()
     .findAll({ queryKey })

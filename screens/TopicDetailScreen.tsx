@@ -32,7 +32,7 @@ import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe } from '@/utils/authentication'
-import { resetInfiniteQueriesWithHugeData } from '@/utils/query'
+import { removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -61,7 +61,7 @@ function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
 
   useMemo(() => {
-    resetInfiniteQueriesWithHugeData(useTopicDetail.getKey({ id: params.id }))
+    removeUnnecessaryPages(useTopicDetail.getKey({ id: params.id }))
   }, [params.id])
 
   const {

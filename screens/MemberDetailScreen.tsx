@@ -63,11 +63,11 @@ import {
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe, isSignined } from '@/utils/authentication'
-import { queryClient, resetInfiniteQueriesWithHugeData } from '@/utils/query'
+import { queryClient, removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
-const TAB_BAR_HEIGHT = 40
+const TAB_BAR_HEIGHT = 53
 const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
 const TAB_VIEW_MARGIN_TOP = -2
 
@@ -88,10 +88,10 @@ function MemberDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   useMemo(() => {
-    resetInfiniteQueriesWithHugeData(
+    removeUnnecessaryPages(
       useMemberTopics.getKey({ username: params.username })
     )
-    resetInfiniteQueriesWithHugeData(
+    removeUnnecessaryPages(
       useMemberReplies.getKey({ username: params.username })
     )
     queryClient.prefetchInfiniteQuery({

@@ -222,13 +222,13 @@ const Drawer = createDrawerNavigator()
 function DrawerNavigator() {
   return (
     <Drawer.Navigator
-      initialRouteName="HomeScreen"
+      initialRouteName="Home"
       drawerContent={() => <Profile />}
       screenOptions={{
         headerShown: false,
       }}
     >
-      <Drawer.Screen name="HomeScreen" component={HomeScreen} />
+      <Drawer.Screen name="Home" component={HomeScreen} />
     </Drawer.Navigator>
   )
 }

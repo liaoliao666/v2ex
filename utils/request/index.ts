@@ -33,6 +33,11 @@ request.interceptors.response.use(
   },
   error => {
     handle503Error(error)
+    if (error instanceof Error && error.message.includes(`403`)) {
+      const err = new Error('请检查你的代理设置')
+      err.name = '请求失败'
+      return Promise.reject(err)
+    }
     return Promise.reject(error)
   }
 )
@@ -72,7 +77,7 @@ function updateStoreWithData(data: any) {
 
       store.set(profileAtom, prev => {
         if (
-          getCurrentRouteName() !== 'HomeScreen' &&
+          getCurrentRouteName() !== 'Home' &&
           store.get(enabledMsgPushAtom) &&
           newProfile.my_notification !== prev?.my_notification &&
           isInteger(newProfile.my_notification) &&

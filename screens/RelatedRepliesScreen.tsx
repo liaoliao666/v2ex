@@ -196,7 +196,6 @@ export default function RelatedRepliesScreen() {
                             : tw`text-tint-secondary font-medium`
                         )}
                         numberOfLines={1}
-                        ellipsizeMode="clip"
                       >
                         {route.title}
                       </Text>

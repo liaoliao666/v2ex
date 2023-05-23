@@ -1578,6 +1578,22 @@
     semver "7.3.2"
     xml2js "0.4.23"
 
+"@expo/prebuild-config@6.0.1":
+  version "6.0.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/@expo/prebuild-config/-/prebuild-config-6.0.1.tgz#e3a5bbf5892859e71ac6a2408b1cc8ba6ca3f58f"
+  integrity sha512-WK3FDht1tdXZGCvtG5s7HSwzhsc7Tyu2DdqV9jVUsLtGD42oqUepk13mEWlU9LOTBgLsoEueKjoSK4EXOXFctw==
+  dependencies:
+    "@expo/config" "~8.0.0"
+    "@expo/config-plugins" "~6.0.0"
+    "@expo/config-types" "^48.0.0"
+    "@expo/image-utils" "0.3.22"
+    "@expo/json-file" "^8.2.37"
+    debug "^4.3.1"
+    fs-extra "^9.0.0"
+    resolve-from "^5.0.0"
+    semver "7.3.2"
+    xml2js "0.4.23"
+
 "@expo/react-native-action-sheet@^4.0.1":
   version "4.0.1"
   resolved "https://registry.yarnpkg.com/@expo/react-native-action-sheet/-/react-native-action-sheet-4.0.1.tgz#fa78e55a87a741f235be2c4ce0b0ea2b6afd06cf"
@@ -2209,6 +2225,11 @@
   resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-5.0.0-alpha.19.tgz#f71a88ae75e37a5c82dfc17b09a854740c12707c"
   integrity sha512-3W30tOF9TKXdG2Ke2c+DHIVLkTTOK+4Zcynre6qDMjd6/xvK/hLhk0FYyrPAhLoxlqPrMS/4RqHjNGay7g19bQ==
 
+"@tanstack/query-core@5.0.0-alpha.34":
+  version "5.0.0-alpha.34"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-5.0.0-alpha.34.tgz#d5b5544964ae7532a596edbafadccbdf3b8ba406"
+  integrity sha512-/59XnJ7LDbEeliPx1xKvwjBNN3tpRUJxbaCn89qr11tjhNq5hRLQ301aQSxSdjvbFCHb8iOsGHzSb/e4m+3LXQ==
+
 "@tanstack/query-persist-client-core@5.0.0-alpha.19":
   version "5.0.0-alpha.19"
   resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-persist-client-core/-/query-persist-client-core-5.0.0-alpha.19.tgz#b18918f15e7484ad3ec45305acf394f63aeea5e1"
@@ -2223,12 +2244,12 @@
   dependencies:
     "@tanstack/query-persist-client-core" "5.0.0-alpha.19"
 
-"@tanstack/react-query@^5.0.0-alpha.19":
-  version "5.0.0-alpha.19"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-5.0.0-alpha.19.tgz#d5bad1b99de89a3237013189b9764d9649264b5c"
-  integrity sha512-hXkvGtxLVrzZOYJEra32LcfatNUz1NqEIsQjD//aG8c7fD4/9Bou6DmIZMaQu1CRTSs9yiUWzUFmhSxAhnJN+Q==
+"@tanstack/react-query@^5.0.0-alpha.35":
+  version "5.0.0-alpha.35"
+  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-5.0.0-alpha.35.tgz#8860e18947885baf012da2d3ee2e191018055e22"
+  integrity sha512-a8Z9LhpTRKxDg3RJCV4Ri6a+0Vi2TwEQGqQpDT8pPklu/Iv0j00eMmyI5dUJAQk/xFRtZqDplm7MV4A0WvDwbw==
   dependencies:
-    "@tanstack/query-core" "5.0.0-alpha.19"
+    "@tanstack/query-core" "5.0.0-alpha.34"
 
 "@trivago/prettier-plugin-sort-imports@^3.3.0":
   version "3.4.0"
@@ -4345,23 +4366,23 @@ expo-constants@~14.2.0, expo-constants@~14.2.1:
     "@expo/config" "~8.0.0"
     uuid "^3.3.2"
 
-expo-dev-client@~2.1.6:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/expo-dev-client/-/expo-dev-client-2.1.6.tgz#b5f614dfcdd2793afda3d57e7fcadc7507ab8158"
-  integrity sha512-6XJS+giOUBA1onRFsT4rtaTkG96cw0tBrnn8LEW5lAM96mN/bl1IZsmyUmLgKfpE40lqvc9ZuYN3Uv2EwTGS/Q==
+expo-dev-client@~2.2.1:
+  version "2.2.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/expo-dev-client/-/expo-dev-client-2.2.1.tgz#3abdb875e9c9ed30e1f6dadc2f80b392d15b1c1e"
+  integrity sha512-BDhKyni82LiT6PypgBns1/FLqo3cGDBluaj4/Pojx9P7x9iwOFcesepO8r6BCWb4LuBjdB+z2yQ1fMXxzNC3qQ==
   dependencies:
-    expo-dev-launcher "2.1.6"
-    expo-dev-menu "2.1.4"
+    expo-dev-launcher "2.2.1"
+    expo-dev-menu "2.2.0"
     expo-dev-menu-interface "1.1.1"
     expo-manifests "~0.5.0"
     expo-updates-interface "~0.9.0"
 
-expo-dev-launcher@2.1.6:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/expo-dev-launcher/-/expo-dev-launcher-2.1.6.tgz#4be192cfae397b2024947a437c5b65d154270c1b"
-  integrity sha512-fk2Vb7sJgk++CFfwxuL5A8yZXUghqTOZy0fXqpYBJlskSq2sQr8LPoOrqxEQhnA06/CEzS2OC6FTFo+aY9UkBQ==
+expo-dev-launcher@2.2.1:
+  version "2.2.1"
+  resolved "https://mirrors.cloud.tencent.com/npm/expo-dev-launcher/-/expo-dev-launcher-2.2.1.tgz#db9eec550487400cdac9c2aeedd3b6791fd49469"
+  integrity sha512-TP9SOrNIKF5Whju7uhtBsJeOvf9idUSg7snhHNVRpm2mA5kReckeD3PFv4HsvBHdnrfoslpeq4spOdS6UUx3XA==
   dependencies:
-    expo-dev-menu "2.1.4"
+    expo-dev-menu "2.2.0"
     resolve-from "^5.0.0"
     semver "^7.3.5"
 
@@ -4370,10 +4391,10 @@ expo-dev-menu-interface@1.1.1:
   resolved "https://mirrors.cloud.tencent.com/npm/expo-dev-menu-interface/-/expo-dev-menu-interface-1.1.1.tgz#8a0d979f62d9a192696f66a77f75d8fab79e604b"
   integrity sha512-doT+7WrSBnxCcTGZw9QIEZoL+43U4RywbG8XZwbhkcsFWGsh9scp0y/bv3ieFHxRtIdImxbxOoYh7fy1O6g28w==
 
-expo-dev-menu@2.1.4:
-  version "2.1.4"
-  resolved "https://registry.yarnpkg.com/expo-dev-menu/-/expo-dev-menu-2.1.4.tgz#8bf8ae605d75199a72b603d7ac246e853b8404ca"
-  integrity sha512-T9YPrfo3M+tf4kH61wp36QI2XU2FxeG7EMYg1bcF4BjYx4fUs6i/QvxJ32o5eB+96fXraG2bhiv0Q2QlYWU8Tg==
+expo-dev-menu@2.2.0:
+  version "2.2.0"
+  resolved "https://mirrors.cloud.tencent.com/npm/expo-dev-menu/-/expo-dev-menu-2.2.0.tgz#849ec3601f1dc228ad2858e4a25614a72932a61c"
+  integrity sha512-ImRUD7IVyLme7t3S+pNsOOgCBorkriVNo+ryEmkAjzRTKlpiklhoc1GEdQUU3qvO6e66gUguMbs4wnaP6o4NEw==
   dependencies:
     expo-dev-menu-interface "1.1.1"
     semver "^7.3.5"
@@ -4473,13 +4494,13 @@ expo-sharing@~11.2.2:
   resolved "https://mirrors.cloud.tencent.com/npm/expo-sharing/-/expo-sharing-11.2.2.tgz#7d9e387f1a902e6dd6838c22d9599dae9e7432cf"
   integrity sha512-4Lhm1eS/CFIzX+JPuxMUTWBt9rv/WdvJvpQ9y+71bL/9w9dhvsdt9tv0SsNZATz4hk0tbrYD8ZEUsgiHiT1KkQ==
 
-expo-splash-screen@~0.18.1:
-  version "0.18.1"
-  resolved "https://mirrors.cloud.tencent.com/npm/expo-splash-screen/-/expo-splash-screen-0.18.1.tgz#e090b045a7f8c5d9597b7a96910caa4eae1fcf3b"
-  integrity sha512-1di1kuh14likGUs3fyVZWAqEMxhmdAjpmf9T8Qk5OzUa5oPEMEDYB2e2VprddWnJNBVVe/ojBDSCY8w56/LS0Q==
+expo-splash-screen@~0.18.2:
+  version "0.18.2"
+  resolved "https://mirrors.cloud.tencent.com/npm/expo-splash-screen/-/expo-splash-screen-0.18.2.tgz#dde246204da875785ba40c7143a70013cdefdbb6"
+  integrity sha512-fsiKmyn/lbJtV6Uor6wSvl21fScOidFzmB/HHShQJJOu2TBN/vqMvhPu/r0bF5NVk8Wi64r98hiWY1EEsbW03w==
   dependencies:
     "@expo/configure-splash-screen" "^0.6.0"
-    "@expo/prebuild-config" "6.0.0"
+    "@expo/prebuild-config" "6.0.1"
 
 expo-status-bar@~1.4.4:
   version "1.4.4"
@@ -7482,10 +7503,10 @@ react-native-gesture-handler@~2.9.0:
     lodash "^4.17.21"
     prop-types "^15.7.2"
 
-react-native-gradle-plugin@^0.71.17:
-  version "0.71.17"
-  resolved "https://registry.yarnpkg.com/react-native-gradle-plugin/-/react-native-gradle-plugin-0.71.17.tgz#cf780a27270f0a32dca8184eff91555d7627dd00"
-  integrity sha512-OXXYgpISEqERwjSlaCiaQY6cTY5CH6j73gdkWpK0hedxtiWMWgH+i5TOi4hIGYitm9kQBeyDu+wim9fA8ROFJA==
+react-native-gradle-plugin@^0.71.18:
+  version "0.71.18"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-native-gradle-plugin/-/react-native-gradle-plugin-0.71.18.tgz#20ef199bc85be32e45bb6cc069ec2e7dcb1a74a6"
+  integrity sha512-7F6bD7B8Xsn3JllxcwHhFcsl9aHIig47+3eN4IHFNqfLhZr++3ElDrcqfMzugM+niWbaMi7bJ0kAkAL8eCpdWg==
 
 react-native-image-pan-zoom@^2.1.12:
   version "2.1.12"
@@ -7580,10 +7601,10 @@ react-native-youtube-iframe@^2.2.2:
   dependencies:
     events "^3.2.0"
 
-react-native@0.71.7:
-  version "0.71.7"
-  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.71.7.tgz#d0ae409f6ee4fc7e7a876b4ca9d8d28934133228"
-  integrity sha512-Id6iRLS581fJMFGbBl1jP5uSmjExtGOvw5Gvh7694zISXjsRAsFMmU+izs0pyCLqDBoHK7y4BT7WGPGw693nYw==
+react-native@0.71.8:
+  version "0.71.8"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-native/-/react-native-0.71.8.tgz#4314145341c49448cf7465b93ced52a433a5e191"
+  integrity sha512-ftMAuhpgTkbHU9brrqsEyxcNrpYvXKeATY+if22Nfhhg1zW+6wn95w9otwTnA3xHkljPCbng8mUhmmERjGEl7g==
   dependencies:
     "@jest/create-cache-key-function" "^29.2.1"
     "@react-native-community/cli" "10.2.2"
@@ -7610,7 +7631,7 @@ react-native@0.71.7:
     promise "^8.3.0"
     react-devtools-core "^4.26.1"
     react-native-codegen "^0.71.5"
-    react-native-gradle-plugin "^0.71.17"
+    react-native-gradle-plugin "^0.71.18"
     react-refresh "^0.4.0"
     react-shallow-renderer "^16.15.0"
     regenerator-runtime "^0.13.2"
@@ -7620,10 +7641,10 @@ react-native@0.71.7:
     whatwg-fetch "^3.0.0"
     ws "^6.2.2"
 
-react-query-kit@^1.4.4:
-  version "1.4.4"
-  resolved "https://mirrors.cloud.tencent.com/npm/react-query-kit/-/react-query-kit-1.4.4.tgz#3e36b51215b6889e13b6d401446b6b299654dddf"
-  integrity sha512-GSEweuufpjqPSZMPxtetLTPSE4AgQsWoEspX4L0aVVCOzf6D2yoVJydlZLWw25tHAzbjF2BstOya6saYIiEYxA==
+react-query-kit@^1.4.5:
+  version "1.4.5"
+  resolved "https://mirrors.cloud.tencent.com/npm/react-query-kit/-/react-query-kit-1.4.5.tgz#44596b50fef6e0db2ca563f06b8ee68b837107c9"
+  integrity sha512-zewXZezv2S0QQ2MTtj9MXs7EoyjgFQGtpiHWzYZEMECMTfZjxGSlsvPxMyqBQLPxGHadg2Q3Glj8UE4IM0If1A==
 
 react-refresh@^0.4.0:
   version "0.4.3"
