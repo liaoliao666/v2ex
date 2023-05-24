@@ -2,9 +2,14 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { uniqBy, upperCase } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
-import { FlatList, ListRenderItem, Text, View } from 'react-native'
+import {
+  FlatList,
+  ListRenderItem,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
-import { TouchableOpacity } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Empty from '@/components/Empty'

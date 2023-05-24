@@ -47,6 +47,9 @@ const ReplyBox = forwardRef<
   function blur() {
     inputRef.current?.blur()
     inputRef.current?.clear()
+    inputRef.current?.setNativeProps({
+      text: '',
+    })
   }
 
   const [isFocus, setIsFocus] = useState(false)
@@ -124,7 +127,7 @@ const ReplyBox = forwardRef<
             onChangeText={function handleAtName(text) {
               if (!isFocus) return
 
-              if (text.endsWith('@')) {
+              if (text.match(/(@|＠)$/)) {
                 navigation.navigate('SearchReplyMember', {
                   topicId,
                   onAtNames(atNames) {
@@ -133,13 +136,17 @@ const ReplyBox = forwardRef<
                         ? `${text.slice(0, text.length - 1)}${atNames} `
                         : text
                     )
+
+                    if (Platform.OS === 'android') {
+                      inputRef.current?.focus()
+                    }
                   },
                 })
                 return
               }
 
               const isDeleting = text.length < getContent().length
-              const lastAtName = getContent().match(/(@\w+)$/)?.[1]
+              const lastAtName = getContent().match(/((@|＠)\w+)$/)?.[1]
 
               if (isDeleting && lastAtName) {
                 const prunedText = text.slice(

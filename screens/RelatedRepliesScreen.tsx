@@ -139,7 +139,7 @@ export default function RelatedRepliesScreen() {
         style={
           isSingleRoute
             ? tw`border-tint-border border-b border-solid`
-            : undefined
+            : tw`border-b-0`
         }
       />
 

@@ -79,7 +79,7 @@ export default function SortTabsScreen() {
   useAtomValue(colorSchemeAtom)
 
   return (
-    <SafeAreaView edges={['top']} style={tw`flex-1`}>
+    <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`}>
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
         <Text style={tw`text-tint-primary ${getFontSize(4)} font-medium`}>
           首页板块

@@ -9,7 +9,10 @@ import {
   DefaultTheme,
   NavigationContainer,
 } from '@react-navigation/native'
-import { createNativeStackNavigator } from '@react-navigation/native-stack'
+import {
+  NativeStackNavigationOptions,
+  createNativeStackNavigator,
+} from '@react-navigation/native-stack'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
@@ -108,6 +111,14 @@ export default function Navigation() {
  */
 const Stack = createNativeStackNavigator<RootStackParamList>()
 
+const androidSlideFromBottomOptions: NativeStackNavigationOptions =
+  Platform.OS === 'android'
+    ? {
+        presentation: 'transparentModal',
+        animation: 'slide_from_bottom',
+      }
+    : {}
+
 function StackNavigator() {
   return (
     <Stack.Navigator
@@ -132,6 +143,7 @@ function StackNavigator() {
         name="RelatedReplies"
         options={{
           presentation: 'modal',
+          ...androidSlideFromBottomOptions,
         }}
         component={RelatedRepliesScreen}
       />
@@ -140,6 +152,7 @@ function StackNavigator() {
         name="SearchReplyMember"
         options={{
           presentation: 'modal',
+          ...androidSlideFromBottomOptions,
         }}
         component={SearchReplyMemberScreen}
       />
@@ -175,6 +188,7 @@ function StackNavigator() {
         options={{
           presentation: 'modal',
           orientation: 'portrait',
+          ...androidSlideFromBottomOptions,
         }}
         component={SearchOptionsScreen}
       />
@@ -183,6 +197,7 @@ function StackNavigator() {
         name="SearchNode"
         options={{
           presentation: 'modal',
+          ...androidSlideFromBottomOptions,
         }}
         component={SearchNodeScreen}
       />
@@ -199,6 +214,7 @@ function StackNavigator() {
         options={{
           presentation: 'fullScreenModal',
           orientation: 'portrait',
+          ...androidSlideFromBottomOptions,
         }}
         name="SortTabs"
         component={SortTabsScreen}
