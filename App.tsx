@@ -8,7 +8,6 @@ import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import Toast from 'react-native-toast-message'
 import { useDeviceContext } from 'twrnc'
 
 import StyledImageViewer from './components/StyledImageViewer'
@@ -105,15 +104,6 @@ function AppInitializer({ children }: { children: ReactNode }) {
   useDeviceContext(tw, { withDeviceColorScheme: false })
 
   useCheckin({
-    onSuccess(amount = 0) {
-      if (amount > 0) {
-        Toast.show({
-          type: 'success',
-          text1: `自动签到成功`,
-          text2: `已领取 ${amount} 铜币`,
-        })
-      }
-    },
     enabled: !!profile && enabledAutoCheckin,
   })
 

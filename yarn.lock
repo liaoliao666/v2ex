@@ -2213,40 +2213,35 @@
   dependencies:
     "@sinonjs/commons" "^2.0.0"
 
-"@tanstack/query-async-storage-persister@^5.0.0-alpha.19":
-  version "5.0.0-alpha.19"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.0.0-alpha.19.tgz#d3b96609f0d6f01217fe818674767bc96ab2588b"
-  integrity sha512-duEAfP4TRRiToBI8zH8BqmVixn/HkSeHqtkpPJaEqvJWLkPYZjhHikgRkgHCsJSj5LIObZLGsV4Jr86mktWZ5Q==
+"@tanstack/query-async-storage-persister@^5.0.0-alpha.34":
+  version "5.0.0-alpha.34"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-async-storage-persister/-/query-async-storage-persister-5.0.0-alpha.34.tgz#82065a31b253567f68e957fdbb915e85ff39e3e1"
+  integrity sha512-/QQFTJVZQq0c5Nd0ZVmC3cOwSrusQxDeMYVz5UpqRtZYEBcefOBpoOyTPBJ9xWG/qx1T2q3LRPV7Hy+67Lr2MQ==
   dependencies:
-    "@tanstack/query-persist-client-core" "5.0.0-alpha.19"
-
-"@tanstack/query-core@5.0.0-alpha.19":
-  version "5.0.0-alpha.19"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-5.0.0-alpha.19.tgz#f71a88ae75e37a5c82dfc17b09a854740c12707c"
-  integrity sha512-3W30tOF9TKXdG2Ke2c+DHIVLkTTOK+4Zcynre6qDMjd6/xvK/hLhk0FYyrPAhLoxlqPrMS/4RqHjNGay7g19bQ==
+    "@tanstack/query-persist-client-core" "5.0.0-alpha.34"
 
 "@tanstack/query-core@5.0.0-alpha.34":
   version "5.0.0-alpha.34"
   resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-core/-/query-core-5.0.0-alpha.34.tgz#d5b5544964ae7532a596edbafadccbdf3b8ba406"
   integrity sha512-/59XnJ7LDbEeliPx1xKvwjBNN3tpRUJxbaCn89qr11tjhNq5hRLQ301aQSxSdjvbFCHb8iOsGHzSb/e4m+3LXQ==
 
-"@tanstack/query-persist-client-core@5.0.0-alpha.19":
-  version "5.0.0-alpha.19"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/query-persist-client-core/-/query-persist-client-core-5.0.0-alpha.19.tgz#b18918f15e7484ad3ec45305acf394f63aeea5e1"
-  integrity sha512-1naDia2IQUDhcZxZbMEgM1IAEA8ieuWLYO+gDb/rtJuZlFMeTF5cdtV3UweWYwlY+BDInRiRTKRNpo/fKmRNYA==
+"@tanstack/query-persist-client-core@5.0.0-alpha.34":
+  version "5.0.0-alpha.34"
+  resolved "https://registry.yarnpkg.com/@tanstack/query-persist-client-core/-/query-persist-client-core-5.0.0-alpha.34.tgz#4938be47b7bbc0fa1e3597a0566d27158bf35742"
+  integrity sha512-Idaqpaf7fD8+w5fRBm43AVHSAmvhSvwkL6i89t86wm/6s3VMWHAx1OSOaaILCX9Id97kACR6wWz8Zk2GUKLIeA==
   dependencies:
-    "@tanstack/query-core" "5.0.0-alpha.19"
+    "@tanstack/query-core" "5.0.0-alpha.34"
 
-"@tanstack/react-query-persist-client@^5.0.0-alpha.19":
-  version "5.0.0-alpha.19"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query-persist-client/-/react-query-persist-client-5.0.0-alpha.19.tgz#f36862c6c3b23175d22f1188202769d6322cd5fe"
-  integrity sha512-GeK37ANqAYlB1oxGocw9l5FaSSvk9dSrZkTHW+SC5PVmw7cnNRIt1Yiqb/uTWHLK1Lwp0psH5mDB0dxDWQQfrg==
+"@tanstack/react-query-persist-client@^5.0.0-alpha.35":
+  version "5.0.0-alpha.35"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query-persist-client/-/react-query-persist-client-5.0.0-alpha.35.tgz#2840f1525f4133fdbdec03d3d08e5ee9a5051c2a"
+  integrity sha512-hThrmruIEhlAVC2GhRJGkLr43wH/wQBNKieLgF1DG35WTVyZBQfEGL/cctLbZhMpRhdw+dhslb8CS8bZpKG5KQ==
   dependencies:
-    "@tanstack/query-persist-client-core" "5.0.0-alpha.19"
+    "@tanstack/query-persist-client-core" "5.0.0-alpha.34"
 
 "@tanstack/react-query@^5.0.0-alpha.35":
   version "5.0.0-alpha.35"
-  resolved "https://mirrors.cloud.tencent.com/npm/@tanstack/react-query/-/react-query-5.0.0-alpha.35.tgz#8860e18947885baf012da2d3ee2e191018055e22"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-query/-/react-query-5.0.0-alpha.35.tgz#8860e18947885baf012da2d3ee2e191018055e22"
   integrity sha512-a8Z9LhpTRKxDg3RJCV4Ri6a+0Vi2TwEQGqQpDT8pPklu/Iv0j00eMmyI5dUJAQk/xFRtZqDplm7MV4A0WvDwbw==
   dependencies:
     "@tanstack/query-core" "5.0.0-alpha.34"

@@ -374,9 +374,7 @@ function SettingScreen() {
 }
 
 function SignoutItem({ once }: { once: string }) {
-  const { isPending, mutateAsync } = useSignout({
-    onError: () => {},
-  })
+  const { isPending, mutateAsync } = useSignout()
 
   const setProfileAtom = useSetAtom(profileAtom)
 

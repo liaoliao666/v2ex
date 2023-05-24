@@ -1,5 +1,6 @@
 import { load } from 'cheerio'
 import { compact, last } from 'lodash-es'
+import Toast from 'react-native-toast-message'
 import {
   createInfiniteQuery,
   createMutation,
@@ -160,10 +161,22 @@ export const useCheckin = createQuery({
     const okSign = load(checkResult)('li.fa.fa-ok-sign')
     if (okSign.length <= 0) return Promise.reject(new Error('签到失败'))
     const { data: balanceResult } = await request.get('/balance')
-    const amount = load(balanceResult)(
-      'table>tbody>tr:contains("每日登录"):first>td:nth(2)'
-    ).text()
-    return Number(amount) || 0
+    const amount =
+      Number(
+        load(balanceResult)(
+          'table>tbody>tr:contains("每日登录"):first>td:nth(2)'
+        ).text()
+      ) || 0
+
+    if (amount > 0) {
+      Toast.show({
+        type: 'success',
+        text1: `自动签到成功`,
+        text2: `已领取 ${amount} 铜币`,
+      })
+    }
+
+    return amount
   },
 })
 

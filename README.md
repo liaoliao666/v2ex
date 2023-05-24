@@ -9,7 +9,7 @@
 ## 下载
 
 - [iOS App Store](https://apps.apple.com/cn/app/v2fun/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.3.9/application-db585366-f4cd-4fb3-a91a-69521d83bfc8.apk)
+- [Android Apk](https://github.com/liaoliao666/v2ex/releases/download/1.4.0/build-1684928608982.apk)
 
 ## 本地运行
 
