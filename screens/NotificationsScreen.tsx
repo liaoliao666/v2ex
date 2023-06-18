@@ -1,9 +1,10 @@
+import { Octicons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
-import { memo, useCallback, useMemo } from 'react'
+import { memo, useCallback, useMemo, useRef } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
@@ -24,6 +25,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
@@ -68,8 +70,22 @@ function NotificationsScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
+  const replyBoxRef = useRef<ReplyBoxRef>(null)
+
   const renderItem: ListRenderItem<Notice> = useCallback(
-    ({ item }) => <NoticeItem key={item.id} notice={item} />,
+    ({ item }) => (
+      <NoticeItem
+        key={item.id}
+        notice={item}
+        onReply={notice => {
+          replyBoxRef.current?.replyFor({
+            topicId: notice.topic.id,
+            username: notice.member.username,
+          })
+          replyBoxRef.current?.showReplyBox()
+        }}
+      />
+    ),
     []
   )
 
@@ -119,6 +135,8 @@ function NotificationsScreen() {
         />
       </RefetchingIndicator>
 
+      <ReplyBox onSuccess={refetch} ref={replyBoxRef} hiddenWhenBlur />
+
       <View style={tw`absolute top-0 inset-x-0 z-10`}>
         <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar title="未读提醒" />
@@ -128,7 +146,13 @@ function NotificationsScreen() {
 }
 
 const NoticeItem = memo(
-  ({ notice }: { notice: Notice }) => {
+  ({
+    notice,
+    onReply,
+  }: {
+    notice: Notice
+    onReply: (notice: Notice) => void
+  }) => {
     const navigation =
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
@@ -164,7 +188,7 @@ const NoticeItem = memo(
 
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center justify-between`}>
-            <Separator>
+            <Separator style={tw`mr-auto`}>
               <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
                 {notice.member.username}
               </Text>
@@ -172,6 +196,18 @@ const NoticeItem = memo(
                 {notice.created}
               </Text>
             </Separator>
+
+            {!!notice.content &&
+              !notice.prev_action_text.includes('感谢了你') && (
+                <IconButton
+                  style={tw`mr-2`}
+                  color={tw.color(`text-tint-secondary`)}
+                  activeColor="rgb(29,155,240)"
+                  size={14}
+                  icon={<Octicons name="comment" />}
+                  onPress={() => onReply(notice)}
+                />
+              )}
 
             <DeleteNoticeButton id={notice.id} once={notice.once} />
           </View>

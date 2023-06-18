@@ -1,6 +1,6 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { ReactNode, cloneElement, isValidElement } from 'react'
-import { Pressable, PressableProps, View } from 'react-native'
+import { Pressable, PressableProps, View, ViewStyle } from 'react-native'
 
 import tw from '@/utils/tw'
 
@@ -16,6 +16,7 @@ export interface IconButtonProps {
   active?: boolean
   icon?: ReactNode
   pressed?: boolean
+  style?: ViewStyle
 }
 
 export default function IconButton(props: IconButtonProps) {
@@ -36,11 +37,12 @@ function IconButtonImpl({
   active,
   icon,
   pressed,
+  style,
 }: IconButtonProps) {
   const blurSize = size * RATIO
 
   return (
-    <View style={tw`items-center justify-center`}>
+    <View style={tw.style(`items-center justify-center`, style)}>
       <View
         style={tw.style(
           `w-[${blurSize}px] h-[${blurSize}px] -m-[${

@@ -3,6 +3,7 @@ import { pick } from 'lodash-es'
 import {
   Fragment,
   forwardRef,
+  memo,
   useImperativeHandle,
   useRef,
   useState,
@@ -18,6 +19,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { profileAtom } from '@/jotai/profileAtom'
+import { store } from '@/jotai/store'
 import { useAppendTopic, useReply } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
@@ -28,20 +31,25 @@ import StyledButton from '../StyledButton'
 import UploadImageButton from '../UploadImageButton'
 
 export interface ReplyBoxRef {
-  replyFor: (replyTYpe?: ReplyType) => void
+  replyFor: (replyTYpe?: ReplyInfo) => void
+  showReplyBox: () => void
 }
 
-type ReplyType = { username?: string; isAppend?: boolean }
+type ReplyInfo = { topicId?: number; username?: string; isAppend?: boolean }
 
 const ReplyBox = forwardRef<
   ReplyBoxRef,
-  { topicId: number; once?: string; onSuccess: () => void }
->(({ topicId, once, onSuccess }, ref) => {
-  const replyTypeRef = useRef<ReplyType>({})
+  {
+    onSuccess: () => void
+    hiddenWhenBlur?: boolean
+  }
+>(({ onSuccess, hiddenWhenBlur }, ref) => {
+  const replyInfoRef = useRef<ReplyInfo>({})
+
+  const getReplyInfo = () => replyInfoRef.current
 
   const { getContent, setContent, initContent } = useContent({
-    getReplyType: () => replyTypeRef.current,
-    topicId,
+    getReplyInfo,
   })
 
   function blur() {
@@ -59,13 +67,16 @@ const ReplyBox = forwardRef<
   const inputRef = useRef<TextInput>(null)
 
   useImperativeHandle(ref, () => ({
-    replyFor: (replyType?: ReplyType) => {
+    replyFor: (replyInfo?: ReplyInfo) => {
       if (!isSignined()) {
         navigation.navigate('Login')
         return
       }
-      replyTypeRef.current = replyType || {}
+      replyInfoRef.current = replyInfo || {}
       inputRef.current?.focus()
+    },
+    showReplyBox: () => {
+      setIsFocus(true)
     },
   }))
 
@@ -74,7 +85,7 @@ const ReplyBox = forwardRef<
   const appendTopicMutation = useAppendTopic()
 
   function isAppend() {
-    return !!replyTypeRef.current.isAppend
+    return !!replyInfoRef.current.isAppend
   }
 
   function getMutation() {
@@ -87,6 +98,8 @@ const ReplyBox = forwardRef<
     start: number
     end: number
   }>()
+
+  if (hiddenWhenBlur && !isFocus) return null
 
   return (
     <Fragment>
@@ -120,6 +133,7 @@ const ReplyBox = forwardRef<
               `text-tint-primary flex-1 py-2 px-3`,
               isFocus ? `h-32 pt-4 rounded-lg` : `h-9 rounded-full bg-input`
             )}
+            autoFocus={hiddenWhenBlur}
             textAlignVertical={'top'}
             multiline
             numberOfLines={3}
@@ -127,9 +141,14 @@ const ReplyBox = forwardRef<
             onChangeText={function handleAtName(text) {
               if (!isFocus) return
 
+              if (hiddenWhenBlur) {
+                setContent(text)
+                return
+              }
+
               if (text.match(/(@|＠)$/)) {
                 navigation.navigate('SearchReplyMember', {
-                  topicId,
+                  topicId: getReplyInfo().topicId!,
                   onAtNames(atNames) {
                     setContent(
                       atNames
@@ -237,8 +256,8 @@ const ReplyBox = forwardRef<
 
               try {
                 await mutateAsync({
-                  once: once!,
-                  topicId,
+                  once: store.get(profileAtom)?.once!,
+                  topicId: getReplyInfo().topicId!,
                   content: getContent().trim(),
                 })
 
@@ -277,27 +296,22 @@ const cacheContent: {
   appendText: '',
 }
 
-function useContent({
-  getReplyType,
-  topicId,
-}: {
-  getReplyType: () => ReplyType
-  topicId: number
-}) {
+function useContent({ getReplyInfo }: { getReplyInfo: () => ReplyInfo }) {
   const update = useUpdate()
 
   function initContent() {
+    const { topicId } = getReplyInfo()
     if (cacheContent.topicId !== topicId) {
       Object.assign(cacheContent, {
         replyTopicText: '',
         replyMemberText: '',
         appendText: '',
-        topicId: topicId,
+        topicId,
         replyName: '',
       })
     }
 
-    const { username } = getReplyType()
+    const { username } = getReplyInfo()
 
     if (username) {
       if (username !== cacheContent.replyName) {
@@ -314,7 +328,7 @@ function useContent({
   }
 
   function getTextKey() {
-    const { username, isAppend } = getReplyType()
+    const { username, isAppend } = getReplyInfo()
     return username
       ? 'replyMemberText'
       : isAppend
@@ -338,4 +352,4 @@ function useContent({
   } as const
 }
 
-export default ReplyBox
+export default memo(ReplyBox, () => true)

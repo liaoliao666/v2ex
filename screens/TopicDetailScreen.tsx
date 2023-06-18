@@ -106,10 +106,12 @@ function TopicDetailScreen() {
             ? params.hightlightReplyNo === item.no
             : undefined
         }
-        onReply={username => replyBoxRef.current?.replyFor({ username })}
+        onReply={username =>
+          replyBoxRef.current?.replyFor({ username, topicId: params.id })
+        }
       />
     ),
-    [topic.id, topic.once, params.hightlightReplyNo]
+    [topic.id, topic.once, params.hightlightReplyNo, params.id]
   )
 
   const [avatarVisible, setAvatarVisible] = useState(true)
@@ -148,7 +150,10 @@ function TopicDetailScreen() {
           <TopicInfo
             topic={topic}
             onAppend={() => {
-              replyBoxRef.current?.replyFor({ isAppend: true })
+              replyBoxRef.current?.replyFor({
+                isAppend: true,
+                topicId: params.id,
+              })
             }}
           >
             <View
@@ -161,7 +166,7 @@ function TopicDetailScreen() {
               <Pressable
                 style={tw.style(`flex-row items-center`)}
                 onPress={() => {
-                  replyBoxRef.current?.replyFor()
+                  replyBoxRef.current?.replyFor({ topicId: params.id })
                 }}
               >
                 {({ pressed }) => (
@@ -280,12 +285,7 @@ function TopicDetailScreen() {
         }}
       />
 
-      <ReplyBox
-        onSuccess={refetch}
-        once={topic.once}
-        topicId={params.id}
-        ref={replyBoxRef}
-      />
+      <ReplyBox onSuccess={refetch} ref={replyBoxRef} />
 
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
