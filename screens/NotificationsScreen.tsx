@@ -4,7 +4,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
-import { memo, useCallback, useMemo, useRef } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
@@ -25,8 +25,9 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
-import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
+import ReplyBox from '@/components/topic/ReplyBox'
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useDeleteNotice, useNotifications } from '@/servicies/notice'
 import { Notice } from '@/servicies/types'
@@ -70,7 +71,12 @@ function NotificationsScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
-  const replyBoxRef = useRef<ReplyBoxRef>(null)
+  const [replyInfo, setReplyInfo] = useState<{
+    topicId?: number
+    username?: string
+  }>({})
+
+  const profile = useAtomValue(profileAtom)
 
   const renderItem: ListRenderItem<Notice> = useCallback(
     ({ item }) => (
@@ -78,11 +84,10 @@ function NotificationsScreen() {
         key={item.id}
         notice={item}
         onReply={notice => {
-          replyBoxRef.current?.replyFor({
+          setReplyInfo({
             topicId: notice.topic.id,
             username: notice.member.username,
           })
-          replyBoxRef.current?.showReplyBox()
         }}
       />
     ),
@@ -135,7 +140,18 @@ function NotificationsScreen() {
         />
       </RefetchingIndicator>
 
-      <ReplyBox onSuccess={refetch} ref={replyBoxRef} hiddenWhenBlur />
+      {replyInfo.topicId && (
+        <ReplyBox
+          onSuccess={refetch}
+          autoFocus
+          topicId={replyInfo.topicId}
+          defaultReplyInfo={{ username: replyInfo.username }}
+          onBlur={() => {
+            setReplyInfo({})
+          }}
+          once={profile?.once}
+        />
+      )}
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>
         <StyledBlurView style={tw`absolute inset-0`} />
