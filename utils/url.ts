@@ -21,8 +21,10 @@ export function resolveURL(url: string) {
   return url
 }
 
+const svgURLS = ['img.shields.io', 'badgen.net', 'img.badgesize.io']
+
 export function isSvgURL(url: string) {
-  return url.endsWith('.svg')
+  return url.endsWith('.svg') || svgURLS.some(svgURL => url.includes(svgURL))
 }
 
 export async function openURL(url: string) {

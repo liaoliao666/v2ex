@@ -1,7 +1,8 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RESET } from 'jotai/utils'
 import { compact, isString } from 'lodash-es'
-import { Fragment, useRef, useState } from 'react'
+import { Fragment, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
 import { TextInput } from 'react-native'
@@ -27,6 +28,7 @@ import UploadImageButton from '@/components/UploadImageButton'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
+import { WriteTopicArgs, topicDraftAtom } from '@/jotai/topicDraftAtom'
 import { usePreview } from '@/servicies/preview'
 import {
   useEditTopic,
@@ -40,20 +42,6 @@ import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
-import { stripString } from '@/utils/zodHelper'
-
-const WriteTopicArgs = z.object({
-  title: z.preprocess(stripString, z.string()),
-  content: z.preprocess(stripString, z.string().optional()),
-  node: z.preprocess(
-    stripString,
-    z.object({
-      title: z.string(),
-      name: z.string(),
-    })
-  ),
-  syntax: z.enum(['default', 'markdown']),
-})
 
 const LazyPreviewTopic = withQuerySuspense(PreviewTopic, {
   LoadingComponent: () => {
@@ -113,12 +101,19 @@ function WriteTopicScreen() {
 
   const prevTopic = { ...topic, ...editTopicInfo } as Topic
 
-  const { control, handleSubmit, getValues, setValue } = useForm<
+  const { control, handleSubmit, getValues, setValue, watch, reset } = useForm<
     z.infer<typeof WriteTopicArgs>
   >({
     resolver: zodResolver(WriteTopicArgs),
-    defaultValues: isEdit ? prevTopic : { syntax: 'default' },
+    defaultValues: isEdit ? prevTopic : store.get(topicDraftAtom),
   })
+
+  useEffect(() => {
+    const subscription = watch(values => {
+      store.set(topicDraftAtom, values)
+    })
+    return () => subscription.unsubscribe()
+  }, [watch])
 
   const navigation = useNavigation()
 
@@ -140,6 +135,16 @@ function WriteTopicScreen() {
     start: number
     end: number
   }>()
+
+  const resetForm = () => {
+    if (isEdit) {
+      reset()
+    } else {
+      store.set(topicDraftAtom, RESET)
+      console.log(store.get(topicDraftAtom))
+      reset(store.get(topicDraftAtom))
+    }
+  }
 
   return (
     <View style={tw`bg-body-1 flex-1`}>
@@ -227,6 +232,7 @@ function WriteTopicScreen() {
                     ref={inputRef}
                     placeholder="标题如果能够表达完整内容，则正文可以为空"
                     onChangeText={text => {
+                      store.set(topicDraftAtom, getValues())
                       setShowPreviewButton(!!text)
                       onChange(text)
                     }}
@@ -321,6 +327,8 @@ function WriteTopicScreen() {
                       text1: isEdit ? `编辑成功` : '发帖成功',
                     })
 
+                    resetForm()
+
                     navigation.goBack()
                   } catch (error) {
                     Toast.show({
@@ -347,12 +355,17 @@ function WriteTopicScreen() {
           title={isEdit ? '编辑主题' : '创作新主题'}
           right={
             showPreviewButton && (
-              <StyledButton
-                shape="rounded"
-                onPress={() => setPreview(!preview)}
-              >
-                {preview ? '退出预览' : '预览'}
-              </StyledButton>
+              <View style={tw`flex-row gap-2`}>
+                <StyledButton shape="rounded" ghost onPress={resetForm}>
+                  重置
+                </StyledButton>
+                <StyledButton
+                  shape="rounded"
+                  onPress={() => setPreview(!preview)}
+                >
+                  {preview ? '退出预览' : '预览'}
+                </StyledButton>
+              </View>
             )
           }
         />

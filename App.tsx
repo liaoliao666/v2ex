@@ -22,6 +22,7 @@ import { imgurConfigAtom } from './jotai/imgurConfigAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
+import { topicDraftAtom } from './jotai/topicDraftAtom'
 import Navigation, { isReadyNavigation } from './navigation'
 import { useCheckin } from './servicies/member'
 import { useNodes } from './servicies/node'
@@ -93,6 +94,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       enabledParseContentAtom,
       deviceTypeAtom,
       imgurConfigAtom,
+      topicDraftAtom,
     ])
   )
 
