@@ -5,7 +5,6 @@ import {
   MaterialIcons,
 } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
-import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { Fragment } from 'react'
@@ -21,7 +20,6 @@ import RadioButtonGroup from '@/components/RadioButtonGroup'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
-import v2exMessage from '@/components/V2exWebview/v2exMessage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
@@ -37,6 +35,7 @@ import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
 import { isExpoGo } from '@/utils/isExpoGo'
 import { queryClient } from '@/utils/query'
+import { sleep } from '@/utils/sleep'
 import tw from '@/utils/tw'
 import { openURL } from '@/utils/url'
 
@@ -387,7 +386,6 @@ function SignoutItem({ once }: { once: string }) {
     } finally {
       await clearCookie()
       await setProfileAtom(RESET)
-      v2exMessage.reloadWebview()
     }
   }
 

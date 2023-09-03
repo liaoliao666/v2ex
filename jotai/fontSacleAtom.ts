@@ -19,7 +19,7 @@ const fontSizeMap: Record<FontScale, Record<Level, string>> = {
     '2': 'text-[20px] leading-[28px]',
     '3': 'text-[18px] leading-[26px]',
     '4': 'text-[16px] leading-[24px]',
-    '5': 'text-[14px] leading-[22px]',
+    '5': `text-[14px] leading-[22px]`,
     '6': 'text-[12px] leading-[20px]',
   },
   medium: {

@@ -2,9 +2,10 @@ import { load } from 'cheerio'
 import { compact, last } from 'lodash-es'
 import Toast from 'react-native-toast-message'
 import {
-  createInfiniteQuery,
   createMutation,
   createQuery,
+  createSuspenseInfiniteQuery,
+  createSuspenseQuery,
   inferData,
 } from 'react-query-kit'
 
@@ -29,7 +30,7 @@ import {
 } from './topic'
 import { Member, PageData, Reply, Topic } from './types'
 
-export const useMember = createQuery<Member, { username: string }>({
+export const useMember = createSuspenseQuery<Member, { username: string }>({
   primaryKey: 'useMember',
   queryFn: async ({ signal, queryKey: [_, { username }] }) => {
     const { data } = await request.get(`/member/${username}`, { signal })
@@ -58,9 +59,10 @@ export const useBlockMember = createMutation<
     }),
 })
 
-export const useMemberTopics = createInfiniteQuery<
+export const useMemberTopics = createSuspenseInfiniteQuery<
   PageData<Topic> & { hidden_text?: string },
-  { username: string }
+  { username: string },
+  void
 >({
   primaryKey: 'useMemberTopics',
   queryFn: async ({ pageParam, signal, queryKey: [, variables] }) => {
@@ -80,12 +82,12 @@ export const useMemberTopics = createInfiniteQuery<
       hidden_text: $('#Main .box .topic_content').eq(0).text(),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })
 
-export const useMemberReplies = createInfiniteQuery<
+export const useMemberReplies = createSuspenseInfiniteQuery<
   PageData<Omit<Topic, 'replies'> & { reply: Reply }>,
   { username: string }
 >({
@@ -106,12 +108,12 @@ export const useMemberReplies = createInfiniteQuery<
       list: parseMemberReplies($),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })
 
-export const useMyFollowing = createInfiniteQuery<
+export const useMyFollowing = createSuspenseInfiniteQuery<
   PageData<Topic> & { following: Member[] }
 >({
   primaryKey: 'useMyFollowing',
@@ -139,7 +141,7 @@ export const useMyFollowing = createInfiniteQuery<
         .get(),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })
@@ -191,7 +193,7 @@ export const useMemberById = createQuery<Member, { id: number }>({
   },
 })
 
-export const useBlockers = createInfiniteQuery<
+export const useBlockers = createSuspenseInfiniteQuery<
   PageData<Member>,
   { ids: number[] }
 >({
@@ -228,12 +230,12 @@ export const useBlockers = createInfiniteQuery<
       ),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })
 
-export const useIgnoredTopics = createInfiniteQuery<
+export const useIgnoredTopics = createSuspenseInfiniteQuery<
   PageData<Topic>,
   { ids: number[] }
 >({
@@ -304,7 +306,7 @@ export const useIgnoredTopics = createInfiniteQuery<
       ),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })

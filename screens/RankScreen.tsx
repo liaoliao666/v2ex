@@ -164,9 +164,7 @@ function RankScreen() {
 }
 
 function TopRichList({ headerHeight }: { headerHeight: number }) {
-  const { data, refetch } = useTopRich({
-    suspense: true,
-  })
+  const { data, refetch } = useTopRich()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -199,9 +197,7 @@ function TopRichList({ headerHeight }: { headerHeight: number }) {
 }
 
 function TopPlayerList({ headerHeight }: { headerHeight: number }) {
-  const { data, refetch } = useTopPlayer({
-    suspense: true,
-  })
+  const { data, refetch } = useTopPlayer()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 

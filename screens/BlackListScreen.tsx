@@ -230,7 +230,6 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
   const { data } = useBlockers({
-    suspense: true,
     variables: { ids: blackList.blockers },
   })
 
@@ -240,8 +239,8 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   return (
@@ -263,7 +262,6 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
   const { data } = useIgnoredTopics({
-    suspense: true,
     variables: {
       ids: blackList.ignoredTopics,
     },
@@ -275,8 +273,8 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   return (

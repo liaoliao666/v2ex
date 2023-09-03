@@ -1,11 +1,11 @@
 import { load } from 'cheerio'
-import { createQuery } from 'react-query-kit'
+import { createSuspenseQuery } from 'react-query-kit'
 
 import { request } from '@/utils/request'
 
 import { parseRank } from './helper'
 
-export const useTopRich = createQuery({
+export const useTopRich = createSuspenseQuery({
   primaryKey: `useTopRich`,
   queryFn: async () => {
     const { data } = await request(`/top/rich`, {
@@ -15,7 +15,7 @@ export const useTopRich = createQuery({
   },
 })
 
-export const useTopPlayer = createQuery({
+export const useTopPlayer = createSuspenseQuery({
   primaryKey: `useTopPlayer`,
   queryFn: async () => {
     const { data } = await request(`/top/player`, {

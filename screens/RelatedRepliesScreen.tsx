@@ -224,7 +224,6 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
     isFetchingNextPage,
   } = useTopicDetail({
     variables: { id: topicId },
-    enabled: false,
   })
 
   const lastPage = last(data?.pages)!

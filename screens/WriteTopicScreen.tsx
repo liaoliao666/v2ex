@@ -5,8 +5,7 @@ import { compact, isString } from 'lodash-es'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
-import { TextInput } from 'react-native'
-import { ScrollView } from 'react-native-gesture-handler'
+import { ScrollView, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferVariables } from 'react-query-kit'
@@ -96,6 +95,7 @@ function WriteTopicScreen() {
   const { data: editTopicInfo } = useEditTopicInfo({
     variables: { id: topic?.id! },
     enabled: isEdit,
+    // @ts-ignore
     suspense: isEdit,
   })
 
@@ -381,6 +381,7 @@ function PreviewTopic({
   const { data } = usePreview({
     variables,
     enabled: !!variables.text,
+    // @ts-ignore
     suspense: true,
   })
 

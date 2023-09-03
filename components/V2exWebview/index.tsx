@@ -1,11 +1,11 @@
 import CookieManager from '@react-native-cookies/cookies'
-import { sleep } from '@tanstack/query-core/build/lib/utils'
 import { noop } from 'lodash-es'
 import { useEffect, useReducer, useRef } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import { baseURL } from '@/utils/request/baseURL'
+import { sleep } from '@/utils/sleep'
 import { timeout } from '@/utils/timeout'
 import tw from '@/utils/tw'
 
@@ -26,7 +26,8 @@ v2exMessage.loadV2exWebviewPromise = new Promise((resolve, reject) => {
 
 let handleCheckConnect: () => void = noop
 
-const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
+const RCTNetworking =
+  require('react-native/Libraries/Network/RCTNetworking').default
 
 export default function V2exWebview() {
   const webViewRef = useRef<WebView>(null)

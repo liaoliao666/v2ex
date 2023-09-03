@@ -24,7 +24,7 @@ export default function RadioButtonGroup<
 
           return (
             <Pressable
-              key={item.value ?? '0'}
+              key={item.value ?? '$k$'}
               onPress={() => {
                 onChange(item.value)
               }}

@@ -50,9 +50,7 @@ function MyTopicsScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useMyTopics({
-    suspense: true,
-  })
+  } = useMyTopics()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -62,8 +60,8 @@ function MyTopicsScreen() {
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)

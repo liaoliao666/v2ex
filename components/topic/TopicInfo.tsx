@@ -1,5 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { FontAwesome, MaterialCommunityIcons } from '@expo/vector-icons'
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
@@ -244,7 +244,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
             color={tw.color(`text-tint-secondary`)}
             activeColor="rgb(250,219,20)"
             active={topic.liked}
-            icon={<FontAwesome name={topic.liked ? 'star' : 'star-o'} />}
+            icon={<AntDesign name={topic.liked ? 'star' : 'staro'} />}
             pressed={pressed}
           />
 
@@ -339,11 +339,9 @@ export function VoteButton({ topic }: { topic: Topic }) {
   const navigation = useNavigation()
 
   return (
-    <View
-      style={tw`py-1 flex-row items-center border-tint-border border-solid border rounded-full`}
-    >
+    <View style={tw`p-2 flex-row items-center rounded-full bg-input`}>
       <Pressable
-        style={tw`pl-2 pr-1 flex-row items-center`}
+        style={tw`px-2 flex-row items-center`}
         onPress={async () => {
           if (!isSignined()) {
             navigation.navigate('Login')
@@ -389,7 +387,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
       </Pressable>
 
       <Pressable
-        style={tw`pr-2 pl-1`}
+        style={tw`px-2`}
         onPress={async () => {
           if (!isSignined()) {
             navigation.navigate('Login')

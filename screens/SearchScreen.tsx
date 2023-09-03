@@ -7,6 +7,7 @@ import {
   isEmpty,
   isEqual,
   isString,
+  maxBy,
   uniqBy,
   upperCase,
 } from 'lodash-es'
@@ -206,7 +207,7 @@ function SoV2exList({
   }, [variables])
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSov2ex({ suspense: true, variables })
+    useSov2ex({ variables })
 
   const { data: nodeMap } = useNodes({
     select: useCallback(
@@ -221,7 +222,7 @@ function SoV2exList({
     ({ item }) => (
       <HitItem
         topic={{
-          node: nodeMap[item._source.node],
+          node: nodeMap?.[item._source.node],
           member: {
             username: item._source.member,
           },
@@ -237,8 +238,8 @@ function SoV2exList({
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.hits).flat(), '_id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.hits).flat(), '_id'),
+    [data.pages]
   )
 
   const navigation = useNavigation()
@@ -312,8 +313,9 @@ const HitItem = memo(
     const navigation =
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-    const { isFetched } = useTopicDetail({
+    const { data: replyCount, isFetched } = useTopicDetail({
       variables: { id: topic.id },
+      select: data => maxBy(data.pages, 'reply_count')?.reply_count || 0,
       enabled: false,
     })
 
@@ -369,7 +371,9 @@ const HitItem = memo(
           <Text
             style={tw.style(
               `${getFontSize(5)} font-medium pt-2`,
-              isFetched ? `text-tint-secondary` : `text-tint-primary`
+              isFetched && topic.reply_count === replyCount
+                ? `text-tint-secondary`
+                : `text-tint-primary`
             )}
           >
             {topic.title}
@@ -383,7 +387,9 @@ const HitItem = memo(
                 }}
                 baseStyle={tw.style(
                   `${getFontSize(5)}`,
-                  isFetched ? `text-tint-secondary` : `text-tint-primary`
+                  isFetched && topic.reply_count === replyCount
+                    ? `text-tint-secondary`
+                    : `text-tint-primary`
                 )}
                 defaultTextProps={{ selectable: false }}
               />

@@ -1,8 +1,8 @@
 import { load } from 'cheerio'
 import {
-  createInfiniteQuery,
   createMutation,
   createQuery,
+  createSuspenseInfiniteQuery,
 } from 'react-query-kit'
 
 import { invoke } from '@/utils/invoke'
@@ -28,7 +28,7 @@ export const useLikeNode = createMutation<
     }),
 })
 
-export const useNodeTopics = createInfiniteQuery<
+export const useNodeTopics = createSuspenseInfiniteQuery<
   PageData<Topic> & { liked?: boolean; once?: string },
   { name: string }
 >({
@@ -54,7 +54,7 @@ export const useNodeTopics = createInfiniteQuery<
       }),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })

@@ -1,5 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useQuery } from '@tanstack/react-query'
+import { useSuspenseQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import { load } from 'cheerio'
 import { ScrollView, View } from 'react-native'
@@ -41,13 +41,12 @@ export default withQuerySuspense(GItHubMDScreen, {
 function GItHubMDScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'GItHubMD'>>()
 
-  const { data: html } = useQuery({
+  const { data: html } = useSuspenseQuery({
     queryKey: [params.url],
     queryFn: async () => {
       const { data } = await axios.get(params.url, { responseType: 'text' })
       return load(data)('#readme').html()
     },
-    suspense: true,
   })
 
   const navbarHeight = useNavBarHeight()

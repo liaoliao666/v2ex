@@ -1,4 +1,4 @@
-import { Octicons } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
@@ -25,7 +25,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
-import ReplyBox from '@/components/topic/ReplyBox'
+import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -65,16 +65,11 @@ function NotificationsScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useNotifications({
-    suspense: true,
-  })
+  } = useNotifications()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
-  const [replyInfo, setReplyInfo] = useState<{
-    topicId?: number
-    username?: string
-  }>({})
+  const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
 
   const profile = useAtomValue(profileAtom)
 
@@ -95,8 +90,8 @@ function NotificationsScreen() {
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)
@@ -140,14 +135,12 @@ function NotificationsScreen() {
         />
       </RefetchingIndicator>
 
-      {replyInfo.topicId && (
+      {replyInfo && (
         <ReplyBox
           onSuccess={refetch}
-          autoFocus
-          topicId={replyInfo.topicId}
-          defaultReplyInfo={{ username: replyInfo.username }}
-          onBlur={() => {
-            setReplyInfo({})
+          replyInfo={replyInfo}
+          onCancel={() => {
+            setReplyInfo(null)
           }}
           once={profile?.once}
         />
@@ -219,8 +212,8 @@ const NoticeItem = memo(
                   style={tw`mr-2`}
                   color={tw.color(`text-tint-secondary`)}
                   activeColor="rgb(29,155,240)"
-                  size={14}
-                  icon={<Octicons name="comment" />}
+                  size={15}
+                  icon={<Feather name="message-circle" />}
                   onPress={() => onReply(notice)}
                 />
               )}

@@ -5,9 +5,10 @@ import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 export type HomeTab = {
   title: string
   key: string
+  type: 'tab' | 'node'
 }
 
-export const allHomeTabs: HomeTab[] = [
+export const allTabs: HomeTab[] = [
   { title: '最近', key: 'recent' },
   { title: '最热', key: 'hot' },
   { title: '技术', key: 'tech' },
@@ -23,11 +24,8 @@ export const allHomeTabs: HomeTab[] = [
   { title: '节点', key: 'nodes' },
   { title: '关注', key: 'members' },
   { title: '刚更新', key: 'changes' },
-]
+].map(item => ({ ...item, type: 'tab' }))
 
-export const homeTabsAtom = atomWithAsyncStorage<typeof allHomeTabs>(
-  'tabs',
-  allHomeTabs
-)
+export const homeTabsAtom = atomWithAsyncStorage<HomeTab[]>('tabs', allTabs)
 
 export const homeTabIndexAtom = atom(0)

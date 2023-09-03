@@ -1,13 +1,16 @@
 import { load } from 'cheerio'
 import { defaultTo } from 'lodash-es'
-import { createInfiniteQuery, createMutation } from 'react-query-kit'
+import { createMutation, createSuspenseInfiniteQuery } from 'react-query-kit'
 
 import { request } from '@/utils/request'
 
 import { getNextPageParam, parseLastPage, parseTopicByATag } from './helper'
 import { Member, Notice, PageData, Topic } from './types'
 
-export const useNotifications = createInfiniteQuery<PageData<Notice>, void>({
+export const useNotifications = createSuspenseInfiniteQuery<
+  PageData<Notice>,
+  void
+>({
   primaryKey: 'useNotifications',
   queryFn: async ({ pageParam, signal }) => {
     const { data } = await request.get(`/notifications?p=${pageParam}`, {
@@ -52,7 +55,7 @@ export const useNotifications = createInfiniteQuery<PageData<Notice>, void>({
         .get(),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })

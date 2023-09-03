@@ -1,5 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { FontAwesome5, Octicons } from '@expo/vector-icons'
+import { Feather, FontAwesome5 } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
@@ -202,7 +202,7 @@ function ReplyItem({
                       color={tw.color(`text-tint-secondary`)}
                       activeColor="rgb(29,155,240)"
                       size={15}
-                      icon={<Octicons name="comment" />}
+                      icon={<Feather name="message-circle" />}
                     />
 
                     <Text

@@ -1,6 +1,6 @@
 import axios from 'axios'
 import dayjs from 'dayjs'
-import { createInfiniteQuery } from 'react-query-kit'
+import { createSuspenseInfiniteQuery } from 'react-query-kit'
 import { z } from 'zod'
 
 import { stripString, stripStringToNumber } from '@/utils/zodHelper'
@@ -24,7 +24,7 @@ export const Sov2exArgs = z.object({
   q: z.preprocess(stripString, z.string().optional()),
 })
 
-export const useSov2ex = createInfiniteQuery<
+export const useSov2ex = createSuspenseInfiniteQuery<
   Sov2exResult,
   z.infer<typeof Sov2exArgs>
 >({
@@ -46,7 +46,7 @@ export const useSov2ex = createInfiniteQuery<
       size: params.size,
     }
   },
-  defaultPageParam: 0,
+  initialPageParam: 0,
   getNextPageParam: page => {
     const nextFrom = page.from + page.size
     return nextFrom < page.total ? nextFrom : undefined

@@ -97,18 +97,17 @@ function MemberDetailScreen() {
     queryClient.prefetchInfiniteQuery({
       queryKey: useMemberTopics.getKey({ username: params.username }),
       queryFn: useMemberTopics.queryFn,
-      defaultPageParam: 1,
+      initialPageParam: 1,
     })
     queryClient.prefetchInfiniteQuery({
       queryKey: useMemberReplies.getKey({ username: params.username }),
       queryFn: useMemberReplies.queryFn,
-      defaultPageParam: 1,
+      initialPageParam: 1,
     })
   }, [params.username])
 
   const { data: member } = useMember({
     variables: { username: params.username },
-    suspense: true,
   })
 
   const layout = useWindowDimensions()
@@ -159,17 +158,17 @@ function MemberDetailScreen() {
           <View style={tw`flex-row items-center flex-1`}>
             <StyledImage
               style={tw`w-5 h-5 rounded-full mr-2`}
-              source={{ uri: member?.avatar }}
+              source={{ uri: member.avatar }}
             />
 
             <Text
               style={tw`text-white ${getFontSize(4)} font-semibold flex-1 mr-2`}
               numberOfLines={1}
             >
-              {member?.username}
+              {member.username}
             </Text>
 
-            {!isMe(params.username) && <FollowMember {...member!} />}
+            {!isMe(params.username) && <FollowMember {...member} />}
           </View>
         )}
       </NavBar>
@@ -321,16 +320,16 @@ const MemberHeader = memo(() => {
           <StyledImage
             style={tw`w-[81.25px] h-[81.25px] rounded-full`}
             source={{
-              uri: member?.avatar,
+              uri: member.avatar,
             }}
           />
         </View>
 
         {!isMe(params.username) && (
           <View style={tw`mt-10 ml-auto flex-row gap-2`}>
-            <BlockMember {...member!} />
+            <BlockMember {...member} />
 
-            <FollowMember {...member!} />
+            <FollowMember {...member} />
           </View>
         )}
       </View>
@@ -341,7 +340,7 @@ const MemberHeader = memo(() => {
             style={tw`text-tint-primary ${getFontSize(2)} font-extrabold`}
             selectable
           >
-            {member?.username}
+            {member.username}
           </Text>
 
           <View style={tw`flex-row gap-2`} pointerEvents="none">
@@ -369,27 +368,27 @@ const MemberHeader = memo(() => {
           </View>
         </View>
 
-        {!!member?.motto && (
+        {!!member.motto && (
           <View pointerEvents="none">
             <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
-              {member?.motto}
+              {member.motto}
             </Text>
           </View>
         )}
 
-        {some([member?.company, member?.title]) && (
+        {some([member.company, member.title]) && (
           <View style={tw`flex-row flex-wrap`}>
-            {member?.company && (
+            {member.company && (
               <Text style={tw`font-medium text-tint-primary ${getFontSize(5)}`}>
                 🏢 {member.company}
               </Text>
             )}
-            {every([member?.company, member?.title]) && (
+            {every([member.company, member.title]) && (
               <Text style={tw`text-tint-secondary ${getFontSize(5)} px-1`}>
                 /
               </Text>
             )}
-            {member?.title && (
+            {member.title && (
               <Text style={tw`text-tint-secondary ${getFontSize(5)} flex-1`}>
                 {member.title}
               </Text>
@@ -398,21 +397,21 @@ const MemberHeader = memo(() => {
         )}
 
         <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
-          {`V2EX 第 ${member?.id} 号会员，加入于 ${member?.created}`}
+          {`V2EX 第 ${member.id} 号会员，加入于 ${member.created}`}
         </Text>
 
         <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
-          {`今日活跃度排名 ${member?.activity}`}
+          {`今日活跃度排名 ${member.activity}`}
         </Text>
 
-        {!!member?.overview && (
+        {!!member.overview && (
           <View style={tw`border-t border-solid border-tint-border pt-2`}>
             <Html source={{ html: member.overview }} />
           </View>
         )}
       </View>
 
-      {!!member?.widgets?.length && (
+      {!!member.widgets?.length && (
         <View
           style={tw`mt-2 px-4 flex-row flex-wrap gap-2`}
           pointerEvents="box-none"
@@ -458,7 +457,6 @@ const MemberTopics = forwardRef<
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useMemberTopics({
       variables: { username: params.username },
-      suspense: true,
     })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -469,8 +467,8 @@ const MemberTopics = forwardRef<
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages?.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   return (
@@ -523,7 +521,6 @@ const MemberReplies = forwardRef<
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useMemberReplies({
       variables: { username: params.username },
-      suspense: true,
     })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -533,8 +530,8 @@ const MemberReplies = forwardRef<
   > = useCallback(({ item }) => <MemberReply key={item.id} topic={item} />, [])
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   return (

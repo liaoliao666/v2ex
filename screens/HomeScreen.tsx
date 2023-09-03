@@ -40,6 +40,7 @@ import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { getCurrentRouteName } from '@/navigation/navigationRef'
+import { useNodeTopics } from '@/servicies/node'
 import { useRecentTopics, useTabTopics } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -89,6 +90,12 @@ const MemoTabTopics = memo((props: ComponentProps<typeof TabTopics>) => (
   </TabPlaceholder>
 ))
 
+const MemoNodeTopics = memo((props: ComponentProps<typeof NodeTopics>) => (
+  <TabPlaceholder tab={props.nodeName}>
+    <NodeTopics {...props} />
+  </TabPlaceholder>
+))
+
 export default withQuerySuspense(HomeScreen, {
   fallbackRender: props => (
     <SafeAreaView edges={['top']}>
@@ -114,20 +121,27 @@ function HomeScreen() {
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
   function handleInexChange(i: number) {
-    const tab = tabs[i].key
-    const activeKey =
-      tab === 'recent' ? useRecentTopics.getKey() : useTabTopics.getKey({ tab })
+    const activeTab = tabs[i]
+    const activeTabKey = tabs[i].key
+    const activeQueryKey =
+      tabs[i].type === 'node'
+        ? useNodeTopics.getKey({ name: activeTabKey })
+        : tabs[i].key === 'recent'
+        ? useRecentTopics.getKey()
+        : useTabTopics.getKey({ tab: activeTabKey })
     const query = queryClient.getQueryCache().find({
-      queryKey: activeKey,
+      queryKey: activeQueryKey,
     })
 
     if (query?.state.error) {
-      errorResetMap[tab]?.()
+      errorResetMap[activeTabKey]?.()
     } else if (query?.getObserversCount() && query?.isStale()) {
-      if (tab === 'recent') {
+      if (activeTabKey === 'recent') {
         removeUnnecessaryPages(useRecentTopics.getKey())
+      } else if (activeTab.type === 'node') {
+        removeUnnecessaryPages(useNodeTopics.getKey({ name: activeTabKey }))
       }
-      queryClient.refetchQueries({ queryKey: activeKey })
+      queryClient.refetchQueries({ queryKey: activeQueryKey })
     }
 
     setIndex(i)
@@ -142,6 +156,14 @@ function HomeScreen() {
         lazyPreloadDistance={1}
         renderScene={({ route }) => {
           const isActive = index === findIndex(tabs, { key: route.key })
+          if (route.type === 'node')
+            return (
+              <MemoNodeTopics
+                isActive={isActive}
+                headerHeight={headerHeight}
+                nodeName={route.key}
+              />
+            )
           return route.key === 'recent' ? (
             <MemoRecentTopics isActive={isActive} headerHeight={headerHeight} />
           ) : (
@@ -238,7 +260,6 @@ function RecentTopics({
     isFetchingNextPage,
     isFetching,
   } = useRecentTopics({
-    suspense: true,
     refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
   })
 
@@ -250,8 +271,8 @@ function RecentTopics({
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   return (
@@ -303,7 +324,6 @@ function TabTopics({
 }) {
   const { data, refetch, isFetching } = useTabTopics({
     variables: { tab },
-    suspense: true,
     refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
   })
 
@@ -336,6 +356,77 @@ function TabTopics({
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         renderItem={renderItem}
         ListEmptyComponent={<Empty description="目前还没有主题" />}
+      />
+    </RefetchingIndicator>
+  )
+}
+
+function NodeTopics({
+  nodeName,
+  isActive,
+  headerHeight,
+}: {
+  nodeName: string
+  isActive: boolean
+  headerHeight: number
+}) {
+  const {
+    data,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetching,
+  } = useNodeTopics({
+    variables: { name: nodeName },
+    refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
+  })
+
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+
+  const renderItem: ListRenderItem<Topic> = useCallback(
+    ({ item }) => <TopicItem key={item.id} topic={item} />,
+    []
+  )
+
+  const flatedData = useMemo(
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
+  )
+
+  return (
+    <RefetchingIndicator
+      isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
+      progressViewOffset={headerHeight}
+    >
+      <FlatList
+        data={flatedData}
+        refreshControl={
+          <StyledRefreshControl
+            refreshing={isRefetchingByUser}
+            onRefresh={refetchByUser}
+            progressViewOffset={headerHeight}
+          />
+        }
+        contentContainerStyle={{
+          paddingTop: headerHeight,
+        }}
+        ListEmptyComponent={<Empty description="无法访问该节点" />}
+        ItemSeparatorComponent={LineSeparator}
+        renderItem={renderItem}
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage()
+          }
+        }}
+        onEndReachedThreshold={0.3}
+        ListFooterComponent={
+          <SafeAreaView edges={['bottom']}>
+            {isFetchingNextPage ? (
+              <StyledActivityIndicator style={tw`py-4`} />
+            ) : null}
+          </SafeAreaView>
+        }
       />
     </RefetchingIndicator>
   )

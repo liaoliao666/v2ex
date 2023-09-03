@@ -5,7 +5,8 @@ import { isExpoGo } from './isExpoGo'
 import { baseURL } from './request/baseURL'
 import { sleep } from './sleep'
 
-const RCTNetworking = require('react-native/Libraries/Network/RCTNetworking')
+const RCTNetworking =
+  require(`react-native/Libraries/Network/RCTNetworking`).default
 
 let CookieManager = {
   clearAll: noop,
@@ -25,7 +26,7 @@ export function clearCookie() {
       CookieManager.clearAll(true),
     ]),
     sleep(300),
-  ])
+  ]).catch(noop)
 }
 
 export function setCookie(cookies: string[] | string) {
@@ -35,7 +36,7 @@ export function setCookie(cookies: string[] | string) {
       isArray(cookies) ? cookies.join(';') : cookies
     ),
     sleep(300),
-  ])
+  ]).catch(noop)
 }
 
 export async function getCookie(): Promise<string> {

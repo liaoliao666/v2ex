@@ -46,29 +46,27 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const WrapView = hasHtmlTag ? ScrollView : View
 
   return (
-    <WrapView
-      horizontal
-      nestedScrollEnabled
-      style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}
-    >
-      <RenderHTML
-        contentWidth={width}
-        baseStyle={tw.style(
-          `text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(5)}`
-        )}
-        tagsStyles={{
-          pre: tw`my-2`,
-          a: tw`text-tint-secondary no-underline`,
-          em: {
-            fontStyle: 'italic',
-          },
-        }}
-        classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
-        source={{ html }}
-        renderers={{ _TEXT_: TextRenderer }}
-        {...getDefaultProps({ inModalScreen })}
-      />
-    </WrapView>
+    <View style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}>
+      <WrapView horizontal nestedScrollEnabled>
+        <RenderHTML
+          contentWidth={width}
+          baseStyle={tw.style(
+            `text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(5)}`
+          )}
+          tagsStyles={{
+            pre: tw`my-2`,
+            a: tw`text-tint-secondary no-underline`,
+            em: {
+              fontStyle: 'italic',
+            },
+          }}
+          classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
+          source={{ html }}
+          renderers={{ _TEXT_: TextRenderer }}
+          {...getDefaultProps({ inModalScreen })}
+        />
+      </WrapView>
+    </View>
   )
 }
 

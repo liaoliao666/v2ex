@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { chunk } from 'lodash-es'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -46,18 +46,22 @@ export default withQuerySuspense(MyNodesScreen, {
 
 function MyNodesScreen() {
   const { data: nodes } = useNodes({
-    suspense: true,
     select: data => Object.fromEntries(data.map(node => [node.name, node])),
   })
 
   const { data: myNodes, refetch } = useMyNodes({
+    // @ts-ignore
     suspense: true,
-    select: data =>
-      chunk(
-        data?.map(name => nodes![name]),
-        4
-      ),
   })
+
+  const myNodesArray = useMemo(() => {
+    return (
+      chunk(
+        myNodes?.map(name => nodes?.[name]!),
+        4
+      ) || []
+    )
+  }, [myNodes, nodes])
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -110,7 +114,7 @@ function MyNodesScreen() {
         key={colorScheme}
         contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
         renderItem={renderItem}
-        data={myNodes}
+        data={myNodesArray}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}

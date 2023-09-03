@@ -86,11 +86,9 @@ function MyFollowingScreen() {
     removeUnnecessaryPages(useMemberTopics.getKey())
   }, [])
 
-  const { data } = useMyFollowing({
-    suspense: true,
-  })
+  const { data } = useMyFollowing()
 
-  const following = last(data?.pages)?.following
+  const following = last(data.pages)?.following
 
   const routes = useMemo(() => {
     return [
@@ -194,9 +192,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useMyFollowing({
-    suspense: true,
-  })
+  } = useMyFollowing()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -206,8 +202,8 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   return (
@@ -263,7 +259,6 @@ function MemberTopics({
     isFetching,
   } = useMemberTopics({
     variables: { username },
-    suspense: true,
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)

@@ -1,3 +1,4 @@
+import { AntDesign } from '@expo/vector-icons'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
@@ -73,7 +74,6 @@ function NodeTopicsScreen() {
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useNodeTopics({
       variables: { name: params.name },
-      suspense: true,
     })
 
   const { data: node } = useNodes({
@@ -82,7 +82,7 @@ function NodeTopicsScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
-  const lastPage = last(data?.pages)!
+  const lastPage = last(data.pages)!
 
   const renderItem: ListRenderItem<Topic> = useCallback(
     ({ item }) => <TopicItem key={item.id} topic={item} />,
@@ -90,8 +90,8 @@ function NodeTopicsScreen() {
   )
 
   const flatedData = useMemo(
-    () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
-    [data?.pages]
+    () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+    [data.pages]
   )
 
   const [avatarVisible, setAvatarVisible] = useState(true)
@@ -296,7 +296,7 @@ function LikeNode({
 
       <IconButton
         size={16}
-        name={liked ? 'star' : 'star-outline'}
+        icon={<AntDesign name={liked ? 'star' : 'staro'} />}
         color={'#e7e9ea'}
         activeColor="rgb(250,219,20)"
         active={liked}

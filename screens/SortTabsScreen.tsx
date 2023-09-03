@@ -1,8 +1,8 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
 import { useAtom, useAtomValue } from 'jotai'
-import { findIndex, isEmpty } from 'lodash-es'
-import { useMemo, useState } from 'react'
+import { findIndex, isEmpty, some } from 'lodash-es'
+import { useCallback, useMemo, useState } from 'react'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -10,7 +10,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
   HomeTab,
-  allHomeTabs,
+  allTabs,
   homeTabIndexAtom,
   homeTabsAtom,
 } from '@/jotai/homeTabsAtom'
@@ -27,56 +27,67 @@ export default function SortTabsScreen() {
   const [selectedItems, setSelectedItems] = useState(homeTabs)
   const unselectedItems = useMemo(() => {
     const allSelectedTabKeys = new Set(selectedItems.map(tab => tab.key))
-    return allHomeTabs.filter(tab => !allSelectedTabKeys.has(tab.key))
+    return allTabs.filter(tab => !allSelectedTabKeys.has(tab.key))
   }, [selectedItems])
   const [tabIndex, setTabIndex] = useAtom(homeTabIndexAtom)
   const [isEdit, setIsEdit] = useState(false)
 
-  function renderItem({
-    item,
-    iconName,
-    onIconPress,
-  }: {
-    item: HomeTab
-    iconName?: React.ComponentProps<typeof MaterialCommunityIcons>['name']
-    onIconPress?: () => void
-  }) {
-    return (
-      <View
-        style={tw`w-[${itemWidth}px] h-[${itemHeight}px] px-1 flex-row justify-center items-center`}
-      >
+  const renderItem = useCallback(
+    ({
+      item,
+      iconName,
+      onIconPress,
+    }: {
+      item: HomeTab
+      iconName?: React.ComponentProps<typeof MaterialCommunityIcons>['name']
+      onIconPress?: () => void
+    }) => {
+      return (
         <View
-          style={tw.style(
-            `w-[${
-              itemWidth - 8
-            }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-body-2`
-          )}
+          style={tw`w-[${itemWidth}px] h-[${itemHeight}px] px-1 flex-row justify-center items-center`}
         >
-          <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
-            {item.title}
-          </Text>
+          <View
+            style={tw.style(
+              `w-[${
+                itemWidth - 8
+              }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-body-2`
+            )}
+          >
+            <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+              {item.title}
+            </Text>
 
-          {!!iconName && (
-            <Pressable
-              style={tw.style(`absolute w-4 h-4`, {
-                top: -4,
-                right: -4,
-              })}
-              onPress={onIconPress}
-            >
-              <MaterialCommunityIcons
-                name={iconName}
-                color={tw.color(`text-tint-secondary`)}
-                size={16}
-              />
-            </Pressable>
-          )}
+            {!!iconName && (
+              <Pressable
+                style={tw.style(`absolute w-4 h-4`, {
+                  top: -4,
+                  right: -4,
+                })}
+                onPress={onIconPress}
+              >
+                <MaterialCommunityIcons
+                  name={iconName}
+                  color={tw.color(`text-tint-secondary`)}
+                  size={16}
+                />
+              </Pressable>
+            )}
+          </View>
         </View>
-      </View>
-    )
-  }
+      )
+    },
+    [itemWidth]
+  )
 
   useAtomValue(colorSchemeAtom)
+
+  const handleSave = (saveItems: HomeTab[]) => {
+    const nextTabIndex = findIndex(saveItems, {
+      key: saveItems[tabIndex]?.key,
+    })
+    setTabIndex(nextTabIndex > -1 ? nextTabIndex : 0)
+    setHomeTabs(saveItems)
+  }
 
   return (
     <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`}>
@@ -108,10 +119,47 @@ export default function SortTabsScreen() {
         </Text>
 
         <View style={tw`ml-auto flex-row gap-2`}>
+          <Pressable
+            onPress={() => {
+              navigation.navigate('SearchNode', {
+                onPressNodeItem(node) {
+                  if (
+                    !some(
+                      selectedItems,
+                      o => o.key === node.name || o.title === node.title
+                    )
+                  ) {
+                    const saveItems: HomeTab[] = [
+                      ...selectedItems,
+                      {
+                        title: node.title,
+                        key: node.name,
+                        type: 'node',
+                      },
+                    ]
+                    setSelectedItems(saveItems)
+                    handleSave(saveItems)
+                  }
+                },
+              })
+            }}
+          >
+            {({ pressed }) => (
+              <Text
+                style={tw.style(
+                  `${getFontSize(5)}`,
+                  pressed ? `text-secondary-focus` : `text-secondary`
+                )}
+              >
+                添加节点
+              </Text>
+            )}
+          </Pressable>
+
           {isEdit && (
             <Pressable
               onPress={() => {
-                setSelectedItems(allHomeTabs)
+                setSelectedItems(allTabs)
               }}
             >
               {({ pressed }) => (
@@ -131,11 +179,7 @@ export default function SortTabsScreen() {
             onPress={() => {
               setIsEdit(!isEdit)
               if (isEdit) {
-                const nextTabIndex = findIndex(selectedItems, {
-                  key: homeTabs[tabIndex]?.key,
-                })
-                setTabIndex(nextTabIndex > -1 ? nextTabIndex : 0)
-                setHomeTabs(selectedItems)
+                handleSave(selectedItems)
               }
             }}
           >
@@ -198,20 +242,18 @@ export default function SortTabsScreen() {
       )}
 
       <View style={tw`px-3 pt-1.5 flex-row flex-wrap`}>
-        {unselectedItems.map(item => (
-          <Pressable
-            style={tw`mt-2.5`}
-            key={item.key}
-            onPress={() => {
-              setSelectedItems([...selectedItems, item])
-            }}
-          >
-            {renderItem({
-              item,
-              iconName: 'plus-circle',
-            })}
-          </Pressable>
-        ))}
+        {unselectedItems.map(item => {
+          const handleAddTab = () => setSelectedItems([...selectedItems, item])
+          return (
+            <Pressable style={tw`mt-2.5`} key={item.key} onPress={handleAddTab}>
+              {renderItem({
+                item,
+                iconName: 'plus-circle',
+                onIconPress: handleAddTab,
+              })}
+            </Pressable>
+          )
+        })}
       </View>
     </SafeAreaView>
   )

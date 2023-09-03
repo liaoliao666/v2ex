@@ -1,9 +1,16 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
+import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
+import {
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
 import { z } from 'zod'
 
@@ -239,20 +246,22 @@ export default function LoginScreen() {
           )}
         />
 
-        <TouchableOpacity
-          style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
-          onPress={() => {
-            if (!signinInfoQuery.data?.once) return
-            navigation.navigate('WebSignin', {
-              once: signinInfoQuery.data.once,
-              onTwoStepOnce: setTwoStepOnce,
-            })
-          }}
-        >
-          <Text style={tw`${getFontSize(5)} text-tint-secondary ml-2`}>
-            网页登录
-          </Text>
-        </TouchableOpacity>
+        {(Platform.OS === 'android' || dayjs().isAfter('2023-9-6')) && (
+          <TouchableOpacity
+            style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
+            onPress={() => {
+              if (!signinInfoQuery.data?.once) return
+              navigation.navigate('WebSignin', {
+                once: signinInfoQuery.data.once,
+                onTwoStepOnce: setTwoStepOnce,
+              })
+            }}
+          >
+            <Text style={tw`${getFontSize(5)} text-tint-secondary ml-2`}>
+              网页登录
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
     )
   }

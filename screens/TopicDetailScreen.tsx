@@ -1,9 +1,10 @@
-import { Octicons } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { last, uniqBy } from 'lodash-es'
+import { last, max, uniqBy } from 'lodash-es'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { inferData } from 'react-query-kit'
 
 import IconButton from '@/components/IconButton'
@@ -19,7 +20,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicDetailPlaceholder from '@/components/placeholder/TopicDetailPlaceholder'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
-import ReplyBox, { ReplyBoxRef } from '@/components/topic/ReplyBox'
+import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox'
 import ReplyItem from '@/components/topic/ReplyItem'
 import TopicInfo, {
   LikeTopic,
@@ -73,15 +74,13 @@ function TopicDetailScreen() {
     isFetchingNextPage,
   } = useTopicDetail({
     variables: { id: params.id },
-    enabled: !!params.id,
+    // @ts-ignore
     suspense: true,
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const topic = last(data?.pages)!
-
-  const replyBoxRef = useRef<ReplyBoxRef>(null)
 
   const [orderBy, setOrderBy] = useState<OrderBy>('asc')
 
@@ -93,6 +92,8 @@ function TopicDetailScreen() {
     if (orderBy === 'desc') result.reverse()
     return result
   }, [data?.pages, orderBy])
+
+  const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
 
   const renderItem: ListRenderItem<Reply> = useCallback(
     ({ item }) => (
@@ -106,7 +107,7 @@ function TopicDetailScreen() {
             ? params.hightlightReplyNo === item.no
             : undefined
         }
-        onReply={username => replyBoxRef.current?.replyFor({ username })}
+        onReply={username => setReplyInfo({ topicId: topic.id, username })}
       />
     ),
     [topic.id, topic.once, params.hightlightReplyNo]
@@ -120,9 +121,14 @@ function TopicDetailScreen() {
 
   const isFetchingAllPageRef = useRef(false)
 
+  const safeAreaInsets = useSafeAreaInsets()
+
+  const flatListRef = useRef<FlatList<Reply>>(null)
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
       <FlatList
+        ref={flatListRef}
         key={colorScheme}
         data={flatedData}
         removeClippedSubviews={false}
@@ -148,7 +154,7 @@ function TopicDetailScreen() {
           <TopicInfo
             topic={topic}
             onAppend={() => {
-              replyBoxRef.current?.replyFor({ isAppend: true })
+              setReplyInfo({ topicId: topic.id, isAppend: true })
             }}
           >
             <View
@@ -156,40 +162,9 @@ function TopicDetailScreen() {
                 `flex-row items-center justify-between pt-3 mt-2 border-t border-solid border-tint-border`
               )}
             >
-              <VoteButton topic={topic} />
-
-              <Pressable
-                style={tw.style(`flex-row items-center`)}
-                onPress={() => {
-                  replyBoxRef.current?.replyFor()
-                }}
-              >
-                {({ pressed }) => (
-                  <Fragment>
-                    <IconButton
-                      color={tw.color(`text-tint-secondary`)}
-                      activeColor="rgb(29,155,240)"
-                      size={21}
-                      icon={<Octicons name="comment" />}
-                      pressed={pressed}
-                    />
-
-                    {!!topic.reply_count && (
-                      <Text
-                        style={tw.style(
-                          `${getFontSize(6)} pl-1 text-tint-secondary`
-                        )}
-                      >
-                        {topic.reply_count}
-                      </Text>
-                    )}
-                  </Fragment>
-                )}
-              </Pressable>
-
-              {!isMe(topic.member?.username) && <ThankTopic topic={topic} />}
-
-              <LikeTopic topic={topic} />
+              <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+                全部评论
+              </Text>
 
               <RadioButtonGroup
                 options={
@@ -205,9 +180,14 @@ function TopicDetailScreen() {
                 onChange={async v => {
                   setOrderBy(v)
 
+                  const maxReplyCount = max([
+                    params.reply_count,
+                    topic.reply_count,
+                  ])!
+
                   if (v === 'desc' && hasNextPage) {
                     // using fetchNextPage if the topic has only a next page
-                    if (topic.last_page - topic.page === 1) {
+                    if (maxReplyCount - topic.page === 1) {
                       fetchNextPage()
                       return
                     }
@@ -223,7 +203,7 @@ function TopicDetailScreen() {
                           ])
                         )
                         const allPageNo = Array.from({
-                          length: topic.last_page,
+                          length: maxReplyCount,
                         }).map((_, i) => i + 1)
                         const pageDatas = await Promise.all(
                           allPageNo.map(page => {
@@ -280,36 +260,77 @@ function TopicDetailScreen() {
         }}
       />
 
-      <ReplyBox
-        onSuccess={refetch}
-        once={topic.once}
-        topicId={params.id}
-        ref={replyBoxRef}
-      />
+      {replyInfo ? (
+        <ReplyBox
+          replyInfo={replyInfo}
+          onCancel={() => {
+            setReplyInfo(null)
+          }}
+          onSuccess={refetch}
+          once={topic.once}
+        />
+      ) : (
+        <View
+          style={tw.style(
+            `flex-row items-center justify-between pt-4 pb-[${Math.max(
+              safeAreaInsets.bottom,
+              16
+            )}px] px-4 mt-2 border-t border-solid border-tint-border`
+          )}
+        >
+          <VoteButton topic={topic} />
+
+          <View style={tw`flex flex-row flex-shrink-0 ml-auto gap-4`}>
+            <IconButton
+              color={tw.color(`text-tint-secondary`)}
+              activeColor={tw.color(`text-tint-secondary`)}
+              size={21}
+              name="arrow-collapse-up"
+              onPress={() => {
+                flatListRef.current?.scrollToOffset({ offset: 0 })
+              }}
+            />
+
+            {!isMe(topic.member?.username) && <ThankTopic topic={topic} />}
+
+            <LikeTopic topic={topic} />
+
+            <Pressable
+              style={tw.style(`flex-row items-center`)}
+              onPress={() => {
+                setReplyInfo({ topicId: topic.id })
+              }}
+            >
+              {({ pressed }) => (
+                <Fragment>
+                  <IconButton
+                    color={tw.color(`text-tint-secondary`)}
+                    activeColor="rgb(29,155,240)"
+                    size={21}
+                    icon={<Feather name="message-circle" />}
+                    pressed={pressed}
+                  />
+
+                  {!!topic.reply_count && (
+                    <Text
+                      style={tw.style(
+                        `${getFontSize(6)} pl-1 text-tint-secondary`
+                      )}
+                    >
+                      {topic.reply_count}
+                    </Text>
+                  )}
+                </Fragment>
+              )}
+            </Pressable>
+          </View>
+        </View>
+      )}
 
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
 
-        <NavBar title="帖子">
-          {!avatarVisible && (
-            <View style={tw`flex-1`}>
-              <View style={tw`flex-row items-center`}>
-                <Text
-                  style={tw`text-tint-primary ${getFontSize(
-                    4
-                  )} font-medium w-4/5`}
-                  numberOfLines={1}
-                >
-                  {topic.title}
-                </Text>
-              </View>
-
-              <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
-                {topic.reply_count} 条回复
-              </Text>
-            </View>
-          )}
-        </NavBar>
+        <NavBar title={avatarVisible ? '帖子' : topic.title} />
       </View>
     </View>
   )

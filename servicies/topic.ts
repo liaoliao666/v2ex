@@ -5,6 +5,8 @@ import {
   createInfiniteQuery,
   createMutation,
   createQuery,
+  createSuspenseInfiniteQuery,
+  createSuspenseQuery,
 } from 'react-query-kit'
 import { isObject } from 'twrnc/dist/esm/types'
 
@@ -19,7 +21,7 @@ import {
 } from './helper'
 import { PageData, Topic } from './types'
 
-export const useTabTopics = createQuery<Topic[], { tab?: string }>({
+export const useTabTopics = createSuspenseQuery<Topic[], { tab?: string }>({
   primaryKey: 'useTabTopics',
   queryFn: async ({ queryKey: [_, { tab }], signal }) => {
     const { data } = await request.get(
@@ -36,7 +38,10 @@ export const useTabTopics = createQuery<Topic[], { tab?: string }>({
   staleTime: 10 * 1000,
 })
 
-export const useRecentTopics = createInfiniteQuery<PageData<Topic>, void>({
+export const useRecentTopics = createSuspenseInfiniteQuery<
+  PageData<Topic>,
+  void
+>({
   primaryKey: 'useRecentTopics',
   queryFn: async ({ pageParam, signal }) => {
     const { data } = await request.get(`/recent?p=${pageParam}`, {
@@ -52,7 +57,7 @@ export const useRecentTopics = createInfiniteQuery<PageData<Topic>, void>({
       list: parseTopicItems($, '#Main .box .cell.item'),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   staleTime: 10 * 1000,
   structuralSharing: false,
@@ -98,7 +103,7 @@ export const useTopicDetail = createInfiniteQuery<
       ...parseTopic($),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })
@@ -141,7 +146,7 @@ export const useThankReply = createMutation<void, { id: number; once: string }>(
   }
 )
 
-export const useMyTopics = createInfiniteQuery<PageData<Topic>, void>({
+export const useMyTopics = createSuspenseInfiniteQuery<PageData<Topic>, void>({
   primaryKey: 'useMyTopics',
   queryFn: async ({ pageParam, signal }) => {
     const { data } = await request.get(`/my/topics?p=${pageParam}`, {
@@ -156,7 +161,7 @@ export const useMyTopics = createInfiniteQuery<PageData<Topic>, void>({
       list: parseTopicItems($, '#Main .box .cell.item'),
     }
   },
-  defaultPageParam: 1,
+  initialPageParam: 1,
   getNextPageParam,
   structuralSharing: false,
 })

@@ -180,8 +180,11 @@ function Profile() {
         <TouchableOpacity
           style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
           onPress={async () => {
-            await clearCookie()
-            getNavigation()?.navigate('Login')
+            try {
+              await clearCookie()
+            } finally {
+              getNavigation()?.navigate('Login')
+            }
           }}
         >
           <View style={tw`w-8 h-8 rounded-full img-loading`} />
@@ -190,8 +193,11 @@ function Profile() {
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
           onPress={async () => {
-            await clearCookie()
-            getNavigation()?.navigate('Login')
+            try {
+              await clearCookie()
+            } finally {
+              getNavigation()?.navigate('Login')
+            }
           }}
         >
           <View style={tw`w-16 h-16 mb-2 rounded-full img-loading`} />
