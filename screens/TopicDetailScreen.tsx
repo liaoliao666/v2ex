@@ -1,7 +1,7 @@
 import { Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { last, max, uniqBy } from 'lodash-es'
+import { last, uniqBy } from 'lodash-es'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -180,14 +180,9 @@ function TopicDetailScreen() {
                 onChange={async v => {
                   setOrderBy(v)
 
-                  const maxReplyCount = max([
-                    params.reply_count,
-                    topic.reply_count,
-                  ])!
-
                   if (v === 'desc' && hasNextPage) {
                     // using fetchNextPage if the topic has only a next page
-                    if (maxReplyCount - topic.page === 1) {
+                    if (topic.last_page - topic.page === 1) {
                       fetchNextPage()
                       return
                     }
@@ -203,7 +198,7 @@ function TopicDetailScreen() {
                           ])
                         )
                         const allPageNo = Array.from({
-                          length: maxReplyCount,
+                          length: topic.last_page,
                         }).map((_, i) => i + 1)
                         const pageDatas = await Promise.all(
                           allPageNo.map(page => {
