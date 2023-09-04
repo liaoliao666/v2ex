@@ -203,7 +203,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 
   return (
     <Pressable
-      style={tw.style(`flex-row items-center`)}
+      style={tw.style(`flex-row items-center relative`)}
       onPress={async () => {
         if (!isSignined()) {
           navigation.navigate('Login')
@@ -246,12 +246,13 @@ export function LikeTopic({ topic }: { topic: Topic }) {
             active={topic.liked}
             icon={<AntDesign name={topic.liked ? 'star' : 'staro'} />}
             pressed={pressed}
+            size={24}
           />
 
           {!!topic.likes && (
             <Text
               style={tw.style(
-                `${getFontSize(6)} pl-1`,
+                `text-[10px] absolute -top-1 left-4 px-0.5  bg-body-1`,
                 topic.liked ? `text-[rgb(250,219,20)]` : `text-tint-secondary`
               )}
             >
@@ -271,7 +272,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 
   return (
     <Pressable
-      style={tw.style(`flex-row items-center`)}
+      style={tw.style(`flex-row items-center relative`)}
       onPress={async () => {
         if (!isSignined()) {
           navigation.navigate('Login')
@@ -315,12 +316,13 @@ export function ThankTopic({ topic }: { topic: Topic }) {
             activeColor="rgb(249,24,128)"
             active={topic.thanked}
             pressed={pressed}
+            size={24}
           />
 
           {!!topic.thanks && (
             <Text
               style={tw.style(
-                `${getFontSize(6)} pl-1`,
+                `text-[10px] absolute -top-1 left-4 px-0.5 bg-body-1`,
                 topic.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
               )}
             >

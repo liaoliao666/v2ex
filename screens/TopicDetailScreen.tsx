@@ -1,9 +1,17 @@
-import { Feather } from '@expo/vector-icons'
-import { RouteProp, useRoute } from '@react-navigation/native'
+import { Entypo, Feather } from '@expo/vector-icons'
+import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
-import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
+import {
+  FlatList,
+  ListRenderItem,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { inferData } from 'react-query-kit'
 
@@ -17,6 +25,7 @@ import RadioButtonGroup from '@/components/RadioButtonGroup'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
+import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicDetailPlaceholder from '@/components/placeholder/TopicDetailPlaceholder'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
@@ -124,6 +133,9 @@ function TopicDetailScreen() {
   const safeAreaInsets = useSafeAreaInsets()
 
   const flatListRef = useRef<FlatList<Reply>>(null)
+
+  const navigation =
+    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   return (
     <View style={tw`flex-1 bg-body-1`}>
@@ -270,7 +282,7 @@ function TopicDetailScreen() {
             `flex-row items-center justify-between pt-4 pb-[${Math.max(
               safeAreaInsets.bottom,
               16
-            )}px] px-4 mt-2 border-t border-solid border-tint-border`
+            )}px] px-4 border-t border-solid border-tint-border`
           )}
         >
           <VoteButton topic={topic} />
@@ -279,7 +291,7 @@ function TopicDetailScreen() {
             <IconButton
               color={tw.color(`text-tint-secondary`)}
               activeColor={tw.color(`text-tint-secondary`)}
-              size={21}
+              size={24}
               name="arrow-collapse-up"
               onPress={() => {
                 flatListRef.current?.scrollToOffset({ offset: 0 })
@@ -291,7 +303,7 @@ function TopicDetailScreen() {
             <LikeTopic topic={topic} />
 
             <Pressable
-              style={tw.style(`flex-row items-center`)}
+              style={tw.style(`flex-row items-center relative`)}
               onPress={() => {
                 setReplyInfo({ topicId: topic.id })
               }}
@@ -301,15 +313,15 @@ function TopicDetailScreen() {
                   <IconButton
                     color={tw.color(`text-tint-secondary`)}
                     activeColor="rgb(29,155,240)"
-                    size={21}
                     icon={<Feather name="message-circle" />}
                     pressed={pressed}
+                    size={24}
                   />
 
                   {!!topic.reply_count && (
                     <Text
                       style={tw.style(
-                        `${getFontSize(6)} pl-1 text-tint-secondary`
+                        `text-[10px] absolute -top-1 left-4 px-0.5  bg-body-1 text-tint-secondary`
                       )}
                     >
                       {topic.reply_count}
@@ -318,6 +330,40 @@ function TopicDetailScreen() {
                 </Fragment>
               )}
             </Pressable>
+
+            <TouchableOpacity
+              style={tw`relative`}
+              onPress={() => {
+                navigation.push('MemberDetail', {
+                  username: topic.member?.username!,
+                })
+              }}
+            >
+              <StyledImage
+                style={tw`rounded-full w-7 h-7`}
+                source={{
+                  uri: topic.member?.avatar,
+                }}
+              />
+
+              {
+                <View
+                  style={tw.style(
+                    `w-full absolute -bottom-1 flex-row items-center justify-center`
+                  )}
+                >
+                  <View
+                    style={tw`border border-tint-border border-solid px-1 bg-body-1 rounded-full`}
+                  >
+                    <Entypo
+                      name="link"
+                      size={10}
+                      color={tw.color(`text-tint-secondary`)}
+                    />
+                  </View>
+                </View>
+              }
+            </TouchableOpacity>
           </View>
         </View>
       )}
