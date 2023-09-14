@@ -26,7 +26,9 @@ export default function RadioButtonGroup<
             <Pressable
               key={item.value ?? '$k$'}
               onPress={() => {
-                onChange(item.value)
+                if (item.value !== value) {
+                  onChange(item.value)
+                }
               }}
               style={tw.style(
                 `px-1.5 flex-row items-center rounded-lg`,

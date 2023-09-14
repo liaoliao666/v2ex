@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
 import IconButton from '@/components/IconButton'
@@ -70,10 +71,16 @@ type OrderBy = 'asc' | 'desc'
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
 
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useTopicDetail({
-      variables: { id: params.id },
-    })
+  const {
+    data,
+    refetch,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetching,
+  } = useTopicDetail({
+    variables: { id: params.id },
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -178,6 +185,14 @@ function TopicDetailScreen() {
                 }
                 value={orderBy}
                 onChange={async v => {
+                  if (v === 'desc' && isFetching) {
+                    Toast.show({
+                      type: 'error',
+                      text1: '请等待当前请求完成后再切换排序方式',
+                    })
+                    return
+                  }
+
                   setOrderBy(v)
 
                   if (v === 'desc' && hasNextPage) {
