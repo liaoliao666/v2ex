@@ -1,9 +1,6 @@
 import { load } from 'cheerio'
-import {
-  createMutation,
-  createQuery,
-  createSuspenseInfiniteQuery,
-} from 'react-query-kit'
+import { createSuspenseQuery } from 'react-query-kit'
+import { createMutation, createSuspenseInfiniteQuery } from 'react-query-kit'
 
 import { invoke } from '@/utils/invoke'
 import { request } from '@/utils/request'
@@ -12,7 +9,7 @@ import { getURLSearchParams } from '@/utils/url'
 import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
 import { Node, PageData, Topic } from './types'
 
-export const useNodes = createQuery<Node[], void>({
+export const useNodes = createSuspenseQuery<Node[], void>({
   primaryKey: 'useNodes',
   queryFn: ({ signal }) =>
     request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),
@@ -59,7 +56,7 @@ export const useNodeTopics = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useMyNodes = createQuery<string[], void>({
+export const useMyNodes = createSuspenseQuery<string[], void>({
   primaryKey: 'useMyNodes',
   queryFn: async ({ signal }) => {
     const { data } = await request.get(`/my/nodes`, { signal })

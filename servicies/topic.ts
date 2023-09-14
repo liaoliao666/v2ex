@@ -2,7 +2,6 @@ import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { isArray, isEqual, isString, noop, pick } from 'lodash-es'
 import {
-  createInfiniteQuery,
   createMutation,
   createQuery,
   createSuspenseInfiniteQuery,
@@ -83,7 +82,7 @@ export const useTopicById = createQuery<Topic, { id: number }>({
   },
 })
 
-export const useTopicDetail = createInfiniteQuery<
+export const useTopicDetail = createSuspenseInfiniteQuery<
   Topic & { page: number; last_page: number },
   { id: number }
 >({

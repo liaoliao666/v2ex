@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native'
+import { useSuspenseQueries } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
-import { chunk } from 'lodash-es'
-import { useCallback, useMemo } from 'react'
+import { useCallback } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -45,63 +45,47 @@ export default withQuerySuspense(MyNodesScreen, {
 })
 
 function MyNodesScreen() {
-  const { data: nodes } = useNodes({
-    select: data => Object.fromEntries(data.map(node => [node.name, node])),
+  const { myNodes, refetchMyNodes } = useSuspenseQueries({
+    queries: [useNodes.getFetchOptions(), useMyNodes.getFetchOptions()],
+    combine: ([{ data: nodes }, { data: myNodeNames, refetch }]) => {
+      const nodeMap = Object.fromEntries(nodes.map(node => [node.name, node]))
+      return {
+        myNodes: myNodeNames?.map(name => nodeMap[name]!),
+        refetchMyNodes: refetch,
+      }
+    },
   })
 
-  const { data: myNodes, refetch } = useMyNodes({
-    // @ts-ignore
-    suspense: true,
-  })
-
-  const myNodesArray = useMemo(() => {
-    return (
-      chunk(
-        myNodes?.map(name => nodes?.[name]!),
-        4
-      ) || []
-    )
-  }, [myNodes, nodes])
-
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetchMyNodes)
 
   const navigation = useNavigation()
 
-  const renderItem: ListRenderItem<Node[]> = useCallback(
-    ({ item }) => {
+  const renderItem: ListRenderItem<Node> = useCallback(
+    ({ item: node }) => {
       return (
-        <View key={item.map(o => o.name).join('_')} style={tw`flex flex-row`}>
-          {item.map(node => {
-            return (
-              <TouchableOpacity
-                key={node.id}
-                onPress={() => {
-                  navigation.navigate('NodeTopics', { name: node.name })
-                }}
-                style={tw`w-1/4 p-2 items-center justify-center`}
-              >
-                <StyledImage
-                  style={tw`w-12 h-12`}
-                  source={{
-                    uri: node.avatar_large,
-                  }}
-                />
+        <TouchableOpacity
+          key={node.id}
+          onPress={() => {
+            navigation.navigate('NodeTopics', { name: node.name })
+          }}
+          style={tw`w-1/4 p-2 items-center justify-center`}
+        >
+          <StyledImage
+            style={tw`w-12 h-12`}
+            source={{
+              uri: node.avatar_large,
+            }}
+          />
 
-                <Text
-                  style={tw`${getFontSize(
-                    6
-                  )} text-tint-primary text-center mt-2`}
-                >
-                  {node.title}
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
-        </View>
+          <Text
+            style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}
+          >
+            {node.title}
+          </Text>
+        </TouchableOpacity>
       )
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [navigation]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)
@@ -114,7 +98,8 @@ function MyNodesScreen() {
         key={colorScheme}
         contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
         renderItem={renderItem}
-        data={myNodesArray}
+        data={myNodes}
+        numColumns={4}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}

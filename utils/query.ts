@@ -1,8 +1,48 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister'
 import { QueryClient, focusManager } from '@tanstack/react-query'
-import { isArray, isObjectLike } from 'lodash-es'
+import { isArray, isObjectLike, isUndefined } from 'lodash-es'
+import { useMemo } from 'react'
 import { AppState, Platform } from 'react-native'
+import { InfiniteQueryHook, Middleware, getKey } from 'react-query-kit'
+
+const removeUnnecessaryPages: Middleware<InfiniteQueryHook> =
+  useQueryNext => (options, client) => {
+    useMemo(() => {
+      const opts = options
+
+      const isValidInfiniteQuery =
+        !isUndefined(opts.getNextPageParam) && opts.enabled !== false
+
+      if (isValidInfiniteQuery) {
+        queryClient
+          .getQueryCache()
+          .findAll({ queryKey: getKey(opts.primaryKey, opts.variables) })
+          .forEach(query => {
+            const data: any = query.state.data
+            const isInfiniteQuery =
+              isObjectLike(data) &&
+              isArray(data.pages) &&
+              isArray(data.pageParams)
+            if (
+              isInfiniteQuery &&
+              query.state.status === 'success' &&
+              data.pages.length >= 2
+            ) {
+              // only keep one page before mount
+              query.setData({
+                pages: [data.pages[0]],
+                pageParams: [data.pageParams[0]],
+              })
+            }
+          })
+      }
+
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [])
+
+    return useQueryNext(options, client)
+  }
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -10,6 +50,8 @@ export const queryClient = new QueryClient({
       gcTime: 1000 * 60 * 60 * 24, // 24 hours
       retry: 2,
       refetchOnWindowFocus: false,
+      // @ts-ignore
+      use: [removeUnnecessaryPages],
     },
   },
 })
@@ -24,24 +66,3 @@ AppState.addEventListener('change', status => {
     focusManager.setFocused(status === 'active')
   }
 })
-
-export function removeUnnecessaryPages(queryKey?: unknown[]) {
-  queryClient
-    .getQueryCache()
-    .findAll({ queryKey })
-    .forEach(query => {
-      const data: any = query.state.data
-      const isInfiniteQuery =
-        isObjectLike(data) && isArray(data.pages) && isArray(data.pageParams)
-      if (
-        isInfiniteQuery &&
-        query.state.status === 'success' &&
-        data.pages.length >= 2
-      ) {
-        query.setData({
-          pages: [data.pages[0]],
-          pageParams: [data.pageParams[0]],
-        })
-      }
-    })
-}

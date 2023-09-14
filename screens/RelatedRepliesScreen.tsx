@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
 import { find, findIndex, isEmpty, last, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
@@ -37,8 +38,8 @@ export default function RelatedRepliesScreen() {
     params: { replyId, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
-  const { data } = useTopicDetail({
-    variables: { id: topicId },
+  const { data } = useInfiniteQuery({
+    ...useTopicDetail.getFetchOptions({ id: topicId }),
     enabled: false,
   })
 
@@ -222,8 +223,9 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
     isFetchedAfterMount,
     fetchNextPage,
     isFetchingNextPage,
-  } = useTopicDetail({
-    variables: { id: topicId },
+  } = useInfiniteQuery({
+    ...useTopicDetail.getFetchOptions({ id: topicId }),
+    enabled: false,
   })
 
   const lastPage = last(data?.pages)!

@@ -1,5 +1,6 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import {
@@ -38,7 +39,6 @@ import { useSov2ex } from '@/servicies/sov2ex'
 import { useTopicDetail } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -202,10 +202,6 @@ function SoV2exList({
     [sov2exArgs, query]
   )
 
-  useMemo(() => {
-    removeUnnecessaryPages(useSov2ex.getKey(variables))
-  }, [variables])
-
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useSov2ex({ variables })
 
@@ -313,9 +309,12 @@ const HitItem = memo(
     const navigation =
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-    const { data: replyCount, isFetched } = useTopicDetail({
-      variables: { id: topic.id },
-      select: data => maxBy(data.pages, 'reply_count')?.reply_count || 0,
+    const { data: isReaded } = useInfiniteQuery({
+      ...useTopicDetail.getFetchOptions({ id: topic.id }),
+      select: data => {
+        const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
+        return replyCount === topic.reply_count
+      },
       enabled: false,
     })
 
@@ -371,9 +370,7 @@ const HitItem = memo(
           <Text
             style={tw.style(
               `${getFontSize(5)} font-medium pt-2`,
-              isFetched && topic.reply_count === replyCount
-                ? `text-tint-secondary`
-                : `text-tint-primary`
+              isReaded ? `text-tint-secondary` : `text-tint-primary`
             )}
           >
             {topic.title}
@@ -387,9 +384,7 @@ const HitItem = memo(
                 }}
                 baseStyle={tw.style(
                   `${getFontSize(5)}`,
-                  isFetched && topic.reply_count === replyCount
-                    ? `text-tint-secondary`
-                    : `text-tint-primary`
+                  isReaded ? `text-tint-secondary` : `text-tint-primary`
                 )}
                 defaultTextProps={{ selectable: false }}
               />

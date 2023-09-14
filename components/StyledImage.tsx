@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { load } from 'cheerio'
-import { isArray, isObject, isString } from 'lodash-es'
+import { isArray, isObject, isString, pick } from 'lodash-es'
 import { useState } from 'react'
 import {
   Image,
@@ -54,13 +54,22 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
           : source
       }
       onLoad={ev => {
-        const newSize: any =
-          FastImage === Image ? ev.nativeEvent.source : ev.nativeEvent
+        const newSize: any = pick(
+          FastImage === Image ? ev.nativeEvent.source : ev.nativeEvent,
+          ['width', 'height']
+        )
 
-        if (!uriToSize.has(uri) && hasSize(newSize)) {
-          uriToSize.set(uri, newSize)
-          setSize(newSize)
-        }
+        uriToSize.set(uri, newSize)
+        setSize(prev => {
+          if (
+            prev?.width === newSize.width &&
+            prev?.height === newSize.height
+          ) {
+            return prev
+          }
+
+          return newSize
+        })
 
         setIsLoading(false)
         onLoad?.(ev)
@@ -137,12 +146,12 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
       {...props}
       xml={svg.xml}
       style={
-        isArray(style)
+        (isArray(style)
           ? [svg.wraperStyle, ...style]
           : {
               ...svg.wraperStyle,
               ...(isStyle(style) ? style : {}),
-            }
+            }) as any
       }
       width="100%"
     />

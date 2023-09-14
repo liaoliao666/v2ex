@@ -63,7 +63,7 @@ import {
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe, isSignined } from '@/utils/authentication'
-import { queryClient, removeUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -88,22 +88,26 @@ function MemberDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   useMemo(() => {
-    removeUnnecessaryPages(
-      useMemberTopics.getKey({ username: params.username })
-    )
-    removeUnnecessaryPages(
-      useMemberReplies.getKey({ username: params.username })
-    )
-    queryClient.prefetchInfiniteQuery({
-      queryKey: useMemberTopics.getKey({ username: params.username }),
-      queryFn: useMemberTopics.queryFn,
-      initialPageParam: 1,
-    })
-    queryClient.prefetchInfiniteQuery({
-      queryKey: useMemberReplies.getKey({ username: params.username }),
-      queryFn: useMemberReplies.queryFn,
-      initialPageParam: 1,
-    })
+    if (
+      !queryClient.getQueryData(
+        useMemberTopics.getKey({ username: params.username })
+      )
+    ) {
+      queryClient.prefetchInfiniteQuery({
+        ...useMemberTopics.getFetchOptions({ username: params.username }),
+        pages: 1,
+      })
+    }
+    if (
+      !queryClient.getQueryData(
+        useMemberReplies.getKey({ username: params.username })
+      )
+    ) {
+      queryClient.prefetchInfiniteQuery({
+        ...useMemberReplies.getFetchOptions({ username: params.username }),
+        pages: 1,
+      })
+    }
   }, [params.username])
 
   const { data: member } = useMember({
@@ -347,7 +351,6 @@ const MemberHeader = memo(() => {
             <View style={tw`rounded-full overflow-hidden`}>
               <Svg height="100%" width="100%" style={tw`absolute inset-0`}>
                 <Defs>
-                  {/* @ts-ignore */}
                   <LinearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
                     <Stop offset="0" stopColor={'#52bf1c'} />
                     <Stop offset="1" stopColor={'#438906'} />

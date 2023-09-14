@@ -1,7 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { chunk } from 'lodash-es'
-import { memo, useCallback, useState } from 'react'
+import { useCallback, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -39,15 +38,12 @@ function NavNodesScreen() {
         ...navNodes.map(node => ({
           title: node.title,
           key: node.title,
-          nodes: chunk(
-            node.nodeNames.map(name => nodeMap[name]).filter(Boolean),
-            3
-          ),
+          nodes: node.nodeNames.map(name => nodeMap[name]).filter(Boolean),
         })),
         {
           title: '全部节点',
           key: 'all',
-          nodes: chunk(nodes, 3),
+          nodes,
         },
       ]
     },
@@ -57,9 +53,35 @@ function NavNodesScreen() {
 
   const navbarHeight = useNavBarHeight()
 
-  const renderItem: ListRenderItem<Node[]> = useCallback(({ item }) => {
-    return <NavNodeItem item={item} />
-  }, [])
+  const navigation = useNavigation()
+
+  const renderItem: ListRenderItem<Node> = useCallback(
+    ({ item: node }) => {
+      return (
+        <TouchableOpacity
+          key={node.id}
+          onPress={() => {
+            navigation.navigate('NodeTopics', { name: node.name })
+          }}
+          style={tw`w-1/3 py-2 items-center justify-center`}
+        >
+          <StyledImage
+            style={tw`w-12 h-12`}
+            source={{
+              uri: node.avatar_large,
+            }}
+          />
+
+          <Text
+            style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}
+          >
+            {node.title}
+          </Text>
+        </TouchableOpacity>
+      )
+    },
+    [navigation]
+  )
 
   return (
     <View style={tw`bg-body-1 flex-1`}>
@@ -102,6 +124,7 @@ function NavNodesScreen() {
           contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
           renderItem={renderItem}
           data={routes[index].nodes}
+          numColumns={3}
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         />
       </View>
@@ -113,36 +136,3 @@ function NavNodesScreen() {
     </View>
   )
 }
-
-const NavNodeItem = memo(({ item }: { item: Node[] }) => {
-  const navigation = useNavigation()
-
-  return (
-    <View key={item.map(o => o.name).join('_')} style={tw`flex flex-row`}>
-      {item.map(node => {
-        return (
-          <TouchableOpacity
-            key={node.id}
-            onPress={() => {
-              navigation.navigate('NodeTopics', { name: node.name })
-            }}
-            style={tw`w-1/3 py-2 items-center justify-center`}
-          >
-            <StyledImage
-              style={tw`w-12 h-12`}
-              source={{
-                uri: node.avatar_large,
-              }}
-            />
-
-            <Text
-              style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}
-            >
-              {node.title}
-            </Text>
-          </TouchableOpacity>
-        )
-      })}
-    </View>
-  )
-})

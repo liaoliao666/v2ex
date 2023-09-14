@@ -42,7 +42,7 @@ import { useTopicDetail } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe } from '@/utils/authentication'
-import { removeUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -70,22 +70,10 @@ type OrderBy = 'asc' | 'desc'
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
 
-  useMemo(() => {
-    removeUnnecessaryPages(useTopicDetail.getKey({ id: params.id }))
-  }, [params.id])
-
-  const {
-    data,
-    setData,
-    refetch,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useTopicDetail({
-    variables: { id: params.id },
-    // @ts-ignore
-    suspense: true,
-  })
+  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
+    useTopicDetail({
+      variables: { id: params.id },
+    })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -175,7 +163,7 @@ function TopicDetailScreen() {
               )}
             >
               <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
-                全部评论
+                全部回复
               </Text>
 
               <RadioButtonGroup
@@ -225,7 +213,8 @@ function TopicDetailScreen() {
                           })
                         )
 
-                        setData(
+                        queryClient.setQueryData(
+                          useTopicDetail.getKey({ id: params.id }),
                           allPageNo.reduce(
                             (acc, p, i) => {
                               acc.pageParams[i] = p

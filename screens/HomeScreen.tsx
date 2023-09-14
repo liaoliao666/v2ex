@@ -3,7 +3,15 @@ import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
-import { ComponentProps, ReactNode, memo, useCallback, useMemo } from 'react'
+import {
+  ComponentProps,
+  ReactNode,
+  forwardRef,
+  memo,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -45,7 +53,7 @@ import { useRecentTopics, useTabTopics } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient, removeUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -78,23 +86,29 @@ function TabPlaceholder({
   )
 }
 
-const MemoRecentTopics = memo((props: ComponentProps<typeof RecentTopics>) => (
-  <TabPlaceholder tab="recent">
-    <RecentTopics {...props} />
-  </TabPlaceholder>
-))
+const MemoRecentTopics = memo(
+  forwardRef<FlatList, ComponentProps<typeof RecentTopics>>((props, ref) => (
+    <TabPlaceholder tab="recent">
+      <RecentTopics {...props} ref={ref} />
+    </TabPlaceholder>
+  ))
+)
 
-const MemoTabTopics = memo((props: ComponentProps<typeof TabTopics>) => (
-  <TabPlaceholder tab={props.tab}>
-    <TabTopics {...props} />
-  </TabPlaceholder>
-))
+const MemoTabTopics = memo(
+  forwardRef<FlatList, ComponentProps<typeof TabTopics>>((props, ref) => (
+    <TabPlaceholder tab={props.tab}>
+      <TabTopics {...props} ref={ref} />
+    </TabPlaceholder>
+  ))
+)
 
-const MemoNodeTopics = memo((props: ComponentProps<typeof NodeTopics>) => (
-  <TabPlaceholder tab={props.nodeName}>
-    <NodeTopics {...props} />
-  </TabPlaceholder>
-))
+const MemoNodeTopics = memo(
+  forwardRef<FlatList, ComponentProps<typeof NodeTopics>>((props, ref) => (
+    <TabPlaceholder tab={props.nodeName}>
+      <NodeTopics {...props} ref={ref} />
+    </TabPlaceholder>
+  ))
+)
 
 export default withQuerySuspense(HomeScreen, {
   fallbackRender: props => (
@@ -120,7 +134,7 @@ function HomeScreen() {
 
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
-  function handleInexChange(i: number) {
+  function handleInexChange(i: number, forceFetch = false) {
     const activeTab = tabs[i]
     const activeTabKey = tabs[i].key
     const activeQueryKey =
@@ -135,17 +149,26 @@ function HomeScreen() {
 
     if (query?.state.error) {
       errorResetMap[activeTabKey]?.()
-    } else if (query?.getObserversCount() && query?.isStale()) {
+    } else if (forceFetch || (query?.getObserversCount() && query?.isStale())) {
       if (activeTabKey === 'recent') {
-        removeUnnecessaryPages(useRecentTopics.getKey())
+        queryClient.prefetchInfiniteQuery({
+          ...useRecentTopics.getFetchOptions(),
+          pages: 1,
+        })
       } else if (activeTab.type === 'node') {
-        removeUnnecessaryPages(useNodeTopics.getKey({ name: activeTabKey }))
+        queryClient.prefetchInfiniteQuery({
+          ...useNodeTopics.getFetchOptions({ name: activeTabKey }),
+          pages: 1,
+        })
+      } else {
+        queryClient.refetchQueries({ queryKey: activeQueryKey })
       }
-      queryClient.refetchQueries({ queryKey: activeQueryKey })
     }
 
     setIndex(i)
   }
+
+  const activeTabRef = useRef<FlatList>(null)
 
   return (
     <View style={tw`flex-1 bg-body-1`}>
@@ -156,18 +179,25 @@ function HomeScreen() {
         lazyPreloadDistance={1}
         renderScene={({ route }) => {
           const isActive = index === findIndex(tabs, { key: route.key })
+          const ref = isActive ? activeTabRef : undefined
           if (route.type === 'node')
             return (
               <MemoNodeTopics
+                ref={ref}
                 isActive={isActive}
                 headerHeight={headerHeight}
                 nodeName={route.key}
               />
             )
           return route.key === 'recent' ? (
-            <MemoRecentTopics isActive={isActive} headerHeight={headerHeight} />
+            <MemoRecentTopics
+              ref={ref}
+              isActive={isActive}
+              headerHeight={headerHeight}
+            />
           ) : (
             <MemoTabTopics
+              ref={ref}
               isActive={isActive}
               headerHeight={headerHeight}
               tab={route.key}
@@ -204,7 +234,13 @@ function HomeScreen() {
                       style={tw`w-[60px] items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                       activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
-                        handleInexChange(findIndex(tabs, { key: route.key }))
+                        if (active) {
+                          activeTabRef.current?.scrollToOffset({ offset: 0 })
+                        }
+                        handleInexChange(
+                          findIndex(tabs, { key: route.key }),
+                          active
+                        )
                       }}
                     >
                       <Text
@@ -245,13 +281,10 @@ function HomeScreen() {
   )
 }
 
-function RecentTopics({
-  isActive,
-  headerHeight,
-}: {
-  isActive: boolean
-  headerHeight: number
-}) {
+const RecentTopics = forwardRef<
+  FlatList,
+  { isActive: boolean; headerHeight: number }
+>(({ isActive, headerHeight }, ref) => {
   const {
     data,
     refetch,
@@ -281,6 +314,7 @@ function RecentTopics({
       progressViewOffset={headerHeight}
     >
       <FlatList
+        ref={ref}
         data={flatedData}
         automaticallyAdjustsScrollIndicatorInsets={false}
         refreshControl={
@@ -311,17 +345,16 @@ function RecentTopics({
       />
     </RefetchingIndicator>
   )
-}
+})
 
-function TabTopics({
-  tab,
-  isActive,
-  headerHeight,
-}: {
-  tab: string
-  isActive: boolean
-  headerHeight: number
-}) {
+const TabTopics = forwardRef<
+  FlatList,
+  {
+    tab: string
+    isActive: boolean
+    headerHeight: number
+  }
+>(({ tab, isActive, headerHeight }, ref) => {
   const { data, refetch, isFetching } = useTabTopics({
     variables: { tab },
     refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
@@ -340,6 +373,7 @@ function TabTopics({
       progressViewOffset={headerHeight}
     >
       <FlatList
+        ref={ref}
         data={data}
         automaticallyAdjustsScrollIndicatorInsets={false}
         refreshControl={
@@ -359,17 +393,16 @@ function TabTopics({
       />
     </RefetchingIndicator>
   )
-}
+})
 
-function NodeTopics({
-  nodeName,
-  isActive,
-  headerHeight,
-}: {
-  nodeName: string
-  isActive: boolean
-  headerHeight: number
-}) {
+const NodeTopics = forwardRef<
+  FlatList,
+  {
+    nodeName: string
+    isActive: boolean
+    headerHeight: number
+  }
+>(({ nodeName, isActive, headerHeight }, ref) => {
   const {
     data,
     refetch,
@@ -400,6 +433,7 @@ function NodeTopics({
       progressViewOffset={headerHeight}
     >
       <FlatList
+        ref={ref}
         data={flatedData}
         refreshControl={
           <StyledRefreshControl
@@ -430,7 +464,7 @@ function NodeTopics({
       />
     </RefetchingIndicator>
   )
-}
+})
 
 function TopNavBar() {
   const profile = useAtomValue(profileAtom)

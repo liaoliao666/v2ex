@@ -15,13 +15,6 @@ import tw from '@/utils/tw'
 import LoadingIndicator from './LoadingIndicator'
 import StyledButton from './StyledButton'
 
-export type QuerySuspenseProps = Partial<ErrorBoundaryProps> & {
-  LoadingComponent?: FC
-  loadingRender?: () => ReactNode
-  loading?: ReactNode
-  children?: ReactNode
-}
-
 export function FallbackComponent({
   error,
   resetErrorBoundary,
@@ -69,22 +62,44 @@ export function FallbackComponent({
   )
 }
 
-export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
+export type QuerySuspenseProps<P> = Omit<
+  Partial<ErrorBoundaryProps>,
+  'fallbackRender'
+> & {
+  LoadingComponent?: FC
+  loadingRender?: (componentsProps: P) => ReactNode
+  fallbackRender?: (props: FallbackProps & { componentsProps: P }) => ReactNode
+  loading?: ReactNode
+  children?: ReactNode
+  componentsProps?: P
+}
+
+export function QuerySuspense<P = void>({
   LoadingComponent,
   loadingRender,
   loading,
   children,
+  componentsProps,
   ...rest
-}) => {
+}: QuerySuspenseProps<P>) {
   return (
     <QueryErrorResetBoundary>
       {({ reset }) => (
-        // @ts-ignored
+        // @ts-ignore
         <ErrorBoundary
           onReset={reset}
           FallbackComponent={
             !rest.fallback && !rest.fallbackRender && !rest.FallbackComponent
               ? FallbackComponent
+              : undefined
+          }
+          fallbackRender={
+            rest.fallbackRender
+              ? ((props =>
+                  rest.fallbackRender?.({
+                    ...props,
+                    componentsProps: componentsProps!,
+                  })) as ErrorBoundaryProps['fallbackRender'] as any)
               : undefined
           }
           {...rest}
@@ -94,7 +109,7 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
               LoadingComponent ? (
                 <LoadingComponent />
               ) : loadingRender ? (
-                loadingRender()
+                loadingRender(componentsProps!)
               ) : (
                 loading ?? <LoadingIndicator />
               )
@@ -110,7 +125,7 @@ export const QuerySuspense: React.FC<QuerySuspenseProps> = ({
 
 export function withQuerySuspense<P>(
   Component: ComponentType<P>,
-  querySuspenseProps?: QuerySuspenseProps
+  querySuspenseProps?: QuerySuspenseProps<P>
 ): ComponentType<P> {
   const Wrapped: ComponentType<P> = props => {
     return (

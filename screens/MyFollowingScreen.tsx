@@ -30,7 +30,6 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { useMemberTopics, useMyFollowing } from '@/servicies/member'
 import { Topic } from '@/servicies/types'
-import { removeUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -81,11 +80,6 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
 })
 
 function MyFollowingScreen() {
-  useMemo(() => {
-    removeUnnecessaryPages(useMyFollowing.getKey())
-    removeUnnecessaryPages(useMemberTopics.getKey())
-  }, [])
-
   const { data } = useMyFollowing()
 
   const following = last(data.pages)?.following

@@ -30,7 +30,7 @@ import { useLikeNode, useNodeTopics, useNodes } from '@/servicies/node'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient, removeUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -66,10 +66,6 @@ export default withQuerySuspense(NodeTopicsScreen, {
 
 function NodeTopicsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
-
-  useMemo(() => {
-    removeUnnecessaryPages(useNodeTopics.getKey({ name: params.name }))
-  }, [params.name])
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useNodeTopics({

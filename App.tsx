@@ -4,6 +4,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
+import { noop } from 'lodash-es'
 import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
@@ -28,11 +29,7 @@ import { useCheckin } from './servicies/member'
 import { useNodes } from './servicies/node'
 import './utils/dayjsPlugins'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
-import {
-  asyncStoragePersister,
-  queryClient,
-  removeUnnecessaryPages,
-} from './utils/query'
+import { asyncStoragePersister, queryClient } from './utils/query'
 import tw from './utils/tw'
 
 SplashScreen.preventAutoHideAsync()
@@ -62,7 +59,6 @@ function App() {
             persister: asyncStoragePersister,
           }}
           onSuccess={() => {
-            removeUnnecessaryPages()
             isReadyNavigation.then(SplashScreen.hideAsync)
           }}
         >
@@ -100,6 +96,10 @@ function AppInitializer({ children }: { children: ReactNode }) {
 
   useMemo(() => {
     tw.setColorScheme(colorScheme)
+
+    // ensure nodes data
+    queryClient.ensureQueryData(useNodes.getFetchOptions()).catch(noop)
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -108,8 +108,6 @@ function AppInitializer({ children }: { children: ReactNode }) {
   useCheckin({
     enabled: !!profile && enabledAutoCheckin,
   })
-
-  useNodes()
 
   return children as ReactElement
 }

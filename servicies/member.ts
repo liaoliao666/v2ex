@@ -220,10 +220,7 @@ export const useBlockers = createSuspenseInfiniteQuery<
           chunkIds.map(async id => {
             if (cacheMemberMap[id]) return cacheMemberMap[id]
             return await queryClient
-              .ensureQueryData({
-                queryKey: useMemberById.getKey({ id }),
-                queryFn: useMemberById.queryFn,
-              })
+              .ensureQueryData(useMemberById.getFetchOptions({ id }))
               .catch(() => null)
           })
         )
@@ -296,10 +293,7 @@ export const useIgnoredTopics = createSuspenseInfiniteQuery<
           chunkIds.map(async id => {
             if (cacheTopicMap[id]) return cacheTopicMap[id]
             return await queryClient
-              .ensureQueryData({
-                queryKey: useTopicById.getKey({ id }),
-                queryFn: useTopicById.queryFn,
-              })
+              .ensureQueryData(useTopicById.getFetchOptions({ id }))
               .catch(() => null)
           })
         )
