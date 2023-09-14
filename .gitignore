@@ -37,6 +37,7 @@ xcuserdata
 DerivedData
 *.hmap
 *.ipa
+*.apk
 *.xcuserstate
 project.xcworkspace
 
