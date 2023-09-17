@@ -3,6 +3,7 @@ import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
+import { useSuspenseQuery } from 'quaere'
 import {
   ComponentProps,
   ReactNode,
@@ -48,8 +49,8 @@ import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { getCurrentRouteName } from '@/navigation/navigationRef'
-import { useNodeTopics } from '@/servicies/node'
-import { useRecentTopics, useTabTopics } from '@/servicies/topic'
+import { nodeTopicsQuery } from '@/servicies/node'
+import { recentTopicsQuery, tabTopicsQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
@@ -137,31 +138,43 @@ function HomeScreen() {
   function handleInexChange(i: number, forceFetch = false) {
     const activeTab = tabs[i]
     const activeTabKey = tabs[i].key
-    const activeQueryKey =
+    const filters =
       tabs[i].type === 'node'
-        ? useNodeTopics.getKey({ name: activeTabKey })
+        ? {
+            query: nodeTopicsQuery,
+            variables: { name: activeTabKey },
+          }
         : tabs[i].key === 'recent'
-        ? useRecentTopics.getKey()
-        : useTabTopics.getKey({ tab: activeTabKey })
+        ? {
+            query: recentTopicsQuery,
+          }
+        : {
+            query: tabTopicsQuery,
+            variables: { tab: activeTabKey },
+          }
     const query = queryClient.getQueryCache().find({
-      queryKey: activeQueryKey,
-    })
+      filters,
+    } as any)
 
     if (query?.state.error) {
       errorResetMap[activeTabKey]?.()
     } else if (forceFetch || (query?.getObserversCount() && query?.isStale())) {
       if (activeTabKey === 'recent') {
-        queryClient.prefetchInfiniteQuery({
-          ...useRecentTopics.getFetchOptions(),
+        queryClient.prefetchQuery({
+          query: recentTopicsQuery,
           pages: 1,
         })
       } else if (activeTab.type === 'node') {
-        queryClient.prefetchInfiniteQuery({
-          ...useNodeTopics.getFetchOptions({ name: activeTabKey }),
+        queryClient.prefetchQuery({
+          query: nodeTopicsQuery,
+          variables: { name: activeTabKey },
           pages: 1,
         })
       } else {
-        queryClient.refetchQueries({ queryKey: activeQueryKey })
+        queryClient.refetchQueries({
+          query: tabTopicsQuery,
+          variables: { tab: activeTabKey },
+        })
       }
     }
 
@@ -292,7 +305,8 @@ const RecentTopics = forwardRef<
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useRecentTopics({
+  } = useSuspenseQuery({
+    query: recentTopicsQuery,
     refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
   })
 
@@ -355,7 +369,8 @@ const TabTopics = forwardRef<
     headerHeight: number
   }
 >(({ tab, isActive, headerHeight }, ref) => {
-  const { data, refetch, isFetching } = useTabTopics({
+  const { data, refetch, isFetching } = useSuspenseQuery({
+    query: tabTopicsQuery,
     variables: { tab },
     refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
   })
@@ -410,7 +425,8 @@ const NodeTopics = forwardRef<
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useNodeTopics({
+  } = useSuspenseQuery({
+    query: nodeTopicsQuery,
     variables: { name: nodeName },
     refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
   })

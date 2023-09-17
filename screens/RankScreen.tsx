@@ -2,6 +2,7 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
 import { findIndex } from 'lodash-es'
+import { useSuspenseQuery } from 'quaere'
 import { memo, useCallback, useState } from 'react'
 import {
   FlatList,
@@ -28,7 +29,7 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useTopPlayer, useTopRich } from '@/servicies/top'
+import { topPlayerQuery, topRichQuery } from '@/servicies/top'
 import { Member } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -72,7 +73,7 @@ const MemoTopPlayerList = withQuerySuspense(memo(TopPlayerList), {
   },
 })
 
-type RankTab = 'useTopRich' | 'useTopPlayer'
+type RankTab = 'topRich' | 'topPlayer'
 
 const routes: {
   title: string
@@ -80,11 +81,11 @@ const routes: {
 }[] = [
   {
     title: '财富排行',
-    key: 'useTopRich',
+    key: 'topRich',
   },
   {
     title: '消费排行',
-    key: 'useTopPlayer',
+    key: 'topPlayer',
   },
 ]
 
@@ -105,7 +106,7 @@ function RankScreen() {
         lazy
         lazyPreloadDistance={1}
         renderScene={({ route }) =>
-          route.key === 'useTopRich' ? (
+          route.key === 'topRich' ? (
             <MemoTopRichList headerHeight={headerHeight} />
           ) : (
             <MemoTopPlayerList headerHeight={headerHeight} />
@@ -164,13 +165,13 @@ function RankScreen() {
 }
 
 function TopRichList({ headerHeight }: { headerHeight: number }) {
-  const { data, refetch } = useTopRich()
+  const { data, refetch } = useSuspenseQuery({ query: topRichQuery })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<Member> = useCallback(
     ({ item }) => (
-      <RankItem key={item.username} member={item} rankTab="useTopRich" />
+      <RankItem key={item.username} member={item} rankTab="topRich" />
     ),
     []
   )
@@ -197,13 +198,15 @@ function TopRichList({ headerHeight }: { headerHeight: number }) {
 }
 
 function TopPlayerList({ headerHeight }: { headerHeight: number }) {
-  const { data, refetch } = useTopPlayer()
+  const { data, refetch } = useSuspenseQuery({
+    query: topPlayerQuery,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<Member> = useCallback(
     ({ item }) => (
-      <RankItem key={item.username} member={item} rankTab="useTopPlayer" />
+      <RankItem key={item.username} member={item} rankTab="topPlayer" />
     ),
     []
   )
@@ -268,7 +271,7 @@ const RankItem = memo(
             >
               {member?.username}
             </Text>
-            {rankTab === 'useTopPlayer' ? (
+            {rankTab === 'topPlayer' ? (
               <Text style={tw`${getFontSize(6)} text-tint-secondary`}>
                 {member.cost}
               </Text>

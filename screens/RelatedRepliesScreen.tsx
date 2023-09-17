@@ -1,8 +1,8 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useInfiniteQuery } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
 import { find, findIndex, isEmpty, last, uniqBy } from 'lodash-es'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { useQuery } from 'quaere'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -22,7 +22,7 @@ import StyledImage from '@/components/StyledImage'
 import ReplyItem from '@/components/topic/ReplyItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useTopicDetail } from '@/servicies/topic'
+import { topicDetailQuery } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -38,8 +38,9 @@ export default function RelatedRepliesScreen() {
     params: { replyId, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
-  const { data } = useInfiniteQuery({
-    ...useTopicDetail.getFetchOptions({ id: topicId }),
+  const { data } = useQuery({
+    query: topicDetailQuery,
+    variables: { id: topicId },
     enabled: false,
   })
 
@@ -217,16 +218,13 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
     params: { onReply, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
-  const {
-    data,
-    hasNextPage,
-    isFetchedAfterMount,
-    fetchNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    ...useTopicDetail.getFetchOptions({ id: topicId }),
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } = useQuery({
+    query: topicDetailQuery,
+    variables: { id: topicId },
     enabled: false,
   })
+
+  const canFetchNextPage = useRef(hasNextPage)
 
   const lastPage = last(data?.pages)!
 
@@ -250,7 +248,9 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
       data={replies}
       renderItem={renderItem}
       onEndReached={() => {
-        if (hasNextPage && !isFetchedAfterMount) {
+        // only fetch once when scroll to bottom
+        if (hasNextPage && canFetchNextPage.current) {
+          canFetchNextPage.current = false
           fetchNextPage()
         }
       }}

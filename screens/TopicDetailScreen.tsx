@@ -3,6 +3,7 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
+import { useSuspenseQuery } from 'quaere'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
   FlatList,
@@ -14,7 +15,6 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
@@ -39,7 +39,7 @@ import TopicInfo, {
 } from '@/components/topic/TopicInfo'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useTopicDetail } from '@/servicies/topic'
+import { topicDetailQuery } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe } from '@/utils/authentication'
@@ -78,7 +78,8 @@ function TopicDetailScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useTopicDetail({
+  } = useSuspenseQuery({
+    query: topicDetailQuery,
     variables: { id: params.id },
   })
 
@@ -218,18 +219,23 @@ function TopicDetailScreen() {
                         const pageDatas = await Promise.all(
                           allPageNo.map(page => {
                             if (pageToData[page]) return pageToData[page]
-                            // @ts-ignore
-                            return useTopicDetail.queryFn({
-                              queryKey: useTopicDetail.getKey({
+                            return topicDetailQuery.fetcher(
+                              {
                                 id: params.id,
-                              }),
-                              pageParam: page,
-                            })
+                              },
+                              // @ts-ignore
+                              {
+                                pageParam: page,
+                              }
+                            )
                           })
                         )
 
                         queryClient.setQueryData(
-                          useTopicDetail.getKey({ id: params.id }),
+                          {
+                            query: topicDetailQuery,
+                            variables: { id: params.id },
+                          },
                           allPageNo.reduce(
                             (acc, p, i) => {
                               acc.pageParams[i] = p
@@ -239,7 +245,7 @@ function TopicDetailScreen() {
                             {
                               pages: [],
                               pageParams: [],
-                            } as inferData<typeof useTopicDetail>
+                            } as typeof data
                           )
                         )
                       } catch (error) {

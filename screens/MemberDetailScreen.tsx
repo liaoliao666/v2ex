@@ -3,6 +3,7 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { every, findIndex, last, pick, some, uniqBy } from 'lodash-es'
+import { useMutation, useSuspenseQuery } from 'quaere'
 import {
   Fragment,
   ReactNode,
@@ -31,7 +32,6 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -54,11 +54,11 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
-  useBlockMember,
-  useFollowMember,
-  useMember,
-  useMemberReplies,
-  useMemberTopics,
+  blockMemberMutation,
+  followMemberMutation,
+  memberQuery,
+  memberRepliesQuery,
+  memberTopicsQuery,
 } from '@/servicies/member'
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -88,29 +88,21 @@ function MemberDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   useMemo(() => {
-    if (
-      !queryClient.getQueryData(
-        useMemberTopics.getKey({ username: params.username })
-      )
-    ) {
-      queryClient.prefetchInfiniteQuery({
-        ...useMemberTopics.getFetchOptions({ username: params.username }),
-        pages: 1,
-      })
-    }
-    if (
-      !queryClient.getQueryData(
-        useMemberReplies.getKey({ username: params.username })
-      )
-    ) {
-      queryClient.prefetchInfiniteQuery({
-        ...useMemberReplies.getFetchOptions({ username: params.username }),
-        pages: 1,
-      })
-    }
+    queryClient.ensureQueryData({
+      query: memberTopicsQuery,
+      variables: { username: params.username },
+      pages: 1,
+    })
+
+    queryClient.ensureQueryData({
+      query: memberRepliesQuery,
+      variables: { username: params.username },
+      pages: 1,
+    })
   }, [params.username])
 
-  const { data: member } = useMember({
+  const { data: member } = useSuspenseQuery({
+    query: memberQuery,
     variables: { username: params.username },
   })
 
@@ -306,7 +298,8 @@ function MemberDetailScreen() {
 const MemberHeader = memo(() => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  const { data: member } = useMember({
+  const { data: member } = useSuspenseQuery({
+    query: memberQuery,
     variables: { username: params.username },
   })
 
@@ -458,7 +451,8 @@ const MemberTopics = forwardRef<
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useMemberTopics({
+    useSuspenseQuery({
+      query: memberTopicsQuery,
       variables: { username: params.username },
     })
 
@@ -522,14 +516,15 @@ const MemberReplies = forwardRef<
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useMemberReplies({
+    useSuspenseQuery({
+      query: memberRepliesQuery,
       variables: { username: params.username },
     })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<
-    inferData<typeof useMemberReplies>['pages'][number]['list'][number]
+    typeof data['pages'][number]['list'][number]
   > = useCallback(({ item }) => <MemberReply key={item.id} topic={item} />, [])
 
   const flatedData = useMemo(
@@ -649,7 +644,9 @@ function FollowMember({
   once,
   followed,
 }: Pick<Member, 'username' | 'id' | 'once' | 'followed'>) {
-  const { mutateAsync, isPending } = useFollowMember()
+  const { isMutating, trigger } = useMutation({
+    mutation: followMemberMutation,
+  })
 
   const navigation = useNavigation()
 
@@ -662,7 +659,7 @@ function FollowMember({
           return
         }
 
-        if (isPending) return
+        if (isMutating) return
         if (!id || !once) return
 
         try {
@@ -671,7 +668,7 @@ function FollowMember({
             followed: !followed,
           })
 
-          await mutateAsync({
+          await trigger({
             id,
             type: followed ? 'unfollow' : 'follow',
             once,
@@ -699,7 +696,9 @@ function BlockMember({
   once,
   blocked,
 }: Pick<Member, 'username' | 'id' | 'once' | 'blocked'>) {
-  const { mutateAsync, isPending } = useBlockMember()
+  const { trigger, isMutating } = useMutation({
+    mutation: blockMemberMutation,
+  })
 
   const navigation = useNavigation()
 
@@ -714,7 +713,7 @@ function BlockMember({
           return
         }
 
-        if (isPending) return
+        if (isMutating) return
         if (!id || !once) return
 
         try {
@@ -723,7 +722,7 @@ function BlockMember({
             blocked: !blocked,
           })
 
-          await mutateAsync({
+          await trigger({
             id,
             type: blocked ? 'unblock' : 'block',
             once,
@@ -782,8 +781,8 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
 }
 
 function updateMember(member: Member) {
-  queryClient.setQueryData<inferData<typeof useMember>>(
-    useMember.getKey({ username: member.username }),
+  queryClient.setQueryData(
+    { query: memberQuery, variables: { username: member.username } },
     produce(data => {
       if (data) {
         Object.assign(data, member)

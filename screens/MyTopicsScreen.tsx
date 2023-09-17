@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai'
 import { uniqBy } from 'lodash-es'
+import { useSuspenseQuery } from 'quaere'
 import { useCallback, useMemo } from 'react'
 import { FlatList, ListRenderItem, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -17,7 +18,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useMyTopics } from '@/servicies/topic'
+import { myTopicsQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -45,7 +46,9 @@ function MyTopicsScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useMyTopics()
+  } = useSuspenseQuery({
+    query: myTopicsQuery,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 

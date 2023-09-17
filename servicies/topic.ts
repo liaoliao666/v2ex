@@ -1,13 +1,7 @@
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { isArray, isEqual, isString, noop, pick } from 'lodash-es'
-import {
-  createMutation,
-  createQuery,
-  createSuspenseInfiniteQuery,
-  createSuspenseQuery,
-} from 'react-query-kit'
-import { isObject } from 'twrnc/dist/esm/types'
+import { mutation, query, queryWithInfinite } from 'quaere'
 
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
@@ -20,9 +14,9 @@ import {
 } from './helper'
 import { PageData, Topic } from './types'
 
-export const useTabTopics = createSuspenseQuery<Topic[], { tab?: string }>({
-  primaryKey: 'useTabTopics',
-  queryFn: async ({ queryKey: [_, { tab }], signal }) => {
+export const tabTopicsQuery = query<Topic[], { tab?: string }>({
+  key: 'tabTopics',
+  fetcher: async ({ tab }, { signal }) => {
     const { data } = await request.get(
       tab === 'changes' ? '/changes' : `?tab=${tab}`,
       {
@@ -37,12 +31,9 @@ export const useTabTopics = createSuspenseQuery<Topic[], { tab?: string }>({
   staleTime: 10 * 1000,
 })
 
-export const useRecentTopics = createSuspenseInfiniteQuery<
-  PageData<Topic>,
-  void
->({
-  primaryKey: 'useRecentTopics',
-  queryFn: async ({ pageParam, signal }) => {
+export const recentTopicsQuery = queryWithInfinite<PageData<Topic>, void>({
+  key: 'recentTopics',
+  fetcher: async (_, { pageParam, signal }) => {
     const { data } = await request.get(`/recent?p=${pageParam}`, {
       responseType: 'text',
       signal,
@@ -62,9 +53,9 @@ export const useRecentTopics = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useTopicById = createQuery<Topic, { id: number }>({
-  primaryKey: 'useTopicById',
-  queryFn: async ({ signal, queryKey: [_, { id }] }) => {
+export const topicByIdQuery = query<Topic, { id: number }>({
+  key: 'topicById',
+  fetcher: async ({ id }, { signal }) => {
     const { data } = await request.get(`/api/topics/show.json?id=${id}`, {
       signal,
     })
@@ -82,12 +73,12 @@ export const useTopicById = createQuery<Topic, { id: number }>({
   },
 })
 
-export const useTopicDetail = createSuspenseInfiniteQuery<
+export const topicDetailQuery = queryWithInfinite<
   Topic & { page: number; last_page: number },
   { id: number }
 >({
-  primaryKey: 'useTopicDetail',
-  queryFn: async ({ queryKey: [_, { id }], pageParam, signal }) => {
+  key: 'topicDetail',
+  fetcher: async ({ id }, { pageParam, signal }) => {
     const { data } = await request.get(`/t/${id}?p=${pageParam}`, {
       responseType: 'text',
       signal,
@@ -107,30 +98,28 @@ export const useTopicDetail = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useLikeTopic = createMutation<
+export const likeTopicMutation = mutation<
   void,
   { id: number; once: string; type: 'unfavorite' | 'favorite' }
 >({
-  mutationFn: ({ id, once, type: type }) =>
+  fetcher: ({ id, once, type: type }) =>
     request.get(`/${type}/topic/${id}?once=${once}`, {
       responseType: 'text',
     }),
 })
 
-export const useThankTopic = createMutation<void, { id: number; once: string }>(
-  {
-    mutationFn: ({ id, once }) =>
-      request.post(`/thank/topic/${id}?once=${once}`),
-  }
-)
+export const thankTopicMutation = mutation<void, { id: number; once: string }>({
+  fetcher: ({ id, once }) => request.post(`/thank/topic/${id}?once=${once}`),
+})
 
-export const useVoteTopic = createMutation<
+export const voteTopicMutation = mutation<
   number,
   { id: number; once: string; type: 'up' | 'down' }
 >({
-  mutationFn: async ({ id, once, type: type }) => {
+  fetcher: async ({ id, once, type: type }) => {
     const { data } = await request.post(`/${type}/topic/${id}?once=${once}`)
-    if (!isObject(data) || !isString(data.html)) return Promise.reject()
+    if (typeof data !== 'object' || !isString(data.html))
+      return Promise.reject()
     const $ = load(data.html as string)
     const votes = parseInt($('.vote').eq(0).text().trim(), 10)
 
@@ -138,16 +127,13 @@ export const useVoteTopic = createMutation<
   },
 })
 
-export const useThankReply = createMutation<void, { id: number; once: string }>(
-  {
-    mutationFn: ({ id, once }) =>
-      request.post(`/thank/reply/${id}?once=${once}`),
-  }
-)
+export const thankReplyMutation = mutation<void, { id: number; once: string }>({
+  fetcher: ({ id, once }) => request.post(`/thank/reply/${id}?once=${once}`),
+})
 
-export const useMyTopics = createSuspenseInfiniteQuery<PageData<Topic>, void>({
-  primaryKey: 'useMyTopics',
-  queryFn: async ({ pageParam, signal }) => {
+export const myTopicsQuery = queryWithInfinite<PageData<Topic>, void>({
+  key: 'myTopics',
+  fetcher: async (_, { pageParam, signal }) => {
     const { data } = await request.get(`/my/topics?p=${pageParam}`, {
       responseType: 'text',
       signal,
@@ -165,11 +151,11 @@ export const useMyTopics = createSuspenseInfiniteQuery<PageData<Topic>, void>({
   structuralSharing: false,
 })
 
-export const useReply = createMutation<
+export const replyMutation = mutation<
   void,
   { content: string; once: string; topicId: number }
 >({
-  mutationFn: ({ topicId, ...args }) => {
+  fetcher: ({ topicId, ...args }) => {
     return request.post(`/t/${topicId}`, paramsSerializer(args), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -178,7 +164,7 @@ export const useReply = createMutation<
   },
 })
 
-export const useWriteTopic = createMutation<
+export const writeTopicMutation = mutation<
   void,
   {
     title: string
@@ -188,7 +174,7 @@ export const useWriteTopic = createMutation<
     once: string
   }
 >({
-  mutationFn: args =>
+  fetcher: args =>
     request.post(`/write`, paramsSerializer(args), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -196,12 +182,12 @@ export const useWriteTopic = createMutation<
     }),
 })
 
-export const useEditTopicInfo = createQuery<
+export const editTopicInfoQuery = query<
   { content: string; syntax: 'default' | 'markdown' },
   { id: number }
 >({
-  primaryKey: 'useEditTopicInfo',
-  queryFn: async ({ queryKey: [, { id }], signal }) => {
+  key: 'editTopicInfo',
+  fetcher: async ({ id }, { signal }) => {
     const { data } = await request.get<string>(`/edit/topic/${id}`, {
       responseType: 'text',
       signal,
@@ -220,7 +206,7 @@ export const useEditTopicInfo = createQuery<
   staleTime: 0,
 })
 
-export const useEditTopic = createMutation<
+export const eitTopicMutation = mutation<
   void,
   {
     title: string
@@ -230,7 +216,7 @@ export const useEditTopic = createMutation<
     prevTopic: Topic
   }
 >({
-  mutationFn: async ({ prevTopic, ...args }) => {
+  fetcher: async ({ prevTopic, ...args }) => {
     const promises = []
 
     if (args.node_name !== prevTopic.node?.name) {
@@ -268,7 +254,7 @@ export const useEditTopic = createMutation<
   },
 })
 
-export const useAppendTopic = createMutation<
+export const appendTopicMutation = mutation<
   void,
   {
     content?: string
@@ -276,7 +262,7 @@ export const useAppendTopic = createMutation<
     topicId: number
   }
 >({
-  mutationFn: ({ topicId, ...args }) =>
+  fetcher: ({ topicId, ...args }) =>
     request.post(
       `/append/topic/${topicId}`,
       paramsSerializer({
@@ -291,25 +277,22 @@ export const useAppendTopic = createMutation<
     ),
 })
 
-export const useIgnoreTopic = createMutation<
+export const ignoreTopicMutation = mutation<
   void,
   { id: number; once: string; type: 'ignore' | 'unignore' }
 >({
-  mutationFn: ({ id, once, type }) =>
+  fetcher: ({ id, once, type }) =>
     request.get(`/${type}/topic/${id}?once=${once}`),
 })
 
-export const useIgnoreReply = createMutation<
-  void,
-  { id: number; once: string }
->({
-  mutationFn: ({ id, once }) =>
-    request.post(`/ignore/reply/${id}?once=${once}`),
-})
+export const ignoreReplyMutation = mutation<void, { id: number; once: string }>(
+  {
+    fetcher: ({ id, once }) => request.post(`/ignore/reply/${id}?once=${once}`),
+  }
+)
 
-export const useReportTopic = createMutation<
-  void,
-  { id: number; once: string }
->({
-  mutationFn: ({ id, once }) => request.get(`/report/topic/${id}?once=${once}`),
-})
+export const reportTopicMutation = mutation<void, { id: number; once: string }>(
+  {
+    fetcher: ({ id, once }) => request.get(`/report/topic/${id}?once=${once}`),
+  }
+)

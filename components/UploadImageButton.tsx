@@ -1,10 +1,11 @@
 import { Feather } from '@expo/vector-icons'
 import { useNavigation } from '@react-navigation/native'
+import { useMutation } from 'quaere'
 import Toast from 'react-native-toast-message'
 
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
-import { useUploadImage } from '@/servicies/image'
+import { uploadImageMutation } from '@/servicies/image'
 import tw from '@/utils/tw'
 
 import StyledButton, { StyledButtonProps } from './StyledButton'
@@ -15,7 +16,9 @@ export default function UploadImageButton({
 }: StyledButtonProps & {
   onUploaded: (url: string) => void
 }) {
-  const { mutateAsync, isPending } = useUploadImage()
+  const { trigger, isMutating } = useMutation({
+    mutation: uploadImageMutation,
+  })
 
   const navigation = useNavigation()
 
@@ -28,9 +31,9 @@ export default function UploadImageButton({
           return
         }
 
-        if (isPending) return
+        if (isMutating) return
         try {
-          onUploaded(await mutateAsync())
+          onUploaded(await trigger())
         } catch (error) {
           Toast.show({
             type: 'error',
@@ -46,7 +49,7 @@ export default function UploadImageButton({
         />
       }
     >
-      {isPending ? '上传中' : '图片'}
+      {isMutating ? '上传中' : '图片'}
     </StyledButton>
   )
 }

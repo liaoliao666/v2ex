@@ -4,19 +4,19 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact, find, findIndex, isBoolean } from 'lodash-es'
+import { useMutation } from 'quaere'
 import { Fragment, memo, useState } from 'react'
 import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
-  useIgnoreReply,
-  useThankReply,
-  useTopicDetail,
+  ignoreReplyMutation,
+  thankReplyMutation,
+  topicDetailQuery,
 } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -266,7 +266,7 @@ function ThankReply({
   once?: string
   reply: Reply
 }) {
-  const { mutateAsync, isPending } = useThankReply()
+  const { trigger, isMutating } = useMutation({ mutation: thankReplyMutation })
 
   const navigation = useNavigation()
 
@@ -280,7 +280,7 @@ function ThankReply({
           return
         }
 
-        if (isPending || disabled) return
+        if (isMutating || disabled) return
 
         await confirm(
           `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`
@@ -293,7 +293,7 @@ function ThankReply({
             thanks: reply.thanks + 1,
           })
 
-          await mutateAsync({
+          await trigger({
             id: reply.id,
             once: once!,
           })
@@ -350,7 +350,7 @@ function MoreButton({
 }) {
   const { showActionSheetWithOptions } = useActionSheet()
 
-  const ignoreReplyMutation = useIgnoreReply()
+  const ignoreReplyResult = useMutation({ mutation: ignoreReplyMutation })
 
   const navigation = useNavigation()
 
@@ -401,18 +401,21 @@ function MoreButton({
                   return
                 }
 
-                if (ignoreReplyMutation.isPending) return
+                if (ignoreReplyResult.isMutating) return
 
                 await confirm('确定隐藏该回复么?')
 
                 try {
-                  await ignoreReplyMutation.mutateAsync({
+                  await ignoreReplyResult.trigger({
                     id: reply.id,
                     once: once!,
                   })
 
-                  queryClient.setQueryData<inferData<typeof useTopicDetail>>(
-                    useTopicDetail.getKey({ id: topicId }),
+                  queryClient.setQueryData(
+                    {
+                      query: topicDetailQuery,
+                      variables: { id: topicId },
+                    },
                     produce(draft => {
                       if (!draft) return
                       for (const page of draft.pages) {
@@ -449,8 +452,11 @@ function MoreButton({
 }
 
 function updateReply(topicId: number, reply: Partial<Reply>) {
-  queryClient.setQueryData<inferData<typeof useTopicDetail>>(
-    useTopicDetail.getKey({ id: topicId }),
+  queryClient.setQueryData(
+    {
+      query: topicDetailQuery,
+      variables: { id: topicId },
+    },
     produce(data => {
       for (const topic of data?.pages || []) {
         const result = find(topic.replies, { id: reply.id })

@@ -1,5 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
+import { useQuery } from 'quaere'
 import { useCallback, useState } from 'react'
 import {
   FlatList,
@@ -18,7 +19,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
-import { useNodes } from '@/servicies/node'
+import { nodesQuery } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import tw from '@/utils/tw'
 
@@ -29,7 +30,8 @@ export default withQuerySuspense(NavNodesScreen, {
 function NavNodesScreen() {
   const navNodes = useAtomValue(navNodesAtom)
 
-  const { data: routes = [] } = useNodes({
+  const { data: routes = [] } = useQuery({
+    query: nodesQuery,
     select: nodes => {
       const nodeMap: Record<string, Node> = Object.fromEntries(
         nodes.map(node => [node.name, node])

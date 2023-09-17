@@ -1,8 +1,10 @@
 import axios from 'axios'
+import { load } from 'cheerio'
 import dayjs from 'dayjs'
-import { createSuspenseInfiniteQuery } from 'react-query-kit'
+import { query, queryWithInfinite } from 'quaere'
 import { z } from 'zod'
 
+import { request } from '@/utils/request'
 import { stripString, stripStringToNumber } from '@/utils/zodHelper'
 
 import { Sov2exResult } from './types'
@@ -24,12 +26,12 @@ export const Sov2exArgs = z.object({
   q: z.preprocess(stripString, z.string().optional()),
 })
 
-export const useSov2ex = createSuspenseInfiniteQuery<
+export const sov2exQuery = queryWithInfinite<
   Sov2exResult,
   z.infer<typeof Sov2exArgs>
 >({
-  primaryKey: 'useSov2ex',
-  queryFn: async ({ queryKey: [, params], pageParam, signal }) => {
+  key: 'sov2ex',
+  fetcher: async (params, { pageParam, signal }) => {
     const { data } = await axios.get(`https://www.sov2ex.com/api/search`, {
       params: {
         ...params,
@@ -52,4 +54,46 @@ export const useSov2ex = createSuspenseInfiniteQuery<
     return nextFrom < page.total ? nextFrom : undefined
   },
   structuralSharing: false,
+})
+
+export const repoReadmeQuery = query({
+  key: 'repoReadme',
+  fetcher: async (variables: { url: string }, { signal }) => {
+    const { data } = await request.get(variables.url, {
+      responseType: 'text',
+      signal,
+    })
+    return load(data)('#readme').html()
+  },
+})
+
+export const svgQuery = query({
+  key: 'svg',
+  fetcher: async (variables: { url: string }, { signal }) => {
+    const { data: xml } = await request.get<string>(variables.url, {
+      signal,
+    })
+    const $ = load(xml)
+    const $svg = $('svg')
+
+    let width: number
+    let height: number
+
+    if ($svg.attr('width') && $svg.attr('height')) {
+      width = parseFloat($svg.attr('width') as string)
+      height = parseFloat($svg.attr('height') as string)
+    } else {
+      const viewBox = $svg.attr('viewBox') || ''
+      ;[, , width, height] = viewBox
+        .split(viewBox.includes(',') ? ',' : ' ')
+        .map(parseFloat)
+    }
+
+    return {
+      xml,
+      wraperStyle: { aspectRatio: width / height || 1, width: '100%' },
+    }
+  },
+  staleTime: Infinity,
+  gcTime: 1000 * 60 * 10,
 })

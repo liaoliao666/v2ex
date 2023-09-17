@@ -1,7 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useSuspenseQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { load } from 'cheerio'
+import { useSuspenseQuery } from 'quaere'
 import { ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -13,6 +11,7 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
+import { repoReadmeQuery } from '@/servicies/other'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
@@ -42,11 +41,7 @@ function GItHubMDScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'GItHubMD'>>()
 
   const { data: html } = useSuspenseQuery({
-    queryKey: [params.url],
-    queryFn: async () => {
-      const { data } = await axios.get(params.url, { responseType: 'text' })
-      return load(data)('#readme').html()
-    },
+    query: repoReadmeQuery,
   })
 
   const navbarHeight = useNavBarHeight()

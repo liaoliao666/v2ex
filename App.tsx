@@ -1,15 +1,16 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
-import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
+import { QueryClientProvider, useQuery } from 'quaere'
 import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useDeviceContext } from 'twrnc'
 
+import { AsyncStoragePersistProvider } from './components/AsyncStoragePersistProvider'
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
 import { deviceTypeAtom } from './jotai/deviceTypeAtom'
@@ -23,12 +24,12 @@ import { profileAtom } from './jotai/profileAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
 import { topicDraftAtom } from './jotai/topicDraftAtom'
-import Navigation, { isReadyNavigation } from './navigation'
-import { useCheckin } from './servicies/member'
-import { useNodes } from './servicies/node'
+import Navigation from './navigation'
+import { checkinQuery } from './servicies/member'
+import { nodesQuery } from './servicies/node'
 import './utils/dayjsPlugins'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
-import { asyncStoragePersister, queryClient } from './utils/query'
+import { queryClient } from './utils/query'
 import tw from './utils/tw'
 
 SplashScreen.preventAutoHideAsync()
@@ -52,27 +53,20 @@ function App() {
   return (
     <ActionSheetProvider>
       <Provider unstable_createStore={() => store}>
-        <PersistQueryClientProvider
-          client={queryClient}
-          persistOptions={{
-            persister: asyncStoragePersister,
-          }}
-          onSuccess={() => {
-            isReadyNavigation.then(SplashScreen.hideAsync)
-          }}
-        >
-          <SafeAreaProvider>
+        <SafeAreaProvider>
+          <QueryClientProvider client={queryClient}>
             <Suspense>
-              <AppInitializer>
-                <Navigation />
-                <StatusBar />
-                <GlobalImageViewer />
-              </AppInitializer>
+              <AsyncStoragePersistProvider>
+                <AppInitializer>
+                  <Navigation />
+                  <StatusBar />
+                  <GlobalImageViewer />
+                </AppInitializer>
+              </AsyncStoragePersistProvider>
             </Suspense>
-
-            <StyledToast />
-          </SafeAreaProvider>
-        </PersistQueryClientProvider>
+          </QueryClientProvider>
+          <StyledToast />
+        </SafeAreaProvider>
       </Provider>
     </ActionSheetProvider>
   )
@@ -98,11 +92,12 @@ function AppInitializer({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useNodes()
+  useQuery({ query: nodesQuery })
 
   useDeviceContext(tw, { withDeviceColorScheme: false })
 
-  useCheckin({
+  useQuery({
+    query: checkinQuery,
     enabled: !!profile && enabledAutoCheckin,
   })
 

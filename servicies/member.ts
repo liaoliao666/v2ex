@@ -1,13 +1,7 @@
 import { load } from 'cheerio'
 import { compact, last } from 'lodash-es'
+import { mutation, query, queryWithInfinite } from 'quaere'
 import Toast from 'react-native-toast-message'
-import {
-  createMutation,
-  createQuery,
-  createSuspenseInfiniteQuery,
-  createSuspenseQuery,
-  inferData,
-} from 'react-query-kit'
 
 import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
 import { store } from '@/jotai/store'
@@ -21,51 +15,59 @@ import {
   parseMemberReplies,
   parseTopicItems,
 } from './helper'
-import { useNodeTopics } from './node'
+import { nodeTopicsQuery } from './node'
 import {
-  useRecentTopics,
-  useTabTopics,
-  useTopicById,
-  useTopicDetail,
+  recentTopicsQuery,
+  tabTopicsQuery,
+  topicByIdQuery,
+  topicDetailQuery,
 } from './topic'
 import { Member, PageData, Reply, Topic } from './types'
 
-export const useMember = createSuspenseQuery<Member, { username: string }>({
-  primaryKey: 'useMember',
-  queryFn: async ({ signal, queryKey: [_, { username }] }) => {
+export const memberQuery = query({
+  key: 'member',
+  fetcher: async (
+    { username }: { username: string },
+    { signal }
+  ): Promise<Member> => {
     const { data } = await request.get(`/member/${username}`, { signal })
     const $ = load(data)
     return { ...parseMember($), username }
   },
 })
 
-export const useFollowMember = createMutation<
-  void,
-  { id: number; once: string; type: 'unfollow' | 'follow' }
->({
-  mutationFn: ({ id, once, type: type }) =>
+export const followMemberMutation = mutation({
+  fetcher: ({
+    id,
+    once,
+    type: type,
+  }: {
+    id: number
+    once: string
+    type: 'unfollow' | 'follow'
+  }) =>
     request.get(`/${type}/${id}?once=${once}`, {
       responseType: 'text',
     }),
 })
 
-export const useBlockMember = createMutation<
+export const blockMemberMutation = mutation<
   void,
   { id: number; once: string; type: 'block' | 'unblock' }
 >({
-  mutationFn: ({ id, once, type: type }) =>
+  fetcher: ({ id, once, type: type }) =>
     request.get(`/${type}/${id}?once=${once}`, {
       responseType: 'text',
     }),
 })
 
-export const useMemberTopics = createSuspenseInfiniteQuery<
+export const memberTopicsQuery = queryWithInfinite<
   PageData<Topic> & { hidden_text?: string },
   { username: string },
   void
 >({
-  primaryKey: 'useMemberTopics',
-  queryFn: async ({ pageParam, signal, queryKey: [, variables] }) => {
+  key: 'memberTopics',
+  fetcher: async (variables, { signal, pageParam }) => {
     const { data } = await request.get(
       `/member/${variables.username}/topics?p=${pageParam}`,
       {
@@ -87,12 +89,12 @@ export const useMemberTopics = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useMemberReplies = createSuspenseInfiniteQuery<
+export const memberRepliesQuery = queryWithInfinite<
   PageData<Omit<Topic, 'replies'> & { reply: Reply }>,
   { username: string }
 >({
-  primaryKey: 'useMemberReplies',
-  queryFn: async ({ pageParam, signal, queryKey: [, variables] }) => {
+  key: 'memberReplies',
+  fetcher: async (variables, { pageParam, signal }) => {
     const { data } = await request.get(
       `/member/${variables.username}/replies?p=${pageParam}`,
       {
@@ -113,11 +115,11 @@ export const useMemberReplies = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useMyFollowing = createSuspenseInfiniteQuery<
+export const myFollowingQuery = queryWithInfinite<
   PageData<Topic> & { following: Member[] }
 >({
-  primaryKey: 'useMyFollowing',
-  queryFn: async ({ pageParam, signal }) => {
+  key: 'myFollowing',
+  fetcher: async (_, { pageParam, signal }) => {
     const { data } = await request.get(`/my/following?p=${pageParam}`, {
       responseType: 'text',
       signal,
@@ -146,9 +148,8 @@ export const useMyFollowing = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useCheckin = createQuery({
-  primaryKey: 'useCheckin',
-  queryFn: async () => {
+export const checkinQuery = query({
+  fetcher: async () => {
     // https://gist.github.com/VitoVan/bf00ce496b44c56417a675c521fe67e8
     const { data: result } = await request.get('/mission/daily', {
       responseType: 'text',
@@ -182,9 +183,9 @@ export const useCheckin = createQuery({
   },
 })
 
-export const useMemberById = createQuery<Member, { id: number }>({
-  primaryKey: 'useMemberById',
-  queryFn: async ({ signal, queryKey: [_, { id }] }) => {
+export const memberByIdQuery = query<Member, { id: number }>({
+  key: 'memberById',
+  fetcher: async ({ id }, { signal }) => {
     const { data } = await request.get(`/api/members/show.json?id=${id}`, {
       signal,
     })
@@ -193,17 +194,17 @@ export const useMemberById = createQuery<Member, { id: number }>({
   },
 })
 
-export const useBlockers = createSuspenseInfiniteQuery<
+export const blockersQuery = queryWithInfinite<
   PageData<Member>,
   { ids: number[] }
 >({
-  primaryKey: 'useBlockers',
-  queryFn: async ({ pageParam, queryKey: [, { ids = [] }] }) => {
+  key: 'blockers',
+  fetcher: async ({ ids = [] }, { pageParam }) => {
     const pageSize = 10
     const chunkIds = ids.slice(pageParam - 1, pageParam * 10)
     const cacheMemberMap = queryClient
-      .getQueriesData<inferData<typeof useMember>>({
-        queryKey: useMember.getKey(),
+      .getQueriesData({
+        query: memberQuery,
       })
       .reduce((acc, [, member]) => {
         if (member?.id) {
@@ -220,7 +221,10 @@ export const useBlockers = createSuspenseInfiniteQuery<
           chunkIds.map(async id => {
             if (cacheMemberMap[id]) return cacheMemberMap[id]
             return await queryClient
-              .ensureQueryData(useMemberById.getFetchOptions({ id }))
+              .ensureQueryData({
+                query: memberByIdQuery,
+                variables: { id },
+              })
               .catch(() => null)
           })
         )
@@ -232,12 +236,12 @@ export const useBlockers = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useIgnoredTopics = createSuspenseInfiniteQuery<
+export const ignoredTopicsQuery = queryWithInfinite<
   PageData<Topic>,
   { ids: number[] }
 >({
-  primaryKey: 'useIgnoredTopics',
-  queryFn: async ({ pageParam, queryKey: [, { ids = [] }] }) => {
+  key: 'ignoredTopics',
+  fetcher: async ({ ids = [] }, { pageParam }) => {
     const pageSize = 10
     const chunkIds = ids.slice(pageParam - 1, pageParam * 10)
     const cacheTopicMap = {} as Record<string, Topic>
@@ -248,8 +252,8 @@ export const useIgnoredTopics = createSuspenseInfiniteQuery<
     })
 
     queryClient
-      .getQueriesData<inferData<typeof useNodeTopics>>({
-        queryKey: useNodeTopics.getKey(),
+      .getQueriesData({
+        query: nodeTopicsQuery,
       })
       .forEach(([, data]) => {
         data?.pages?.forEach(p => {
@@ -259,15 +263,15 @@ export const useIgnoredTopics = createSuspenseInfiniteQuery<
         })
       })
     queryClient
-      .getQueryData<inferData<typeof useRecentTopics>>(useRecentTopics.getKey())
+      .getQueryData({ query: recentTopicsQuery })
       ?.pages?.forEach(p => {
         p.list.forEach(topic => {
           cacheTopicMap[topic.id] = topic
         })
       })
     queryClient
-      .getQueriesData<inferData<typeof useTabTopics>>({
-        queryKey: useTabTopics.getKey(),
+      .getQueriesData({
+        query: tabTopicsQuery,
       })
       .forEach(([, data]) => {
         data?.forEach(topic => {
@@ -275,8 +279,8 @@ export const useIgnoredTopics = createSuspenseInfiniteQuery<
         })
       })
     queryClient
-      .getQueriesData<inferData<typeof useTopicDetail>>({
-        queryKey: useTopicDetail.getKey(),
+      .getQueriesData({
+        query: topicDetailQuery,
       })
       .forEach(([, data]) => {
         const topic = last(data?.pages)
@@ -293,7 +297,10 @@ export const useIgnoredTopics = createSuspenseInfiniteQuery<
           chunkIds.map(async id => {
             if (cacheTopicMap[id]) return cacheTopicMap[id]
             return await queryClient
-              .ensureQueryData(useTopicById.getFetchOptions({ id }))
+              .ensureQueryData({
+                query: topicByIdQuery,
+                variables: { id },
+              })
               .catch(() => null)
           })
         )

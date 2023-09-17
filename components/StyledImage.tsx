@@ -1,6 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import { load } from 'cheerio'
 import { isArray, isObject, isString, pick } from 'lodash-es'
+import { useQuery } from 'quaere'
 import { useState } from 'react'
 import {
   Image,
@@ -11,10 +10,10 @@ import {
 } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
+import { svgQuery } from '@/servicies/other'
 import { hasSize } from '@/utils/hasSize'
 import { isExpoGo } from '@/utils/isExpoGo'
 import { isStyle } from '@/utils/isStyle'
-import { request } from '@/utils/request'
 import tw from '@/utils/tw'
 import { isSvgURL, resolveURL } from '@/utils/url'
 
@@ -97,37 +96,12 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
 }
 
 function CustomSvgUri({ uri, style, ...props }: UriProps) {
-  const { data: svg, isError } = useQuery({
-    queryKey: [uri],
-    queryFn: async () => {
-      const { data: xml } = await request.get<string>(uri!)
-      const $ = load(xml)
-      const $svg = $('svg')
-
-      let width: number
-      let height: number
-
-      if ($svg.attr('width') && $svg.attr('height')) {
-        width = parseFloat($svg.attr('width') as string)
-        height = parseFloat($svg.attr('height') as string)
-      } else {
-        const viewBox = $svg.attr('viewBox') || ''
-        ;[, , width, height] = viewBox
-          .split(viewBox.includes(',') ? ',' : ' ')
-          .map(parseFloat)
-      }
-
-      return {
-        xml,
-        wraperStyle: { aspectRatio: width / height || 1, width: '100%' },
-      }
-    },
+  const { data: svg, error } = useQuery({
+    query: svgQuery,
     enabled: !!uri,
-    staleTime: Infinity,
-    gcTime: 1000 * 60 * 10,
   })
 
-  if (isError) return null
+  if (error) return null
 
   if (!svg?.xml) {
     return (

@@ -1,6 +1,5 @@
 import { load } from 'cheerio'
-import { createQuery, createSuspenseQuery } from 'react-query-kit'
-import { createMutation, createSuspenseInfiniteQuery } from 'react-query-kit'
+import { mutation, query, queryWithInfinite } from 'quaere'
 
 import { invoke } from '@/utils/invoke'
 import { request } from '@/utils/request'
@@ -9,28 +8,28 @@ import { getURLSearchParams } from '@/utils/url'
 import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
 import { Node, PageData, Topic } from './types'
 
-export const useNodes = createQuery<Node[], void>({
-  primaryKey: 'useNodes',
-  queryFn: ({ signal }) =>
+export const nodesQuery = query<Node[], void>({
+  key: 'nodes',
+  fetcher: (_, { signal }) =>
     request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),
 })
 
-export const useLikeNode = createMutation<
+export const likeNodeMutation = mutation<
   void,
   { id: number; once: string; type: 'unfavorite' | 'favorite' }
 >({
-  mutationFn: ({ id, once, type: type }) =>
+  fetcher: ({ id, once, type: type }) =>
     request.get(`/${type}/node/${id}?once=${once}`, {
       responseType: 'text',
     }),
 })
 
-export const useNodeTopics = createSuspenseInfiniteQuery<
+export const nodeTopicsQuery = queryWithInfinite<
   PageData<Topic> & { liked?: boolean; once?: string },
   { name: string }
 >({
-  primaryKey: 'useNodeTopics',
-  queryFn: async ({ queryKey: [_, { name }], pageParam, signal }) => {
+  key: 'nodeTopics',
+  fetcher: async ({ name }, { pageParam, signal }) => {
     const { data } = await request.get(`/go/${name}?p=${pageParam}`, {
       responseType: 'text',
       signal,
@@ -56,9 +55,9 @@ export const useNodeTopics = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useMyNodes = createSuspenseQuery<string[], void>({
-  primaryKey: 'useMyNodes',
-  queryFn: async ({ signal }) => {
+export const myNodesQuery = query<string[], void>({
+  key: 'myNodes',
+  fetcher: async (_, { signal }) => {
     const { data } = await request.get(`/my/nodes`, { signal })
     const $ = load(data)
     return $('#my-nodes a')

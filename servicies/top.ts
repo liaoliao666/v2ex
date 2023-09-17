@@ -1,13 +1,13 @@
 import { load } from 'cheerio'
-import { createSuspenseQuery } from 'react-query-kit'
+import { query } from 'quaere'
 
 import { request } from '@/utils/request'
 
 import { parseRank } from './helper'
 
-export const useTopRich = createSuspenseQuery({
-  primaryKey: `useTopRich`,
-  queryFn: async () => {
+export const topRichQuery = query({
+  key: `topRich`,
+  fetcher: async () => {
     const { data } = await request(`/top/rich`, {
       responseType: 'text',
     })
@@ -15,9 +15,9 @@ export const useTopRich = createSuspenseQuery({
   },
 })
 
-export const useTopPlayer = createSuspenseQuery({
-  primaryKey: `useTopPlayer`,
-  queryFn: async () => {
+export const topPlayerQuery = query({
+  key: `topPlayer`,
+  fetcher: async () => {
     const { data } = await request(`/top/player`, {
       responseType: 'text',
     })

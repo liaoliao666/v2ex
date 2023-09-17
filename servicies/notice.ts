@@ -1,18 +1,15 @@
 import { load } from 'cheerio'
 import { defaultTo } from 'lodash-es'
-import { createMutation, createSuspenseInfiniteQuery } from 'react-query-kit'
+import { mutation, queryWithInfinite } from 'quaere'
 
 import { request } from '@/utils/request'
 
 import { getNextPageParam, parseLastPage, parseTopicByATag } from './helper'
 import { Member, Notice, PageData, Topic } from './types'
 
-export const useNotifications = createSuspenseInfiniteQuery<
-  PageData<Notice>,
-  void
->({
-  primaryKey: 'useNotifications',
-  queryFn: async ({ pageParam, signal }) => {
+export const notificationsQuery = queryWithInfinite<PageData<Notice>, void>({
+  key: 'notifications',
+  fetcher: async (_, { pageParam, signal }) => {
     const { data } = await request.get(`/notifications?p=${pageParam}`, {
       responseType: 'text',
       signal,
@@ -60,11 +57,11 @@ export const useNotifications = createSuspenseInfiniteQuery<
   structuralSharing: false,
 })
 
-export const useDeleteNotice = createMutation<
+export const deleteNoticeMutation = mutation<
   void,
   { id: number; once: string }
 >({
-  mutationFn: ({ id, once }) =>
+  fetcher: ({ id, once }) =>
     request.post(`/delete/notification/${id}?once=${once}`, {
       responseType: 'text',
     }),

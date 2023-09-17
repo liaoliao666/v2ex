@@ -1,17 +1,17 @@
-import { createQuery } from 'react-query-kit'
+import { query } from 'quaere'
 
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
-export const usePreview = createQuery<
+export const previewQuery = query<
   string,
   {
     text: string
     syntax: 'default' | 'markdown'
   }
 >({
-  primaryKey: 'usePreview',
-  queryFn: async ({ signal, queryKey: [_, { text, syntax }] }) => {
+  key: 'preview',
+  fetcher: async ({ text, syntax }, { signal }) => {
     const { data } = await request.post(
       `/preview/${syntax}`,
       paramsSerializer({ text }),

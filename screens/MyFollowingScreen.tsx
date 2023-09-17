@@ -1,5 +1,6 @@
 import { useAtomValue } from 'jotai'
 import { findIndex, last, uniqBy } from 'lodash-es'
+import { useSuspenseQuery } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
@@ -28,7 +29,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useMemberTopics, useMyFollowing } from '@/servicies/member'
+import { memberTopicsQuery, myFollowingQuery } from '@/servicies/member'
 import { Topic } from '@/servicies/types'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -80,7 +81,9 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
 })
 
 function MyFollowingScreen() {
-  const { data } = useMyFollowing()
+  const { data } = useSuspenseQuery({
+    query: myFollowingQuery,
+  })
 
   const following = last(data.pages)?.following
 
@@ -186,7 +189,9 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useMyFollowing()
+  } = useSuspenseQuery({
+    query: myFollowingQuery,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -251,7 +256,8 @@ function MemberTopics({
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useMemberTopics({
+  } = useSuspenseQuery({
+    query: memberTopicsQuery,
     variables: { username },
   })
 

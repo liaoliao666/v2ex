@@ -1,12 +1,12 @@
 import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useInfiniteQuery } from '@tanstack/react-query'
 import { compact, isEqual, maxBy } from 'lodash-es'
+import { useQuery } from 'quaere'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
-import { useTopicDetail } from '@/servicies/topic'
+import { topicDetailQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -27,8 +27,9 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const { data: isReaded } = useInfiniteQuery({
-    ...useTopicDetail.getFetchOptions({ id: topic.id }),
+  const { data: isReaded } = useQuery({
+    query: topicDetailQuery,
+    variables: { id: topic.id },
     select: data => {
       const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
       return replyCount === topic.reply_count

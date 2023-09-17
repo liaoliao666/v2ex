@@ -1,5 +1,5 @@
-import { QueryErrorResetBoundary } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { QueryErrorResetBoundary } from 'quaere'
 import type { ComponentType, FC, ReactNode } from 'react'
 import { Suspense } from 'react'
 import type { ErrorBoundaryProps, FallbackProps } from 'react-error-boundary'

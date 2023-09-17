@@ -7,6 +7,7 @@ import {
 import { useNavigation } from '@react-navigation/native'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
+import { useMutation, useQuery } from 'quaere'
 import { Fragment } from 'react'
 import { Platform, ScrollView, Switch, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -29,8 +30,8 @@ import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
-import { useSignout } from '@/servicies/authentication'
-import { useLatestVersion } from '@/servicies/version'
+import { signoutMutation } from '@/servicies/authentication'
+import { latestVersionQuery, useLatestVersion } from '@/servicies/version'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
 import { isExpoGo } from '@/utils/isExpoGo'
@@ -373,14 +374,16 @@ function SettingScreen() {
 }
 
 function SignoutItem({ once }: { once: string }) {
-  const { isPending, mutateAsync } = useSignout()
+  const { isMutating, trigger } = useMutation({
+    mutation: signoutMutation,
+  })
 
   const setProfileAtom = useSetAtom(profileAtom)
 
   async function logout() {
     try {
-      if (isPending) return
-      await mutateAsync({ once })
+      if (isMutating) return
+      await trigger({ once })
     } catch (error) {
       // empty
     } finally {
@@ -397,7 +400,9 @@ function SignoutItem({ once }: { once: string }) {
 }
 
 function CheckAppVersion() {
-  const { data, refetch, isFetching } = useLatestVersion()
+  const { data, refetch, isFetching } = useQuery({
+    query: latestVersionQuery,
+  })
 
   return (
     <ListItem

@@ -1,5 +1,5 @@
 import NetInfo from '@react-native-community/netinfo'
-import { onlineManager } from '@tanstack/react-query'
+import { onlineManager } from 'quaere'
 import * as React from 'react'
 import { Platform } from 'react-native'
 

@@ -2,6 +2,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useNavigation } from '@react-navigation/native'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
+import { useMutation, useQuery } from 'quaere'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
@@ -19,8 +20,8 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import {
-  useSignin,
-  useSigninInfo,
+  signinInfoQuery,
+  signinMutation,
   useTwoStepSignin,
 } from '@/servicies/authentication'
 import { queryClient } from '@/utils/query'
@@ -42,9 +43,9 @@ const SigninArgs = z.object({
 })
 
 export default function LoginScreen() {
-  const signinInfoQuery = useSigninInfo()
+  const signinInfoResult = useQuery({ query: signinInfoQuery })
 
-  const signinMutation = useSignin()
+  const signinResult = useMutation({ mutation: signinMutation })
 
   const { control, getValues, handleSubmit } = useForm<
     z.infer<typeof SigninArgs>
@@ -75,12 +76,12 @@ export default function LoginScreen() {
         <StyledButton
           style={tw`h-[52px] mt-7`}
           onPress={() => {
-            signinInfoQuery.refetch()
+            signinInfoResult.refetch()
           }}
           size="large"
           shape="rounded"
         >
-          {signinInfoQuery.isFetching ? '重试中...' : '重试'}
+          {signinInfoResult.isFetching ? '重试中...' : '重试'}
         </StyledButton>
       </View>
     )
@@ -130,8 +131,8 @@ export default function LoginScreen() {
             <View>
               <TouchableOpacity
                 onPress={() => {
-                  if (!signinInfoQuery.isFetching) {
-                    signinInfoQuery.refetch()
+                  if (!signinInfoResult.isFetching) {
+                    signinInfoResult.refetch()
                   }
                 }}
                 style={tw`aspect-4 mb-2 w-full`}
@@ -139,10 +140,10 @@ export default function LoginScreen() {
                 <StyledImage
                   style={tw`w-full h-full rounded-lg img-loading`}
                   source={{
-                    uri: signinInfoQuery.data?.captcha,
-                    headers: signinInfoQuery.data?.cookie
+                    uri: signinInfoResult.data?.captcha,
+                    headers: signinInfoResult.data?.cookie
                       ? {
-                          Cookie: signinInfoQuery.data.cookie,
+                          Cookie: signinInfoResult.data.cookie,
                         }
                       : undefined,
                   }}
@@ -162,9 +163,9 @@ export default function LoginScreen() {
         />
 
         <View style={tw`min-h-[16px]`}>
-          {!!signinMutation.error?.message && (
+          {!!signinResult.error?.message && (
             <Text style={tw`${getFontSize(6)} text-[#ff4d4f]`}>
-              {signinMutation.error.message}
+              {signinResult.error.message}
             </Text>
           )}
         </View>
@@ -173,17 +174,17 @@ export default function LoginScreen() {
           size="large"
           style={tw`w-full mt-4`}
           onPress={handleSubmit(async () => {
-            if (signinMutation.isPending) return
-            if (!signinInfoQuery.isSuccess) return
+            if (signinResult.isMutating) return
+            if (!signinInfoResult.data) return
 
             try {
-              const result = await signinMutation.mutateAsync({
-                [signinInfoQuery.data.username_hash!]:
+              const result = await signinResult.trigger({
+                [signinInfoResult.data.username_hash!]:
                   getValues('username').trim(),
-                [signinInfoQuery.data.password_hash!]:
+                [signinInfoResult.data.password_hash!]:
                   getValues('password').trim(),
-                [signinInfoQuery.data.code_hash!]: getValues('code').trim(),
-                once: signinInfoQuery.data.once!,
+                [signinInfoResult.data.code_hash!]: getValues('code').trim(),
+                once: signinInfoResult.data.once!,
                 username: getValues('username').trim(),
               })
 
@@ -195,11 +196,11 @@ export default function LoginScreen() {
               navigation.goBack()
               queryClient.refetchQueries({ type: 'active' })
             } catch (error) {
-              signinInfoQuery.refetch()
+              signinInfoResult.refetch()
             }
           })}
         >
-          {signinMutation.isPending ? '登录中...' : '登录'}
+          {signinResult.isMutating ? '登录中...' : '登录'}
         </StyledButton>
 
         <FormControl
@@ -246,13 +247,13 @@ export default function LoginScreen() {
           )}
         />
 
-        {(Platform.OS === 'android' || dayjs().isAfter('2023-9-17')) && (
+        {(Platform.OS === 'android' || dayjs().isAfter('2023-9-19')) && (
           <TouchableOpacity
             style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
             onPress={() => {
-              if (!signinInfoQuery.data?.once) return
+              if (!signinInfoResult.data?.once) return
               navigation.navigate('WebSignin', {
-                once: signinInfoQuery.data.once,
+                once: signinInfoResult.data.once,
                 onTwoStepOnce: setTwoStepOnce,
               })
             }}
@@ -276,7 +277,7 @@ export default function LoginScreen() {
           paddingTop: navbarHeight,
         }}
       >
-        {signinInfoQuery.data?.is_limit ? (
+        {signinInfoResult.data?.is_limit ? (
           renderLimitContent()
         ) : twoStepOnce ? (
           <TwoStepSignin once={twoStepOnce} />
@@ -304,7 +305,9 @@ function TwoStepSignin({ once }: { once: string }) {
     resolver: zodResolver(TwoStepSigninArgs),
   })
 
-  const { mutateAsync, isPending, error } = useTwoStepSignin()
+  const { trigger, isMutating, error } = useMutation({
+    mutation: useTwoStepSignin,
+  })
 
   const navigation = useNavigation()
 
@@ -340,8 +343,8 @@ function TwoStepSignin({ once }: { once: string }) {
         size="large"
         style={tw`w-full mt-4`}
         onPress={handleSubmit(async () => {
-          if (isPending) return
-          await mutateAsync({
+          if (isMutating) return
+          await trigger({
             ...getValues(),
             once,
           })
@@ -349,7 +352,7 @@ function TwoStepSignin({ once }: { once: string }) {
           queryClient.refetchQueries({ type: 'active' })
         })}
       >
-        {isPending ? '登录中...' : '登录'}
+        {isMutating ? '登录中...' : '登录'}
       </StyledButton>
 
       <Text style={tw`${getFontSize(5)} text-tint-primary mt-2`}>

@@ -3,11 +3,11 @@ import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
+import { useMutation, useQuery, useSuspenseQuery } from 'quaere'
 import { useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Platform, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import Empty from '@/components/Empty'
 import Html from '@/components/Html'
@@ -26,7 +26,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useLikeNode, useNodeTopics, useNodes } from '@/servicies/node'
+import { likeNodeMutation, nodeTopicsQuery, nodesQuery } from '@/servicies/node'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
@@ -68,11 +68,13 @@ function NodeTopicsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useNodeTopics({
+    useSuspenseQuery({
+      query: nodeTopicsQuery,
       variables: { name: params.name },
     })
 
-  const { data: node } = useNodes({
+  const { data: node } = useQuery({
+    query: nodesQuery,
     select: nodes => find(nodes, { name: params.name }),
   })
 
@@ -175,7 +177,8 @@ function NodeInfo({
 }) {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
-  const { data: node } = useNodes({
+  const { data: node } = useQuery({
+    query: nodesQuery,
     select: nodes => find(nodes, { name: params.name }),
   })
 
@@ -235,7 +238,9 @@ function LikeNode({
   liked?: boolean
   type: 'button' | 'icon'
 }) {
-  const { mutateAsync, isPending } = useLikeNode()
+  const { trigger, isMutating } = useMutation({
+    mutation: likeNodeMutation,
+  })
 
   const navigation = useNavigation()
 
@@ -245,7 +250,7 @@ function LikeNode({
       return
     }
 
-    if (isPending) return
+    if (isMutating) return
     if (!id || !once) return
 
     try {
@@ -254,7 +259,7 @@ function LikeNode({
         stars: stars + (liked ? -1 : 1),
       })
 
-      await mutateAsync({
+      await trigger({
         id,
         type: liked ? 'unfavorite' : 'favorite',
         once,
@@ -309,8 +314,11 @@ function updateNode(
     stars: number
   }
 ) {
-  queryClient.setQueryData<inferData<typeof useNodeTopics>>(
-    useNodeTopics.getKey({ name }),
+  queryClient.setQueryData(
+    {
+      query: nodeTopicsQuery,
+      variables: { name },
+    },
     produce(data => {
       data?.pages.forEach(page => {
         Object.assign(page, node)

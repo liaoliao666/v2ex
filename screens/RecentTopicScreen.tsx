@@ -2,11 +2,11 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom } from 'jotai'
 import { compact, isString, last, pick, uniqBy, upperCase } from 'lodash-es'
+import { inferData } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -18,7 +18,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
-import { useTopicDetail } from '@/servicies/topic'
+import { topicDetailQuery } from '@/servicies/topic'
 import { RootStackParamList } from '@/types'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
@@ -33,13 +33,13 @@ export default function RecentTopicScreen() {
     const localRecentTopics = queryClient
       .getQueryCache()
       .findAll({
-        queryKey: useTopicDetail.getKey(),
+        query: topicDetailQuery,
       })
       .sort((a, b) => b.state.dataUpdatedAt - a.state.dataUpdatedAt)
       .map(query => {
-        const lastPage = last(
-          (query.state.data as inferData<typeof useTopicDetail>)?.pages
-        )
+        const lastPage = last(query.state.data?.pages) as inferData<
+          typeof topicDetailQuery
+        >
         if (!lastPage?.title) return
         return {
           member: pick(lastPage.member, ['username', 'avatar']),
@@ -89,7 +89,7 @@ export default function RecentTopicScreen() {
                 try {
                   await confirm(`确认清除最近浏览主题吗？`)
                   queryClient.removeQueries({
-                    queryKey: useTopicDetail.getKey(),
+                    query: topicDetailQuery,
                   })
                   setRecentTopics([])
                   Toast.show({

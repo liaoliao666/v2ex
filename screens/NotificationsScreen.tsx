@@ -4,11 +4,11 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
+import { useMutation, useSuspenseQuery } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Html from '@/components/Html'
@@ -29,7 +29,7 @@ import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useDeleteNotice, useNotifications } from '@/servicies/notice'
+import { deleteNoticeMutation, notificationsQuery } from '@/servicies/notice'
 import { Notice } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
@@ -61,7 +61,9 @@ function NotificationsScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useNotifications()
+  } = useSuspenseQuery({
+    query: notificationsQuery,
+  })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -243,7 +245,9 @@ const NoticeItem = memo(
 )
 
 function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
-  const { mutateAsync, isPending } = useDeleteNotice()
+  const { trigger, isMutating } = useMutation({
+    mutation: deleteNoticeMutation,
+  })
 
   const navigation = useNavigation()
 
@@ -259,17 +263,19 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
           return
         }
 
-        if (isPending) return
+        if (isMutating) return
 
         await confirm(`确认删除这条提醒么？`)
 
-        const notifications = queryClient.getQueryData(
-          useNotifications.getKey()
-        ) as inferData<typeof useNotifications>
+        const notifications = queryClient.getQueryData({
+          query: notificationsQuery,
+        })
 
         try {
-          queryClient.setQueryData<inferData<typeof useNotifications>>(
-            useNotifications.getKey(),
+          queryClient.setQueryData(
+            {
+              query: notificationsQuery,
+            },
             produce(draft => {
               for (const page of draft?.pages || []) {
                 const index = findIndex(page.list, { id })
@@ -281,15 +287,12 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
             })
           )
 
-          await mutateAsync({
+          await trigger({
             id,
             once,
           })
         } catch (error) {
-          queryClient.setQueryData<inferData<typeof useNotifications>>(
-            useNotifications.getKey(),
-            notifications
-          )
+          queryClient.setQueryData({ query: notificationsQuery }, notifications)
           Toast.show({
             type: 'error',
             text1: '删除失败',

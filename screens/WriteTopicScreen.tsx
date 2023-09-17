@@ -2,13 +2,13 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { RESET } from 'jotai/utils'
 import { compact, isString } from 'lodash-es'
+import { useMutation, useQuery } from 'quaere'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
 import { ScrollView, TextInput } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
-import { inferVariables } from 'react-query-kit'
 import { z } from 'zod'
 
 import FormControl from '@/components/FormControl'
@@ -28,12 +28,12 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { WriteTopicArgs, topicDraftAtom } from '@/jotai/topicDraftAtom'
-import { usePreview } from '@/servicies/preview'
+import { previewQuery } from '@/servicies/preview'
 import {
-  useEditTopic,
-  useEditTopicInfo,
-  useTopicDetail,
-  useWriteTopic,
+  editTopicInfoQuery,
+  eitTopicMutation,
+  topicDetailQuery,
+  writeTopicMutation,
 } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -92,10 +92,10 @@ function WriteTopicScreen() {
 
   const isEdit = !!topic
 
-  const { data: editTopicInfo } = useEditTopicInfo({
+  const { data: editTopicInfo } = useQuery({
+    query: editTopicInfoQuery,
     variables: { id: topic?.id! },
     enabled: isEdit,
-    // @ts-ignore
     suspense: isEdit,
   })
 
@@ -117,9 +117,9 @@ function WriteTopicScreen() {
 
   const navigation = useNavigation()
 
-  const writeTopicMutation = useWriteTopic()
+  const writeTopicResult = useMutation({ mutation: writeTopicMutation })
 
-  const editTopicMutation = useEditTopic()
+  const editTopicResult = useMutation({ mutation: eitTopicMutation })
 
   const navbarHeight = useNavBarHeight()
 
@@ -294,13 +294,13 @@ function WriteTopicScreen() {
                 handleSubmit(async values => {
                   try {
                     if (
-                      writeTopicMutation.isPending ||
-                      editTopicMutation.isPending
+                      writeTopicResult.isMutating ||
+                      editTopicResult.isMutating
                     )
                       return
 
                     if (isEdit) {
-                      await editTopicMutation.mutateAsync({
+                      await editTopicResult.trigger({
                         title: values.title.trim(),
                         content: values.content?.trim(),
                         node_name: values.node.name,
@@ -309,11 +309,12 @@ function WriteTopicScreen() {
                       })
 
                       queryClient.refetchQueries({
-                        queryKey: useTopicDetail.getKey({ id: topic?.id }),
+                        query: topicDetailQuery,
+                        variables: { id: topic?.id },
                         type: 'active',
                       })
                     } else {
-                      await writeTopicMutation.mutateAsync({
+                      await writeTopicResult.trigger({
                         title: values.title.trim(),
                         content: values.content?.trim(),
                         node_name: values.node.name,
@@ -377,11 +378,15 @@ function WriteTopicScreen() {
 function PreviewTopic({
   title,
   ...variables
-}: inferVariables<typeof usePreview> & { title?: string }) {
-  const { data } = usePreview({
+}: {
+  title?: string
+  text: string
+  syntax: 'default' | 'markdown'
+}) {
+  const { data } = useQuery({
+    query: previewQuery,
     variables,
     enabled: !!variables.text,
-    // @ts-ignore
     suspense: true,
   })
 

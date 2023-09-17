@@ -4,10 +4,10 @@ import { useNavigation } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact } from 'lodash-es'
+import { useMutation } from 'quaere'
 import { Fragment, ReactElement, useState } from 'react'
 import { Platform, Pressable, Share, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
-import { inferData } from 'react-query-kit'
 
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
@@ -15,16 +15,16 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useNodeTopics } from '@/servicies/node'
+import { nodeTopicsQuery } from '@/servicies/node'
 import {
-  useIgnoreTopic,
-  useLikeTopic,
-  useRecentTopics,
-  useReportTopic,
-  useTabTopics,
-  useThankTopic,
-  useTopicDetail,
-  useVoteTopic,
+  ignoreTopicMutation,
+  likeTopicMutation,
+  recentTopicsQuery,
+  reportTopicMutation,
+  tabTopicsQuery,
+  thankTopicMutation,
+  topicDetailQuery,
+  voteTopicMutation,
 } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -197,7 +197,9 @@ export default function TopicInfo({
 }
 
 export function LikeTopic({ topic }: { topic: Topic }) {
-  const { mutateAsync, isPending } = useLikeTopic()
+  const { isMutating, trigger } = useMutation({
+    mutation: likeTopicMutation,
+  })
 
   const navigation = useNavigation()
 
@@ -210,7 +212,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
           return
         }
 
-        if (isPending) return
+        if (isMutating) return
 
         try {
           updateTopicDetail({
@@ -219,7 +221,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
             likes: topic.likes + (topic.liked ? -1 : 1),
           })
 
-          await mutateAsync({
+          await trigger({
             id: topic.id,
             type: topic.liked ? 'unfavorite' : 'favorite',
             once: topic.once!,
@@ -266,7 +268,9 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 }
 
 export function ThankTopic({ topic }: { topic: Topic }) {
-  const { mutateAsync, isPending } = useThankTopic()
+  const { trigger, isMutating } = useMutation({
+    mutation: thankTopicMutation,
+  })
 
   const navigation = useNavigation()
 
@@ -279,7 +283,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
           return
         }
 
-        if (isPending || topic.thanked) return
+        if (isMutating || topic.thanked) return
 
         await confirm('你确定要向本主题创建者发送谢意？')
 
@@ -290,7 +294,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
             thanks: topic.thanks + 1,
           })
 
-          await mutateAsync({
+          await trigger({
             id: topic.id,
             once: topic.once!,
           })
@@ -336,7 +340,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 }
 
 export function VoteButton({ topic }: { topic: Topic }) {
-  const { mutateAsync, isPending } = useVoteTopic()
+  const { trigger, isMutating } = useMutation({ mutation: voteTopicMutation })
 
   const navigation = useNavigation()
 
@@ -350,10 +354,10 @@ export function VoteButton({ topic }: { topic: Topic }) {
             return
           }
 
-          if (isPending) return
+          if (isMutating) return
 
           try {
-            const newVotes = await mutateAsync({
+            const newVotes = await trigger({
               id: topic.id,
               type: 'up',
               once: topic.once!,
@@ -396,10 +400,10 @@ export function VoteButton({ topic }: { topic: Topic }) {
             return
           }
 
-          if (isPending) return
+          if (isMutating) return
 
           try {
-            const newVotes = await mutateAsync({
+            const newVotes = await trigger({
               id: topic.id,
               type: 'down',
               once: topic.once!,
@@ -437,9 +441,9 @@ function MoreButton({
 
   const navigation = useNavigation()
 
-  const ignoreTopicMutation = useIgnoreTopic()
+  const ignoreTopicResult = useMutation({ mutation: ignoreTopicMutation })
 
-  const reportTopicMutation = useReportTopic()
+  const reportTopicResult = useMutation({ mutation: reportTopicMutation })
 
   return (
     <IconButton
@@ -478,12 +482,12 @@ function MoreButton({
                   return
                 }
 
-                if (reportTopicMutation.isPending) return
+                if (reportTopicResult.isMutating) return
 
                 await confirm('确定举报该主题么?')
 
                 try {
-                  await reportTopicMutation.mutateAsync({
+                  await reportTopicResult.trigger({
                     id: topic.id,
                     once: topic.once!,
                   })
@@ -520,12 +524,12 @@ function MoreButton({
                   return
                 }
 
-                if (ignoreTopicMutation.isPending) return
+                if (ignoreTopicResult.isMutating) return
 
                 if (!topic.ignored) await confirm(`确定忽略该主题么?`)
 
                 try {
-                  await ignoreTopicMutation.mutateAsync({
+                  await ignoreTopicResult.trigger({
                     id: topic.id,
                     once: topic.once!,
                     type: topic.ignored ? 'unignore' : 'ignore',
@@ -535,20 +539,22 @@ function MoreButton({
 
                   // refetch related queries
                   queryClient.refetchQueries({
-                    queryKey: useNodeTopics.getKey({ name: topic.node?.name }),
+                    query: nodeTopicsQuery,
+                    variables: { name: topic.node?.name },
                   })
                   const tab =
                     store.get(homeTabsAtom)?.[store.get(homeTabIndexAtom)!]?.key
                   if (tab === 'recent') {
                     queryClient.refetchQueries({
-                      queryKey: useRecentTopics.getKey(),
+                      query: recentTopicsQuery,
                       type: 'active',
                     })
                   } else {
                     queryClient.refetchQueries({
-                      queryKey: useTabTopics.getKey({
+                      query: tabTopicsQuery,
+                      variables: {
                         tab,
-                      }),
+                      },
                       type: 'active',
                     })
                   }
@@ -567,10 +573,6 @@ function MoreButton({
                       ],
                     }))
                   }
-                  queryClient.refetchQueries({
-                    queryKey: useIgnoreTopic.getKey(),
-                    type: 'active',
-                  })
 
                   Toast.show({
                     type: 'success',
@@ -608,8 +610,11 @@ function MoreButton({
 }
 
 function updateTopicDetail(newTopic: Partial<Topic>) {
-  queryClient.setQueryData<inferData<typeof useTopicDetail>>(
-    useTopicDetail.getKey({ id: newTopic.id }),
+  queryClient.setQueryData(
+    {
+      query: topicDetailQuery,
+      variables: { id: newTopic.id! },
+    },
     produce(data => {
       data?.pages.forEach(topic => {
         Object.assign(topic, newTopic)

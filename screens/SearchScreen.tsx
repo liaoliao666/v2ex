@@ -1,6 +1,5 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
-import { useInfiniteQuery } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import {
@@ -12,6 +11,7 @@ import {
   uniqBy,
   upperCase,
 } from 'lodash-es'
+import { useQuery, useSuspenseQuery } from 'quaere'
 import { useCallback, useMemo, useState } from 'react'
 import { memo } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
@@ -34,9 +34,9 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useNodes } from '@/servicies/node'
-import { useSov2ex } from '@/servicies/sov2ex'
-import { useTopicDetail } from '@/servicies/topic'
+import { nodesQuery } from '@/servicies/node'
+import { sov2exQuery } from '@/servicies/other'
+import { topicDetailQuery } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -54,7 +54,8 @@ export default function SearchScreen() {
 
   const [isSearchNode, setIsSearchNode] = useState(!params?.query)
 
-  const { data: matchNodes } = useNodes({
+  const { data: matchNodes } = useQuery({
+    query: nodesQuery,
     select: useCallback(
       (nodes: Node[]) => {
         if (!isSearchNode) return []
@@ -203,9 +204,10 @@ function SoV2exList({
   )
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSov2ex({ variables })
+    useSuspenseQuery({ query: sov2exQuery, variables })
 
-  const { data: nodeMap } = useNodes({
+  const { data: nodeMap } = useQuery({
+    query: nodesQuery,
     select: useCallback(
       (nodes: Node[]) => Object.fromEntries(nodes.map(node => [node.id, node])),
       []
@@ -309,8 +311,9 @@ const HitItem = memo(
     const navigation =
       useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-    const { data: isReaded } = useInfiniteQuery({
-      ...useTopicDetail.getFetchOptions({ id: topic.id }),
+    const { data: isReaded } = useQuery({
+      query: topicDetailQuery,
+      variables: { id: topic.id },
       select: data => {
         const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
         return replyCount === topic.reply_count

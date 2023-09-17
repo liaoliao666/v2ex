@@ -1,7 +1,7 @@
 import axios from 'axios'
 import Constants from 'expo-constants'
+import { query } from 'quaere'
 import { Platform } from 'react-native'
-import { createQuery } from 'react-query-kit'
 
 function compareVersion(version1: string, version2: string) {
   const newVersion1 =
@@ -34,7 +34,7 @@ function compareVersion(version1: string, version2: string) {
   return checkPlugin(newVersion1, newVersion2)
 }
 
-export const useLatestVersion = createQuery<
+export const latestVersionQuery = query<
   {
     version: string
     latest_version: string
@@ -43,8 +43,8 @@ export const useLatestVersion = createQuery<
   },
   void
 >({
-  primaryKey: 'useLatestVersion',
-  queryFn: async () => {
+  key: 'latestVersion',
+  fetcher: async () => {
     const { data } = await axios.get(
       'https://api.github.com/repos/liaoliao666/v2ex/releases/latest'
     )

@@ -3,14 +3,14 @@ import dayjs from 'dayjs'
 import * as FileSystem from 'expo-file-system'
 import * as ImagePicker from 'expo-image-picker'
 import * as MediaLibrary from 'expo-media-library'
-import { createMutation } from 'react-query-kit'
+import { mutation } from 'quaere'
 import SparkMD5 from 'spark-md5'
 
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
 
-export const useDownloadImage = createMutation({
-  mutationFn: async (uri: string) => {
+export const downloadImageMutation = mutation({
+  fetcher: async (uri: string) => {
     const date = dayjs().format('YYYYMMDDhhmmss')
     const fileUri = FileSystem.documentDirectory + `${date}.jpg`
     try {
@@ -40,8 +40,8 @@ export const useDownloadImage = createMutation({
   },
 })
 
-export const useUploadImage = createMutation({
-  mutationFn: async () => {
+export const uploadImageMutation = mutation({
+  fetcher: async () => {
     const clientId = store.get(imgurConfigAtom)?.clientId
 
     if (!clientId) return Promise.reject(new Error('请先配置你的Imgur'))

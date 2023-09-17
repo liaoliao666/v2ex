@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons'
 import * as Sharing from 'expo-sharing'
 import { isObjectLike } from 'lodash-es'
+import { useMutation } from 'quaere'
 import { ComponentProps } from 'react'
 import {
   Image,
@@ -15,7 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
-import { useDownloadImage } from '@/servicies/image'
+import { downloadImageMutation } from '@/servicies/image'
 import { isExpoGo } from '@/utils/isExpoGo'
 import tw from '@/utils/tw'
 
@@ -40,7 +41,9 @@ export default function StyledImageViewer({
 }: StyledImageViewerProps) {
   const safeAreaInsets = useSafeAreaInsets()
 
-  const downloadImageMutation = useDownloadImage()
+  const downloadImageResult = useMutation({
+    mutation: downloadImageMutation,
+  })
 
   return (
     <Modal
@@ -70,15 +73,13 @@ export default function StyledImageViewer({
                     const url = props.imageUrls[props.index!].url
 
                     if (
-                      downloadImageMutation.isPending &&
-                      downloadImageMutation.variables === url
+                      downloadImageResult.isMutating &&
+                      downloadImageResult.variables === url
                     )
                       return
 
                     try {
-                      const assetUrl = await downloadImageMutation.mutateAsync(
-                        url
-                      )
+                      const assetUrl = await downloadImageResult.trigger(url)
                       await Sharing.shareAsync(assetUrl)
                     } catch (error) {
                       Toast.show({
@@ -121,12 +122,12 @@ export default function StyledImageViewer({
         onSave={async url => {
           try {
             if (
-              downloadImageMutation.isPending &&
-              downloadImageMutation.variables === url
+              downloadImageResult.isMutating &&
+              downloadImageResult.variables === url
             )
               return
 
-            await downloadImageMutation.mutateAsync(url)
+            await downloadImageResult.trigger(url)
             Toast.show({
               type: 'success',
               text1: '保存成功',

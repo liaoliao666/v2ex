@@ -1,6 +1,7 @@
 import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { uniqBy, upperCase } from 'lodash-es'
+import { useQuery } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
@@ -20,7 +21,7 @@ import { LineSeparator } from '@/components/Separator'
 import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { useTopicDetail } from '@/servicies/topic'
+import { topicDetailQuery } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -29,7 +30,8 @@ export default function SearchReplyMemberScreen() {
   const { params } =
     useRoute<RouteProp<RootStackParamList, 'SearchReplyMember'>>()
 
-  const { data } = useTopicDetail({
+  const { data } = useQuery({
+    query: topicDetailQuery,
     variables: { id: params.topicId },
     enabled: false,
   })

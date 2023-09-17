@@ -1,6 +1,6 @@
 import { load } from 'cheerio'
 import { isArray } from 'lodash-es'
-import { createMutation, createQuery } from 'react-query-kit'
+import { mutation, query } from 'quaere'
 
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { store } from '@/jotai/store'
@@ -12,8 +12,8 @@ import { sleep } from '@/utils/sleep'
 
 import { isLogined } from './helper'
 
-export const useSignout = createMutation<void, { once: string }>({
-  mutationFn: async ({ once }) => {
+export const signoutMutation = mutation({
+  fetcher: async ({ once }: { once: string }) => {
     const { data } = await request.get(`/signout?once=${once}`, {
       responseType: 'text',
     })
@@ -25,9 +25,9 @@ export const useSignout = createMutation<void, { once: string }>({
   },
 })
 
-export const useSigninInfo = createQuery({
-  primaryKey: 'useSigninInfo',
-  queryFn: async ({ signal }) => {
+export const signinInfoQuery = query({
+  key: 'signinInfo',
+  fetcher: async (_, { signal }) => {
     const { data } = await request.get(`/signin`, {
       responseType: 'text',
       signal,
@@ -58,16 +58,15 @@ export const useSigninInfo = createQuery({
   staleTime: 0,
 })
 
-export const useSignin = createMutation<
-  {
+export const signinMutation = mutation({
+  fetcher: async ({
+    username,
+    ...args
+  }: Record<string, any>): Promise<{
     '2fa'?: boolean
     once?: string
     cookie?: string
-  },
-  Record<string, any>,
-  Error
->({
-  mutationFn: async ({ username, ...args }) => {
+  }> => {
     if (await store.get(deletedNamesAtom)?.includes(username)) {
       await sleep(1000)
       return Promise.reject(new Error('该帐号已注销'))
@@ -120,15 +119,8 @@ export const useSignin = createMutation<
   },
 })
 
-export const useTwoStepSignin = createMutation<
-  string,
-  {
-    code: string
-    once: string
-  },
-  Error
->({
-  mutationFn: async args => {
+export const useTwoStepSignin = mutation({
+  fetcher: async (args: { code: string; once: string }): Promise<string> => {
     const { headers, data } = await request.post(
       '/2fa',
       paramsSerializer(args),
