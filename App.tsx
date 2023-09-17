@@ -4,7 +4,6 @@ import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
-import { noop } from 'lodash-es'
 import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
@@ -96,12 +95,10 @@ function AppInitializer({ children }: { children: ReactNode }) {
 
   useMemo(() => {
     tw.setColorScheme(colorScheme)
-
-    // ensure nodes data
-    queryClient.ensureQueryData(useNodes.getFetchOptions()).catch(noop)
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useNodes()
 
   useDeviceContext(tw, { withDeviceColorScheme: false })
 

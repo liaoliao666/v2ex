@@ -1,5 +1,5 @@
 import { load } from 'cheerio'
-import { createSuspenseQuery } from 'react-query-kit'
+import { createQuery, createSuspenseQuery } from 'react-query-kit'
 import { createMutation, createSuspenseInfiniteQuery } from 'react-query-kit'
 
 import { invoke } from '@/utils/invoke'
@@ -9,7 +9,7 @@ import { getURLSearchParams } from '@/utils/url'
 import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
 import { Node, PageData, Topic } from './types'
 
-export const useNodes = createSuspenseQuery<Node[], void>({
+export const useNodes = createQuery<Node[], void>({
   primaryKey: 'useNodes',
   queryFn: ({ signal }) =>
     request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),

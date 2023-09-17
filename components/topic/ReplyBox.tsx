@@ -251,9 +251,14 @@ const ReplyBox = ({
                   content: getContent().trim(),
                 })
 
-                blur()
-                setContent('')
-                onSuccess()
+                try {
+                  onSuccess()
+                  setContent('')
+                  blur()
+                } catch (error) {
+                  // empty
+                }
+
                 Toast.show({
                   type: 'success',
                   text1: '发送成功',

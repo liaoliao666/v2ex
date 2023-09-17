@@ -37,7 +37,7 @@ export function parseNodeByATag(
 export function parseTopicByATag(
   $topic: Cheerio<Element>
 ): Pick<Topic, 'id' | 'title' | 'reply_count'> {
-  const [id, replies] = $topic.attr('href')!.match(/\d+/g)!.map(Number)
+  const [id, replies] = $topic.attr('href')?.match(/\d+/g)?.map(Number) || []
 
   return {
     id,
@@ -393,7 +393,7 @@ export function parseRecentTopics($: CheerioAPI) {
             avatar: $avatar.attr('src')!,
           }
         }),
-        id: $topic.attr('href')!.match(/\d+/g)!.map(Number)[0],
+        id: $topic.attr('href')?.match(/\d+/g)?.map(Number)[0],
         title: $topic.text(),
       } as RecentTopic
     })
