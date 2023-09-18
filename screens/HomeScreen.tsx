@@ -54,7 +54,7 @@ import { recentTopicsQuery, tabTopicsQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient } from '@/utils/query'
+import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -138,7 +138,7 @@ function HomeScreen() {
   function handleInexChange(i: number, forceFetch = false) {
     const activeTab = tabs[i]
     const activeTabKey = tabs[i].key
-    const filters =
+    const filters: any =
       tabs[i].type === 'node'
         ? {
             query: nodeTopicsQuery,
@@ -152,30 +152,19 @@ function HomeScreen() {
             query: tabTopicsQuery,
             variables: { tab: activeTabKey },
           }
-    const query = queryClient.getQueryCache().find({
-      filters,
-    } as any)
+    const queryInfo = queryClient.getQueryCache().find(filters)
 
-    if (query?.state.error) {
+    if (queryInfo?.state.error) {
       errorResetMap[activeTabKey]?.()
-    } else if (forceFetch || (query?.getObserversCount() && query?.isStale())) {
-      if (activeTabKey === 'recent') {
-        queryClient.prefetchQuery({
-          query: recentTopicsQuery,
-          pages: 1,
-        })
-      } else if (activeTab.type === 'node') {
-        queryClient.prefetchQuery({
-          query: nodeTopicsQuery,
-          variables: { name: activeTabKey },
-          pages: 1,
-        })
-      } else {
-        queryClient.refetchQueries({
-          query: tabTopicsQuery,
-          variables: { tab: activeTabKey },
-        })
-      }
+    } else if (
+      queryInfo?.getObserversCount() &&
+      (forceFetch || queryInfo?.isStale())
+    ) {
+      queryClient.prefetchQuery({
+        ...filters,
+        staleTime: 0,
+        pages: 1,
+      })
     }
 
     setIndex(i)
@@ -298,6 +287,10 @@ const RecentTopics = forwardRef<
   FlatList,
   { isActive: boolean; headerHeight: number }
 >(({ isActive, headerHeight }, ref) => {
+  useRemoveUnnecessaryPages({
+    query: recentTopicsQuery,
+  })
+
   const {
     data,
     refetch,
@@ -418,6 +411,11 @@ const NodeTopics = forwardRef<
     headerHeight: number
   }
 >(({ nodeName, isActive, headerHeight }, ref) => {
+  useRemoveUnnecessaryPages({
+    query: nodeTopicsQuery,
+    variables: { name: nodeName },
+  })
+
   const {
     data,
     refetch,

@@ -20,6 +20,7 @@ import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { myTopicsQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
+import { useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -39,6 +40,10 @@ export default withQuerySuspense(MyTopicsScreen, {
 })
 
 function MyTopicsScreen() {
+  useRemoveUnnecessaryPages({
+    query: myTopicsQuery,
+  })
+
   const {
     data,
     refetch,

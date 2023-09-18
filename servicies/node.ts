@@ -5,7 +5,12 @@ import { invoke } from '@/utils/invoke'
 import { request } from '@/utils/request'
 import { getURLSearchParams } from '@/utils/url'
 
-import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
+import {
+  getNextPageParam,
+  parseLastPage,
+  parseTopicItems,
+  pasreArgByATag,
+} from './helper'
 import { Node, PageData, Topic } from './types'
 
 export const nodesQuery = query<Node[], void>({
@@ -61,7 +66,7 @@ export const myNodesQuery = query<string[], void>({
     const { data } = await request.get(`/my/nodes`, { signal })
     const $ = load(data)
     return $('#my-nodes a')
-      .map((i, a) => $(a).attr('href')?.replace('/go/', '').trim()!)
+      .map((i, a) => pasreArgByATag($(a), 'go'))
       .get()
   },
 })

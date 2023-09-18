@@ -14,7 +14,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { Sov2exArgs } from '@/servicies/sov2ex'
+import { Sov2exArgs } from '@/servicies/other'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 

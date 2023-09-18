@@ -63,7 +63,7 @@ import {
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe, isSignined } from '@/utils/authentication'
-import { queryClient } from '@/utils/query'
+import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -450,6 +450,11 @@ const MemberTopics = forwardRef<
 >(({ contentContainerStyle, onScroll, onScrollEnd }, ref) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
+  useRemoveUnnecessaryPages({
+    query: memberTopicsQuery,
+    variables: { username: params.username },
+  })
+
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useSuspenseQuery({
       query: memberTopicsQuery,
@@ -514,6 +519,11 @@ const MemberReplies = forwardRef<
   }
 >(({ contentContainerStyle, onScroll, onScrollEnd }, ref) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
+
+  useRemoveUnnecessaryPages({
+    query: memberRepliesQuery,
+    variables: { username: params.username },
+  })
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
     useSuspenseQuery({

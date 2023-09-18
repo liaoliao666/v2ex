@@ -43,7 +43,7 @@ import { topicDetailQuery } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isMe } from '@/utils/authentication'
-import { queryClient } from '@/utils/query'
+import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -70,6 +70,11 @@ type OrderBy = 'asc' | 'desc'
 
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
+
+  useRemoveUnnecessaryPages({
+    query: topicDetailQuery,
+    variables: { id: params.id },
+  })
 
   const {
     data,

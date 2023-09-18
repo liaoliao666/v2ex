@@ -29,7 +29,7 @@ export function parseNodeByATag(
   $node: Cheerio<Element>
 ): Pick<Node, 'name' | 'title'> {
   return {
-    name: $node.attr('href')?.replace('/go/', '').trim()!,
+    name: pasreArgByATag($node, 'go'),
     title: $node.text(),
   }
 }
@@ -37,13 +37,22 @@ export function parseNodeByATag(
 export function parseTopicByATag(
   $topic: Cheerio<Element>
 ): Pick<Topic, 'id' | 'title' | 'reply_count'> {
-  const [id, replies] = $topic.attr('href')?.match(/\d+/g)?.map(Number) || []
+  const [_, id, replies] =
+    $topic
+      .attr('href')
+      ?.match(/t\/(\d+).+reply(\d+)/)
+      ?.map(Number) || []
 
   return {
     id,
     title: $topic.text(),
     reply_count: replies || 0,
   }
+}
+
+export function pasreArgByATag($a: Cheerio<Element>, path: string) {
+  const regex = new RegExp(`${path}\/(.+)`)
+  return $a.attr('href')?.match(regex)?.[1]?.trim() ?? ''
 }
 
 export function parseBalance(
@@ -109,7 +118,10 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
 
           if (hasNode) {
             node = {
-              name: $node.attr('href')?.replace('/go/', '').trim(),
+              name: $($node)
+                .attr('href')
+                ?.match(/go\/(.+)/)?.[1]
+                ?.trim(),
               title: $node.text(),
             }
             last_touched = $topicInfo.children(':nth-child(4)').text().trim()
@@ -128,11 +140,10 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
           avatar: $topicItem.find('td:first-child').find('a > img').attr('src'),
         },
         votes: parseInt($topicItem.find('.votes').text().trim(), 10),
-        last_reply_by: $topicInfo
-          .find('strong:nth-of-type(2) a')
-          .attr('href')
-          ?.replace('/member/', '')
-          .trim(),
+        last_reply_by: pasreArgByATag(
+          $topicInfo.find('strong:nth-of-type(2) a'),
+          'member'
+        ),
       } as Topic
     })
     .get()
@@ -329,12 +340,7 @@ export function parseProfile($: CheerioAPI): Profile {
   const $profile = $('#Rightbar .box .cell')
 
   return {
-    username: $profile
-      .find('a')
-      .eq(0)
-      .attr('href')
-      ?.replace('/member/', '')
-      .trim()!,
+    username: pasreArgByATag($profile.find('a').eq(0), 'member'),
     motto: $profile
       .find('table:nth-child(1) > tbody > tr > td:nth-child(3) > span.fade')
       .text(),
@@ -371,7 +377,7 @@ export function parseNavAtoms($: CheerioAPI) {
         nodeNames: $td
           .eq(1)
           .find('a')
-          .map((j, a) => $(a).attr('href')?.replace('/go/', '').trim()!)
+          .map((j, a) => pasreArgByATag($(a), 'go'))
           .get()
           .filter(Boolean),
       }

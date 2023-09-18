@@ -39,6 +39,7 @@ import { sov2exQuery } from '@/servicies/other'
 import { topicDetailQuery } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
+import { useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -198,13 +199,16 @@ function SoV2exList({
 }) {
   const sov2exArgs = useAtomValue(sov2exArgsAtom)
 
-  const variables = useMemo(
-    () => ({ ...sov2exArgs, q: query }),
-    [sov2exArgs, query]
-  )
+  useRemoveUnnecessaryPages({
+    query: sov2exQuery,
+    variables: { ...sov2exArgs, q: query },
+  })
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSuspenseQuery({ query: sov2exQuery, variables })
+    useSuspenseQuery({
+      query: sov2exQuery,
+      variables: { ...sov2exArgs, q: query },
+    })
 
   const { data: nodeMap } = useQuery({
     query: nodesQuery,

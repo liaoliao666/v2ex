@@ -34,7 +34,7 @@ import { Notice } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
-import { queryClient } from '@/utils/query'
+import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -54,6 +54,10 @@ export default withQuerySuspense(NotificationsScreen, {
 })
 
 function NotificationsScreen() {
+  useRemoveUnnecessaryPages({
+    query: notificationsQuery,
+  })
+
   const {
     data,
     refetch,

@@ -6,6 +6,8 @@ import { ReactNode, useEffect } from 'react'
 import { isReadyNavigation } from '@/navigation'
 
 const appCachePromise = AsyncStorage.getItem('app-cache')
+  .then(cache => JSON.parse(cache ?? 'null'))
+  .catch(() => null)
 
 export function AsyncStoragePersistProvider({
   children,

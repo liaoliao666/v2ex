@@ -31,6 +31,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { memberTopicsQuery, myFollowingQuery } from '@/servicies/member'
 import { Topic } from '@/servicies/types'
+import { useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -81,6 +82,10 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
 })
 
 function MyFollowingScreen() {
+  useRemoveUnnecessaryPages({
+    query: myFollowingQuery,
+  })
+
   const { data } = useSuspenseQuery({
     query: myFollowingQuery,
   })
@@ -249,6 +254,11 @@ function MemberTopics({
   username: string
   headerHeight: number
 }) {
+  useRemoveUnnecessaryPages({
+    query: memberTopicsQuery,
+    variables: { username },
+  })
+
   const {
     data,
     refetch,

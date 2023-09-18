@@ -194,6 +194,10 @@ export const memberByIdQuery = query<Member, { id: number }>({
   },
 })
 
+/**
+ *  以下是自定义的 query 和 mutation
+ * 用于获取用户屏蔽的用户和主题
+ */
 export const blockersQuery = queryWithInfinite<
   PageData<Member>,
   { ids: number[] }
