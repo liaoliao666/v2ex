@@ -32,7 +32,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
     variables: { id: topic.id },
     select: data => {
       const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
-      return replyCount === topic.reply_count
+      return topic.reply_count >= replyCount
     },
     enabled: false,
   })
