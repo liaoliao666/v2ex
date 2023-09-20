@@ -10,7 +10,7 @@ import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useDeviceContext } from 'twrnc'
 
-import { AsyncStoragePersistProvider } from './components/AsyncStoragePersistProvider'
+import { AsyncStoragePersist } from './components/AsyncStoragePersistProvider'
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
 import { deviceTypeAtom } from './jotai/deviceTypeAtom'
@@ -41,28 +41,20 @@ LogBox.ignoreLogs([
 
 // enabledNetworkInspect()
 
-export default function AppWithSuspense() {
-  return (
-    <Suspense>
-      <App />
-    </Suspense>
-  )
-}
-
-function App() {
+export default function App() {
   return (
     <ActionSheetProvider>
       <Provider unstable_createStore={() => store}>
         <SafeAreaProvider>
           <QueryClientProvider client={queryClient}>
             <Suspense>
-              <AsyncStoragePersistProvider>
+              <AsyncStoragePersist>
                 <AppInitializer>
                   <Navigation />
                   <StatusBar />
                   <GlobalImageViewer />
                 </AppInitializer>
-              </AsyncStoragePersistProvider>
+              </AsyncStoragePersist>
             </Suspense>
           </QueryClientProvider>
           <StyledToast />

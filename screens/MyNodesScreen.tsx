@@ -1,6 +1,6 @@
 import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { useSuspenseQueries } from 'quaere'
+import { useSuspenseQuery } from 'quaere'
 import { useCallback } from 'react'
 import {
   FlatList,
@@ -23,7 +23,7 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { myNodesQuery, nodesQuery } from '@/servicies/node'
+import { myNodesQuery } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -44,18 +44,11 @@ export default withQuerySuspense(MyNodesScreen, {
 })
 
 function MyNodesScreen() {
-  const { myNodes, refetchMyNodes } = useSuspenseQueries({
-    queries: [{ query: nodesQuery }, { query: myNodesQuery }],
-    combine: ([{ data: nodes }, { data: myNodeNames, refetch }]) => {
-      const nodeMap = Object.fromEntries(nodes.map(node => [node.name, node]))
-      return {
-        myNodes: myNodeNames?.map(name => nodeMap[name]!),
-        refetchMyNodes: refetch,
-      }
-    },
+  const { data: myNodes, refetch } = useSuspenseQuery({
+    query: myNodesQuery,
   })
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetchMyNodes)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const navigation = useNavigation()
 

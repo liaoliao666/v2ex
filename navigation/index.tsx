@@ -55,7 +55,7 @@ import linking from './LinkingConfiguration'
 import { navigationRef } from './navigationRef'
 
 let handleReadyNavigation: () => void
-export const isReadyNavigation = new Promise<void>(
+export const isReadyNavigationPromise = new Promise<void>(
   ok => (handleReadyNavigation = ok)
 )
 

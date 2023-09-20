@@ -194,7 +194,7 @@ function TopicDetailScreen() {
                   if (v === 'desc' && isFetching) {
                     Toast.show({
                       type: 'error',
-                      text1: '请等待当前请求完成后再切换排序方式',
+                      text1: '请等待当前请求完成后再切换',
                     })
                     return
                   }

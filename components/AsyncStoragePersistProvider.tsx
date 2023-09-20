@@ -3,22 +3,19 @@ import * as SplashScreen from 'expo-splash-screen'
 import { HydrationBoundary, dehydrate, useQueryClient } from 'quaere'
 import { ReactNode, useEffect } from 'react'
 
-import { isReadyNavigation } from '@/navigation'
+import { isReadyNavigationPromise } from '@/navigation'
+import { use } from '@/utils/use'
 
-const appCachePromise = AsyncStorage.getItem('app-cache')
+const getAppCachePromise = AsyncStorage.getItem('app-cache')
   .then(cache => JSON.parse(cache ?? 'null'))
   .catch(() => null)
 
-export function AsyncStoragePersistProvider({
-  children,
-}: {
-  children: ReactNode
-}) {
-  const appCache = use(appCachePromise)
+export function AsyncStoragePersist({ children }: { children: ReactNode }) {
+  const appCache = use(getAppCachePromise)
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    isReadyNavigation.then(SplashScreen.hideAsync)
+    isReadyNavigationPromise.then(SplashScreen.hideAsync)
 
     const timer = setInterval(() => {
       AsyncStorage.setItem('app-cache', JSON.stringify(dehydrate(queryClient)))
@@ -30,33 +27,4 @@ export function AsyncStoragePersistProvider({
   }, [queryClient])
 
   return <HydrationBoundary state={appCache}>{children}</HydrationBoundary>
-}
-
-function use<T>(
-  promise: Promise<T> & {
-    status?: 'pending' | 'fulfilled' | 'rejected'
-    value?: T
-    reason?: unknown
-  }
-): T {
-  if (promise.status === 'pending') {
-    throw promise
-  } else if (promise.status === 'fulfilled') {
-    return promise.value as T
-  } else if (promise.status === 'rejected') {
-    throw promise.reason
-  } else {
-    promise.status = 'pending'
-    promise.then(
-      v => {
-        promise.status = 'fulfilled'
-        promise.value = v
-      },
-      e => {
-        promise.status = 'rejected'
-        promise.reason = e
-      }
-    )
-    throw promise
-  }
 }

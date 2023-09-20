@@ -137,14 +137,14 @@ function HomeScreen() {
 
   function handleInexChange(i: number, forceFetch = false) {
     const activeTab = tabs[i]
-    const activeTabKey = tabs[i].key
+    const activeTabKey = activeTab.key
     const filters: any =
-      tabs[i].type === 'node'
+      activeTab.type === 'node'
         ? {
             query: nodeTopicsQuery,
             variables: { name: activeTabKey },
           }
-        : tabs[i].key === 'recent'
+        : activeTab.key === 'recent'
         ? {
             query: recentTopicsQuery,
           }

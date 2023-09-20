@@ -2,6 +2,7 @@ import { load } from 'cheerio'
 import { mutation, query, queryWithInfinite } from 'quaere'
 
 import { invoke } from '@/utils/invoke'
+import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
 import { getURLSearchParams } from '@/utils/url'
 
@@ -60,13 +61,20 @@ export const nodeTopicsQuery = queryWithInfinite<
   structuralSharing: false,
 })
 
-export const myNodesQuery = query<string[], void>({
+export const myNodesQuery = query<Node[], void>({
   key: 'myNodes',
   fetcher: async (_, { signal }) => {
-    const { data } = await request.get(`/my/nodes`, { signal })
+    const [data, nodes] = await Promise.all([
+      request.get(`/my/nodes`, { signal }).then(res => res.data),
+      queryClient.ensureQueryData({
+        query: nodesQuery,
+      }),
+    ])
+    const nodeMap = Object.fromEntries(nodes.map(node => [node.name, node]))
     const $ = load(data)
     return $('#my-nodes a')
-      .map((i, a) => pasreArgByATag($(a), 'go'))
+      .map((i, a) => nodeMap[pasreArgByATag($(a), 'go')])
       .get()
+      .filter(Boolean)
   },
 })

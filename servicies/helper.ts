@@ -491,7 +491,6 @@ export function parseImage(str: string) {
     return match
   }
 
-  // eslint-disable-next-line no-useless-escape
   const regex_html_imgtag = /&lt;img.*?src="(.*?)"[^\>]*&gt;/g
   const replacer_plainimgtag2imgtag: Replacer = (
     match,
@@ -509,7 +508,6 @@ export function parseImage(str: string) {
   }
 
   const regex_url =
-    // eslint-disable-next-line no-useless-escape
     /((http(s)?:)?\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
   const replacer_url2img: Replacer = (match, _offset, _string) => {
     if (is_common_img_url(match)) {
