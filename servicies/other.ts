@@ -2,6 +2,7 @@ import axios from 'axios'
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { query, queryWithInfinite } from 'quaere'
+import showdown from 'showdown'
 import { z } from 'zod'
 
 import { request } from '@/utils/request'
@@ -63,7 +64,7 @@ export const repoReadmeQuery = query({
       responseType: 'text',
       signal,
     })
-    return load(data)('#readme').html()
+    return new showdown.Converter().makeHtml(data)
   },
 })
 

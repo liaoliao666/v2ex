@@ -4,14 +4,13 @@ import {
   SimpleLineIcons,
 } from '@expo/vector-icons'
 import { useAtom, useAtomValue } from 'jotai'
-import { omit, pick } from 'lodash-es'
+import { isBoolean, omit, pick } from 'lodash-es'
 import { memo } from 'react'
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Money from '@/components/Money'
 import StyledImage from '@/components/StyledImage'
-import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
@@ -27,7 +26,7 @@ import RadioButtonGroup from './RadioButtonGroup'
 
 export default withQuerySuspense(memo(Profile))
 
-function Profile() {
+function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const fontScale = useAtomValue(fontScaleAtom)
@@ -37,8 +36,6 @@ function Profile() {
   const profile = useAtomValue(profileAtom)
 
   const isLogin = !!profile?.once
-
-  const isTablet = useAtomValue(isTabletAtom)
 
   const userOptions = [
     {
@@ -105,10 +102,10 @@ function Profile() {
     <SafeAreaView
       edges={['top']}
       style={tw`flex-1 bg-body-1`}
-      key={isTablet ? 'profile' : fontScale}
+      key={onlyIcon ? 'profile' : fontScale}
     >
       {isLogin ? (
-        isTablet ? (
+        onlyIcon ? (
           <TouchableOpacity
             style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
             onPress={() => {
@@ -176,7 +173,7 @@ function Profile() {
             )}
           </View>
         )
-      ) : isTablet ? (
+      ) : onlyIcon ? (
         <TouchableOpacity
           style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
           onPress={async () => {
@@ -217,12 +214,16 @@ function Profile() {
           userOptions.map(item => (
             <ListItem
               key={item.value}
-              {...omit(item, isTablet ? ['value', 'label'] : ['value'])}
+              {...omit(item, onlyIcon ? ['value', 'label'] : ['value'])}
             />
           ))}
 
-        <View style={!isTablet && tw`border-t border-solid border-tint-border`}>
-          {!isTablet && (
+        <View
+          style={
+            !isBoolean(onlyIcon) && tw`border-t border-solid border-tint-border`
+          }
+        >
+          {!onlyIcon && (
             <ListItem
               label="外观"
               icon={
@@ -234,6 +235,7 @@ function Profile() {
               }
               action={
                 <RadioButtonGroup
+                  style={tw`ml-2`}
                   options={[
                     { label: '浅色', value: 'light' },
                     { label: '深色', value: 'dark' },
@@ -247,7 +249,7 @@ function Profile() {
           )}
 
           <ListItem
-            label={!isTablet ? '最近浏览' : undefined}
+            label={!onlyIcon ? '最近浏览' : undefined}
             icon={
               <MaterialCommunityIcons
                 color={tw.color(`text-tint-primary`)}
@@ -261,7 +263,7 @@ function Profile() {
           />
 
           <ListItem
-            label={!isTablet ? '节点导航' : undefined}
+            label={!onlyIcon ? '节点导航' : undefined}
             icon={
               <Feather
                 color={tw.color(`text-tint-primary`)}
@@ -275,7 +277,7 @@ function Profile() {
           />
 
           <ListItem
-            label={!isTablet ? '更多选项' : undefined}
+            label={!onlyIcon ? '更多选项' : undefined}
             icon={
               <Feather
                 color={tw.color(`text-tint-primary`)}

@@ -42,6 +42,7 @@ function GItHubMDScreen() {
 
   const { data: html } = useSuspenseQuery({
     query: repoReadmeQuery,
+    variables: { url: params.url },
   })
 
   const navbarHeight = useNavBarHeight()
@@ -53,7 +54,7 @@ function GItHubMDScreen() {
           paddingTop: navbarHeight,
         }}
       >
-        <View style={tw`p-4`}>
+        <View style={tw`px-4`}>
           <Html source={{ html: html! }} />
         </View>
         <SafeAreaView edges={['bottom']} />

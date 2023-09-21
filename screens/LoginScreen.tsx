@@ -223,7 +223,7 @@ export default function LoginScreen() {
                   style={tw`text-tint-primary`}
                   onPress={() => {
                     navigation.navigate('GItHubMD', {
-                      url: 'https://github.com/liaoliao666/v2ex/blob/main/terms-and-conditions_zh.md',
+                      url: 'https://raw.githubusercontent.com/liaoliao666/v2ex/main/terms-and-conditions_zh.md',
                       title: '用户协议',
                     })
                   }}
@@ -235,7 +235,7 @@ export default function LoginScreen() {
                   style={tw`text-tint-primary`}
                   onPress={() => {
                     navigation.navigate('GItHubMD', {
-                      url: 'https://github.com/liaoliao666/v2ex/blob/main/privacy-policy_zh.md',
+                      url: 'https://raw.githubusercontent.com/liaoliao666/v2ex/main/privacy-policy_zh.md',
                       title: '隐私政策',
                     })
                   }}

@@ -43,7 +43,7 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
-import { isTabletAtom } from '@/jotai/deviceTypeAtom'
+import { useIsTablet } from '@/jotai/deviceTypeAtom'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -486,7 +486,7 @@ function TopNavBar() {
   const navigation =
     useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
-  const isTablet = useAtomValue(isTabletAtom)
+  const isTablet = useIsTablet()
 
   return (
     <NavBar

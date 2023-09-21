@@ -22,7 +22,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
-import { isTabletAtom } from '@/jotai/deviceTypeAtom'
+import { useIsTablet } from '@/jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
@@ -66,7 +66,7 @@ function SettingScreen() {
     enabledParseContentAtom
   )
 
-  const isTablet = useAtomValue(isTabletAtom)
+  const isTablet = useIsTablet()
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
