@@ -1,4 +1,11 @@
-import { isArray, isObject, isString, pick } from 'lodash-es'
+import {
+  isArray,
+  isEqual,
+  isObject,
+  isPlainObject,
+  isString,
+  pick,
+} from 'lodash-es'
 import { useQuery } from 'quaere'
 import { useState } from 'react'
 import {
@@ -13,7 +20,6 @@ import { SvgXml, UriProps } from 'react-native-svg'
 import { svgQuery } from '@/servicies/other'
 import { hasSize } from '@/utils/hasSize'
 import { isExpoGo } from '@/utils/isExpoGo'
-import { isStyle } from '@/utils/isStyle'
 import tw from '@/utils/tw'
 import { isSvgURL, resolveURL } from '@/utils/url'
 
@@ -34,12 +40,11 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
 
   const [size, setSize] = useState<LayoutRectangle>(uriToSize.get(uri))
 
-  const hasPassedSize = isStyle(style) && hasSize(style)
+  const hadPassedSize = hasSize(style)
 
-  const isMiniImage =
-    isStyle(size) && hasSize(size)
-      ? size.width < 100 && size.height < 100
-      : false
+  const isMiniImage = hasSize(size)
+    ? size.width < 100 && size.height < 100
+    : false
 
   return (
     <FastImage
@@ -59,17 +64,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
         )
 
         uriToSize.set(uri, newSize)
-        setSize(prev => {
-          if (
-            prev?.width === newSize.width &&
-            prev?.height === newSize.height
-          ) {
-            return prev
-          }
-
-          return newSize
-        })
-
+        setSize(prev => (isEqual(prev, newSize) ? prev : newSize))
         setIsLoading(false)
         onLoad?.(ev)
       }}
@@ -79,14 +74,14 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
         onError?.(err)
       }}
       style={tw.style(
-        !hasPassedSize &&
+        !hadPassedSize &&
           (isMiniImage
             ? size
             : {
                 aspectRatio: size ? size.width / size.height : 1,
                 width: `100%`,
               }),
-        !hasPassedSize && uriToSize.has(uri) && !uriToSize.get(uri) && `hidden`,
+        !hadPassedSize && uriToSize.has(uri) && !uriToSize.get(uri) && `hidden`,
         style as ViewStyle,
         isLoading && `img-loading`
       )}
@@ -107,7 +102,7 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
     return (
       <View
         style={
-          isStyle(style) && hasSize(style)
+          hasSize(style)
             ? tw.style(style, `img-loading`)
             : tw.style(`img-loading`, 'aspect-square')
         }
@@ -124,7 +119,7 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
           ? [svg.wraperStyle, ...style]
           : {
               ...svg.wraperStyle,
-              ...(isStyle(style) ? style : {}),
+              ...(isPlainObject(style) && (style as any)),
             }) as any
       }
       width="100%"

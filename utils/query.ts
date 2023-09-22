@@ -1,5 +1,6 @@
+import NetInfo from '@react-native-community/netinfo'
 import { isArray, isObjectLike, pick } from 'lodash-es'
-import { focusManager } from 'quaere'
+import { focusManager, onlineManager } from 'quaere'
 import { UseInfiniteQueryOptions, createQueryClient } from 'quaere'
 import { useMemo } from 'react'
 import { AppState, Platform } from 'react-native'
@@ -10,16 +11,25 @@ export const queryClient = createQueryClient({
       gcTime: 1000 * 60 * 60 * 24, // 24 hours
       retry: 2,
       refetchOnWindowFocus: false,
+      networkMode: 'offlineFirst',
     },
+    mutations: { networkMode: 'offlineFirst' },
   },
 })
 
-AppState.addEventListener('change', status => {
-  // React Query already supports in web browser refetch on window focus by default
-  if (Platform.OS !== 'web') {
+if (Platform.OS !== 'web') {
+  AppState.addEventListener('change', status => {
     focusManager.setFocused(status === 'active')
-  }
-})
+  })
+
+  NetInfo.addEventListener(state => {
+    onlineManager.setOnline(
+      state.isConnected != null &&
+        state.isConnected &&
+        Boolean(state.isInternetReachable)
+    )
+  })
+}
 
 export const useRemoveUnnecessaryPages = (
   options: UseInfiniteQueryOptions<any, any, any>

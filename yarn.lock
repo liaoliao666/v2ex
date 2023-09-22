@@ -4465,13 +4465,6 @@ expo-file-system@~15.4.0:
   dependencies:
     uuid "^3.4.0"
 
-expo-file-system@~15.4.3:
-  version "15.4.3"
-  resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-15.4.3.tgz#0cb2464c6e663ad8e8a742d5c538ed8ff1013b11"
-  integrity sha512-HaaCBTUATs2+i7T4jxIvoU9rViAHMvOD2eBaJ1H7xPHlwZlMORjQs7bsNKonR/TQoduxZBJLVZGawvaAJNCH8g==
-  dependencies:
-    uuid "^3.4.0"
-
 expo-file-system@~15.4.4:
   version "15.4.4"
   resolved "https://registry.yarnpkg.com/expo-file-system/-/expo-file-system-15.4.4.tgz#b29e0507b57ee0cc7173cf8844aaf992e411f518"
@@ -4578,10 +4571,10 @@ expo-updates-interface@~0.10.0:
   resolved "https://registry.yarnpkg.com/expo-updates-interface/-/expo-updates-interface-0.10.1.tgz#cab075641cd381718ccd9264bf133dc393430a44"
   integrity sha512-I6JMR7EgjXwckrydDmrkBEX/iw750dcqpzQVsjznYWfi0HTEOxajLHB90fBFqQkUV5i5s4Fd3hYQ1Cn0oMzUbA==
 
-expo-updates@~0.18.12:
-  version "0.18.12"
-  resolved "https://registry.yarnpkg.com/expo-updates/-/expo-updates-0.18.12.tgz#ac96b674c2c7cf0f5ec57f6b4e0aca3ae9211b5f"
-  integrity sha512-oJlAVJd/SiQNnNGha+OILc/QA5z6qfrrT2W/eGWWI9POxTka0Z0Obyi/jTkruh72J6wtWbtto65DLJKS93RzdA==
+expo-updates@~0.18.13:
+  version "0.18.13"
+  resolved "https://registry.yarnpkg.com/expo-updates/-/expo-updates-0.18.13.tgz#c61d4239e8a8ef5b85455cbca033d70eeff79975"
+  integrity sha512-+6Z3C38EAptYbY1/J4JIWChJKtdaEJSSfTxrSqdG6ES4RnBqSdpdH4513YiOezpE1WhCqPtQHfJW2Lsu7O1odA==
   dependencies:
     "@expo/code-signing-certificates" "0.0.5"
     "@expo/config" "~8.1.0"
@@ -8586,10 +8579,10 @@ tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-twrnc@^3.6.0:
-  version "3.6.0"
-  resolved "https://mirrors.cloud.tencent.com/npm/twrnc/-/twrnc-3.6.0.tgz#11eaa30da790b01b658b68b7f38ca15eeaa82e70"
-  integrity sha512-ee3etAeEfJyH7a9iiQD6JEYJN7nQiZumO6KXCaAmgj9xL5BIFgZfjWsVfQ0eV+anSqgXVit/a2ZUNX3LFlbdhA==
+twrnc@^3.6.4:
+  version "3.6.4"
+  resolved "https://registry.yarnpkg.com/twrnc/-/twrnc-3.6.4.tgz#95252421f460986289926d5ec6ae78d8c3f34dd3"
+  integrity sha512-4yw0TS65X6OelJFmc4aCRS8JWI4fIK26Z9nSUOIVMpv7Z/GeAc9BXSnZ7SkD95uOkgmz/gLDS7a4BK6GHOl5Xg==
   dependencies:
     tailwindcss ">=2.0.0"
 

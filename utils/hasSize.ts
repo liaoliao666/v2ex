@@ -1,5 +1,7 @@
-import { FlexStyle } from 'react-native'
+import { isPlainObject } from 'lodash-es'
 
-export function hasSize(style: FlexStyle) {
-  return !!(style.width && style.height)
+export type Size = { width: number; height: number; [k: string]: any }
+
+export function hasSize(style: any): style is Size {
+  return isPlainObject(style) && !!(style.width && style.height)
 }

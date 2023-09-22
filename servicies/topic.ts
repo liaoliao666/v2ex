@@ -74,7 +74,7 @@ export const topicByIdQuery = query<Topic, { id: number }>({
 })
 
 export const topicDetailQuery = queryWithInfinite<
-  Topic & { page: number; last_page: number },
+  Topic & { page: number; last_page: number; image_count: number },
   { id: number }
 >({
   key: 'topicDetail',
@@ -90,6 +90,7 @@ export const topicDetailQuery = queryWithInfinite<
       page: pageParam,
       last_page: parseLastPage($),
       id,
+      image_count: $('#Main .embedded_image').length,
       ...parseTopic($),
     }
   },

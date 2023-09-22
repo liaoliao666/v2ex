@@ -144,7 +144,7 @@ function TopicDetailScreen() {
         ref={flatListRef}
         key={colorScheme}
         data={flatedData}
-        removeClippedSubviews={false}
+        removeClippedSubviews={topic.image_count > 10}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
