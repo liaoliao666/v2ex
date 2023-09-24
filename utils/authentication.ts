@@ -5,6 +5,6 @@ export function isSignined() {
   return !!store.get(profileAtom)
 }
 
-export function isMe(username?: string) {
+export function isSelf(username?: string) {
   return store.get(profileAtom)?.username === username
 }

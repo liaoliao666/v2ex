@@ -188,7 +188,9 @@ function NodeInfo({
   })
 
   return (
-    <View style={tw`${TOP_BAR_BG_CLS} px-4 pt-6 -mt-3 pb-3 flex-row`}>
+    <View
+      style={tw`${TOP_BAR_BG_CLS} px-4 pt-[200px] -mt-[188px] pb-3 flex-row`}
+    >
       <StyledImage
         style={tw`w-12 h-12 mr-3 rounded`}
         source={{

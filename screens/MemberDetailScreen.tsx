@@ -62,7 +62,7 @@ import {
 } from '@/servicies/member'
 import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { isMe, isSignined } from '@/utils/authentication'
+import { isSelf, isSignined } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -164,7 +164,7 @@ function MemberDetailScreen() {
               {member.username}
             </Text>
 
-            {!isMe(params.username) && <FollowMember {...member} />}
+            {!isSelf(params.username) && <FollowMember {...member} />}
           </View>
         )}
       </NavBar>
@@ -322,7 +322,7 @@ const MemberHeader = memo(() => {
           />
         </View>
 
-        {!isMe(params.username) && (
+        {!isSelf(params.username) && (
           <View style={tw`mt-10 ml-auto flex-row gap-2`}>
             <BlockMember {...member} />
 

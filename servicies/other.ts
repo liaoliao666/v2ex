@@ -92,7 +92,8 @@ export const svgQuery = query({
 
     return {
       xml,
-      wraperStyle: { aspectRatio: width / height || 1, width: '100%' },
+      width,
+      height,
     }
   },
   staleTime: Infinity,

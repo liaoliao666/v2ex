@@ -5,7 +5,7 @@
     "version": "1.4.7",
     "scheme": "v2fun",
     "jsEngine": "jsc",
-    "orientation": "portrait",
+    // "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {

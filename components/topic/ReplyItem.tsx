@@ -20,7 +20,7 @@ import {
 } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { isMe, isSignined } from '@/utils/authentication'
+import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
@@ -187,7 +187,7 @@ function ReplyItem({
                 </Text>
               )}
 
-              {!(isMe(reply.member.username) && !reply.thanks) && (
+              {!(isSelf(reply.member.username) && !reply.thanks) && (
                 <ThankReply topicId={topicId} once={once} reply={reply} />
               )}
 
@@ -270,7 +270,7 @@ function ThankReply({
 
   const navigation = useNavigation()
 
-  const disabled = isMe(reply.member.username) || reply.thanked
+  const disabled = isSelf(reply.member.username) || reply.thanked
 
   return (
     <Pressable
@@ -362,7 +362,7 @@ function MoreButton({
       size={16}
       onPress={() => {
         const options = compact([
-          !isMe(reply.member.username) && '隐藏',
+          !isSelf(reply.member.username) && '隐藏',
           '分享',
           '取消',
         ])

@@ -93,6 +93,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
 function CustomSvgUri({ uri, style, ...props }: UriProps) {
   const { data: svg, error } = useQuery({
     query: svgQuery,
+    variables: { url: uri! },
     enabled: !!uri,
   })
 
@@ -110,15 +111,20 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
     )
   }
 
+  const svgStyle = {
+    aspectRatio: svg.width / svg.height || 1,
+    width: '100%',
+  }
+
   return (
     <SvgXml
       {...props}
       xml={svg.xml}
       style={
         (isArray(style)
-          ? [svg.wraperStyle, ...style]
+          ? [svgStyle, ...style]
           : {
-              ...svg.wraperStyle,
+              ...svgStyle,
               ...(isPlainObject(style) && (style as any)),
             }) as any
       }

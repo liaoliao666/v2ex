@@ -42,7 +42,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { topicDetailQuery } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { isMe } from '@/utils/authentication'
+import { isSelf } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -144,7 +144,7 @@ function TopicDetailScreen() {
         ref={flatListRef}
         key={colorScheme}
         data={flatedData}
-        removeClippedSubviews={topic.image_count > 10}
+        removeClippedSubviews={false}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
@@ -313,7 +313,7 @@ function TopicDetailScreen() {
               }}
             />
 
-            {!isMe(topic.member?.username) && <ThankTopic topic={topic} />}
+            {!isSelf(topic.member?.username) && <ThankTopic topic={topic} />}
 
             <LikeTopic topic={topic} />
 

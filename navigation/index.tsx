@@ -20,6 +20,7 @@ import { Platform } from 'react-native'
 
 import PageLayout from '@/components/PageLayout'
 import Profile from '@/components/Profile'
+import { useIsTablet } from '@/jotai/deviceTypeAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
@@ -120,13 +121,18 @@ const androidSlideFromBottomOptions: NativeStackNavigationOptions =
     : {}
 
 function StackNavigator() {
+  const isTablet = useIsTablet()
+
   return (
     <Stack.Navigator
       initialRouteName="Root"
       screenOptions={{
         headerShown: false,
         fullScreenGestureEnabled: true,
-        animation: Platform.OS === 'android' ? 'slide_from_right' : undefined,
+        animation:
+          Platform.OS === 'android' && !isTablet
+            ? 'slide_from_right'
+            : undefined,
       }}
     >
       <Stack.Screen
@@ -187,7 +193,7 @@ function StackNavigator() {
         name="SearchOptions"
         options={{
           presentation: 'modal',
-          orientation: 'portrait',
+          // orientation: 'portrait',
           ...androidSlideFromBottomOptions,
         }}
         component={SearchOptionsScreen}
@@ -213,7 +219,7 @@ function StackNavigator() {
       <Stack.Screen
         options={{
           presentation: 'fullScreenModal',
-          orientation: 'portrait',
+          // orientation: 'portrait',
           ...androidSlideFromBottomOptions,
         }}
         name="SortTabs"

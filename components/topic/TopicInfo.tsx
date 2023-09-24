@@ -28,7 +28,7 @@ import {
 } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { isMe, isSignined } from '@/utils/authentication'
+import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
@@ -452,9 +452,9 @@ function MoreButton({
       activeColor={tw.color(`text-tint-primary`)}
       onPress={() => {
         const options = compact([
-          !isMe(topic.member?.username) &&
+          !isSelf(topic.member?.username) &&
             (topic.ignored ? '取消忽略' : '忽略'),
-          !isMe(topic.member?.username) && '举报',
+          !isSelf(topic.member?.username) && '举报',
           '分享',
           topic.editable && '编辑',
           topic.appendable && '附言',

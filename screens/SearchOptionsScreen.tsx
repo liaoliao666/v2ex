@@ -36,7 +36,11 @@ function SearchOptionsScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   return (
-    <View style={tw`bg-body-1 flex-1`} key={colorScheme}>
+    <SafeAreaView
+      edges={['left', 'right']}
+      style={tw`bg-body-1 flex-1`}
+      key={colorScheme}
+    >
       <NavBar title="搜索条件" hideSafeTop />
       <View style={tw`flex-1 p-4`}>
         <FormControl
@@ -187,6 +191,6 @@ function SearchOptionsScreen() {
           </StyledButton>
         </View>
       </SafeAreaView>
-    </View>
+    </SafeAreaView>
   )
 }

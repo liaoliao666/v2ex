@@ -78,7 +78,7 @@ export default function SearchReplyMemberScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   return (
-    <View style={tw`bg-body-1 flex-1`}>
+    <SafeAreaView edges={['left', 'right']} style={tw`bg-body-1 flex-1`}>
       <NavBar
         hideSafeTop
         left={null}
@@ -124,7 +124,7 @@ export default function SearchReplyMemberScreen() {
         ListEmptyComponent={<Empty description="暂无搜索结果" />}
         ItemSeparatorComponent={LineSeparator}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 

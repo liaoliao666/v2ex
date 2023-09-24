@@ -3,10 +3,17 @@ import { useNavigation } from '@react-navigation/native'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, isEmpty, some } from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
-import { Pressable, Text, View, useWindowDimensions } from 'react-native'
+import {
+  Platform,
+  Pressable,
+  Text,
+  View,
+  useWindowDimensions,
+} from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
+import { useIsTablet } from '@/jotai/deviceTypeAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
   HomeTab,
@@ -20,7 +27,13 @@ import tw from '@/utils/tw'
 export default function SortTabsScreen() {
   const navigation = useNavigation()
   const { width } = useWindowDimensions()
-  const parentWidth = width - 24
+  const safeAreaInsets = useSafeAreaInsets()
+  const isTablet = useIsTablet()
+  const parentWidth =
+    (Platform.OS === 'ios' ? width : isTablet ? Math.min(width, 600) : width) -
+    safeAreaInsets.left -
+    safeAreaInsets.right -
+    24
   const itemWidth = parentWidth / 4
   const itemHeight = 36
   const [homeTabs, setHomeTabs] = useAtom(homeTabsAtom)
@@ -90,7 +103,7 @@ export default function SortTabsScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`}>
+    <SafeAreaView style={tw`flex-1 bg-body-1`}>
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
         <Text style={tw`text-tint-primary ${getFontSize(4)} font-medium`}>
           首页板块

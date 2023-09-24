@@ -350,19 +350,21 @@ function SettingScreen() {
       </ScrollView>
 
       <View style={tw`px-4 pt-4 pb-[${Math.max(safeAreaInsets.bottom, 16)}px]`}>
-        {isSignined ? (
-          <SignoutItem once={profile.once!} />
-        ) : (
-          <StyledButton
-            onPress={() => {
-              navigation.navigate('Login')
-            }}
-            size="large"
-            shape="rounded"
-          >
-            登录
-          </StyledButton>
-        )}
+        <View style={tw`max-w-[400px] w-full mx-auto`}>
+          {isSignined ? (
+            <SignoutItem once={profile.once!} />
+          ) : (
+            <StyledButton
+              onPress={() => {
+                navigation.navigate('Login')
+              }}
+              size="large"
+              shape="rounded"
+            >
+              登录
+            </StyledButton>
+          )}
+        </View>
       </View>
 
       <View style={tw`absolute top-0 inset-x-0`}>
