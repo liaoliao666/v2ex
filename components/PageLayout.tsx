@@ -1,15 +1,14 @@
-import { useAtomValue } from 'jotai'
 import { ReactNode } from 'react'
 import { View } from 'react-native'
 
-import { isTabletAtom, useIsLargeTablet } from '@/jotai/deviceTypeAtom'
 import HomeScreen from '@/screens/HomeScreen'
+import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 
 import Profile from './Profile'
 
 export default function PageLayout({ children }: { children: ReactNode }) {
-  const isTablet = useAtomValue(isTabletAtom)
+  const isTablet = useIsTablet()
   const isLargeTablet = useIsLargeTablet()
 
   if (isTablet) {

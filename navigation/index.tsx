@@ -13,15 +13,13 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack'
-import * as ScreenOrientation from 'expo-screen-orientation'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 import { Platform } from 'react-native'
 
 import PageLayout from '@/components/PageLayout'
 import Profile from '@/components/Profile'
-import { isTabletAtom, useIsLargeTablet } from '@/jotai/deviceTypeAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
@@ -51,6 +49,7 @@ import WebviewScreen from '@/screens/WebviewScreen'
 import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import { sleep } from '@/utils/sleep'
+import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 
 import linking from './LinkingConfiguration'
@@ -122,16 +121,8 @@ const androidSlideFromBottomOptions: NativeStackNavigationOptions =
     : {}
 
 function StackNavigator() {
-  const isTablet = useAtomValue(isTabletAtom)
+  const isTablet = useIsTablet()
   const isLargeTablet = useIsLargeTablet()
-
-  useEffect(() => {
-    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
-
-    return () => {
-      ScreenOrientation.unlockAsync()
-    }
-  }, [])
 
   return (
     <Stack.Navigator
@@ -140,8 +131,10 @@ function StackNavigator() {
         headerShown: false,
         fullScreenGestureEnabled: true,
         animation:
-          Platform.OS === 'android' && !isLargeTablet
-            ? 'slide_from_right'
+          Platform.OS === 'android'
+            ? isTablet
+              ? 'fade'
+              : 'slide_from_right'
             : undefined,
         orientation: !isTablet ? 'portrait' : undefined,
       }}

@@ -42,7 +42,6 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
-import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
@@ -53,6 +52,7 @@ import { recentTopicsQuery, tabTopicsQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { isSignined } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { isLargeTablet, useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -295,7 +295,8 @@ const RecentTopics = forwardRef<
     isFetching,
   } = useSuspenseQuery({
     query: recentTopicsQuery,
-    refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
+    refetchOnWindowFocus: () =>
+      isActive && (getCurrentRouteName() === 'Home' || isLargeTablet()),
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -360,7 +361,8 @@ const TabTopics = forwardRef<
   const { data, refetch, isFetching } = useSuspenseQuery({
     query: tabTopicsQuery,
     variables: { tab },
-    refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
+    refetchOnWindowFocus: () =>
+      isActive && (getCurrentRouteName() === 'Home' || isLargeTablet()),
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -421,7 +423,8 @@ const NodeTopics = forwardRef<
   } = useSuspenseQuery({
     query: nodeTopicsQuery,
     variables: { name: nodeName },
-    refetchOnWindowFocus: () => isActive && getCurrentRouteName() === 'Home',
+    refetchOnWindowFocus: () =>
+      isActive && (getCurrentRouteName() === 'Home' || isLargeTablet()),
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -478,7 +481,7 @@ const NodeTopics = forwardRef<
 function TopNavBar() {
   const profile = useAtomValue(profileAtom)
 
-  const isTablet = useAtomValue(isTabletAtom)
+  const isTablet = useIsTablet()
 
   return (
     <NavBar

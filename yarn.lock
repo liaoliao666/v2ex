@@ -4544,18 +4544,6 @@ expo-modules-core@1.5.11:
     compare-versions "^3.4.0"
     invariant "^2.2.4"
 
-expo-screen-orientation@~6.0.5:
-  version "6.0.5"
-  resolved "https://registry.yarnpkg.com/expo-screen-orientation/-/expo-screen-orientation-6.0.5.tgz#4fcac69c641522c7e658d4fb20b22de82d732aee"
-  integrity sha512-aOOuuQkxNHNxSzfEO037jnD0zYiwBVTvuXeFy/0KntFmuqWmZGaFmFks1uTA2+0wKlbA049kVjkBnA1peybmHQ==
-
-expo-sensors@~12.3.0:
-  version "12.3.0"
-  resolved "https://registry.yarnpkg.com/expo-sensors/-/expo-sensors-12.3.0.tgz#a3f0f86f54cf5d06a4e643d6678bc15ff4a446c9"
-  integrity sha512-KYL/WsJNJGTHRzpeCblPleuqaoCCHbIEQHg3NiRVVG1ismlGnisCPI6OBWYVZhfCJ0FjGvK0Z311Ac/KY8JSpA==
-  dependencies:
-    invariant "^2.2.4"
-
 expo-sharing@~11.5.0:
   version "11.5.0"
   resolved "https://registry.yarnpkg.com/expo-sharing/-/expo-sharing-11.5.0.tgz#a8cad65874d882b7f75b12856b4ef55ea9b60a2d"

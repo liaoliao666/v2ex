@@ -3,11 +3,11 @@ import { useQuery } from 'quaere'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
 
-import { isLargeTablet } from '@/jotai/deviceTypeAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { topicDetailQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
+import { isLargeTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 
 import DebouncedPressable from '../DebouncedPressable'

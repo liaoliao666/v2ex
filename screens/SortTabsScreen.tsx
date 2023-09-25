@@ -12,7 +12,6 @@ import {
 import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { isTabletAtom, useIsLargeTablet } from '@/jotai/deviceTypeAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
   HomeTab,
@@ -22,12 +21,13 @@ import {
 } from '@/jotai/homeTabsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
+import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 
 export default function SortTabsScreen() {
   const { width } = useWindowDimensions()
   const safeAreaInsets = useSafeAreaInsets()
-  const isTablet = useAtomValue(isTabletAtom)
+  const isTablet = useIsTablet()
   const isLargeTablet = useIsLargeTablet()
   const parentWidth =
     (Platform.OS === 'ios'
