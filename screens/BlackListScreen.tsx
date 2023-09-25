@@ -1,5 +1,3 @@
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
 import { findIndex, isEmpty, uniqBy } from 'lodash-es'
 import { useMutation, useSuspenseQuery } from 'quaere'
@@ -32,13 +30,13 @@ import { blackListAtom } from '@/jotai/blackListAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { blockersQuery, ignoredTopicsQuery } from '@/servicies/member'
 import {
   resetBlockersMutation,
   resetIgnoredTopicsMutation,
 } from '@/servicies/settings'
 import { Member, Topic } from '@/servicies/types'
-import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
 const TAB_BAR_HEIGHT = 40
@@ -183,9 +181,6 @@ function BlackListScreen() {
 }
 
 const BlockerItem = memo(({ member }: { member: Member }) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   return (
     <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-body-1`}
@@ -299,9 +294,6 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
 }
 
 const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   return (
     <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-body-1`}

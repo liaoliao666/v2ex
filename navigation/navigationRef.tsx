@@ -3,36 +3,38 @@ import {
   createNavigationContainerRef,
 } from '@react-navigation/native'
 import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { noop } from 'lodash-es'
 
 import { RootStackParamList } from '../types'
 
 export const navigationRef = createNavigationContainerRef<RootStackParamList>()
 
-export function getNavigation() {
-  if (!navigationRef.isReady()) return
+export const navigation = new Proxy(
+  {},
+  {
+    get: (_, key) => {
+      if (!navigationRef.isReady()) return noop
 
-  const navigation = navigationRef as unknown as NativeStackNavigationProp<
-    RootStackParamList,
-    keyof RootStackParamList,
-    undefined
-  >
+      try {
+        if (key in navigationRef) {
+          return (navigationRef as any)[key]
+        }
 
-  navigation.push = (...args) => {
-    if (navigationRef.isReady()) {
-      navigationRef.dispatch((StackActions as any).push(...args))
-    }
+        return (...args: any[]) => {
+          navigationRef.dispatch((StackActions as any)[key](...args))
+        }
+      } catch (error) {
+        throw new Error(`Invalid navigation key: ${key as string}`)
+      }
+    },
   }
-
-  navigation.pop = (...args) => {
-    if (navigationRef.isReady()) {
-      navigationRef.dispatch((StackActions as any).pop(...args))
-    }
-  }
-
-  return navigation
-}
+) as unknown as NativeStackNavigationProp<
+  RootStackParamList,
+  keyof RootStackParamList,
+  undefined
+>
 
 export function getCurrentRouteName(): keyof RootStackParamList {
   // @ts-ignore
-  return getNavigation()?.getCurrentRoute?.()?.name
+  return navigation.getCurrentRoute?.()?.name
 }

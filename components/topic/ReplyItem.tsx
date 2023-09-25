@@ -1,7 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Feather, FontAwesome5 } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { useMutation } from 'quaere'
@@ -13,13 +11,13 @@ import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import {
   ignoreReplyMutation,
   thankReplyMutation,
   topicDetailQuery,
 } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
-import { RootStackParamList } from '@/types'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
@@ -59,9 +57,6 @@ function ReplyItem({
   inModalScreen?: boolean
   onLayout?: ViewProps['onLayout']
 }) {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   const [isParsing, setIsParsing] = useState(
     store.get(enabledParseContentAtom)!
   )
@@ -268,8 +263,6 @@ function ThankReply({
 }) {
   const { trigger, isMutating } = useMutation({ mutation: thankReplyMutation })
 
-  const navigation = useNavigation()
-
   const disabled = isSelf(reply.member.username) || reply.thanked
 
   return (
@@ -351,8 +344,6 @@ function MoreButton({
   const { showActionSheetWithOptions } = useActionSheet()
 
   const ignoreReplyResult = useMutation({ mutation: ignoreReplyMutation })
-
-  const navigation = useNavigation()
 
   return (
     <IconButton

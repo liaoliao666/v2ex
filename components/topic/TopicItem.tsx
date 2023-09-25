@@ -1,14 +1,13 @@
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { compact, isEqual, maxBy } from 'lodash-es'
 import { useQuery } from 'quaere'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
 
+import { isLargeTablet } from '@/jotai/deviceTypeAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { topicDetailQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
-import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
 import DebouncedPressable from '../DebouncedPressable'
@@ -24,9 +23,6 @@ export interface TopicItemProps {
 export default memo(TopicItem, isEqual)
 
 function TopicItem({ topic, hideAvatar }: TopicItemProps) {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   const { data: isReaded } = useQuery({
     query: topicDetailQuery,
     variables: { id: topic.id },
@@ -41,7 +37,11 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
     <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-body-1`}
       onPress={() => {
-        navigation.push('TopicDetail', topic)
+        if (isLargeTablet() && getCurrentRouteName() === 'TopicDetail') {
+          navigation.replace('TopicDetail', topic)
+        } else {
+          navigation.push('TopicDetail', topic)
+        }
       }}
     >
       {!hideAvatar && (

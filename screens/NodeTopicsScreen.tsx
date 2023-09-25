@@ -1,5 +1,5 @@
 import { AntDesign } from '@expo/vector-icons'
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RouteProp, useRoute } from '@react-navigation/native'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
@@ -26,6 +26,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { likeNodeMutation, nodeTopicsQuery, nodesQuery } from '@/servicies/node'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -51,7 +52,6 @@ export default withQuerySuspense(NodeTopicsScreen, {
   ),
   fallbackRender: props => (
     <View style={tw`flex-1`}>
-      <NavBar title="节点" />
       <NavBar
         style={tw.style(TOP_BAR_BG_CLS, 'border-b-0')}
         title="节点"
@@ -248,8 +248,6 @@ function LikeNode({
   const { trigger, isMutating } = useMutation({
     mutation: likeNodeMutation,
   })
-
-  const navigation = useNavigation()
 
   async function likeNode() {
     if (!isSignined()) {

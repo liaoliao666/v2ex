@@ -1,10 +1,10 @@
 import { Feather } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
 import { useMutation } from 'quaere'
 import Toast from 'react-native-toast-message'
 
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
+import { navigation } from '@/navigation/navigationRef'
 import { uploadImageMutation } from '@/servicies/image'
 import tw from '@/utils/tw'
 
@@ -19,8 +19,6 @@ export default function UploadImageButton({
   const { trigger, isMutating } = useMutation({
     mutation: uploadImageMutation,
   })
-
-  const navigation = useNavigation()
 
   return (
     <StyledButton

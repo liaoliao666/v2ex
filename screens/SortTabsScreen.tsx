@@ -1,5 +1,4 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, isEmpty, some } from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
@@ -13,7 +12,7 @@ import {
 import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { useIsTablet } from '@/jotai/deviceTypeAtom'
+import { isTabletAtom, useIsLargeTablet } from '@/jotai/deviceTypeAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
   HomeTab,
@@ -22,15 +21,20 @@ import {
   homeTabsAtom,
 } from '@/jotai/homeTabsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 
 export default function SortTabsScreen() {
-  const navigation = useNavigation()
   const { width } = useWindowDimensions()
   const safeAreaInsets = useSafeAreaInsets()
-  const isTablet = useIsTablet()
+  const isTablet = useAtomValue(isTabletAtom)
+  const isLargeTablet = useIsLargeTablet()
   const parentWidth =
-    (Platform.OS === 'ios' ? width : isTablet ? Math.min(width, 600) : width) -
+    (Platform.OS === 'ios'
+      ? width
+      : isTablet
+      ? width - 400 - (isLargeTablet ? 56 : 0)
+      : width) -
     safeAreaInsets.left -
     safeAreaInsets.right -
     24

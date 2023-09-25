@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { useQuery } from 'quaere'
 import { useCallback, useState } from 'react'
@@ -19,6 +18,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { nodesQuery } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import tw from '@/utils/tw'
@@ -55,35 +55,28 @@ function NavNodesScreen() {
 
   const navbarHeight = useNavBarHeight()
 
-  const navigation = useNavigation()
-
-  const renderItem: ListRenderItem<Node> = useCallback(
-    ({ item: node }) => {
-      return (
-        <TouchableOpacity
-          key={node.id}
-          onPress={() => {
-            navigation.navigate('NodeTopics', { name: node.name })
+  const renderItem: ListRenderItem<Node> = useCallback(({ item: node }) => {
+    return (
+      <TouchableOpacity
+        key={node.id}
+        onPress={() => {
+          navigation.navigate('NodeTopics', { name: node.name })
+        }}
+        style={tw`w-1/3 py-2 items-center justify-center`}
+      >
+        <StyledImage
+          style={tw`w-12 h-12`}
+          source={{
+            uri: node.avatar_large,
           }}
-          style={tw`w-1/3 py-2 items-center justify-center`}
-        >
-          <StyledImage
-            style={tw`w-12 h-12`}
-            source={{
-              uri: node.avatar_large,
-            }}
-          />
+        />
 
-          <Text
-            style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}
-          >
-            {node.title}
-          </Text>
-        </TouchableOpacity>
-      )
-    },
-    [navigation]
-  )
+        <Text style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}>
+          {node.title}
+        </Text>
+      </TouchableOpacity>
+    )
+  }, [])
 
   return (
     <View style={tw`bg-body-1 flex-1`}>

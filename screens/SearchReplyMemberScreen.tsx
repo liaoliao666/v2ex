@@ -1,4 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { uniqBy, upperCase } from 'lodash-es'
 import { useQuery } from 'quaere'
@@ -21,6 +21,7 @@ import { LineSeparator } from '@/components/Separator'
 import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { topicDetailQuery } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -47,8 +48,6 @@ export default function SearchReplyMemberScreen() {
       ),
     [data?.pages, searchText]
   )
-
-  const navigation = useNavigation()
 
   const [checkedIds, setCheckedIds] = useState<Set<number>>(new Set())
 

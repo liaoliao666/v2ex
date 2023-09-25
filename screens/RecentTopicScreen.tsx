@@ -1,5 +1,3 @@
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom } from 'jotai'
 import { compact, isString, last, pick, uniqBy, upperCase } from 'lodash-es'
 import { inferData } from 'quaere'
@@ -18,8 +16,8 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { topicDetailQuery } from '@/servicies/topic'
-import { RootStackParamList } from '@/types'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
@@ -119,9 +117,6 @@ export default function RecentTopicScreen() {
 
 const RecentTopicItem = memo(
   ({ recentTopic }: { recentTopic: RecentTopic }) => {
-    const navigation =
-      useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
     return (
       <DebouncedPressable
         style={tw`px-4 py-3 flex-row bg-body-1`}

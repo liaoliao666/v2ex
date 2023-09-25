@@ -1,6 +1,5 @@
 import { Feather } from '@expo/vector-icons'
-import { DrawerActions, useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { DrawerActions } from '@react-navigation/native'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import { useSuspenseQuery } from 'quaere'
@@ -43,16 +42,15 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
-import { useIsTablet } from '@/jotai/deviceTypeAtom'
+import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { getCurrentRouteName } from '@/navigation/navigationRef'
+import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { nodeTopicsQuery } from '@/servicies/node'
 import { recentTopicsQuery, tabTopicsQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
-import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
@@ -129,9 +127,6 @@ function HomeScreen() {
   const layout = useWindowDimensions()
 
   const [index, setIndex] = useAtom(homeTabIndexAtom)
-
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
@@ -483,10 +478,7 @@ const NodeTopics = forwardRef<
 function TopNavBar() {
   const profile = useAtomValue(profileAtom)
 
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
-  const isTablet = useIsTablet()
+  const isTablet = useAtomValue(isTabletAtom)
 
   return (
     <NavBar

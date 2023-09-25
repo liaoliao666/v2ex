@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigation } from '@react-navigation/native'
 import { useAtom } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { ScrollView, Text, View } from 'react-native'
@@ -14,6 +13,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
 import { openURL } from '@/utils/url'
@@ -36,8 +36,6 @@ function ImgurConfigScreen() {
       clientId: imgurConfig.clientId,
     },
   })
-
-  const navigation = useNavigation()
 
   return (
     <View style={tw`flex-1`}>

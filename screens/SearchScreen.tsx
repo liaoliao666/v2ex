@@ -1,5 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RouteProp, useRoute } from '@react-navigation/native'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import {
@@ -34,6 +33,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { nodesQuery } from '@/servicies/node'
 import { sov2exQuery } from '@/servicies/other'
 import { topicDetailQuery } from '@/servicies/topic'
@@ -44,9 +44,6 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default function SearchScreen() {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   const { params } = useRoute<RouteProp<RootStackParamList, 'Search'>>()
 
   const [searchText, setSearchText] = useState(params?.query || '')
@@ -77,13 +74,9 @@ export default function SearchScreen() {
     ),
   })
 
-  const handleClickNode = useCallback(
-    (node: Node) => {
-      navigation.navigate('NodeTopics', { name: node.name })
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
-  )
+  const handleClickNode = useCallback((node: Node) => {
+    navigation.navigate('NodeTopics', { name: node.name })
+  }, [])
 
   const renderNodeItem: ListRenderItem<Node> = useCallback(
     ({ item }) => (
@@ -244,8 +237,6 @@ function SoV2exList({
     [data.pages]
   )
 
-  const navigation = useNavigation()
-
   return (
     <FlatList
       data={flatedData}
@@ -312,9 +303,6 @@ const HitItem = memo(
       content: string
     }
   }) => {
-    const navigation =
-      useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
     const { data: isReaded } = useQuery({
       query: topicDetailQuery,
       variables: { id: topic.id },
@@ -339,7 +327,9 @@ const HitItem = memo(
                 size="mini"
                 type="tag"
                 onPress={() => {
-                  navigation.push('NodeTopics', { name: topic.node?.name! })
+                  navigation.push('NodeTopics', {
+                    name: topic.node?.name!,
+                  })
                 }}
               >
                 {topic.node?.title}

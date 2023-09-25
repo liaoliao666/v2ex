@@ -1,6 +1,4 @@
 import { Feather } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
@@ -29,9 +27,9 @@ import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { deleteNoticeMutation, notificationsQuery } from '@/servicies/notice'
 import { Notice } from '@/servicies/types'
-import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
@@ -164,9 +162,6 @@ const NoticeItem = memo(
     notice: Notice
     onReply: (notice: Notice) => void
   }) => {
-    const navigation =
-      useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
     return (
       <DebouncedPressable
         style={tw`flex-row flex-wrap p-4`}
@@ -252,8 +247,6 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
   const { trigger, isMutating } = useMutation({
     mutation: deleteNoticeMutation,
   })
-
-  const navigation = useNavigation()
 
   return (
     <IconButton

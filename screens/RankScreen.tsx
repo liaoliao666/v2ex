@@ -1,5 +1,3 @@
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtomValue } from 'jotai'
 import { findIndex } from 'lodash-es'
 import { useSuspenseQuery } from 'quaere'
@@ -29,9 +27,9 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { topPlayerQuery, topRichQuery } from '@/servicies/top'
 import { Member } from '@/servicies/types'
-import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -234,9 +232,6 @@ function TopPlayerList({ headerHeight }: { headerHeight: number }) {
 
 const RankItem = memo(
   ({ member, rankTab }: { member: Member; rankTab: RankTab }) => {
-    const navigation =
-      useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
     return (
       <DebouncedPressable
         style={tw`px-4 py-3 flex-row bg-body-1`}

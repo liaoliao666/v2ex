@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { useSuspenseQuery } from 'quaere'
 import { useCallback } from 'react'
@@ -23,6 +22,7 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { myNodesQuery } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import tw from '@/utils/tw'
@@ -50,35 +50,28 @@ function MyNodesScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
-  const navigation = useNavigation()
-
-  const renderItem: ListRenderItem<Node> = useCallback(
-    ({ item: node }) => {
-      return (
-        <TouchableOpacity
-          key={node.id}
-          onPress={() => {
-            navigation.navigate('NodeTopics', { name: node.name })
+  const renderItem: ListRenderItem<Node> = useCallback(({ item: node }) => {
+    return (
+      <TouchableOpacity
+        key={node.id}
+        onPress={() => {
+          navigation.navigate('NodeTopics', { name: node.name })
+        }}
+        style={tw`w-1/4 p-2 items-center justify-center`}
+      >
+        <StyledImage
+          style={tw`w-12 h-12`}
+          source={{
+            uri: node.avatar_large,
           }}
-          style={tw`w-1/4 p-2 items-center justify-center`}
-        >
-          <StyledImage
-            style={tw`w-12 h-12`}
-            source={{
-              uri: node.avatar_large,
-            }}
-          />
+        />
 
-          <Text
-            style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}
-          >
-            {node.title}
-          </Text>
-        </TouchableOpacity>
-      )
-    },
-    [navigation]
-  )
+        <Text style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}>
+          {node.title}
+        </Text>
+      </TouchableOpacity>
+    )
+  }, [])
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 

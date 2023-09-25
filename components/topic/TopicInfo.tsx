@@ -1,7 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import produce from 'immer'
 import { compact } from 'lodash-es'
 import { useMutation } from 'quaere'
@@ -15,6 +13,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { nodeTopicsQuery } from '@/servicies/node'
 import {
   ignoreTopicMutation,
@@ -27,7 +26,6 @@ import {
   voteTopicMutation,
 } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
-import { RootStackParamList } from '@/types'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
@@ -49,9 +47,6 @@ export default function TopicInfo({
   onAppend: () => void
   children: ReactElement
 }) {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   const [isParsing, setIsParsing] = useState(
     store.get(enabledParseContentAtom)!
   )
@@ -201,8 +196,6 @@ export function LikeTopic({ topic }: { topic: Topic }) {
     mutation: likeTopicMutation,
   })
 
-  const navigation = useNavigation()
-
   return (
     <Pressable
       style={tw.style(`flex-row items-center relative`)}
@@ -272,8 +265,6 @@ export function ThankTopic({ topic }: { topic: Topic }) {
     mutation: thankTopicMutation,
   })
 
-  const navigation = useNavigation()
-
   return (
     <Pressable
       style={tw.style(`flex-row items-center relative`)}
@@ -341,8 +332,6 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 
 export function VoteButton({ topic }: { topic: Topic }) {
   const { trigger, isMutating } = useMutation({ mutation: voteTopicMutation })
-
-  const navigation = useNavigation()
 
   return (
     <View style={tw`p-2 flex-row items-center rounded-full bg-input`}>
@@ -438,8 +427,6 @@ function MoreButton({
   onAppend: () => void
 }) {
   const { showActionSheetWithOptions } = useActionSheet()
-
-  const navigation = useNavigation()
 
   const ignoreTopicResult = useMutation({ mutation: ignoreTopicMutation })
 

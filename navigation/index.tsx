@@ -13,14 +13,15 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack'
+import * as ScreenOrientation from 'expo-screen-orientation'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Platform } from 'react-native'
 
 import PageLayout from '@/components/PageLayout'
 import Profile from '@/components/Profile'
-import { useIsTablet } from '@/jotai/deviceTypeAtom'
+import { isTabletAtom, useIsLargeTablet } from '@/jotai/deviceTypeAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
@@ -90,19 +91,19 @@ export default function Navigation() {
   }, [colorScheme])
 
   return (
-    <PageLayout>
-      <NavigationContainer
-        ref={navigationRef}
-        linking={linking}
-        theme={theme}
-        onReady={() => {
-          handleReadyNavigation()
-          sleep(500).then(SplashScreen.hideAsync)
-        }}
-      >
+    <NavigationContainer
+      ref={navigationRef}
+      linking={linking}
+      theme={theme}
+      onReady={() => {
+        handleReadyNavigation()
+        sleep(500).then(SplashScreen.hideAsync)
+      }}
+    >
+      <PageLayout>
         <StackNavigator />
-      </NavigationContainer>
-    </PageLayout>
+      </PageLayout>
+    </NavigationContainer>
   )
 }
 
@@ -121,23 +122,33 @@ const androidSlideFromBottomOptions: NativeStackNavigationOptions =
     : {}
 
 function StackNavigator() {
-  const isTablet = useIsTablet()
+  const isTablet = useAtomValue(isTabletAtom)
+  const isLargeTablet = useIsLargeTablet()
+
+  useEffect(() => {
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
+
+    return () => {
+      ScreenOrientation.unlockAsync()
+    }
+  }, [])
 
   return (
     <Stack.Navigator
-      initialRouteName="Root"
+      initialRouteName={'Root'}
       screenOptions={{
         headerShown: false,
         fullScreenGestureEnabled: true,
         animation:
-          Platform.OS === 'android' && !isTablet
+          Platform.OS === 'android' && !isLargeTablet
             ? 'slide_from_right'
             : undefined,
+        orientation: !isTablet ? 'portrait' : undefined,
       }}
     >
       <Stack.Screen
         name="Root"
-        component={DrawerNavigator}
+        component={isLargeTablet ? NotFoundScreen : DrawerNavigator}
         options={{
           animation: 'none',
         }}
@@ -193,7 +204,6 @@ function StackNavigator() {
         name="SearchOptions"
         options={{
           presentation: 'modal',
-          // orientation: 'portrait',
           ...androidSlideFromBottomOptions,
         }}
         component={SearchOptionsScreen}
@@ -219,7 +229,6 @@ function StackNavigator() {
       <Stack.Screen
         options={{
           presentation: 'fullScreenModal',
-          // orientation: 'portrait',
           ...androidSlideFromBottomOptions,
         }}
         name="SortTabs"

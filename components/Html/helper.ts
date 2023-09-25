@@ -7,7 +7,7 @@ import {
 } from 'react-native-render-html'
 import Toast from 'react-native-toast-message'
 
-import { getNavigation } from '@/navigation/navigationRef'
+import { navigation } from '@/navigation/navigationRef'
 import { BASE64_PREFIX } from '@/servicies/helper'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
@@ -69,7 +69,6 @@ export function getDefaultProps({
           }
 
           const resolvedURL = resolveURL(href)
-          const navigation = getNavigation()!
 
           if (resolvedURL.startsWith(baseURL)) {
             if (inModalScreen) {

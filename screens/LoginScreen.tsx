@@ -1,5 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigation } from '@react-navigation/native'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { useMutation, useQuery } from 'quaere'
@@ -19,6 +18,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import {
   signinInfoQuery,
   signinMutation,
@@ -54,8 +54,6 @@ export default function LoginScreen() {
   })
 
   const [twoStepOnce, setTwoStepOnce] = useState('')
-
-  const navigation = useNavigation()
 
   useAtomValue(colorSchemeAtom)
 
@@ -308,8 +306,6 @@ function TwoStepSignin({ once }: { once: string }) {
   const { trigger, isMutating, error } = useMutation({
     mutation: useTwoStepSignin,
   })
-
-  const navigation = useNavigation()
 
   return (
     <View style={tw`w-3/4 mx-auto mt-8`}>

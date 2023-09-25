@@ -1,5 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RouteProp, useRoute } from '@react-navigation/native'
 import produce from 'immer'
 import { useAtomValue } from 'jotai'
 import { every, findIndex, last, pick, some, uniqBy } from 'lodash-es'
@@ -53,6 +52,7 @@ import { blackListAtom } from '@/jotai/blackListAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import {
   blockMemberMutation,
   followMemberMutation,
@@ -302,8 +302,6 @@ const MemberHeader = memo(() => {
     query: memberQuery,
     variables: { username: params.username },
   })
-
-  const navigation = useNavigation()
 
   return (
     <Fragment>
@@ -585,9 +583,6 @@ const MemberReply = memo(
       reply: Reply
     }
   }) => {
-    const navigation =
-      useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
     const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
     return (
@@ -658,8 +653,6 @@ function FollowMember({
     mutation: followMemberMutation,
   })
 
-  const navigation = useNavigation()
-
   return (
     <StyledButton
       shape="rounded"
@@ -709,8 +702,6 @@ function BlockMember({
   const { trigger, isMutating } = useMutation({
     mutation: blockMemberMutation,
   })
-
-  const navigation = useNavigation()
 
   return (
     <StyledButton

@@ -1,6 +1,4 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { useAtom, useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { View } from 'react-native'
@@ -14,8 +12,8 @@ import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { Sov2exArgs } from '@/servicies/other'
-import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
 export default withQuerySuspense(SearchOptionsScreen)
@@ -29,9 +27,6 @@ function SearchOptionsScreen() {
   })
 
   const sort = watch('sort')
-
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 

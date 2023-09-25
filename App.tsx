@@ -1,10 +1,12 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
+import * as ScreenOrientation from 'expo-screen-orientation'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
+import { noop } from 'lodash-es'
 import { QueryClientProvider, useQuery } from 'quaere'
-import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
+import { ReactElement, ReactNode, Suspense, useEffect, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -13,7 +15,7 @@ import { useDeviceContext } from 'twrnc'
 import { AsyncStoragePersist } from './components/AsyncStoragePersistProvider'
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
-import { deviceTypeAtom } from './jotai/deviceTypeAtom'
+import { deviceTypeAtom, isTabletAtom } from './jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from './jotai/enabledParseContent'
@@ -65,11 +67,12 @@ export default function App() {
 }
 
 function AppInitializer({ children }: { children: ReactNode }) {
-  const [colorScheme, profile, enabledAutoCheckin] = useAtomValue(
+  const [colorScheme, profile, enabledAutoCheckin, isTablet] = useAtomValue(
     waitForAll([
       colorSchemeAtom,
       profileAtom,
       enabledAutoCheckinAtom,
+      isTabletAtom,
       enabledMsgPushAtom,
       fontScaleAtom,
       enabledParseContentAtom,
@@ -78,6 +81,16 @@ function AppInitializer({ children }: { children: ReactNode }) {
       topicDraftAtom,
     ])
   )
+
+  useEffect(() => {
+    if (!isTablet) return noop
+
+    ScreenOrientation.lockAsync(ScreenOrientation.OrientationLock.PORTRAIT_UP)
+
+    return () => {
+      ScreenOrientation.unlockAsync()
+    }
+  }, [isTablet])
 
   useMemo(() => {
     tw.setColorScheme(colorScheme)

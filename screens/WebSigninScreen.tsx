@@ -7,7 +7,7 @@ import WebView from 'react-native-webview'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import StyledBlurView from '@/components/StyledBlurView'
-import { getNavigation } from '@/navigation/navigationRef'
+import { navigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
 import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
@@ -28,7 +28,7 @@ export default function WebSigninScreen() {
   function goBackWithRefetch() {
     if (isGobackRef.current) return
     isGobackRef.current = true
-    getNavigation()?.pop(2)
+    navigation.pop(2)
     queryClient.refetchQueries({ type: 'active' })
   }
 
@@ -76,7 +76,7 @@ export default function WebSigninScreen() {
 
                 if ($('#otp_code').length) {
                   params.onTwoStepOnce($("input[name='once']").attr('value')!)
-                  getNavigation()?.goBack()
+                  navigation.goBack()
                 } else {
                   goBackWithRefetch()
                 }

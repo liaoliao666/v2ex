@@ -1,6 +1,5 @@
 import { Entypo, Feather } from '@expo/vector-icons'
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
+import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
 import { useSuspenseQuery } from 'quaere'
@@ -39,6 +38,7 @@ import TopicInfo, {
 } from '@/components/topic/TopicInfo'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { topicDetailQuery } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -134,9 +134,6 @@ function TopicDetailScreen() {
   const safeAreaInsets = useSafeAreaInsets()
 
   const flatListRef = useRef<FlatList<Reply>>(null)
-
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
 
   return (
     <View style={tw`flex-1 bg-body-1`}>

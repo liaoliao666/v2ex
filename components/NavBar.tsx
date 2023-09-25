@@ -1,12 +1,10 @@
-import { useNavigation } from '@react-navigation/native'
-import { NativeStackNavigationProp } from '@react-navigation/native-stack'
 import { StatusBarStyle } from 'expo-status-bar'
 import { ReactNode, isValidElement } from 'react'
 import { Platform, PressableProps, Text, View, ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
-import { RootStackParamList } from '@/types'
+import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 import { useStatusBarStyle } from '@/utils/useStatusBarStyle'
 
@@ -87,9 +85,6 @@ export function BackButton({
   tintColor?: string
   onPress?: PressableProps['onPress']
 }) {
-  const navigation =
-    useNavigation<NativeStackNavigationProp<RootStackParamList>>()
-
   const color = tintColor || tw.color(`text-tint-primary`)
 
   return (

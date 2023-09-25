@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RouteProp, useRoute } from '@react-navigation/native'
 import { RESET } from 'jotai/utils'
 import { compact, isString } from 'lodash-es'
 import { useMutation, useQuery } from 'quaere'
@@ -28,6 +28,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { WriteTopicArgs, topicDraftAtom } from '@/jotai/topicDraftAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { previewQuery } from '@/servicies/preview'
 import {
   editTopicInfoQuery,
@@ -114,8 +115,6 @@ function WriteTopicScreen() {
     })
     return () => subscription.unsubscribe()
   }, [watch])
-
-  const navigation = useNavigation()
 
   const writeTopicResult = useMutation({ mutation: writeTopicMutation })
 

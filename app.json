@@ -5,7 +5,6 @@
     "version": "1.4.7",
     "scheme": "v2fun",
     "jsEngine": "jsc",
-    // "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
     "splash": {
@@ -19,6 +18,7 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
+      "requireFullScreen": true,
       "supportsTablet": true,
       "bundleIdentifier": "com.liaoliao666.v2ex",
       "buildNumber": "1.4.7.2"
@@ -47,6 +47,12 @@
         "expo-image-picker",
         {
           "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
+      ],
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "DEFAULT"
         }
       ]
     ]

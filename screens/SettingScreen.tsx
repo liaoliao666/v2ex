@@ -4,7 +4,6 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons'
-import { useNavigation } from '@react-navigation/native'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { useMutation, useQuery } from 'quaere'
@@ -22,7 +21,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
-import { useIsTablet } from '@/jotai/deviceTypeAtom'
+import { isTabletAtom } from '@/jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
@@ -30,6 +29,7 @@ import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { signoutMutation } from '@/servicies/authentication'
 import { latestVersionQuery } from '@/servicies/version'
 import { confirm } from '@/utils/confirm'
@@ -52,8 +52,6 @@ function SettingScreen() {
 
   const profile = useAtomValue(profileAtom)
 
-  const navigation = useNavigation()
-
   const [enabledAutoCheckin, setEnabledAutoCheckin] = useAtom(
     enabledAutoCheckinAtom
   )
@@ -66,7 +64,7 @@ function SettingScreen() {
     enabledParseContentAtom
   )
 
-  const isTablet = useIsTablet()
+  const isTablet = useAtomValue(isTabletAtom)
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 

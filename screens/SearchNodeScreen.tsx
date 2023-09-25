@@ -1,4 +1,4 @@
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native'
+import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { isString, upperCase } from 'lodash-es'
 import { useQuery } from 'quaere'
@@ -11,6 +11,7 @@ import NavBar from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import SearchBar from '@/components/SearchBar'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { nodesQuery } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
@@ -43,8 +44,6 @@ export default function SearchNodeScreen() {
       [searchText]
     ),
   })
-
-  const navigation = useNavigation()
 
   const handlePressNodeItem = useCallback((node: Node) => {
     navigation.goBack()

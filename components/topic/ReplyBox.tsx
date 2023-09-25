@@ -1,4 +1,3 @@
-import { useNavigation } from '@react-navigation/native'
 import { pick } from 'lodash-es'
 import { useMutation } from 'quaere'
 import { Fragment, useRef } from 'react'
@@ -12,6 +11,7 @@ import {
 import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { navigation } from '@/navigation/navigationRef'
 import { appendTopicMutation, replyMutation } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
@@ -107,8 +107,6 @@ const ReplyBox = ({
   const appendTopicResult = useMutation({ mutation: appendTopicMutation })
 
   const { isMutating, trigger } = isAppend ? appendTopicResult : replyResult
-
-  const navigation = useNavigation()
 
   const selectionRef = useRef<{
     start: number

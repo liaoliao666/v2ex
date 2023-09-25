@@ -1,11 +1,20 @@
 import * as Device from 'expo-device'
 import { atom, useAtomValue } from 'jotai'
-import { useWindowDimensions } from 'react-native'
+import { Dimensions, useWindowDimensions } from 'react-native'
+
+import { store } from './store'
 
 export const deviceTypeAtom = atom(Device.getDeviceTypeAsync)
 
-export const useIsTablet = () => {
-  const deviceType = useAtomValue(deviceTypeAtom)
+export const isTabletAtom = atom(
+  get => get(deviceTypeAtom) === Device.DeviceType.TABLET
+)
+
+export const isLargeTablet = () =>
+  store.get(isTabletAtom) && Dimensions.get('window').width >= 1024
+
+export const useIsLargeTablet = () => {
+  const isTablet = useAtomValue(isTabletAtom)
   const { width } = useWindowDimensions()
-  return deviceType === Device.DeviceType.TABLET || width >= 768
+  return isTablet && width >= 1024
 }

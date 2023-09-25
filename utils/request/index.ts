@@ -12,7 +12,7 @@ import { open503UrlTimeAtom } from '@/jotai/open503UrlTimeAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
 import { store } from '@/jotai/store'
-import { getCurrentRouteName, getNavigation } from '@/navigation/navigationRef'
+import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import {
   parseNavAtoms,
   parseProfile,
@@ -88,7 +88,7 @@ function updateStoreWithData(data: any) {
             text1: `消息通知`,
             text2: `你有 ${newProfile.my_notification} 条未读消息`,
             onPress: () => {
-              getNavigation()?.navigate('Notifications')
+              navigation.navigate('Notifications')
               Toast.hide()
             },
           })

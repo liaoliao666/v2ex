@@ -14,7 +14,7 @@ import StyledImage from '@/components/StyledImage'
 import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
-import { getNavigation } from '@/navigation/navigationRef'
+import { navigation } from '@/navigation/navigationRef'
 import { clearCookie } from '@/utils/cookie'
 import tw from '@/utils/tw'
 
@@ -49,7 +49,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
         />
       ),
       onPress: () => {
-        getNavigation()?.navigate('MyNodes')
+        navigation.navigate('MyNodes')
       },
     },
     {
@@ -63,7 +63,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
         />
       ),
       onPress: () => {
-        getNavigation()?.navigate('MyTopics')
+        navigation.navigate('MyTopics')
       },
     },
     {
@@ -77,7 +77,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
         />
       ),
       onPress: () => {
-        getNavigation()?.navigate('MyFollowing')
+        navigation.navigate('MyFollowing')
       },
     },
     {
@@ -93,7 +93,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
         </Badge>
       ),
       onPress: () => {
-        getNavigation()?.navigate('Notifications')
+        navigation.navigate('Notifications')
       },
     },
   ]
@@ -109,7 +109,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           <TouchableOpacity
             style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
             onPress={() => {
-              getNavigation()?.navigate('MemberDetail', {
+              navigation.navigate('MemberDetail', {
                 username: profile?.username!,
               })
             }}
@@ -133,7 +133,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
 
               <TouchableOpacity
                 onPress={() => {
-                  getNavigation()?.navigate('MemberDetail', {
+                  navigation.navigate('MemberDetail', {
                     username: profile?.username!,
                   })
                 }}
@@ -180,7 +180,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             try {
               await clearCookie()
             } finally {
-              getNavigation()?.navigate('Login')
+              navigation.navigate('Login')
             }
           }}
         >
@@ -193,7 +193,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             try {
               await clearCookie()
             } finally {
-              getNavigation()?.navigate('Login')
+              navigation.navigate('Login')
             }
           }}
         >
@@ -258,7 +258,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
               />
             }
             onPress={() => {
-              getNavigation()?.navigate('RecentTopic')
+              navigation.navigate('RecentTopic')
             }}
           />
 
@@ -272,7 +272,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
               />
             }
             onPress={() => {
-              getNavigation()?.navigate('NavNodes')
+              navigation.navigate('NavNodes')
             }}
           />
 
@@ -286,7 +286,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
               />
             }
             onPress={() => {
-              getNavigation()?.navigate('Setting')
+              navigation.navigate('Setting')
             }}
           />
         </View>
