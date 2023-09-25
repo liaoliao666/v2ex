@@ -120,9 +120,13 @@ const androidSlideFromBottomOptions: NativeStackNavigationOptions =
       }
     : {}
 
+function HomeEntry() {
+  const isLargeTablet = useIsLargeTablet()
+  return isLargeTablet ? <NotFoundScreen /> : <DrawerNavigator />
+}
+
 function StackNavigator() {
   const isTablet = useIsTablet()
-  const isLargeTablet = useIsLargeTablet()
 
   return (
     <Stack.Navigator
@@ -141,7 +145,7 @@ function StackNavigator() {
     >
       <Stack.Screen
         name="Root"
-        component={isLargeTablet ? NotFoundScreen : DrawerNavigator}
+        component={HomeEntry}
         options={{
           animation: 'none',
         }}

@@ -41,7 +41,7 @@ export default withQuerySuspense(NodeTopicsScreen, {
   LoadingComponent: () => (
     <View style={tw`flex-1 bg-body-1`}>
       <NavBar
-        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0')}
+        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-20')}
         title="节点"
         tintColor="#fff"
         statusBarStyle="light"
@@ -53,7 +53,7 @@ export default withQuerySuspense(NodeTopicsScreen, {
   fallbackRender: props => (
     <View style={tw`flex-1`}>
       <NavBar
-        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0')}
+        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-20')}
         title="节点"
         tintColor="#fff"
         statusBarStyle="light"
@@ -107,7 +107,7 @@ function NodeTopicsScreen() {
         title="节点"
         statusBarStyle="light"
         tintColor="#fff"
-        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0')}
+        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-10')}
       >
         {!avatarVisible && (
           <View style={tw`flex-row items-center`}>
@@ -143,7 +143,7 @@ function NodeTopicsScreen() {
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
             onRefresh={refetchByUser}
-            style={tw.style(TOP_BAR_BG_CLS)}
+            style={tw.style(`z-10`)}
             tintColor={Platform.OS === 'ios' ? '#fff' : undefined}
           />
         }
@@ -188,42 +188,46 @@ function NodeInfo({
   })
 
   return (
-    <View
-      style={tw`${TOP_BAR_BG_CLS} px-4 pt-[200px] -mt-[188px] pb-3 flex-row`}
-    >
-      <StyledImage
-        style={tw`w-12 h-12 mr-3 rounded`}
-        source={{
-          uri: node?.avatar_large,
-        }}
+    <View>
+      <View
+        style={tw`${TOP_BAR_BG_CLS} absolute -top-[999px] bottom-3 inset-x-0 -z-10`}
       />
 
-      <View style={tw`flex-1`}>
-        <View style={tw`flex-row items-center justify-between`}>
-          <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
-            {node?.title}
-          </Text>
+      <View style={tw`${TOP_BAR_BG_CLS} px-4 py-3 flex-row z-10`}>
+        <StyledImage
+          style={tw`w-12 h-12 mr-3 rounded`}
+          source={{
+            uri: node?.avatar_large,
+          }}
+        />
 
-          {!hideLike && (
-            <LikeNode
-              type="icon"
-              stars={node?.stars}
-              id={node?.id}
-              once={once}
-              liked={liked}
-              name={node?.name!}
-            />
-          )}
-        </View>
+        <View style={tw`flex-1`}>
+          <View style={tw`flex-row items-center justify-between`}>
+            <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
+              {node?.title}
+            </Text>
 
-        <View style={tw`mt-1 flex-row justify-between`}>
-          {node?.header && (
-            <Html
-              baseStyle={tw`text-[#e7e9ea] ${getFontSize(6)}`}
-              tagsStyles={{ a: tw`text-[#03C8FF] no-underline` }}
-              source={{ html: node?.header }}
-            />
-          )}
+            {!hideLike && (
+              <LikeNode
+                type="icon"
+                stars={node?.stars}
+                id={node?.id}
+                once={once}
+                liked={liked}
+                name={node?.name!}
+              />
+            )}
+          </View>
+
+          <View style={tw`mt-1 flex-row justify-between`}>
+            {node?.header && (
+              <Html
+                baseStyle={tw`text-[#e7e9ea] ${getFontSize(6)}`}
+                tagsStyles={{ a: tw`text-[#03C8FF] no-underline` }}
+                source={{ html: node?.header }}
+              />
+            )}
+          </View>
         </View>
       </View>
     </View>
