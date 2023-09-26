@@ -3,7 +3,7 @@ import { useAtomValue } from 'jotai'
 import { isString, upperCase } from 'lodash-es'
 import { useQuery } from 'quaere'
 import { useCallback, useState } from 'react'
-import { FlatList, ListRenderItem } from 'react-native'
+import { FlatList, ListRenderItem, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Empty from '@/components/Empty'
@@ -65,7 +65,7 @@ export default function SearchNodeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   return (
-    <SafeAreaView edges={['left', 'right']} style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-body-1 flex-1`}>
       <NavBar hideSafeTop left={null}>
         <SearchBar
           style={tw`flex-1`}
@@ -85,6 +85,6 @@ export default function SearchNodeScreen() {
         renderItem={renderNodeItem}
         ListEmptyComponent={<Empty description="暂无搜索结果" />}
       />
-    </SafeAreaView>
+    </View>
   )
 }

@@ -121,7 +121,7 @@ export default function RelatedRepliesScreen() {
   const isSingleRoute = routes.length <= 1
 
   return (
-    <SafeAreaView edges={['left', 'right']} style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-body-1 flex-1`}>
       <NavBar
         title="评论回复"
         hideSafeTop
@@ -209,7 +209,7 @@ export default function RelatedRepliesScreen() {
           )}
         />
       )}
-    </SafeAreaView>
+    </View>
   )
 }
 

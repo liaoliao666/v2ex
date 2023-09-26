@@ -4,7 +4,7 @@ import {
   SimpleLineIcons,
 } from '@expo/vector-icons'
 import { useAtom, useAtomValue } from 'jotai'
-import { isBoolean, omit, pick } from 'lodash-es'
+import { compact, omit, pick } from 'lodash-es'
 import { memo } from 'react'
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -19,7 +19,8 @@ import { clearCookie } from '@/utils/cookie'
 import tw from '@/utils/tw'
 
 import Badge from './Badge'
-import ListItem from './ListItem'
+import IconButton from './IconButton'
+import ListItem, { ListItemProps } from './ListItem'
 import { NAV_BAR_HEIGHT } from './NavBar'
 import { withQuerySuspense } from './QuerySuspense'
 import RadioButtonGroup from './RadioButtonGroup'
@@ -37,71 +38,148 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
 
   const isLogin = !!profile?.once
 
-  const userOptions = [
-    {
+  const listOptions = compact([
+    isLogin && {
       label: '节点收藏',
       value: 'my_nodes',
       icon: (
-        <MaterialCommunityIcons
-          color={tw.color(`text-tint-primary`)}
+        <IconButton
+          icon={<MaterialCommunityIcons name={'family-tree'} />}
           size={24}
-          name={'family-tree'}
+          color={tw.color(`text-tint-primary`)}
+          activeColor={tw.color(`text-tint-secondary`)}
         />
       ),
       onPress: () => {
         navigation.navigate('MyNodes')
       },
     },
-    {
+    isLogin && {
       label: '主题收藏',
       value: 'my_topics',
       icon: (
-        <Feather
-          color={tw.color(`text-tint-primary`)}
+        <IconButton
+          icon={<Feather name={'bookmark'} />}
           size={24}
-          name={'bookmark'}
+          color={tw.color(`text-tint-primary`)}
+          activeColor={tw.color(`text-tint-secondary`)}
         />
       ),
       onPress: () => {
         navigation.navigate('MyTopics')
       },
     },
-    {
+    isLogin && {
       label: '特别关注',
       value: 'my_following',
       icon: (
-        <MaterialCommunityIcons
-          color={tw.color(`text-tint-primary`)}
+        <IconButton
+          icon={<MaterialCommunityIcons name={'account-heart-outline'} />}
           size={24}
-          name={'account-heart-outline'}
+          color={tw.color(`text-tint-primary`)}
+          activeColor={tw.color(`text-tint-secondary`)}
         />
       ),
       onPress: () => {
         navigation.navigate('MyFollowing')
       },
     },
-    {
+    isLogin && {
       label: '未读提醒',
       value: 'my_notification',
       icon: (
-        <Badge content={profile?.my_notification}>
-          <MaterialCommunityIcons
-            color={tw.color(`text-tint-primary`)}
-            size={24}
-            name={'bell-outline'}
-          />
-        </Badge>
+        <IconButton
+          icon={
+            <View>
+              <Badge content={profile?.my_notification}>
+                <MaterialCommunityIcons size={24} name={'bell-outline'} />
+              </Badge>
+            </View>
+          }
+          size={24}
+          color={tw.color(`text-tint-primary`)}
+          activeColor={tw.color(`text-tint-secondary`)}
+        />
       ),
       onPress: () => {
         navigation.navigate('Notifications')
       },
     },
-  ]
+    !onlyIcon && {
+      label: '外观',
+      value: 'color_scheme',
+      icon: (
+        <Feather
+          color={tw.color(`text-tint-primary`)}
+          size={24}
+          name={colorScheme === 'light' ? 'sun' : 'moon'}
+        />
+      ),
+      action: (
+        <RadioButtonGroup
+          style={tw`ml-2`}
+          options={[
+            { label: '浅色', value: 'light' },
+            { label: '深色', value: 'dark' },
+            { label: '系统', value: 'system' },
+          ]}
+          value={theme}
+          onChange={setTheme}
+        />
+      ),
+      style: tw`border-t border-solid border-tint-border`,
+    },
+    {
+      label: '最近浏览',
+      value: 'recent_topic',
+      icon: (
+        <IconButton
+          icon={<MaterialCommunityIcons name={'clock-check-outline'} />}
+          size={24}
+          color={tw.color(`text-tint-primary`)}
+          activeColor={tw.color(`text-tint-secondary`)}
+        />
+      ),
+      onPress: () => {
+        navigation.navigate('RecentTopic')
+      },
+    },
+    {
+      label: '节点导航',
+      value: 'nav_nodes',
+      icon: (
+        <IconButton
+          icon={<Feather name="navigation" />}
+          size={24}
+          color={tw.color(`text-tint-primary`)}
+          activeColor={tw.color(`text-tint-secondary`)}
+        />
+      ),
+      onPress: () => {
+        navigation.navigate('NavNodes')
+      },
+    },
+    {
+      label: '更多选项',
+      value: 'setting',
+      icon: (
+        <IconButton
+          icon={<Feather name="settings" />}
+          size={24}
+          color={tw.color(`text-tint-primary`)}
+          activeColor={tw.color(`text-tint-secondary`)}
+        />
+      ),
+      onPress: () => {
+        navigation.navigate('Setting')
+      },
+    },
+  ]) as (ListItemProps & { value: string })[]
 
   return (
     <SafeAreaView
       edges={['top']}
-      style={tw`flex-1 bg-body-1`}
+      style={tw.style(`flex-1 bg-body-1`, onlyIcon && `px-2`)}
       key={onlyIcon ? 'profile' : fontScale}
     >
       {isLogin ? (
@@ -210,86 +288,12 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       )}
 
       <ScrollView>
-        {isLogin &&
-          userOptions.map(item => (
-            <ListItem
-              key={item.value}
-              {...omit(item, onlyIcon ? ['value', 'label'] : ['value'])}
-            />
-          ))}
-
-        <View
-          style={
-            !isBoolean(onlyIcon) && tw`border-t border-solid border-tint-border`
-          }
-        >
-          {!onlyIcon && (
-            <ListItem
-              label="外观"
-              icon={
-                <Feather
-                  color={tw.color(`text-tint-primary`)}
-                  size={24}
-                  name={colorScheme === 'light' ? 'sun' : 'moon'}
-                />
-              }
-              action={
-                <RadioButtonGroup
-                  style={tw`ml-2`}
-                  options={[
-                    { label: '浅色', value: 'light' },
-                    { label: '深色', value: 'dark' },
-                    { label: '系统', value: 'system' },
-                  ]}
-                  value={theme}
-                  onChange={setTheme}
-                />
-              }
-            />
-          )}
-
+        {listOptions.map(item => (
           <ListItem
-            label={!onlyIcon ? '最近浏览' : undefined}
-            icon={
-              <MaterialCommunityIcons
-                color={tw.color(`text-tint-primary`)}
-                size={24}
-                name={'clock-check-outline'}
-              />
-            }
-            onPress={() => {
-              navigation.navigate('RecentTopic')
-            }}
+            key={item.value}
+            {...omit(item, onlyIcon ? ['value', 'label'] : ['value'])}
           />
-
-          <ListItem
-            label={!onlyIcon ? '节点导航' : undefined}
-            icon={
-              <Feather
-                color={tw.color(`text-tint-primary`)}
-                size={24}
-                name="navigation"
-              />
-            }
-            onPress={() => {
-              navigation.navigate('NavNodes')
-            }}
-          />
-
-          <ListItem
-            label={!onlyIcon ? '更多选项' : undefined}
-            icon={
-              <Feather
-                color={tw.color(`text-tint-primary`)}
-                size={24}
-                name="settings"
-              />
-            }
-            onPress={() => {
-              navigation.navigate('Setting')
-            }}
-          />
-        </View>
+        ))}
 
         <SafeAreaView edges={['bottom']} />
       </ScrollView>

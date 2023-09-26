@@ -2,15 +2,9 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, isEmpty, some } from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
-import {
-  Platform,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native'
+import { Pressable, Text, View, useWindowDimensions } from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
@@ -26,19 +20,11 @@ import tw from '@/utils/tw'
 
 export default function SortTabsScreen() {
   const { width } = useWindowDimensions()
-  const safeAreaInsets = useSafeAreaInsets()
   const isTablet = useIsTablet()
   const isLargeTablet = useIsLargeTablet()
   const parentWidth =
-    (Platform.OS === 'ios'
-      ? width
-      : isTablet
-      ? width - 400 - (isLargeTablet ? 56 : 0)
-      : width) -
-    safeAreaInsets.left -
-    safeAreaInsets.right -
-    24
-  const itemWidth = parentWidth / 4
+    (isTablet ? width - 74 - (isLargeTablet ? 400 : 0) : width) - 24
+  const itemWidth = parentWidth / Math.ceil(parentWidth / 100)
   const itemHeight = 36
   const [homeTabs, setHomeTabs] = useAtom(homeTabsAtom)
   const [selectedItems, setSelectedItems] = useState(homeTabs)
@@ -107,7 +93,7 @@ export default function SortTabsScreen() {
   }
 
   return (
-    <SafeAreaView style={tw`flex-1 bg-body-1`}>
+    <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`}>
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
         <Text style={tw`text-tint-primary ${getFontSize(4)} font-medium`}>
           首页板块

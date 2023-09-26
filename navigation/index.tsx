@@ -120,13 +120,14 @@ const androidSlideFromBottomOptions: NativeStackNavigationOptions =
       }
     : {}
 
-function HomeEntry() {
+function RootScreen() {
   const isLargeTablet = useIsLargeTablet()
   return isLargeTablet ? <NotFoundScreen /> : <DrawerNavigator />
 }
 
 function StackNavigator() {
   const isTablet = useIsTablet()
+  const isLargeTablet = useIsLargeTablet()
 
   return (
     <Stack.Navigator
@@ -145,7 +146,7 @@ function StackNavigator() {
     >
       <Stack.Screen
         name="Root"
-        component={HomeEntry}
+        component={RootScreen}
         options={{
           animation: 'none',
         }}
@@ -191,9 +192,13 @@ function StackNavigator() {
 
       <Stack.Screen
         name="Search"
-        options={{
-          animation: 'none',
-        }}
+        options={
+          isLargeTablet
+            ? undefined
+            : {
+                animation: 'none',
+              }
+        }
         component={SearchScreen}
       />
 
@@ -224,10 +229,14 @@ function StackNavigator() {
       <Stack.Screen name="NotFound" component={NotFoundScreen} />
 
       <Stack.Screen
-        options={{
-          presentation: 'fullScreenModal',
-          ...androidSlideFromBottomOptions,
-        }}
+        options={
+          isTablet
+            ? undefined
+            : {
+                presentation: 'containedModal',
+                ...androidSlideFromBottomOptions,
+              }
+        }
         name="SortTabs"
         component={SortTabsScreen}
       />
