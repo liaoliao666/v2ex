@@ -260,7 +260,14 @@ export default function SortTabsScreen() {
 
       <View style={tw`px-3 pt-1.5 flex-row flex-wrap`}>
         {unselectedItems.map(item => {
-          const handleAddTab = () => setSelectedItems([...selectedItems, item])
+          const handleAddTab = () => {
+            const newSelectedItems = [...selectedItems, item]
+            setSelectedItems(newSelectedItems)
+
+            if (!isEdit) {
+              handleSave(newSelectedItems)
+            }
+          }
           return (
             <Pressable style={tw`mt-2.5`} key={item.key} onPress={handleAddTab}>
               {renderItem({

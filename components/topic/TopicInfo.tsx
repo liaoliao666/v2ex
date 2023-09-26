@@ -563,7 +563,7 @@ function MoreButton({
 
                   Toast.show({
                     type: 'success',
-                    text1: '忽略成功',
+                    text1: topic.ignored ? '取消忽略成功' : '忽略成功',
                   })
                 } catch (error) {
                   Toast.show({

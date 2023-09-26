@@ -81,7 +81,11 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
               size="mini"
               type="tag"
               onPress={() => {
-                navigation.push('NodeTopics', { name: topic.node?.name! })
+                if (isLargeTablet() && getCurrentRouteName() === 'NodeTopics') {
+                  navigation.replace('NodeTopics', { name: topic.node?.name! })
+                } else {
+                  navigation.push('NodeTopics', { name: topic.node?.name! })
+                }
               }}
             >
               {topic.node?.title}
