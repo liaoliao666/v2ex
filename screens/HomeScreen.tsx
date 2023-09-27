@@ -527,7 +527,7 @@ function TopNavBar() {
         style={tw`flex-1`}
         editable={false}
         onPress={() => {
-          navigation.push('Search', {})
+          navigation.navigate('Search', {})
         }}
       />
     </NavBar>

@@ -86,13 +86,17 @@ export const topicDetailQuery = queryWithInfinite<
 
     const $ = load(data)
 
-    return {
+    const topicDetail = {
       page: pageParam,
       last_page: parseLastPage($),
       id,
       image_count: $('#Main .embedded_image').length,
       ...parseTopic($),
     }
+
+    if (!topicDetail.title) throw new Error('Something went wrong')
+
+    return topicDetail
   },
   initialPageParam: 1,
   getNextPageParam,
