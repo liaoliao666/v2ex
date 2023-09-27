@@ -19,7 +19,18 @@ import { isSvgURL, resolveURL } from '@/utils/url'
 
 const uriToSize = new Map()
 
-function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
+export interface StyledImageProps extends ImageProps {
+  containerWidth?: number
+}
+
+function CustomImage({
+  style,
+  source,
+  onLoad,
+  onError,
+  containerWidth,
+  ...props
+}: StyledImageProps) {
   const uri =
     isObject(source) && !isArray(source) && isString(source.uri)
       ? resolveURL(source.uri)
@@ -30,10 +41,6 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
   const [size, setSize] = useState<LayoutRectangle>(uriToSize.get(uri))
 
   const hadPassedSize = hasSize(style)
-
-  const isMiniImage = hasSize(size)
-    ? size.width < 100 && size.height < 100
-    : false
 
   return (
     <Image
@@ -60,19 +67,47 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
         onError?.(err)
       }}
       style={tw.style(
-        !hadPassedSize &&
-          (isMiniImage
-            ? size
-            : {
-                aspectRatio: size ? size.width / size.height : 1,
-                width: `100%`,
-              }),
+        !hadPassedSize && computeImageSize(size, containerWidth),
         !hadPassedSize && uriToSize.has(uri) && !uriToSize.get(uri) && `hidden`,
         style as ViewStyle,
         isLoading && `img-loading`
       )}
     />
   )
+}
+
+function computeImageSize(
+  size?: { width: number; height: number },
+  containerWidth?: number
+) {
+  if (!hasSize(size)) {
+    return {
+      aspectRatio: 1,
+      width: `100%`,
+    }
+  }
+
+  const isMiniImage = size.width < 100 && size.height < 100
+
+  if (isMiniImage) {
+    return size
+  }
+
+  const aspectRatio = size.width / size.height
+
+  if (!containerWidth) {
+    return {
+      aspectRatio,
+      width: `100%`,
+    }
+  }
+
+  const actualWidth = Math.min(aspectRatio * 510, containerWidth)
+
+  return {
+    width: actualWidth,
+    height: actualWidth / aspectRatio,
+  }
 }
 
 function CustomSvgUri({ uri, style, ...props }: UriProps) {
@@ -118,7 +153,7 @@ function CustomSvgUri({ uri, style, ...props }: UriProps) {
   )
 }
 
-export default function StyledImage({ source, ...props }: ImageProps) {
+export default function StyledImage({ source, ...props }: StyledImageProps) {
   if (
     isObject(source) &&
     !isArray(source) &&

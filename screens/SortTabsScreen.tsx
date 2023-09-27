@@ -2,7 +2,7 @@ import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, isEmpty, some } from 'lodash-es'
 import { useCallback, useMemo, useState } from 'react'
-import { Pressable, Text, View, useWindowDimensions } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -15,15 +15,11 @@ import {
 } from '@/jotai/homeTabsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
+import { useScreenWidth } from '@/utils/useScreenWidth'
 
 export default function SortTabsScreen() {
-  const { width } = useWindowDimensions()
-  const isTablet = useIsTablet()
-  const isLargeTablet = useIsLargeTablet()
-  const parentWidth =
-    (isTablet ? width - 74 - (isLargeTablet ? 400 : 0) : width) - 24
+  const parentWidth = useScreenWidth() - 24
   const itemWidth = parentWidth / Math.ceil(parentWidth / 100)
   const itemHeight = 36
   const [homeTabs, setHomeTabs] = useAtom(homeTabsAtom)
