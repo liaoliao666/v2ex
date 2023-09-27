@@ -1,7 +1,7 @@
-import { isPlainObject } from 'lodash-es'
+import { isNumber, isPlainObject } from 'lodash-es'
 
-export type Size = { width: number; height: number; [k: string]: any }
-
-export function hasSize(style: any): style is Size {
-  return isPlainObject(style) && !!(style.width && style.height)
+export function hasSize(
+  style: any
+): style is { width: number; height: number; [k: string]: any } {
+  return isPlainObject(style) && isNumber(style.width) && isNumber(style.height)
 }

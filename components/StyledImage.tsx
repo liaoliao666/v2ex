@@ -9,7 +9,7 @@ import {
 } from 'lodash-es'
 import { useQuery } from 'quaere'
 import { useState } from 'react'
-import { LayoutRectangle, View, ViewStyle } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
 import { svgQuery } from '@/servicies/other'
@@ -17,11 +17,15 @@ import { hasSize } from '@/utils/hasSize'
 import tw from '@/utils/tw'
 import { isSvgURL, resolveURL } from '@/utils/url'
 
-const uriToSize = new Map()
-
 export interface StyledImageProps extends ImageProps {
   containerWidth?: number
 }
+
+type Size = { width: number; height: number }
+
+const uriToSize = new Map<string | undefined, Size | 'error'>()
+
+const MAX_IMAGE_HEIGHT = 510
 
 function CustomImage({
   style,
@@ -36,11 +40,54 @@ function CustomImage({
       ? resolveURL(source.uri)
       : undefined
 
-  const [isLoading, setIsLoading] = useState(uri ? !uriToSize.has(uri) : false)
+  const [size, setSize] = useState(uriToSize.get(uri))
 
-  const [size, setSize] = useState<LayoutRectangle>(uriToSize.get(uri))
+  const computeImageSize = (): ViewStyle => {
+    // 如果图片加载失败，不显示
+    if (size === 'error') {
+      return {
+        width: 0,
+        height: 0,
+      }
+    }
 
-  const hadPassedSize = hasSize(style)
+    // 如果加载中，显示占位图
+    if (!hasSize(size)) {
+      return tw.style(
+        {
+          aspectRatio: 1,
+          width: containerWidth
+            ? Math.min(containerWidth, MAX_IMAGE_HEIGHT)
+            : `100%`,
+        },
+        'img-loading'
+      )
+    }
+
+    const isMiniImage = size.width < 100 && size.height < 100
+
+    // 如果是小图，直接显示
+    if (isMiniImage) {
+      return size
+    }
+
+    // 如果是大图，限制高度
+    const aspectRatio = size.width / size.height
+
+    if (!containerWidth) {
+      return {
+        aspectRatio,
+        width: `100%`,
+      }
+    }
+
+    const actualWidth = Math.min(aspectRatio * MAX_IMAGE_HEIGHT, containerWidth)
+
+    return {
+      width: actualWidth,
+      height: actualWidth / aspectRatio,
+    }
+  }
 
   return (
     <Image
@@ -55,59 +102,19 @@ function CustomImage({
       }
       onLoad={ev => {
         const newSize: any = pick(ev.source, ['width', 'height'])
-
-        uriToSize.set(uri, newSize)
         setSize(prev => (isEqual(prev, newSize) ? prev : newSize))
-        setIsLoading(false)
         onLoad?.(ev)
       }}
       onError={err => {
-        uriToSize.set(uri, undefined)
-        setIsLoading(false)
-        onError?.(err)
+        // TODO: This is a trick, maybe fixed in next expo-image version
+        if (!hasSize(size)) {
+          setSize('error')
+          onError?.(err)
+        }
       }}
-      style={tw.style(
-        !hadPassedSize && computeImageSize(size, containerWidth),
-        !hadPassedSize && uriToSize.has(uri) && !uriToSize.get(uri) && `hidden`,
-        style as ViewStyle,
-        isLoading && `img-loading`
-      )}
+      style={tw.style(computeImageSize(), style as ViewStyle)}
     />
   )
-}
-
-function computeImageSize(
-  size?: { width: number; height: number },
-  containerWidth?: number
-) {
-  if (!hasSize(size)) {
-    return {
-      aspectRatio: 1,
-      width: `100%`,
-    }
-  }
-
-  const isMiniImage = size.width < 100 && size.height < 100
-
-  if (isMiniImage) {
-    return size
-  }
-
-  const aspectRatio = size.width / size.height
-
-  if (!containerWidth) {
-    return {
-      aspectRatio,
-      width: `100%`,
-    }
-  }
-
-  const actualWidth = Math.min(aspectRatio * 510, containerWidth)
-
-  return {
-    width: actualWidth,
-    height: actualWidth / aspectRatio,
-  }
 }
 
 function CustomSvgUri({ uri, style, ...props }: UriProps) {
