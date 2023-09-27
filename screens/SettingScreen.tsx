@@ -4,6 +4,7 @@ import {
   MaterialCommunityIcons,
   MaterialIcons,
 } from '@expo/vector-icons'
+import { Image } from 'expo-image'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { useMutation, useQuery } from 'quaere'
@@ -33,7 +34,6 @@ import { signoutMutation } from '@/servicies/authentication'
 import { latestVersionQuery } from '@/servicies/version'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
-import { isExpoGo } from '@/utils/isExpoGo'
 import { queryClient } from '@/utils/query'
 import { sleep } from '@/utils/sleep'
 import { useIsTablet } from '@/utils/tablet'
@@ -41,11 +41,6 @@ import tw from '@/utils/tw'
 import { openURL } from '@/utils/url'
 
 export default withQuerySuspense(SettingScreen)
-
-let FastImage: any
-if (!isExpoGo) {
-  FastImage = require('react-native-fast-image')
-}
 
 function SettingScreen() {
   const navbarHeight = useNavBarHeight()
@@ -308,7 +303,7 @@ function SettingScreen() {
             try {
               await confirm(`确认清除缓存吗？`, `该动作会导致删除所有缓存数据`)
               queryClient.removeQueries()
-              FastImage?.clearDiskCache?.()
+              Image.clearDiskCache()
               Toast.show({
                 type: 'success',
                 text1: `清除缓存成功`,

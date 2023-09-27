@@ -1,3 +1,4 @@
+import { Image, ImageProps } from 'expo-image'
 import {
   isArray,
   isEqual,
@@ -8,27 +9,15 @@ import {
 } from 'lodash-es'
 import { useQuery } from 'quaere'
 import { useState } from 'react'
-import {
-  Image,
-  ImageProps,
-  LayoutRectangle,
-  View,
-  ViewStyle,
-} from 'react-native'
+import { LayoutRectangle, View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
 import { svgQuery } from '@/servicies/other'
 import { hasSize } from '@/utils/hasSize'
-import { isExpoGo } from '@/utils/isExpoGo'
 import tw from '@/utils/tw'
 import { isSvgURL, resolveURL } from '@/utils/url'
 
 const uriToSize = new Map()
-
-let FastImage = Image
-if (!isExpoGo) {
-  FastImage = require('react-native-fast-image')
-}
 
 function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
   const uri =
@@ -47,7 +36,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
     : false
 
   return (
-    <FastImage
+    <Image
       {...props}
       source={
         isObject(source)
@@ -58,10 +47,7 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
           : source
       }
       onLoad={ev => {
-        const newSize: any = pick(
-          FastImage === Image ? ev.nativeEvent.source : ev.nativeEvent,
-          ['width', 'height']
-        )
+        const newSize: any = pick(ev.source, ['width', 'height'])
 
         uriToSize.set(uri, newSize)
         setSize(prev => (isEqual(prev, newSize) ? prev : newSize))
@@ -85,7 +71,6 @@ function CustomImage({ style, source, onLoad, onError, ...props }: ImageProps) {
         style as ViewStyle,
         isLoading && `img-loading`
       )}
-      resizeMode={'stretch'}
     />
   )
 }

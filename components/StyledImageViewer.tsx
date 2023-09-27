@@ -1,10 +1,9 @@
 import { Ionicons } from '@expo/vector-icons'
+import { Image } from 'expo-image'
 import * as Sharing from 'expo-sharing'
-import { isObjectLike } from 'lodash-es'
 import { useMutation } from 'quaere'
 import { ComponentProps } from 'react'
 import {
-  Image,
   Modal,
   Pressable,
   Text,
@@ -17,7 +16,6 @@ import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { downloadImageMutation } from '@/servicies/image'
-import { isExpoGo } from '@/utils/isExpoGo'
 import tw from '@/utils/tw'
 
 import { NAV_BAR_HEIGHT } from './NavBar'
@@ -27,11 +25,6 @@ export interface StyledImageViewerProps
   extends Omit<ComponentProps<typeof ImageViewer>, 'onCancel'> {
   visible?: boolean
   onClose?: () => void
-}
-
-let FastImage = Image
-if (!isExpoGo) {
-  FastImage = require('react-native-fast-image')
 }
 
 export default function StyledImageViewer({
@@ -160,17 +153,7 @@ export default function StyledImageViewer({
             </Text>
           </View>
         )}
-        renderImage={imageProps => (
-          <FastImage
-            {...imageProps}
-            source={{
-              ...imageProps.source,
-              priority: isObjectLike((FastImage as any).priority)
-                ? (FastImage as any).priority.normal
-                : undefined,
-            }}
-          />
-        )}
+        renderImage={imageProps => <Image {...imageProps} />}
         {...props}
       />
 

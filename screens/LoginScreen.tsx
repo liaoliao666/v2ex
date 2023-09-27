@@ -245,7 +245,7 @@ export default function LoginScreen() {
           )}
         />
 
-        {(Platform.OS === 'android' || dayjs().isAfter('2023-9-29')) && (
+        {(Platform.OS === 'android' || dayjs().isAfter('2023-9-30')) && (
           <TouchableOpacity
             style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
             onPress={() => {

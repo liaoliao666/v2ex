@@ -44,6 +44,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'my_nodes',
       icon: (
         <IconButton
+          pressed={false}
           icon={<MaterialCommunityIcons name={'family-tree'} />}
           size={24}
           color={tw.color(`text-tint-primary`)}
@@ -59,6 +60,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'my_topics',
       icon: (
         <IconButton
+          pressed={false}
           icon={<Feather name={'bookmark'} />}
           size={24}
           color={tw.color(`text-tint-primary`)}
@@ -74,6 +76,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'my_following',
       icon: (
         <IconButton
+          pressed={false}
           icon={<MaterialCommunityIcons name={'account-heart-outline'} />}
           size={24}
           color={tw.color(`text-tint-primary`)}
@@ -89,10 +92,15 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'my_notification',
       icon: (
         <IconButton
+          pressed={false}
           icon={
             <View>
               <Badge content={profile?.my_notification}>
-                <MaterialCommunityIcons size={24} name={'bell-outline'} />
+                <MaterialCommunityIcons
+                  size={24}
+                  name={'bell-outline'}
+                  color={tw.color(`text-tint-primary`)}
+                />
               </Badge>
             </View>
           }
@@ -134,6 +142,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'recent_topic',
       icon: (
         <IconButton
+          pressed={false}
           icon={<MaterialCommunityIcons name={'clock-check-outline'} />}
           size={24}
           color={tw.color(`text-tint-primary`)}
@@ -149,6 +158,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'nav_nodes',
       icon: (
         <IconButton
+          pressed={false}
           icon={<Feather name="navigation" />}
           size={24}
           color={tw.color(`text-tint-primary`)}
@@ -164,6 +174,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'setting',
       icon: (
         <IconButton
+          pressed={false}
           icon={<Feather name="settings" />}
           size={24}
           color={tw.color(`text-tint-primary`)}

@@ -295,8 +295,7 @@ const RecentTopics = forwardRef<
     isFetching,
   } = useSuspenseQuery({
     query: recentTopicsQuery,
-    refetchOnWindowFocus: () =>
-      isActive && (getCurrentRouteName() === 'Home' || isLargeTablet()),
+    refetchOnWindowFocus: () => isRefetchOnWindowFocus(isActive),
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -361,8 +360,7 @@ const TabTopics = forwardRef<
   const { data, refetch, isFetching } = useSuspenseQuery({
     query: tabTopicsQuery,
     variables: { tab },
-    refetchOnWindowFocus: () =>
-      isActive && (getCurrentRouteName() === 'Home' || isLargeTablet()),
+    refetchOnWindowFocus: () => isRefetchOnWindowFocus(isActive),
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -423,8 +421,7 @@ const NodeTopics = forwardRef<
   } = useSuspenseQuery({
     query: nodeTopicsQuery,
     variables: { name: nodeName },
-    refetchOnWindowFocus: () =>
-      isActive && (getCurrentRouteName() === 'Home' || isLargeTablet()),
+    refetchOnWindowFocus: () => isRefetchOnWindowFocus(isActive),
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -541,4 +538,8 @@ function PreventLeftSwiping({ headerHeight }: { headerHeight: number }) {
   return (
     <View style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-5`} />
   )
+}
+
+function isRefetchOnWindowFocus(isActive: boolean) {
+  return isActive && (getCurrentRouteName() === 'Home' || isLargeTablet())
 }
