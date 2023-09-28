@@ -48,7 +48,14 @@ function CustomImage({
   return (
     <Image
       {...props}
-      source={source}
+      source={
+        isObject(source)
+          ? {
+              ...source,
+              uri,
+            }
+          : source
+      }
       onLoad={ev => {
         const newSize: any = pick(ev.source, ['width', 'height'])
         if (!isEqual(size, newSize)) {
