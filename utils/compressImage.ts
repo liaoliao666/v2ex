@@ -1,27 +1,32 @@
 import * as ImageManipulator from 'expo-image-manipulator'
+import { pick } from 'lodash-es'
 
-const compressPromises = new Map<
-  string,
-  Promise<ImageManipulator.ImageResult>
->()
-
-const compressImage = async (
+type CompressedImage = {
   uri: string
-): Promise<ImageManipulator.ImageResult> => {
+  size?: {
+    width: number
+    height: number
+  }
+}
+
+const compressPromises = new Map<string, Promise<CompressedImage>>()
+
+const compressImage = async (uri: string): Promise<CompressedImage> => {
   try {
     const staticImage = await ImageManipulator.manipulateAsync(uri, [], {
       compress: 1,
       format: ImageManipulator.SaveFormat.JPEG,
     })
-    return staticImage
+    return {
+      uri: staticImage.uri,
+      size: pick(staticImage, ['width', 'height']),
+    }
   } catch (error) {
-    return { uri } as ImageManipulator.ImageResult
+    return { uri }
   }
 }
 
-export function getCompressedImage(
-  uri: string
-): Promise<ImageManipulator.ImageResult> {
+export function getCompressedImage(uri: string): Promise<CompressedImage> {
   if (!compressPromises.has(uri)) {
     compressPromises.set(uri, compressImage(uri))
   }

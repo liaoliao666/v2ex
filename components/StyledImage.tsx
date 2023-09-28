@@ -167,13 +167,13 @@ function StyledImage({ source, ...props }: StyledImageProps) {
     if (isSvgURL(source.uri))
       return <CustomSvgUri uri={source.uri} {...(props as any)} />
 
-    if (!hasSize(props.style))
-      return (
-        <CustomImage
-          source={{ ...source, ...use(getCompressedImage(source.uri)) }}
-          {...props}
-        />
-      )
+    if (!hasSize(props.style)) {
+      const { uri, size } = use(getCompressedImage(source.uri))
+      if (!uriToSize.has(uri) && hasSize(size)) {
+        uriToSize.set(uri, size)
+      }
+      return <CustomImage source={{ ...source, uri }} {...props} />
+    }
   }
 
   return <CustomImage source={source} {...props} />
