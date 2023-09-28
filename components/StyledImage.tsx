@@ -126,13 +126,6 @@ function computeImageSize(
 
   const actualWidth = Math.min(aspectRatio * MAX_IMAGE_HEIGHT, containerWidth)
 
-  if (actualWidth === containerWidth) {
-    return {
-      aspectRatio,
-      width: `100%`,
-    }
-  }
-
   return {
     width: actualWidth,
     height: actualWidth / aspectRatio,

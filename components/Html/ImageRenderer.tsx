@@ -18,9 +18,9 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   }, [tnode.domNode])
 
   const screenWidth = useScreenWidth()
-  const containerWidth = !ancestorHasTdTag(tnode)
-    ? screenWidth - paddingX
-    : undefined
+  const ancestorHasTdTag =
+    tnode.parent?.tagName === 'td' || tnode.parent?.parent?.tagName === 'td'
+  const containerWidth = !ancestorHasTdTag ? screenWidth - paddingX : undefined
 
   if (url && isSvgURL(url))
     return <StyledImage style={style as any} source={{ uri: url }} />
@@ -40,12 +40,6 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
       />
     </Pressable>
   )
-}
-
-function ancestorHasTdTag(parent: any): boolean {
-  if (!parent) return false
-  if (parent.tagName === 'td') return true
-  return ancestorHasTdTag(parent.parent)
 }
 
 export default ImageRenderer
