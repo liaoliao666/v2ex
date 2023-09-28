@@ -137,7 +137,10 @@ function NotificationsScreen() {
 
       {replyInfo && (
         <ReplyBox
-          onSuccess={refetch}
+          onSuccess={() => {
+            refetch()
+            setReplyInfo(null)
+          }}
           replyInfo={replyInfo}
           onCancel={() => {
             setReplyInfo(null)

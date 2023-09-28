@@ -2,7 +2,7 @@ import { load } from 'cheerio'
 import { useSetAtom } from 'jotai'
 import { findIndex, isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
-import { Alert, useWindowDimensions } from 'react-native'
+import { Alert } from 'react-native'
 import RenderHtml, { RenderHTMLProps } from 'react-native-render-html'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
@@ -10,6 +10,7 @@ import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import tw from '@/utils/tw'
+import { useScreenWidth } from '@/utils/useScreenWidth'
 
 import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
@@ -40,8 +41,6 @@ function Html({
     ...renderHTMLProps,
   }
 
-  const { width } = useWindowDimensions()
-
   const html = (renderHTMLProps.source as any)?.html
 
   const setImageViewer = useSetAtom(imageViewerAtom)
@@ -56,6 +55,8 @@ function Html({
       .get()
       .filter(item => !!item.url)
   }, [html])
+
+  const screenWidth = useScreenWidth()
 
   return (
     <HtmlContext.Provider
@@ -93,7 +94,6 @@ function Html({
     >
       <RenderHtml
         baseStyle={tw`text-tint-primary ${getFontSize(5)}`}
-        contentWidth={width}
         tagsStyles={{
           h1: tw`${getFontSize(
             3
@@ -122,6 +122,7 @@ function Html({
           iframe: IFrameRenderer,
           _TEXT_: TextRenderer,
         }}
+        contentWidth={screenWidth - paddingX}
         {...mergedProps}
       />
     </HtmlContext.Provider>

@@ -58,6 +58,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
               source={{
                 uri: topic.member?.avatar,
               }}
+              priority="high"
             />
           </DebouncedPressable>
         </View>

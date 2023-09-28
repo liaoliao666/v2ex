@@ -180,7 +180,6 @@ const ReplyBox = ({
                 text: getContent(),
               })
             }}
-            onBlur={onCancel}
             onSelectionChange={ev => {
               selectionRef.current = ev.nativeEvent.selection
             }}

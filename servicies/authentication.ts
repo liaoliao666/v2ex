@@ -26,7 +26,6 @@ export const signoutMutation = mutation({
 })
 
 export const signinInfoQuery = query({
-  key: 'signinInfo',
   fetcher: async (_, { signal }) => {
     const { data } = await request.get(`/signin`, {
       responseType: 'text',

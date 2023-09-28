@@ -36,6 +36,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         style={style as any}
         source={{ uri: url }}
         containerWidth={containerWidth}
+        priority="low"
       />
     </Pressable>
   )

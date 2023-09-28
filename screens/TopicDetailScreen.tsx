@@ -285,7 +285,10 @@ function TopicDetailScreen() {
           onCancel={() => {
             setReplyInfo(null)
           }}
-          onSuccess={refetch}
+          onSuccess={() => {
+            refetch()
+            setReplyInfo(null)
+          }}
           once={topic.once}
         />
       ) : (

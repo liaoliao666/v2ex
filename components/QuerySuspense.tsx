@@ -129,7 +129,7 @@ export function withQuerySuspense<P>(
 ): ComponentType<P> {
   const Wrapped: ComponentType<P> = props => {
     return (
-      <QuerySuspense {...querySuspenseProps}>
+      <QuerySuspense {...querySuspenseProps} componentsProps={props}>
         {/* @ts-ignore */}
         <Component {...props} />
       </QuerySuspense>

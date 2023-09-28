@@ -30,6 +30,7 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
 
   classesStyles: {
     'mt-0': tw`mt-0`,
+    reply_content: tw`flex-row`,
   },
 
   customHTMLElementModels: {

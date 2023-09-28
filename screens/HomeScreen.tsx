@@ -493,6 +493,7 @@ function TopNavBar() {
             {profile ? (
               <Badge content={profile.my_notification}>
                 <StyledImage
+                  priority="high"
                   style={tw`w-8 h-8 rounded-full`}
                   source={{
                     uri: profile.avatar,
