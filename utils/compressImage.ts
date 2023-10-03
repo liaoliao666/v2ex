@@ -26,7 +26,9 @@ const compressImage = async (uri: string): Promise<CompressedImage> => {
   }
 }
 
-export function getCompressedImage(uri: string): Promise<CompressedImage> {
+export function getCompressedImagePromise(
+  uri: string
+): Promise<CompressedImage> {
   if (!compressPromises.has(uri)) {
     compressPromises.set(uri, compressImage(uri))
   }

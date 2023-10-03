@@ -9,6 +9,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 import { useScreenWidth } from '@/utils/useScreenWidth'
 
@@ -29,12 +30,10 @@ export default memo(
 function Html({
   inModalScreen,
   paddingX = 32,
-  disabledPartialSelectable,
   ...renderHTMLProps
 }: RenderHTMLProps & {
   inModalScreen?: boolean
   paddingX?: number
-  disabledPartialSelectable?: boolean
 }) {
   const mergedProps = {
     ...getDefaultProps({ inModalScreen }),
@@ -80,16 +79,14 @@ function Html({
               imageUrls,
             })
           },
+          onSelectText: () => {
+            navigation.navigate('SelectableText', {
+              html,
+            })
+          },
           paddingX,
-          disabledPartialSelectable,
         }),
-        [
-          imageUrls,
-          setImageViewer,
-          paddingX,
-          inModalScreen,
-          disabledPartialSelectable,
-        ]
+        [imageUrls, setImageViewer, paddingX, inModalScreen, html]
       )}
     >
       <RenderHtml
@@ -116,14 +113,15 @@ function Html({
           },
           ...mergedProps.tagsStyles,
         }}
+        contentWidth={screenWidth - paddingX}
+        {...mergedProps}
         renderers={{
           pre: CodeRenderer,
           img: ImageRenderer,
           iframe: IFrameRenderer,
           _TEXT_: TextRenderer,
+          ...mergedProps.renderers,
         }}
-        contentWidth={screenWidth - paddingX}
-        {...mergedProps}
       />
     </HtmlContext.Provider>
   )

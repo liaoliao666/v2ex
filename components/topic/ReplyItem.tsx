@@ -170,7 +170,6 @@ function ReplyItem({
               }}
               inModalScreen={inModalScreen}
               paddingX={32 + 36}
-              disabledPartialSelectable
             />
           </View>
 

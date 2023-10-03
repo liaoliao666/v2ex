@@ -71,6 +71,9 @@ export type RootStackParamList = {
     url: string
   }
   ImgurConfig: undefined
+  SelectableText: {
+    html: string
+  }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

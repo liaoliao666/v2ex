@@ -12,7 +12,7 @@ import { View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
 import { svgQuery } from '@/servicies/other'
-import { getCompressedImage } from '@/utils/compressImage'
+import { getCompressedImagePromise } from '@/utils/compressImage'
 import { hasSize } from '@/utils/hasSize'
 import tw from '@/utils/tw'
 import { isSvgURL, resolveURL } from '@/utils/url'
@@ -37,25 +37,14 @@ function CustomImage({
   containerWidth,
   ...props
 }: StyledImageProps) {
-  const uri =
-    isObject(source) && !isArray(source) && isString(source.uri)
-      ? resolveURL(source.uri)
-      : undefined
-
+  const uri = isObject(source) && !isArray(source) ? source.uri : undefined
   const size = uriToSize.get(uri)
   const update = useUpdate()
 
   return (
     <Image
       {...props}
-      source={
-        isObject(source)
-          ? {
-              ...source,
-              uri,
-            }
-          : source
-      }
+      source={source}
       onLoad={ev => {
         const newSize: any = pick(ev.source, ['width', 'height'])
         if (!isEqual(size, newSize)) {
@@ -126,6 +115,13 @@ function computeImageSize(
 
   const actualWidth = Math.min(aspectRatio * MAX_IMAGE_HEIGHT, containerWidth)
 
+  if (actualWidth === containerWidth) {
+    return {
+      aspectRatio,
+      width: `100%`,
+    }
+  }
+
   return {
     width: actualWidth,
     height: actualWidth / aspectRatio,
@@ -163,20 +159,40 @@ function CustomSvgUri({
 }
 
 function StyledImage({ source, ...props }: StyledImageProps) {
-  if (isObject(source) && !isArray(source) && isString(source.uri)) {
-    if (isSvgURL(source.uri))
-      return <CustomSvgUri uri={source.uri} {...(props as any)} />
+  const resolvedURI =
+    isObject(source) && !isArray(source) && isString(source.uri)
+      ? resolveURL(source.uri)
+      : undefined
+
+  if (isString(resolvedURI)) {
+    if (isSvgURL(resolvedURI)) {
+      return <CustomSvgUri uri={resolvedURI} {...(props as any)} />
+    }
 
     if (!hasSize(props.style)) {
-      const { uri, size } = use(getCompressedImage(source.uri))
-      if (!uriToSize.has(uri) && hasSize(size)) {
-        uriToSize.set(uri, size)
+      const { uri, size } = use(getCompressedImagePromise(resolvedURI))
+
+      if (!uriToSize.has(resolvedURI) && hasSize(size)) {
+        uriToSize.set(resolvedURI, size)
       }
-      return <CustomImage source={{ ...source, uri }} {...props} />
+
+      return <CustomImage source={{ ...(source as any), uri }} {...props} />
     }
   }
 
-  return <CustomImage source={source} {...props} />
+  return (
+    <CustomImage
+      source={
+        isObject(source)
+          ? {
+              ...source,
+              uri: resolvedURI,
+            }
+          : source
+      }
+      {...props}
+    />
+  )
 }
 
 export default withQuerySuspense(StyledImage, {

@@ -41,6 +41,7 @@ import SearchNodeScreen from '@/screens/SearchNodeScreen'
 import SearchOptionsScreen from '@/screens/SearchOptionsScreen'
 import SearchReplyMemberScreen from '@/screens/SearchReplyMemberScreen'
 import SearchScreen from '@/screens/SearchScreen'
+import SelectableTextScreen from '@/screens/SelectableTextScreen'
 import SettingScreen from '@/screens/SettingScreen'
 import SortTabsScreen from '@/screens/SortTabsScreen'
 import TopicDetailScreen from '@/screens/TopicDetailScreen'
@@ -218,6 +219,14 @@ function StackNavigator() {
           ...androidSlideFromBottomOptions,
         }}
         component={SearchNodeScreen}
+      />
+
+      <Stack.Screen
+        name="SelectableText"
+        options={{
+          presentation: 'modal',
+        }}
+        component={SelectableTextScreen}
       />
 
       <Stack.Screen name="Login" component={LoginScreen} />
