@@ -1,18 +1,32 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { ScrollView, TextInput, View } from 'react-native'
+import { createContext, useContext } from 'react'
+import { ScrollView, Text, TextInput, View } from 'react-native'
 import {
   CustomTextualRenderer,
   getNativePropsForTNode,
 } from 'react-native-render-html'
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Html from '@/components/Html'
 import NavBar from '@/components/NavBar'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
+const IsNestedTextContext = createContext(false)
+
 const TextRenderer: CustomTextualRenderer = props => {
+  const renderProps = getNativePropsForTNode(props)
+
+  const isNestedText = useContext(IsNestedTextContext)
+
+  if (isNestedText) return <Text {...renderProps} />
+
   return (
-    <TextInput {...getNativePropsForTNode(props)} multiline editable={false} />
+    <IsNestedTextContext.Provider value={true}>
+      <TextInput editable={false} multiline>
+        <Text {...renderProps} />
+      </TextInput>
+    </IsNestedTextContext.Provider>
   )
 }
 
@@ -32,6 +46,7 @@ export default function SelectableTextScreen() {
             _TEXT_: TextRenderer,
           }}
         />
+        <SafeAreaView edges={['bottom']} />
       </ScrollView>
     </View>
   )
