@@ -7,7 +7,8 @@ import { store } from '../jotai/store'
 
 export const isTablet = () =>
   Platform.OS === 'ios'
-    ? store.get(deviceTypeAtom) === Device.DeviceType.TABLET
+    ? store.get(deviceTypeAtom) === Device.DeviceType.TABLET ||
+      store.get(deviceTypeAtom) === Device.DeviceType.DESKTOP
     : Dimensions.get('window').width >= 768
 
 export const isLargeTablet = () =>

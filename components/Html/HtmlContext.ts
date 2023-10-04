@@ -5,4 +5,5 @@ export const HtmlContext = createContext<{
   paddingX: number
   inModalScreen?: boolean
   onSelectText: () => void
+  selectOnly?: boolean
 }>({ onPreview: () => {}, paddingX: 32, onSelectText: () => {} })
