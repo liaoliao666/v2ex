@@ -22,7 +22,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
           <View
             style={tw`bg-body-1 border-solid border-l border-r border-tint-border w-[400px]`}
           >
-            <HomeScreen />
+            <HomeScreen alwaysDisplay />
           </View>
         )}
 

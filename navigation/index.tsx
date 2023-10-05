@@ -260,11 +260,6 @@ function StackNavigator() {
 
 const Drawer = createDrawerNavigator()
 
-function RootScreen() {
-  const isLargeTablet = useIsLargeTablet()
-  return isLargeTablet ? <NotFoundScreen /> : <HomeScreen />
-}
-
 function DrawerNavigator() {
   const isTablet = useIsTablet()
 
@@ -277,7 +272,7 @@ function DrawerNavigator() {
         swipeEdgeWidth: isTablet ? 0 : undefined,
       }}
     >
-      <Drawer.Screen name="Home" component={RootScreen} />
+      <Drawer.Screen name="Home" component={HomeScreen} />
     </Drawer.Navigator>
   )
 }

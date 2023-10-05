@@ -1,4 +1,6 @@
+import { load } from 'cheerio'
 import { Image, ImageProps } from 'expo-image'
+import * as ImageManipulator from 'expo-image-manipulator'
 import {
   isArray,
   isEqual,
@@ -7,16 +9,14 @@ import {
   isString,
   pick,
 } from 'lodash-es'
-import { useSuspenseQuery } from 'quaere'
 import { View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
+import { suspend } from 'suspend-react'
 
-import { svgQuery } from '@/servicies/other'
-import { getCompressedImagePromise } from '@/utils/compressImage'
 import { hasSize } from '@/utils/hasSize'
+import { request } from '@/utils/request'
 import tw from '@/utils/tw'
 import { isGifURL, isSvgURL, resolveURL } from '@/utils/url'
-import { use } from '@/utils/use'
 import useUpdate from '@/utils/useUpdate'
 
 import { withQuerySuspense } from './QuerySuspense'
@@ -54,7 +54,8 @@ function CustomImage({
         onLoad?.(ev)
       }}
       onError={err => {
-        // TODO: This is a trick, maybe fixed in next expo-image version
+        // TODO: This is a trick
+        // maybe fixed in next expo-image version
         if (!hasSize(size)) {
           uriToSize.set(uri, 'error')
           update()
@@ -71,6 +72,115 @@ function CustomImage({
     />
   )
 }
+
+async function getSvgInfo(url: string) {
+  const { data: xml } = await request.get<string>(url!)
+  const $ = load(xml)
+  const $svg = $('svg')
+
+  let width: number
+  let height: number
+
+  if ($svg.attr('width') && $svg.attr('height')) {
+    width = parseFloat($svg.attr('width') as string)
+    height = parseFloat($svg.attr('height') as string)
+  } else {
+    const viewBox = $svg.attr('viewBox') || ''
+    ;[, , width, height] = viewBox
+      .split(viewBox.includes(',') ? ',' : ' ')
+      .map(parseFloat)
+  }
+
+  return {
+    xml,
+    size: {
+      width,
+      height,
+    },
+  }
+}
+
+function imageLoadingRender({
+  style,
+  containerWidth,
+}: {
+  containerWidth?: number
+  style?: any
+}) {
+  return (
+    <View
+      style={tw.style(
+        !hasSize(style) && computeImageSize(containerWidth),
+        `img-loading`,
+        style
+      )}
+    />
+  )
+}
+
+const SuspenseSvg = withQuerySuspense(
+  ({
+    uri,
+    style,
+    containerWidth,
+    ...props
+  }: UriProps & { containerWidth?: number }) => {
+    const { xml, size } = suspend(getSvgInfo, [uri!])
+    const svgStyle = computeImageSize(containerWidth, size)
+
+    return (
+      <SvgXml
+        {...props}
+        xml={xml}
+        style={
+          (isArray(style)
+            ? [svgStyle, ...style]
+            : {
+                ...svgStyle,
+                ...(isPlainObject(style) && (style as any)),
+              }) as any
+        }
+        width="100%"
+      />
+    )
+  },
+  {
+    loadingRender: imageLoadingRender,
+    fallbackRender: () => null,
+  }
+)
+
+async function getCompressedImage(uri: string) {
+  try {
+    const staticImage = await ImageManipulator.manipulateAsync(uri, [], {
+      compress: 1,
+      format: ImageManipulator.SaveFormat.JPEG,
+    })
+    return {
+      uri: staticImage.uri,
+      size: pick(staticImage, ['width', 'height']),
+    }
+  } catch (error) {
+    return { uri }
+  }
+}
+
+const SuspenseImage = withQuerySuspense(
+  (props: StyledImageProps) => {
+    const { uri, size } = suspend(getCompressedImage, [
+      (props.source as any).uri!,
+    ])
+    if (!uriToSize.has(uri) && hasSize(size)) {
+      uriToSize.set(uri, size)
+    }
+
+    return <StyledImage {...props} source={{ ...(props.source as any), uri }} />
+  },
+  {
+    loadingRender: imageLoadingRender,
+    fallbackRender: () => null,
+  }
+)
 
 function computeImageSize(
   containerWidth?: number,
@@ -128,60 +238,35 @@ function computeImageSize(
   }
 }
 
-function CustomSvgUri({
-  uri,
-  style,
-  containerWidth,
-  ...props
-}: UriProps & { containerWidth?: number }) {
-  const { data: svg } = useSuspenseQuery({
-    query: svgQuery,
-    variables: { url: uri! },
-  })
-
-  const svgStyle = computeImageSize(containerWidth, svg)
-
-  return (
-    <SvgXml
-      {...props}
-      xml={svg.xml}
-      style={
-        (isArray(style)
-          ? [svgStyle, ...style]
-          : {
-              ...svgStyle,
-              ...(isPlainObject(style) && (style as any)),
-            }) as any
-      }
-      width="100%"
-    />
-  )
-}
-
 function StyledImage({ source, ...props }: StyledImageProps) {
   const resolvedURI =
     isObject(source) && !isArray(source) && isString(source.uri)
       ? resolveURL(source.uri)
       : undefined
 
-  if (isString(resolvedURI)) {
-    if (isSvgURL(resolvedURI)) {
-      return <CustomSvgUri uri={resolvedURI} {...(props as any)} />
-    }
+  if (isString(resolvedURI) && isSvgURL(resolvedURI)) {
+    return <SuspenseSvg uri={resolvedURI} {...(props as any)} />
+  }
 
-    if (isGifURL(resolvedURI) && !hasSize(props.style)) {
-      const { uri, size } = use(getCompressedImagePromise(resolvedURI))
-
-      if (!uriToSize.has(resolvedURI) && hasSize(size)) {
-        uriToSize.set(resolvedURI, size)
-      }
-
-      return <CustomImage source={{ ...(source as any), uri }} {...props} />
-    }
+  if (isString(resolvedURI) && isGifURL(resolvedURI) && !hasSize(props.style)) {
+    return (
+      <SuspenseImage
+        {...props}
+        source={
+          isObject(source)
+            ? {
+                ...source,
+                uri: resolvedURI,
+              }
+            : source
+        }
+      />
+    )
   }
 
   return (
     <CustomImage
+      {...props}
       source={
         isObject(source)
           ? {
@@ -190,24 +275,8 @@ function StyledImage({ source, ...props }: StyledImageProps) {
             }
           : source
       }
-      {...props}
     />
   )
 }
 
-export default withQuerySuspense(StyledImage, {
-  loadingRender: ({ style, containerWidth }) => {
-    return (
-      <View
-        style={tw.style(
-          !hasSize(style) && computeImageSize(containerWidth),
-          `img-loading`,
-          style as any
-        )}
-      />
-    )
-  },
-  fallbackRender: () => {
-    return null
-  },
-})
+export default StyledImage

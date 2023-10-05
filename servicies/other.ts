@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import { query, queryWithInfinite } from 'quaere'
 import showdown from 'showdown'
@@ -66,36 +65,4 @@ export const repoReadmeQuery = query({
     })
     return new showdown.Converter().makeHtml(data)
   },
-})
-
-export const svgQuery = query({
-  key: 'svg',
-  fetcher: async (variables: { url: string }, { signal }) => {
-    const { data: xml } = await request.get<string>(variables.url, {
-      signal,
-    })
-    const $ = load(xml)
-    const $svg = $('svg')
-
-    let width: number
-    let height: number
-
-    if ($svg.attr('width') && $svg.attr('height')) {
-      width = parseFloat($svg.attr('width') as string)
-      height = parseFloat($svg.attr('height') as string)
-    } else {
-      const viewBox = $svg.attr('viewBox') || ''
-      ;[, , width, height] = viewBox
-        .split(viewBox.includes(',') ? ',' : ' ')
-        .map(parseFloat)
-    }
-
-    return {
-      xml,
-      width,
-      height,
-    }
-  },
-  staleTime: Infinity,
-  gcTime: 1000 * 60 * 10,
 })
