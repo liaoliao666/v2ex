@@ -14,9 +14,13 @@ export default function SelectableTextScreen() {
 
   return (
     <View style={tw`bg-body-1 flex-1`}>
-      <NavBar title="选择文本" hideSafeTop />
+      <NavBar
+        title="选择文本"
+        hideSafeTop
+        style={tw`border-tint-border border-b border-solid`}
+      />
 
-      <ScrollView style={tw`px-4`}>
+      <ScrollView style={tw`px-4 pt-4`}>
         <Html source={{ html }} selectOnly />
         <SafeAreaView edges={['bottom']} />
       </ScrollView>

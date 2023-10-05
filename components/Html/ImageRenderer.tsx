@@ -1,4 +1,5 @@
 import { load } from 'cheerio'
+import { isObjectLike } from 'lodash-es'
 import { useContext, useMemo } from 'react'
 import { Pressable } from 'react-native'
 import { CustomBlockRenderer } from 'react-native-render-html'
@@ -18,8 +19,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   }, [tnode.domNode])
 
   const screenWidth = useScreenWidth()
-  const ancestorHasPadding = ancestorIs('td', tnode) || ancestorIs('li', tnode)
-  const containerWidth = !ancestorHasPadding
+  const containerWidth = isPlainContainer(tnode)
     ? screenWidth - paddingX
     : undefined
 
@@ -43,11 +43,12 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   )
 }
 
-function ancestorIs(tagName: string, tnode: any): boolean {
-  return (
-    tnode.parent?.tagName === tagName ||
-    tnode.parent?.parent?.tagName === tagName
-  )
+const plainContainers = ['html', 'body', 'div', 'a', 'p', 'img']
+
+function isPlainContainer(tnode: any, lever = 0): boolean {
+  if (!isObjectLike(tnode) || lever >= 3) return true
+  if (!plainContainers.includes(tnode.tagName)) return false
+  return isPlainContainer(tnode.parent, lever + 1)
 }
 
 export default ImageRenderer
