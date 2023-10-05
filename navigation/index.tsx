@@ -121,11 +121,6 @@ const androidSlideFromBottomOptions: NativeStackNavigationOptions =
       }
     : {}
 
-function RootScreen() {
-  const isLargeTablet = useIsLargeTablet()
-  return isLargeTablet ? <NotFoundScreen /> : <DrawerNavigator />
-}
-
 function StackNavigator() {
   const isTablet = useIsTablet()
   const isLargeTablet = useIsLargeTablet()
@@ -147,7 +142,7 @@ function StackNavigator() {
     >
       <Stack.Screen
         name="Root"
-        component={RootScreen}
+        component={DrawerNavigator}
         options={{
           animation: 'none',
         }}
@@ -265,16 +260,24 @@ function StackNavigator() {
 
 const Drawer = createDrawerNavigator()
 
+function RootScreen() {
+  const isLargeTablet = useIsLargeTablet()
+  return isLargeTablet ? <NotFoundScreen /> : <HomeScreen />
+}
+
 function DrawerNavigator() {
+  const isTablet = useIsTablet()
+
   return (
     <Drawer.Navigator
       initialRouteName="Home"
       drawerContent={() => <Profile />}
       screenOptions={{
         headerShown: false,
+        swipeEdgeWidth: isTablet ? 0 : undefined,
       }}
     >
-      <Drawer.Screen name="Home" component={HomeScreen} />
+      <Drawer.Screen name="Home" component={RootScreen} />
     </Drawer.Navigator>
   )
 }

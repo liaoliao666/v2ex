@@ -15,7 +15,7 @@ import { svgQuery } from '@/servicies/other'
 import { getCompressedImagePromise } from '@/utils/compressImage'
 import { hasSize } from '@/utils/hasSize'
 import tw from '@/utils/tw'
-import { isSvgURL, resolveURL } from '@/utils/url'
+import { isGifURL, isSvgURL, resolveURL } from '@/utils/url'
 import { use } from '@/utils/use'
 import useUpdate from '@/utils/useUpdate'
 
@@ -169,7 +169,7 @@ function StyledImage({ source, ...props }: StyledImageProps) {
       return <CustomSvgUri uri={resolvedURI} {...(props as any)} />
     }
 
-    if (!hasSize(props.style)) {
+    if (isGifURL(resolvedURI) && !hasSize(props.style)) {
       const { uri, size } = use(getCompressedImagePromise(resolvedURI))
 
       if (!uriToSize.has(resolvedURI) && hasSize(size)) {

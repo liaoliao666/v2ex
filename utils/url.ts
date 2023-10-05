@@ -24,7 +24,11 @@ export function resolveURL(url: string) {
 const svgURLS = ['img.shields.io', 'badgen.net', 'img.badgesize.io']
 
 export function isSvgURL(url: string) {
-  return url.endsWith('.svg') || svgURLS.some(svgURL => url.includes(svgURL))
+  return url.includes('.svg') || svgURLS.some(svgURL => url.includes(svgURL))
+}
+
+export function isGifURL(url: string) {
+  return url.includes('.gif')
 }
 
 export async function openURL(url: string) {
