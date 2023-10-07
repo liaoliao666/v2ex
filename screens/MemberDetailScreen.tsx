@@ -339,7 +339,9 @@ const MemberHeader = memo(() => {
           </Text>
 
           <View style={tw`flex-row gap-2`} pointerEvents="none">
-            <View style={tw`rounded-full overflow-hidden`}>
+            <View
+              style={tw`rounded-full overflow-hidden justify-center items-center`}
+            >
               <Svg height="100%" width="100%" style={tw`absolute inset-0`}>
                 <Defs>
                   <LinearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -349,8 +351,9 @@ const MemberHeader = memo(() => {
                 </Defs>
                 <Rect width="100%" height="100%" fill="url(#grad)" />
               </Svg>
+
               <Text
-                style={tw`px-1 py-0.5 text-white ${getFontSize(
+                style={tw`px-1 text-white ${getFontSize(
                   6
                 )} font-medium text-center`}
               >
@@ -532,7 +535,7 @@ const MemberReplies = forwardRef<
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
   const renderItem: ListRenderItem<
-    typeof data['pages'][number]['list'][number]
+    (typeof data)['pages'][number]['list'][number]
   > = useCallback(({ item }) => <MemberReply key={item.id} topic={item} />, [])
 
   const flatedData = useMemo(

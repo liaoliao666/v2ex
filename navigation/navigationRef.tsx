@@ -34,7 +34,8 @@ export const navigation = new Proxy(
   undefined
 >
 
-export function getCurrentRouteName(): keyof RootStackParamList {
-  // @ts-ignore
-  return navigation.getCurrentRoute?.()?.name
+export function getCurrentRouteName() {
+  return navigationRef.getCurrentRoute()?.name as
+    | keyof RootStackParamList
+    | undefined
 }

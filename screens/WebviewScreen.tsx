@@ -1,54 +1,66 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { View } from 'react-native'
-import WebView from 'react-native-webview'
+import WebView, { WebViewNavigation } from 'react-native-webview'
 
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar, { useNavBarHeight } from '@/components/NavBar'
-import StyledBlurView from '@/components/StyledBlurView'
+import NavBar, { BackButton } from '@/components/NavBar'
 import StyledButton from '@/components/StyledButton'
+import { navigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 import { openURL } from '@/utils/url'
-
-const getTitleScript = `
-    let _documentTitle = document.title;
-    window.ReactNativeWebView.postMessage(_documentTitle)
-    Object.defineProperty(document, 'title', {
-      set (val) {
-        _documentTitle = val
-        window.ReactNativeWebView.postMessage(_documentTitle)
-      },
-      get () {
-        return _documentTitle
-      }
-    });
-  `
 
 export default function WebviewScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'Webview'>>()
 
   const [isLoading, setIsLoading] = useState(true)
 
-  const navbarHeight = useNavBarHeight()
+  const webViewRef = useRef<WebView>(null)
 
-  const [title, setTitle] = useState('跳转中...')
+  const [navigationState, setNavigationState] = useState<WebViewNavigation>()
 
   return (
     <View style={tw`flex-1`}>
-      {isLoading && <LoadingIndicator style={{ paddingTop: navbarHeight }} />}
+      <NavBar
+        style={tw`border-b border-solid border-tint-border`}
+        title={isLoading ? '跳转中...' : navigationState?.title || 'Browser'}
+        left={
+          <BackButton
+            onPress={() => {
+              if (navigationState?.canGoBack) {
+                webViewRef.current?.goBack()
+              } else {
+                navigation.goBack()
+              }
+            }}
+          />
+        }
+        right={
+          <StyledButton
+            shape="rounded"
+            onPress={() => {
+              openURL(params.url)
+            }}
+          >
+            浏览器打开
+          </StyledButton>
+        }
+      />
+
+      {isLoading && <LoadingIndicator />}
 
       <View style={tw.style(isLoading ? `h-0` : `flex-1`)}>
         <WebView
+          ref={webViewRef}
           onLoadEnd={() => {
             setIsLoading(false)
           }}
           onError={() => {
             setIsLoading(false)
           }}
-          style={tw.style(`flex-1`, {
-            marginTop: navbarHeight,
-          })}
+          onNavigationStateChange={setNavigationState}
+          style={tw.style(`flex-1`)}
           source={{ uri: params.url }}
           javaScriptEnabled={true}
           domStorageEnabled={true}
@@ -57,28 +69,7 @@ export default function WebviewScreen() {
           startInLoadingState={true}
           scalesPageToFit={true}
           renderLoading={() => <View />}
-          injectedJavaScript={getTitleScript}
-          onMessage={({ nativeEvent }) => {
-            setTitle(nativeEvent.data)
-          }}
-        />
-      </View>
-
-      <View style={tw`absolute top-0 inset-x-0`}>
-        <StyledBlurView style={tw`absolute inset-0`} />
-        <NavBar
-          style={tw`border-b border-solid border-tint-border`}
-          title={title}
-          right={
-            <StyledButton
-              shape="rounded"
-              onPress={() => {
-                openURL(params.url)
-              }}
-            >
-              浏览器打开
-            </StyledButton>
-          }
+          forceDarkOn
         />
       </View>
     </View>
