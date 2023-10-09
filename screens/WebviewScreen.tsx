@@ -69,7 +69,6 @@ export default function WebviewScreen() {
           startInLoadingState={true}
           scalesPageToFit={true}
           renderLoading={() => <View />}
-          forceDarkOn
         />
       </View>
     </View>
