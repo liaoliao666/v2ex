@@ -1,5 +1,5 @@
 import { ReactNode } from 'react'
-import { View } from 'react-native'
+import { Platform, View } from 'react-native'
 
 import HomeScreen from '@/screens/HomeScreen'
 import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
@@ -18,11 +18,15 @@ export default function PageLayout({ children }: { children: ReactNode }) {
           <Profile onlyIcon />
         </View>
 
-        {isLargeTablet && (
+        {(isLargeTablet || Platform.OS === 'android') && (
           <View
-            style={tw`bg-body-1 border-solid border-l border-r border-tint-border w-[400px]`}
+            style={tw.style(
+              // https://github.com/liaoliao666/v2ex/issues/69
+              isLargeTablet && 'hidden',
+              `bg-body-1 border-solid border-l border-r border-tint-border w-[400px]`
+            )}
           >
-            <HomeScreen alwaysDisplay />
+            <HomeScreen />
           </View>
         )}
 

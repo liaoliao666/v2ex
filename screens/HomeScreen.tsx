@@ -52,11 +52,9 @@ import { recentTopicsQuery, tabTopicsQuery } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { isSignined } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
-import { isLargeTablet, useIsLargeTablet, useIsTablet } from '@/utils/tablet'
+import { isLargeTablet, useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
-
-import NotFoundScreen from './NotFoundScreen'
 
 const TAB_BAR_HEIGHT = 40
 
@@ -119,7 +117,7 @@ export default withQuerySuspense(HomeScreen, {
   ),
 })
 
-function HomeScreen({ alwaysDisplay }: { alwaysDisplay?: boolean }) {
+function HomeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const fontScale = useAtomValue(fontScaleAtom)
@@ -168,8 +166,6 @@ function HomeScreen({ alwaysDisplay }: { alwaysDisplay?: boolean }) {
   }
 
   const activeTabRef = useRef<FlatList>(null)
-
-  if (useIsLargeTablet() && !alwaysDisplay) return <NotFoundScreen />
 
   return (
     <View style={tw`flex-1 bg-body-1`}>
