@@ -22,7 +22,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
           <View
             style={tw.style(
               // https://github.com/liaoliao666/v2ex/issues/69
-              isLargeTablet && 'hidden',
+              isTablet && 'hidden',
               `bg-body-1 border-solid border-l border-r border-tint-border w-[400px]`
             )}
           >

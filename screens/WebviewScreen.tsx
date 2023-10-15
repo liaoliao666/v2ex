@@ -24,7 +24,7 @@ export default function WebviewScreen() {
     <View style={tw`flex-1`}>
       <NavBar
         style={tw`border-b border-solid border-tint-border`}
-        title={isLoading ? '跳转中...' : navigationState?.title || 'Browser'}
+        title={isLoading ? '跳转中...' : navigationState?.title || 'Browse'}
         left={
           <BackButton
             onPress={() => {
