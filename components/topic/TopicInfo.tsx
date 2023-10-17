@@ -445,7 +445,7 @@ function MoreButton({
           '分享',
           topic.editable && '编辑',
           topic.appendable && '附言',
-          '浏览器打开',
+          'Webview 打开',
           '取消',
         ] as const)
 
@@ -582,8 +582,10 @@ function MoreButton({
                 onAppend()
                 break
 
-              case options.indexOf('浏览器打开'):
-                openURL(`${baseURL}/t/${topic.id}`)
+              case options.indexOf('Webview 打开'):
+                navigation.navigate('Webview', {
+                  url: `${baseURL}/t/${topic.id}`,
+                })
                 break
 
               case cancelButtonIndex:

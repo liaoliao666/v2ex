@@ -256,7 +256,13 @@ function StackNavigator() {
 
       <Stack.Screen name="BlankList" component={BlackListScreen} />
 
-      <Stack.Screen name="Webview" component={WebviewScreen} />
+      <Stack.Screen
+        name="Webview"
+        component={WebviewScreen}
+        options={{
+          fullScreenGestureEnabled: false,
+        }}
+      />
 
       <Stack.Screen name="ImgurConfig" component={ImgurConfigScreen} />
     </Stack.Navigator>

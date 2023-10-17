@@ -16,7 +16,6 @@ import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
-import { openURL } from '@/utils/url'
 import { stripString } from '@/utils/zodHelper'
 
 export default withQuerySuspense(ImgurConfigScreen)
@@ -53,7 +52,9 @@ function ImgurConfigScreen() {
 
           <Text
             onPress={() => {
-              openURL(`https://imgur.com/register`)
+              navigation.navigate('Webview', {
+                url: `https://imgur.com/register`,
+              })
             }}
             style={tw`text-tint-secondary mt-2 ${getFontSize(5)}`}
           >
@@ -61,7 +62,9 @@ function ImgurConfigScreen() {
           </Text>
           <Text
             onPress={() => {
-              openURL(`https://api.imgur.com/#registerapp`)
+              navigation.navigate('Webview', {
+                url: `https://api.imgur.com/#registerapp`,
+              })
             }}
             style={tw`text-tint-secondary mt-1 mb-2 ${getFontSize(5)}`}
           >

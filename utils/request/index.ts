@@ -47,7 +47,7 @@ async function handle503Error(error: any) {
     if (
       isObjectLike(error) &&
       isObjectLike(error.config) &&
-      (error.message.includes(`503`) || error.message.includes(`403`)) &&
+      error.message.includes(`503`) &&
       error.config.method === 'get' &&
       !error.config.url.startsWith('http')
     ) {
