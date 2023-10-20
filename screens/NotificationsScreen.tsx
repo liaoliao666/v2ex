@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons'
-import produce from 'immer'
+import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import { useMutation, useSuspenseQuery } from 'quaere'

@@ -1,5 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import produce from 'immer'
+import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { every, findIndex, last, pick, some, uniqBy } from 'lodash-es'
 import { useMutation, useSuspenseQuery } from 'quaere'

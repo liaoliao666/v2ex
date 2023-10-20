@@ -1,6 +1,6 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
-import produce from 'immer'
+import { produce } from 'immer'
 import { compact } from 'lodash-es'
 import { useMutation } from 'quaere'
 import { Fragment, ReactElement, useState } from 'react'

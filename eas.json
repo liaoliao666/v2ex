@@ -21,7 +21,11 @@
         "gradleCommand": ":app:assembleRelease"
       }
     },
-    "production": {}
+    "production": {
+      "ios": {
+        "image": "latest"
+      }
+    }
   },
 
   "submit": {

@@ -1,6 +1,6 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Feather, FontAwesome5 } from '@expo/vector-icons'
-import produce from 'immer'
+import { produce } from 'immer'
 import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { useMutation } from 'quaere'
 import { Fragment, memo, useState } from 'react'

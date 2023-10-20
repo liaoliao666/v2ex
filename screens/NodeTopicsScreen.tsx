@@ -1,6 +1,6 @@
 import { AntDesign } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
-import produce from 'immer'
+import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
 import { useMutation, useQuery, useSuspenseQuery } from 'quaere'
