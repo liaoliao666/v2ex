@@ -64,7 +64,7 @@
     "react-native-toast-message": "^2.1.6",
     "react-native-webview": "13.2.2",
     "react-native-youtube-iframe": "^2.2.2",
-    "react-query-kit": "^2.0.3",
+    "react-query-kit": "^2.0.8",
     "rn-placeholder": "^3.0.3",
     "showdown": "^2.1.0",
     "spark-md5": "^3.0.2",

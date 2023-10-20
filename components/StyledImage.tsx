@@ -9,6 +9,8 @@ import {
   isString,
   pick,
 } from 'lodash-es'
+import { Suspense } from 'react'
+import { ErrorBoundary } from 'react-error-boundary'
 import { View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 import { suspend } from 'suspend-react'
@@ -18,8 +20,6 @@ import { request } from '@/utils/request'
 import tw from '@/utils/tw'
 import { isGifURL, isSvgURL, resolveURL } from '@/utils/url'
 import useUpdate from '@/utils/useUpdate'
-
-import { withQuerySuspense } from './QuerySuspense'
 
 export interface StyledImageProps extends ImageProps {
   containerWidth?: number
@@ -73,6 +73,24 @@ function CustomImage({
   )
 }
 
+function imageLoadingRender({
+  style,
+  containerWidth,
+}: {
+  containerWidth?: number
+  style?: any
+}) {
+  return (
+    <View
+      style={tw.style(
+        !hasSize(style) && computeImageSize(containerWidth),
+        `img-loading`,
+        style
+      )}
+    />
+  )
+}
+
 async function getSvgInfo(url: string) {
   const { data: xml } = await request.get<string>(url!)
   const $ = load(xml)
@@ -100,55 +118,31 @@ async function getSvgInfo(url: string) {
   }
 }
 
-function imageLoadingRender({
+const Svg = ({
+  uri,
   style,
   containerWidth,
-}: {
-  containerWidth?: number
-  style?: any
-}) {
+  ...props
+}: UriProps & { containerWidth?: number }) => {
+  const { xml, size } = suspend(getSvgInfo, [uri!])
+  const svgStyle = computeImageSize(containerWidth, size)
+
   return (
-    <View
-      style={tw.style(
-        !hasSize(style) && computeImageSize(containerWidth),
-        `img-loading`,
-        style
-      )}
+    <SvgXml
+      {...props}
+      xml={xml}
+      style={
+        (isArray(style)
+          ? [svgStyle, ...style]
+          : {
+              ...svgStyle,
+              ...(isPlainObject(style) && (style as any)),
+            }) as any
+      }
+      width="100%"
     />
   )
 }
-
-const SuspenseSvg = withQuerySuspense(
-  ({
-    uri,
-    style,
-    containerWidth,
-    ...props
-  }: UriProps & { containerWidth?: number }) => {
-    const { xml, size } = suspend(getSvgInfo, [uri!])
-    const svgStyle = computeImageSize(containerWidth, size)
-
-    return (
-      <SvgXml
-        {...props}
-        xml={xml}
-        style={
-          (isArray(style)
-            ? [svgStyle, ...style]
-            : {
-                ...svgStyle,
-                ...(isPlainObject(style) && (style as any)),
-              }) as any
-        }
-        width="100%"
-      />
-    )
-  },
-  {
-    loadingRender: imageLoadingRender,
-    fallbackRender: () => null,
-  }
-)
 
 async function getCompressedImage(uri: string) {
   try {
@@ -165,22 +159,16 @@ async function getCompressedImage(uri: string) {
   }
 }
 
-const SuspenseImage = withQuerySuspense(
-  (props: StyledImageProps) => {
-    const { uri, size } = suspend(getCompressedImage, [
-      (props.source as any).uri!,
-    ])
-    if (!uriToSize.has(uri) && hasSize(size)) {
-      uriToSize.set(uri, size)
-    }
-
-    return <StyledImage {...props} source={{ ...(props.source as any), uri }} />
-  },
-  {
-    loadingRender: imageLoadingRender,
-    fallbackRender: () => null,
+const CompressedImage = (props: StyledImageProps) => {
+  const { uri, size } = suspend(getCompressedImage, [
+    (props.source as any).uri!,
+  ])
+  if (!uriToSize.has(uri) && hasSize(size)) {
+    uriToSize.set(uri, size)
   }
-)
+
+  return <StyledImage {...props} source={{ ...(props.source as any), uri }} />
+}
 
 function computeImageSize(
   containerWidth?: number,
@@ -245,22 +233,26 @@ function StyledImage({ source, ...props }: StyledImageProps) {
       : undefined
 
   if (isString(resolvedURI) && isSvgURL(resolvedURI)) {
-    return <SuspenseSvg uri={resolvedURI} {...(props as any)} />
+    return (
+      <ErrorBoundary fallbackRender={() => null}>
+        <Suspense fallback={imageLoadingRender(props)}>
+          <Svg uri={resolvedURI} {...(props as any)} />
+        </Suspense>
+      </ErrorBoundary>
+    )
   }
 
   if (isString(resolvedURI) && isGifURL(resolvedURI) && !hasSize(props.style)) {
     return (
-      <SuspenseImage
-        {...props}
-        source={
-          isObject(source)
-            ? {
-                ...source,
-                uri: resolvedURI,
-              }
-            : source
-        }
-      />
+      <Suspense fallback={imageLoadingRender(props)}>
+        <CompressedImage
+          {...props}
+          source={{
+            ...(source as any),
+            uri: resolvedURI,
+          }}
+        />
+      </Suspense>
     )
   }
 

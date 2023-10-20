@@ -124,7 +124,7 @@ export default function StyledButton({
         style={[
           pick(tw.style(tw.style(getFontSize(size === 'mini' ? 6 : 5))), [
             'fontSize',
-          ]),
+          ]) as any,
           ghost
             ? tw`dark:text-[${darkColor}] text-[${color}]`
             : tw`text-[${textColor}] dark:text-[${darkTextColor}]`,

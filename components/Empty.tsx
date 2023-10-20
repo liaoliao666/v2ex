@@ -37,7 +37,7 @@ export default function Empty({
       <Text
         style={tw`text-[rgba(0,0,0,.25)] dark:text-[rgba(255,255,255,.25)] ${getFontSize(
           5
-        )} mt-2`}
+        )} mt-2 px-4`}
       >
         {description}
       </Text>

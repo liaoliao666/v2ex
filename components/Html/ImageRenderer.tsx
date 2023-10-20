@@ -24,7 +24,13 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     : undefined
 
   if (url && isSvgURL(url))
-    return <StyledImage style={style as any} source={{ uri: url }} />
+    return (
+      <StyledImage
+        style={style as any}
+        source={{ uri: url }}
+        containerWidth={containerWidth}
+      />
+    )
 
   return (
     <Pressable
