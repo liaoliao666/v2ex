@@ -1,5 +1,5 @@
 import { pick } from 'lodash-es'
-import { ReactNode } from 'react'
+import { ReactNode, cloneElement, isValidElement } from 'react'
 import { PressableProps, Text, TextProps, ViewStyle } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
@@ -83,6 +83,10 @@ export default function StyledButton({
     darkTextColor: string
   } = colors[type]
 
+  const { color: btnTextColor } = ghost
+    ? tw`dark:text-[${darkColor}] text-[${color}]`
+    : tw`text-[${textColor}] dark:text-[${darkTextColor}]`
+
   return (
     <DebouncedPressable
       style={({ pressed }) =>
@@ -118,16 +122,17 @@ export default function StyledButton({
         }
       }}
     >
-      {icon}
+      {isValidElement(icon) &&
+        cloneElement(icon as any, {
+          color: btnTextColor,
+        })}
       <Text
         {...textProps}
         style={[
           pick(tw.style(tw.style(getFontSize(size === 'mini' ? 6 : 5))), [
             'fontSize',
           ]) as any,
-          ghost
-            ? tw`dark:text-[${darkColor}] text-[${color}]`
-            : tw`text-[${textColor}] dark:text-[${darkTextColor}]`,
+          { color: btnTextColor },
           textProps?.style,
         ]}
       >

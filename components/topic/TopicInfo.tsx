@@ -31,7 +31,6 @@ import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
-import { openURL } from '@/utils/url'
 
 import Html from '../Html'
 import IconButton from '../IconButton'

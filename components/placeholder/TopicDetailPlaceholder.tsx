@@ -36,7 +36,7 @@ export default function TopicDetailPlaceholder({
 }) {
   return (
     <View style={tw`flex-1 bg-body-1`}>
-      <NavBar title="帖子" />
+      <NavBar />
       {!!topic.member && (
         <View>
           <View style={tw`flex-row items-center pt-3 px-4`}>

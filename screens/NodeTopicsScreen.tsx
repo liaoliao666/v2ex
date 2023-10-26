@@ -4,8 +4,8 @@ import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
 import { useMutation, useQuery, useSuspenseQuery } from 'quaere'
-import { useCallback, useMemo, useState } from 'react'
-import { FlatList, ListRenderItem, Platform, Text, View } from 'react-native'
+import { useCallback, useMemo, useRef } from 'react'
+import { Animated, ListRenderItem, Platform, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
@@ -42,7 +42,6 @@ export default withQuerySuspense(NodeTopicsScreen, {
     <View style={tw`flex-1 bg-body-1`}>
       <NavBar
         style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-20')}
-        title="节点"
         tintColor="#fff"
         statusBarStyle="light"
       />
@@ -54,7 +53,6 @@ export default withQuerySuspense(NodeTopicsScreen, {
     <View style={tw`flex-1`}>
       <NavBar
         style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-20')}
-        title="节点"
         tintColor="#fff"
         statusBarStyle="light"
       />
@@ -97,43 +95,56 @@ function NodeTopicsScreen() {
     [data.pages]
   )
 
-  const [avatarVisible, setAvatarVisible] = useState(true)
-
   const colorScheme = useAtomValue(colorSchemeAtom)
+
+  const scrollY = useRef(new Animated.Value(0)).current
 
   return (
     <View style={tw`flex-1`}>
       <NavBar
-        title="节点"
         statusBarStyle="light"
         tintColor="#fff"
         style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-10')}
       >
-        {!avatarVisible && (
-          <View style={tw`flex-row items-center`}>
-            <View style={tw`flex-1`}>
-              <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
-                {node?.title}
-              </Text>
+        <Animated.View
+          style={tw.style(`flex-row items-center flex-1`, {
+            opacity: scrollY.interpolate({
+              inputRange: [12, 70],
+              outputRange: [0, 1],
+            }),
+            transform: [
+              {
+                translateY: scrollY.interpolate({
+                  inputRange: [12, 80],
+                  outputRange: [68, 0],
+                  extrapolate: 'clamp',
+                }),
+              },
+            ],
+          })}
+        >
+          <View style={tw`flex-1`}>
+            <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
+              {node?.title}
+            </Text>
 
-              <Text style={tw`text-[#e7e9ea] ${getFontSize(6)}`}>
-                主题总数{node?.topics}
-              </Text>
-            </View>
-
-            <LikeNode
-              type="button"
-              stars={node?.stars}
-              id={node?.id}
-              once={lastPage.once}
-              liked={lastPage.liked}
-              name={node?.name!}
-            />
+            <Text style={tw`text-[#e7e9ea] ${getFontSize(6)}`}>
+              主题总数{node?.topics}
+            </Text>
           </View>
-        )}
+
+          <LikeNode
+            type="button"
+            stars={node?.stars}
+            id={node?.id}
+            once={lastPage.once}
+            liked={lastPage.liked}
+            name={node?.name!}
+          />
+        </Animated.View>
       </NavBar>
 
-      <FlatList
+      <Animated.FlatList
         key={colorScheme}
         data={flatedData}
         ListHeaderComponent={
@@ -150,6 +161,12 @@ function NodeTopicsScreen() {
         ListEmptyComponent={<Empty description="无法访问该节点" />}
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          {
+            useNativeDriver: true,
+          }
+        )}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage()
@@ -163,9 +180,6 @@ function NodeTopicsScreen() {
             ) : null}
           </SafeAreaView>
         }
-        onScroll={ev => {
-          setAvatarVisible(ev.nativeEvent.contentOffset.y <= 64)
-        }}
       />
     </View>
   )

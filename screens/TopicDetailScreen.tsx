@@ -5,6 +5,7 @@ import { last, uniqBy } from 'lodash-es'
 import { useSuspenseQuery } from 'quaere'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
+  Animated,
   FlatList,
   ListRenderItem,
   Pressable,
@@ -123,8 +124,6 @@ function TopicDetailScreen() {
     [topic.id, topic.once, params.hightlightReplyNo]
   )
 
-  const [avatarVisible, setAvatarVisible] = useState(true)
-
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const navbarHeight = useNavBarHeight()
@@ -135,9 +134,11 @@ function TopicDetailScreen() {
 
   const flatListRef = useRef<FlatList<Reply>>(null)
 
+  const scrollY = useRef(new Animated.Value(0)).current
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
-      <FlatList
+      <Animated.FlatList
         ref={flatListRef}
         key={colorScheme}
         data={flatedData}
@@ -154,6 +155,12 @@ function TopicDetailScreen() {
         }
         renderItem={renderItem}
         ItemSeparatorComponent={LineSeparator}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          {
+            useNativeDriver: true,
+          }
+        )}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage()
@@ -169,14 +176,18 @@ function TopicDetailScreen() {
           >
             <View
               style={tw.style(
-                `flex-row items-center justify-between pt-3 mt-2 border-t border-solid border-tint-border`
+                `flex-row items-center pt-3 mt-2 border-t border-solid border-tint-border`
               )}
             >
               <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
                 全部回复
               </Text>
+              {isFetching && !isRefetchingByUser && (
+                <StyledActivityIndicator size="small" style={tw`ml-2`} />
+              )}
 
               <RadioButtonGroup
+                style={tw`ml-auto`}
                 options={
                   [
                     { label: '默认', value: 'asc' },
@@ -274,9 +285,6 @@ function TopicDetailScreen() {
             </Text>
           </View>
         }
-        onScroll={ev => {
-          setAvatarVisible(ev.nativeEvent.contentOffset.y <= 64)
-        }}
       />
 
       {replyInfo ? (
@@ -386,7 +394,31 @@ function TopicDetailScreen() {
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
 
-        <NavBar title={avatarVisible ? '帖子' : topic.title} />
+        <NavBar>
+          <Animated.Text
+            numberOfLines={1}
+            style={tw.style(
+              `text-tint-primary ${getFontSize(4)} font-semibold`,
+              {
+                opacity: scrollY.interpolate({
+                  inputRange: [70, 96],
+                  outputRange: [0, 1],
+                }),
+                transform: [
+                  {
+                    translateY: scrollY.interpolate({
+                      inputRange: [70, 106],
+                      outputRange: [36, 0],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
+              }
+            )}
+          >
+            {topic.title}
+          </Animated.Text>
+        </NavBar>
       </View>
     </View>
   )

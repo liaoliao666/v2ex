@@ -6,7 +6,6 @@ import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
 import { navigation } from '@/navigation/navigationRef'
 import { uploadImageMutation } from '@/servicies/image'
-import tw from '@/utils/tw'
 
 import StyledButton, { StyledButtonProps } from './StyledButton'
 
@@ -39,13 +38,7 @@ export default function UploadImageButton({
           })
         }
       }}
-      icon={
-        <Feather
-          name="image"
-          color={tw.color(`text-white dark:text-secondary`)}
-          size={16}
-        />
-      }
+      icon={<Feather name="image" size={16} />}
     >
       {isMutating ? '上传中' : '图片'}
     </StyledButton>

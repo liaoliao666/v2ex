@@ -125,11 +125,9 @@ function MemberDetailScreen() {
 
   const [index, setIndex] = useState(0)
 
-  const [avatarVisible, setAvatarVisible] = useState(true)
-
   const [headerHeight, setHeaderHeight] = useState(0)
 
-  const scrollYRef = useRef(new Animated.Value(0))
+  const scrollY = useRef(new Animated.Value(0)).current
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
@@ -150,23 +148,37 @@ function MemberDetailScreen() {
         tintColor="#fff"
         statusBarStyle="light"
       >
-        {!avatarVisible && (
-          <View style={tw`flex-row items-center flex-1`}>
-            <StyledImage
-              style={tw`w-5 h-5 rounded-full mr-2`}
-              source={{ uri: member.avatar }}
-            />
+        <Animated.View
+          style={tw.style(`flex-row items-center flex-1`, {
+            opacity: scrollY.interpolate({
+              inputRange: [90, 120],
+              outputRange: [0, 1],
+            }),
+            transform: [
+              {
+                translateY: scrollY.interpolate({
+                  inputRange: [90, 130],
+                  outputRange: [30, 0],
+                  extrapolate: 'clamp',
+                }),
+              },
+            ],
+          })}
+        >
+          <StyledImage
+            style={tw`w-5 h-5 rounded-full mr-2`}
+            source={{ uri: member.avatar }}
+          />
 
-            <Text
-              style={tw`text-white ${getFontSize(4)} font-semibold flex-1 mr-2`}
-              numberOfLines={1}
-            >
-              {member.username}
-            </Text>
+          <Text
+            style={tw`text-white ${getFontSize(4)} font-semibold flex-1 mr-2`}
+            numberOfLines={1}
+          >
+            {member.username}
+          </Text>
 
-            {!isSelf(params.username) && <FollowMember {...member} />}
-          </View>
-        )}
+          {!isSelf(params.username) && <FollowMember {...member} />}
+        </Animated.View>
       </NavBar>
 
       <TabView
@@ -182,14 +194,13 @@ function MemberDetailScreen() {
             ref: route.ref,
             contentContainerStyle,
             onScroll: Animated.event(
-              [{ nativeEvent: { contentOffset: { y: scrollYRef.current } } }],
+              [{ nativeEvent: { contentOffset: { y: scrollY } } }],
               {
                 useNativeDriver: true,
                 listener(ev) {
                   route.scrollY = (
                     ev.nativeEvent as NativeScrollEvent
                   ).contentOffset.y
-                  setAvatarVisible(currentRoute.scrollY < 130)
                 },
               }
             ),
@@ -236,7 +247,7 @@ function MemberDetailScreen() {
                     height: headerHeight,
                     transform: [
                       {
-                        translateY: scrollYRef.current.interpolate({
+                        translateY: scrollY.interpolate({
                           inputRange: [0, headerHeight],
                           outputRange: [0, -headerHeight],
                           extrapolate: 'clamp',

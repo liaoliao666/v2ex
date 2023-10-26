@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native'
 import { StatusBarStyle, setStatusBarStyle } from 'expo-status-bar'
-import { AppState } from 'react-native'
+import { AppState, Keyboard } from 'react-native'
 
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -30,4 +30,8 @@ AppState.addEventListener('change', status => {
   if (status === 'active') {
     updateStatusBarStyle()
   }
+})
+
+Keyboard.addListener('keyboardDidHide', () => {
+  updateStatusBarStyle()
 })
