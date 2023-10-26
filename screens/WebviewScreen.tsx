@@ -35,14 +35,17 @@ export default function WebviewScreen() {
 
   const [title, setTitle] = useState('')
 
+  const canGoBackRef = useRef(false)
+
   useEffect(() => {
     if (Platform.OS === 'android') {
       const handlebackpressed = () => {
-        if (webViewRef.current) {
-          webViewRef.current.goBack()
-          return true
+        if (canGoBackRef.current) {
+          webViewRef.current?.goBack?.()
+        } else {
+          navigation.goBack()
         }
-        return false
+        return true
       }
 
       BackHandler.addEventListener('hardwareBackPress', handlebackpressed)
@@ -92,7 +95,10 @@ export default function WebviewScreen() {
           onError={() => {
             setIsLoading(false)
           }}
-          onNavigationStateChange={ev => setTitle(ev.title)}
+          onNavigationStateChange={ev => {
+            canGoBackRef.current = ev.canGoBack
+            setTitle(ev.title)
+          }}
           style={tw.style(`flex-1`)}
           source={{ uri: params.url }}
           javaScriptEnabled={true}
