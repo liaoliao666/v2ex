@@ -420,10 +420,6 @@ const getTopicLink = `(function() {
         capture: true
     });
   } catch (err) {
-    window.ReactNativeWebView.postMessage(JSON.stringify({
-      error: true,
-      message: err.message
-    }))
   }
 }())`
 
