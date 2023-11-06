@@ -20,9 +20,30 @@ export function AsyncStoragePersist({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     isReadyNavigationPromise.then(SplashScreen.hideAsync)
+    let lastTime = 0
+    let running = false
 
-    const timer = setInterval(() => {
-      AsyncStorage.setItem(CACHE_KEY, JSON.stringify(dehydrate(queryClient)))
+    const timer = setInterval(async () => {
+      const { lastUpdated } = queryClient.getQueryCache()
+
+      if (lastUpdated !== lastTime && !running) {
+        try {
+          lastTime = lastUpdated
+          running = true
+          await AsyncStorage.setItem(
+            CACHE_KEY,
+            JSON.stringify(
+              dehydrate(queryClient, {
+                shouldDehydrateQuery: queryInfo =>
+                  !queryInfo.isStaleByTime(1000 * 60 * 60 * 24),
+              })
+            )
+          )
+        } catch {
+        } finally {
+          running = false
+        }
+      }
     }, 1000)
 
     return () => {

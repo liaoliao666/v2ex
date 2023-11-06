@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { Sov2exArgs } from '@/servicies/sov2ex'
+import { Sov2exArgs } from '@/servicies/other'
 
 import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
@@ -13,5 +13,6 @@ export const sov2exArgsAtom = atomWithAsyncStorage<z.infer<typeof Sov2exArgs>>(
     size: 20,
     sort: 'created',
     order: '0',
+    source: 'sov2ex',
   }
 )

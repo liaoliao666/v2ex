@@ -24,6 +24,7 @@ export const Sov2exArgs = z.object({
   username: z.preprocess(stripString, z.string().optional()),
   node: z.preprocess(stripString, z.string().optional()),
   q: z.preprocess(stripString, z.string().optional()),
+  source: z.enum(['sov2ex', 'google']).optional(),
 })
 
 export const sov2exQuery = queryWithInfinite<

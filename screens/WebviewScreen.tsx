@@ -4,7 +4,6 @@ import { BackHandler, Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import IconButton from '@/components/IconButton'
-import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
 import StyledButton from '@/components/StyledButton'
 import { navigation } from '@/navigation/navigationRef'
@@ -84,37 +83,32 @@ export default function WebviewScreen() {
         }
       />
 
-      {isLoading && <LoadingIndicator />}
-
-      <View style={tw.style(isLoading ? `h-0` : `flex-1`)}>
-        <WebView
-          ref={webViewRef}
-          onLoadEnd={() => {
-            setIsLoading(false)
-          }}
-          onError={() => {
-            setIsLoading(false)
-          }}
-          onNavigationStateChange={ev => {
-            canGoBackRef.current = ev.canGoBack
-            setTitle(ev.title)
-          }}
-          style={tw.style(`flex-1`)}
-          source={{ uri: params.url }}
-          javaScriptEnabled={true}
-          domStorageEnabled={true}
-          decelerationRate="normal"
-          sharedCookiesEnabled={true}
-          startInLoadingState={true}
-          scalesPageToFit={true}
-          renderLoading={() => <View />}
-          allowsBackForwardNavigationGestures
-          injectedJavaScript={getTitleScript}
-          onMessage={({ nativeEvent }) => {
-            setTitle(nativeEvent.data)
-          }}
-        />
-      </View>
+      <WebView
+        style={tw`flex-1`}
+        ref={webViewRef}
+        onLoadEnd={() => {
+          setIsLoading(false)
+        }}
+        onError={() => {
+          setIsLoading(false)
+        }}
+        onNavigationStateChange={ev => {
+          canGoBackRef.current = ev.canGoBack
+          setTitle(ev.title)
+        }}
+        source={{ uri: params.url }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        decelerationRate="normal"
+        sharedCookiesEnabled={true}
+        startInLoadingState={true}
+        scalesPageToFit={true}
+        allowsBackForwardNavigationGestures
+        injectedJavaScript={getTitleScript}
+        onMessage={({ nativeEvent }) => {
+          setTitle(nativeEvent.data)
+        }}
+      />
     </View>
   )
 }

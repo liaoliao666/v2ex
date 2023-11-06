@@ -7133,10 +7133,10 @@ qs@^6.11.0:
   dependencies:
     side-channel "^1.0.4"
 
-quaere@^0.1.0:
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/quaere/-/quaere-0.1.0.tgz#c12b2628c047520746ba9930ecd1c03370d0229f"
-  integrity sha512-rEJylq1Emb3ceb/ccxgfcrvKS+UzmvYfLnXnuMhUu0gTOBoGtkfR//EKC93GpsUB4sxD/1VgRS0N8TycGwuNMw==
+quaere@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/quaere/-/quaere-0.1.2.tgz#5802b035e626f019f46556eb2a906a74cd0052d2"
+  integrity sha512-gRsXBSQ+8xTjP4XcihuYMdsxQNO+gQhicA4J95xYnQmwd0Am6N5Tg0ChugmPuQdiCQIcvPKsq/GbB+wkNI8sOw==
   dependencies:
     client-only "^0.0.1"
 

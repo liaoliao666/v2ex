@@ -7,6 +7,7 @@ import {
   isEqual,
   isString,
   maxBy,
+  omit,
   uniqBy,
   upperCase,
 } from 'lodash-es'
@@ -15,6 +16,7 @@ import { useCallback, useMemo, useState } from 'react'
 import { memo } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import WebView from 'react-native-webview'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -93,6 +95,8 @@ export default function SearchScreen() {
 
   const navbarHeight = useNavBarHeight()
 
+  const sov2exArgs = useAtomValue(sov2exArgsAtom)
+
   return (
     <View style={tw`flex-1 bg-body-1`}>
       {isSearchNode ? (
@@ -140,11 +144,18 @@ export default function SearchScreen() {
             </View>
           )}
         >
-          <SoV2exList
-            key={colorScheme}
-            query={trimedSearchText}
-            navbarHeight={navbarHeight}
-          />
+          {sov2exArgs.source === 'google' ? (
+            <GoogleSearch
+              query={trimedSearchText}
+              navbarHeight={navbarHeight}
+            />
+          ) : (
+            <SoV2exList
+              key={colorScheme}
+              query={trimedSearchText}
+              navbarHeight={navbarHeight}
+            />
+          )}
         </QuerySuspense>
       )}
 
@@ -194,7 +205,7 @@ function SoV2exList({
 
   useRemoveUnnecessaryPages({
     query: sov2exQuery,
-    variables: { ...sov2exArgs, q: query },
+    variables: { ...omit(sov2exArgs, ['source']), q: query },
   })
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
@@ -393,3 +404,63 @@ const HitItem = memo(
   },
   isEqual
 )
+
+const getTopicLink = `(function() {
+  try {
+    document.body.addEventListener('click', function(e) {
+      const a = e.target.closest('a');
+
+      if (a && /^https:\\/\\/(\\\w+)\\.?v2ex\\.com\\/t/.test(a.href)) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.ReactNativeWebView.postMessage(a.href)
+      }
+    }, {
+        capture: true
+    });
+  } catch (err) {
+    window.ReactNativeWebView.postMessage(JSON.stringify({
+      error: true,
+      message: err.message
+    }))
+  }
+}())`
+
+function GoogleSearch({
+  navbarHeight,
+  query,
+}: {
+  navbarHeight: number
+  query: string
+}) {
+  return (
+    <View style={tw`flex-1`}>
+      <WebView
+        injectedJavaScript={getTopicLink}
+        style={tw.style(`flex-1`, {
+          marginTop: navbarHeight,
+        })}
+        source={{
+          uri: `https://google.com/search?q=${encodeURIComponent(
+            'site:v2ex.com/t ' + query
+          )}`,
+        }}
+        onMessage={event => {
+          const link = event.nativeEvent.data
+          const [, id] =
+            link.slice(link.indexOf('com') + 3).match(/\/\w+\/(\w+)/) || []
+
+          navigation.push('TopicDetail', {
+            id: parseInt(id, 10),
+          })
+        }}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        decelerationRate="normal"
+        sharedCookiesEnabled={true}
+        startInLoadingState={true}
+        scalesPageToFit={true}
+      />
+    </View>
+  )
+}
