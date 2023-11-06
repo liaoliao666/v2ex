@@ -22,6 +22,7 @@ import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
+import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import { FallbackComponent, QuerySuspense } from '@/components/QuerySuspense'
@@ -460,6 +461,13 @@ function GoogleSearch({
         sharedCookiesEnabled={true}
         startInLoadingState={true}
         scalesPageToFit={true}
+        renderLoading={() => (
+          <LoadingIndicator
+            style={tw.style(`absolute w-full h-full bg-body-1`, {
+              paddingTop: navbarHeight,
+            })}
+          />
+        )}
       />
     </View>
   )

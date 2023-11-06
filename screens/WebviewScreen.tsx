@@ -4,6 +4,7 @@ import { BackHandler, Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
 
 import IconButton from '@/components/IconButton'
+import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
 import StyledButton from '@/components/StyledButton'
 import { navigation } from '@/navigation/navigationRef'
@@ -85,6 +86,7 @@ export default function WebviewScreen() {
 
       <WebView
         style={tw`flex-1`}
+        containerStyle={tw`relative flex-1`}
         ref={webViewRef}
         onLoadEnd={() => {
           setIsLoading(false)
@@ -108,6 +110,9 @@ export default function WebviewScreen() {
         onMessage={({ nativeEvent }) => {
           setTitle(nativeEvent.data)
         }}
+        renderLoading={() => (
+          <LoadingIndicator style={tw`absolute w-full h-full bg-body-1`} />
+        )}
       />
     </View>
   )
