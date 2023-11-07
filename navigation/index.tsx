@@ -90,7 +90,7 @@ export default function Navigation() {
       ref={navigationRef}
       linking={linking}
       theme={theme}
-      onReady={() => sleep(500).then(SplashScreen.hideAsync)}
+      onReady={() => sleep(0).then(SplashScreen.hideAsync)}
     >
       <PageLayout>
         <StackNavigator />
