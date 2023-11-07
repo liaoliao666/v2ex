@@ -56,11 +56,6 @@ import tw from '@/utils/tw'
 import linking from './LinkingConfiguration'
 import { navigationRef } from './navigationRef'
 
-let handleReadyNavigation: () => void
-export const isReadyNavigationPromise = new Promise<void>(
-  ok => (handleReadyNavigation = ok)
-)
-
 export default function Navigation() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
@@ -95,10 +90,7 @@ export default function Navigation() {
       ref={navigationRef}
       linking={linking}
       theme={theme}
-      onReady={() => {
-        handleReadyNavigation()
-        sleep(500).then(SplashScreen.hideAsync)
-      }}
+      onReady={() => sleep(500).then(SplashScreen.hideAsync)}
     >
       <PageLayout>
         <StackNavigator />

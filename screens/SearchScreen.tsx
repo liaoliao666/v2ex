@@ -174,6 +174,10 @@ export default function SearchScreen() {
               }}
             />
           }
+          style={tw.style(
+            sov2exArgs.source === 'google' &&
+              `border-tint-border border-solid border-b`
+          )}
         >
           <SearchBar
             style={tw`flex-1`}
@@ -411,7 +415,7 @@ const getTopicLink = `(function() {
     document.body.addEventListener('click', function(e) {
       const a = e.target.closest('a');
 
-      if (a && /^https:\\/\\/(\\\w+)\\.?v2ex\\.com\\/t/.test(a.href)) {
+      if (a && /^https:\\/\\/(\\\w+\\.)?v2ex\\.com\\/t/.test(a.href)) {
         e.preventDefault();
         e.stopPropagation();
         window.ReactNativeWebView.postMessage(a.href)
@@ -431,40 +435,40 @@ function GoogleSearch({
   query: string
 }) {
   return (
-    <View style={tw`flex-1`}>
-      <WebView
-        injectedJavaScript={getTopicLink}
-        style={tw.style(`flex-1`, {
-          marginTop: navbarHeight,
-        })}
-        source={{
-          uri: `https://google.com/search?q=${encodeURIComponent(
-            'site:v2ex.com/t ' + query
-          )}`,
-        }}
-        onMessage={event => {
-          const link = event.nativeEvent.data
-          const [, id] =
-            link.slice(link.indexOf('com') + 3).match(/\/\w+\/(\w+)/) || []
+    <WebView
+      injectedJavaScript={getTopicLink}
+      style={tw.style(`flex-1`, {
+        marginTop: navbarHeight,
+      })}
+      source={{
+        uri: `https://google.com/search?q=${encodeURIComponent(
+          'site:v2ex.com/t ' + query
+        )}`,
+      }}
+      onMessage={event => {
+        const link = event.nativeEvent.data
+        const [, id] =
+          link.slice(link.indexOf('com') + 3).match(/\/\w+\/(\w+)/) || []
 
+        if (id) {
           navigation.push('TopicDetail', {
             id: parseInt(id, 10),
           })
-        }}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        decelerationRate="normal"
-        sharedCookiesEnabled={true}
-        startInLoadingState={true}
-        scalesPageToFit={true}
-        renderLoading={() => (
-          <LoadingIndicator
-            style={tw.style(`absolute w-full h-full bg-body-1`, {
-              paddingTop: navbarHeight,
-            })}
-          />
-        )}
-      />
-    </View>
+        }
+      }}
+      javaScriptEnabled={true}
+      domStorageEnabled={true}
+      decelerationRate="normal"
+      sharedCookiesEnabled={true}
+      startInLoadingState={true}
+      scalesPageToFit={true}
+      renderLoading={() => (
+        <LoadingIndicator
+          style={tw.style(`absolute w-full h-full bg-body-1`, {
+            paddingTop: navbarHeight,
+          })}
+        />
+      )}
+    />
   )
 }

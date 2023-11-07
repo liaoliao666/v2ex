@@ -2,7 +2,7 @@
   "expo": {
     "name": "V2Fun",
     "slug": "v2ex",
-    "version": "1.5.6",
+    "version": "1.5.7",
     "scheme": "v2fun",
     "jsEngine": "jsc",
     "icon": "./assets/icon.png",
@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.5.6.3"
+      "buildNumber": "1.5.7.1"
     },
     "android": {
       "adaptiveIcon": {

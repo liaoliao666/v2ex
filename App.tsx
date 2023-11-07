@@ -10,7 +10,7 @@ import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useDeviceContext } from 'twrnc'
 
-import { AsyncStoragePersist } from './components/AsyncStoragePersistProvider'
+import { AsyncStoragePersist } from './components/AsyncStoragePersist'
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
 import { deviceTypeAtom } from './jotai/deviceTypeAtom'

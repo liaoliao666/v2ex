@@ -128,7 +128,7 @@ function TopicDetailScreen() {
 
   const navbarHeight = useNavBarHeight()
 
-  const isFetchingAllPageRef = useRef(false)
+  const [isFetchingAllPage, setIsFetchingAllPage] = useState(false)
 
   const safeAreaInsets = useSafeAreaInsets()
 
@@ -182,7 +182,7 @@ function TopicDetailScreen() {
               <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
                 全部回复
               </Text>
-              {isFetching && !isRefetchingByUser && (
+              {(isFetching || isFetchingAllPage) && !isRefetchingByUser && (
                 <StyledActivityIndicator size="small" style={tw`ml-2`} />
               )}
 
@@ -217,8 +217,8 @@ function TopicDetailScreen() {
                     }
 
                     // fetch all page
-                    if (!isFetchingAllPageRef.current) {
-                      isFetchingAllPageRef.current = true
+                    if (!isFetchingAllPage) {
+                      setIsFetchingAllPage(true)
                       try {
                         const pageToData = Object.fromEntries(
                           data!.pageParams.map((page, i) => [
@@ -262,9 +262,12 @@ function TopicDetailScreen() {
                           )
                         )
                       } catch (error) {
-                        // empty
+                        Toast.show({
+                          type: 'error',
+                          text1: '请求失败',
+                        })
                       } finally {
-                        isFetchingAllPageRef.current = false
+                        setIsFetchingAllPage(false)
                       }
                     }
                   }

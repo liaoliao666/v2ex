@@ -1,10 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import * as SplashScreen from 'expo-splash-screen'
 import { HydrationBoundary, dehydrate, useQueryClient } from 'quaere'
 import { ReactNode, useEffect } from 'react'
 import { suspend } from 'suspend-react'
-
-import { isReadyNavigationPromise } from '@/navigation'
 
 const CACHE_KEY = 'app-cache'
 
@@ -19,7 +16,6 @@ export function AsyncStoragePersist({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    isReadyNavigationPromise.then(SplashScreen.hideAsync)
     let lastTime = 0
     let running = false
 
