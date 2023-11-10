@@ -137,7 +137,7 @@ function TopicDetailScreen() {
   const scrollY = useRef(new Animated.Value(0)).current
 
   return (
-    <View style={tw`flex-1 bg-body-1`}>
+    <View style={tw`flex-1 bg-background`}>
       <Animated.FlatList
         ref={flatListRef}
         key={colorScheme}
@@ -176,10 +176,10 @@ function TopicDetailScreen() {
           >
             <View
               style={tw.style(
-                `flex-row items-center pt-3 mt-2 border-t border-solid border-tint-border`
+                `flex-row items-center pt-3 mt-2 border-t border-solid border-divider`
               )}
             >
-              <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+              <Text style={tw`text-foreground ${getFontSize(5)}`}>
                 全部回复
               </Text>
               {(isFetching || isFetchingAllPage) && !isRefetchingByUser && (
@@ -282,8 +282,8 @@ function TopicDetailScreen() {
           ) : null
         }
         ListEmptyComponent={
-          <View style={tw.style(`items-center py-16`)}>
-            <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
+          <View style={tw.style(`items-center py-32`)}>
+            <Text style={tw`text-default ${getFontSize(6)}`}>
               目前还没有回复
             </Text>
           </View>
@@ -308,15 +308,15 @@ function TopicDetailScreen() {
             `flex-row items-center justify-between pt-4 pb-[${Math.max(
               safeAreaInsets.bottom,
               16
-            )}px] px-4 border-t border-solid border-tint-border`
+            )}px] px-4 border-t border-solid border-divider`
           )}
         >
           <VoteButton topic={topic} />
 
           <View style={tw`flex flex-row flex-shrink-0 ml-auto gap-4`}>
             <IconButton
-              color={tw.color(`text-tint-secondary`)}
-              activeColor={tw.color(`text-tint-secondary`)}
+              color={tw.color(`text-default`)}
+              activeColor={tw.color(`text-default`)}
               size={24}
               name="arrow-collapse-up"
               onPress={() => {
@@ -337,8 +337,8 @@ function TopicDetailScreen() {
               {({ pressed }) => (
                 <Fragment>
                   <IconButton
-                    color={tw.color(`text-tint-secondary`)}
-                    activeColor="rgb(29,155,240)"
+                    color={tw.color(`text-default`)}
+                    activeColor={tw.color(`text-primary`)}
                     icon={<Feather name="message-circle" />}
                     pressed={pressed}
                     size={24}
@@ -347,7 +347,7 @@ function TopicDetailScreen() {
                   {!!topic.reply_count && (
                     <Text
                       style={tw.style(
-                        `text-[10px] absolute -top-1 left-4 px-0.5  bg-body-1 text-tint-secondary`
+                        `text-[10px] absolute -top-1 left-4 px-0.5  bg-background text-default`
                       )}
                     >
                       {topic.reply_count}
@@ -372,23 +372,21 @@ function TopicDetailScreen() {
                 }}
               />
 
-              {
+              <View
+                style={tw.style(
+                  `w-full absolute -bottom-1 flex-row items-center justify-center`
+                )}
+              >
                 <View
-                  style={tw.style(
-                    `w-full absolute -bottom-1 flex-row items-center justify-center`
-                  )}
+                  style={tw`border border-divider border-solid px-1 bg-background rounded-full`}
                 >
-                  <View
-                    style={tw`border border-tint-border border-solid px-1 bg-body-1 rounded-full`}
-                  >
-                    <Entypo
-                      name="link"
-                      size={10}
-                      color={tw.color(`text-tint-secondary`)}
-                    />
-                  </View>
+                  <Entypo
+                    name="link"
+                    size={10}
+                    color={tw.color(`text-primary`)}
+                  />
                 </View>
-              }
+              </View>
             </TouchableOpacity>
           </View>
         </View>
@@ -400,24 +398,21 @@ function TopicDetailScreen() {
         <NavBar>
           <Animated.Text
             numberOfLines={1}
-            style={tw.style(
-              `text-tint-primary ${getFontSize(4)} font-semibold`,
-              {
-                opacity: scrollY.interpolate({
-                  inputRange: [70, 96],
-                  outputRange: [0, 1],
-                }),
-                transform: [
-                  {
-                    translateY: scrollY.interpolate({
-                      inputRange: [70, 106],
-                      outputRange: [36, 0],
-                      extrapolate: 'clamp',
-                    }),
-                  },
-                ],
-              }
-            )}
+            style={tw.style(`text-foreground ${getFontSize(4)} font-semibold`, {
+              opacity: scrollY.interpolate({
+                inputRange: [70, 96],
+                outputRange: [0, 1],
+              }),
+              transform: [
+                {
+                  translateY: scrollY.interpolate({
+                    inputRange: [70, 106],
+                    outputRange: [36, 0],
+                    extrapolate: 'clamp',
+                  }),
+                },
+              ],
+            })}
           >
             {topic.title}
           </Animated.Text>

@@ -28,7 +28,7 @@ export default function ListItem({
       style={({ pressed }) =>
         tw.style(
           `px-4 h-[56px] flex-row items-center`,
-          pressed && pressable && !!label && `bg-message-press`,
+          pressed && pressable && !!label && `bg-focus`,
           style
         )
       }
@@ -42,7 +42,7 @@ export default function ListItem({
 
           {!!label && (
             <Text
-              style={tw`ml-6 font-medium text-tint-primary mr-auto ${getFontSize(
+              style={tw`ml-6 font-medium text-foreground mr-auto ${getFontSize(
                 4
               )}`}
             >

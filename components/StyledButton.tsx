@@ -16,14 +16,6 @@ const colors = {
     activeDarkColor: `rgb(191,194,195)`,
   },
   primary: {
-    color: `#4d5256`,
-    darkColor: `#4d5256`,
-    textColor: '#fff',
-    darkTextColor: '#fff',
-    activeColor: `#778087`,
-    activeDarkColor: `#778087`,
-  },
-  secondary: {
     color: `rgb(29,155,240)`,
     darkColor: `rgb(239,243,244)`,
     textColor: '#fff',
@@ -43,7 +35,7 @@ const colors = {
 
 export interface StyledButtonProps {
   size?: 'middle' | 'large' | 'small' | 'mini'
-  type?: 'default' | 'secondary' | 'primary' | 'tag'
+  type?: 'default' | 'primary' | 'tag'
   shape?: 'default' | 'rounded' | 'rectangular'
   onPress?: PressableProps['onPress']
   children?: string

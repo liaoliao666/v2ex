@@ -16,7 +16,7 @@ export default function NavBar({
   children,
   style,
   title,
-  tintColor = tw.color(`text-tint-primary`),
+  tintColor = tw.color(`text-foreground`),
   statusBarStyle = 'auto',
   left = <BackButton tintColor={tintColor} />,
   right,
@@ -39,7 +39,7 @@ export default function NavBar({
     <View
       style={tw.style(
         `pt-[${safeTop}px`,
-        Platform.OS === 'android' && `border-tint-border border-solid border-b`,
+        Platform.OS === 'android' && `border-divider border-solid border-b`,
         style
       )}
     >
@@ -56,7 +56,7 @@ export default function NavBar({
           ) : (
             <Text
               style={tw.style(
-                `text-tint-primary ${getFontSize(4)} font-semibold`,
+                `text-foreground ${getFontSize(4)} font-semibold`,
                 {
                   color: tintColor,
                 }
@@ -85,7 +85,7 @@ export function BackButton({
   tintColor?: string
   onPress?: PressableProps['onPress']
 }) {
-  const color = tintColor || tw.color(`text-tint-primary`)
+  const color = tintColor || tw.color(`text-foreground`)
 
   return (
     <IconButton

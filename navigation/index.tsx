@@ -61,11 +61,11 @@ export default function Navigation() {
 
   const theme = useMemo(() => {
     const colors = {
-      primary: tw.color(`text-primary-focus`)!,
-      text: tw.color(`text-tint-primary`)!,
-      border: tw.color(`border-tint-border`)!,
-      card: tw.color(`bg-body-1`)!,
-      background: tw.color(`bg-body-1`)!,
+      primary: tw.color(`text-primary`)!,
+      text: tw.color(`text-foreground`)!,
+      border: tw.color(`border-divider`)!,
+      card: tw.color(`bg-background`)!,
+      background: tw.color(`bg-background`)!,
     }
 
     return colorScheme === 'dark'

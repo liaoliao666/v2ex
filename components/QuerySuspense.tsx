@@ -22,14 +22,14 @@ export function FallbackComponent({
   return (
     <View style={tw`p-8`}>
       <Text
-        style={tw`text-[31px] leading-9 font-extrabold text-tint-primary`}
+        style={tw`text-[31px] leading-9 font-extrabold text-foreground`}
         selectable
       >
         {isObject(error) && error.code
           ? (error as unknown as AxiosError).code || error.name
           : error.name || '出现错误了'}
       </Text>
-      <Text style={tw`${getFontSize(5)} text-tint-secondary mt-2`} selectable>
+      <Text style={tw`${getFontSize(5)} text-default mt-2`} selectable>
         {isObject(error) && error.message}
       </Text>
       <StyledButton

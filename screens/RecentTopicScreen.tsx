@@ -81,8 +81,8 @@ export default function RecentTopicScreen() {
           right={
             <IconButton
               name="delete-empty-outline"
-              color={tw.color(`text-tint-primary`)}
-              activeColor={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
+              activeColor={tw.color(`text-foreground`)}
               onPress={async () => {
                 try {
                   await confirm(`确认清除最近浏览主题吗？`)
@@ -119,7 +119,7 @@ const RecentTopicItem = memo(
   ({ recentTopic }: { recentTopic: RecentTopic }) => {
     return (
       <DebouncedPressable
-        style={tw`px-4 py-3 flex-row bg-body-1`}
+        style={tw`px-4 py-3 flex-row bg-background`}
         onPress={() => {
           navigation.push('TopicDetail', recentTopic)
         }}
@@ -143,13 +143,18 @@ const RecentTopicItem = memo(
 
         <View style={tw`flex-1`}>
           <Text
-            style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
+            style={tw`text-foreground ${getFontSize(5)} font-semibold`}
             numberOfLines={1}
+            onPress={() => {
+              navigation.push('MemberDetail', {
+                username: recentTopic.member?.username!,
+              })
+            }}
           >
             {recentTopic.member?.username}
           </Text>
 
-          <Text style={tw.style(`${getFontSize(5)} pt-1 text-tint-primary`)}>
+          <Text style={tw.style(`${getFontSize(5)} pt-1 text-foreground`)}>
             {recentTopic.title}
           </Text>
         </View>

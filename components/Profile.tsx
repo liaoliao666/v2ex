@@ -47,8 +47,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<MaterialCommunityIcons name={'family-tree'} />}
           size={24}
-          color={tw.color(`text-tint-primary`)}
-          activeColor={tw.color(`text-tint-secondary`)}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
         />
       ),
       onPress: () => {
@@ -63,8 +63,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<Feather name={'bookmark'} />}
           size={24}
-          color={tw.color(`text-tint-primary`)}
-          activeColor={tw.color(`text-tint-secondary`)}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
         />
       ),
       onPress: () => {
@@ -79,8 +79,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<MaterialCommunityIcons name={'account-heart-outline'} />}
           size={24}
-          color={tw.color(`text-tint-primary`)}
-          activeColor={tw.color(`text-tint-secondary`)}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
         />
       ),
       onPress: () => {
@@ -99,14 +99,14 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
                 <MaterialCommunityIcons
                   size={24}
                   name={'bell-outline'}
-                  color={tw.color(`text-tint-primary`)}
+                  color={tw.color(`text-foreground`)}
                 />
               </Badge>
             </View>
           }
           size={24}
-          color={tw.color(`text-tint-primary`)}
-          activeColor={tw.color(`text-tint-secondary`)}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
         />
       ),
       onPress: () => {
@@ -118,7 +118,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'color_scheme',
       icon: (
         <Feather
-          color={tw.color(`text-tint-primary`)}
+          color={tw.color(`text-foreground`)}
           size={24}
           name={colorScheme === 'light' ? 'sun' : 'moon'}
         />
@@ -135,7 +135,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           onChange={setTheme}
         />
       ),
-      style: tw`border-t border-solid border-tint-border`,
+      style: tw`border-t border-solid border-divider`,
+      pressable: false,
     },
     {
       label: '最近浏览',
@@ -145,8 +146,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<MaterialCommunityIcons name={'clock-check-outline'} />}
           size={24}
-          color={tw.color(`text-tint-primary`)}
-          activeColor={tw.color(`text-tint-secondary`)}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
         />
       ),
       onPress: () => {
@@ -161,8 +162,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<Feather name="navigation" />}
           size={24}
-          color={tw.color(`text-tint-primary`)}
-          activeColor={tw.color(`text-tint-secondary`)}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
         />
       ),
       onPress: () => {
@@ -177,8 +178,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<Feather name="settings" />}
           size={24}
-          color={tw.color(`text-tint-primary`)}
-          activeColor={tw.color(`text-tint-secondary`)}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
         />
       ),
       onPress: () => {
@@ -190,7 +191,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
   return (
     <SafeAreaView
       edges={['top']}
-      style={tw.style(`flex-1 bg-body-1`, onlyIcon && `px-2`)}
+      style={tw.style(`flex-1 bg-background`, onlyIcon && `px-2`)}
       key={onlyIcon ? 'profile' : fontScale}
     >
       {isLogin ? (
@@ -228,12 +229,12 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
                 }}
                 style={tw`flex-row items-center`}
               >
-                <Text style={tw`text-tint-secondary mr-1 ${getFontSize(5)}`}>
+                <Text style={tw`text-default mr-1 ${getFontSize(5)}`}>
                   个人主页
                 </Text>
                 <SimpleLineIcons
                   name="arrow-right"
-                  color={tw.color(`text-tint-secondary`)}
+                  color={tw.color(`text-default`)}
                   size={10}
                 />
               </TouchableOpacity>
@@ -241,7 +242,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
 
             <View style={tw`pt-2 flex-row items-center`}>
               <Text
-                style={tw`text-tint-primary ${getFontSize(
+                style={tw`text-foreground ${getFontSize(
                   2
                 )} font-bold flex-shrink mr-2`}
                 numberOfLines={1}
@@ -256,7 +257,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             </View>
 
             {!!profile?.motto && (
-              <Text style={tw`text-tint-secondary ${getFontSize(5)} mt-2`}>
+              <Text style={tw`text-default ${getFontSize(5)} mt-2`}>
                 {profile?.motto}
               </Text>
             )}
@@ -288,10 +289,10 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
         >
           <View style={tw`w-16 h-16 mb-2 rounded-full img-loading`} />
           <View style={tw`flex-row items-center ml-2`}>
-            <Text style={tw`text-[24px] text-tint-primary`}>点我登录</Text>
+            <Text style={tw`text-[24px] text-foreground`}>点我登录</Text>
             <SimpleLineIcons
               name="arrow-right"
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={14}
             />
           </View>

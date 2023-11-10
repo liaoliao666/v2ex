@@ -5,6 +5,7 @@ import {
   PressableProps,
   TextInput,
   TextInputProps,
+  TouchableOpacity,
   ViewStyle,
 } from 'react-native'
 
@@ -38,13 +39,13 @@ export default function SearchBar({
       <Ionicons
         name="search"
         size={18}
-        color={tw.color(`text-tint-secondary`)}
+        color={tw.color(`text-default`)}
         style={tw`pl-3`}
       />
       <TextInput
         placeholder={placeholder || '搜索V2EX内容'}
-        placeholderTextColor={tw.color(`text-tint-secondary`)}
-        style={tw.style(`text-tint-primary px-3 py-1 flex-1`, {
+        placeholderTextColor={tw.color(`text-default`)}
+        style={tw.style(`text-foreground px-3 py-1 flex-1`, {
           ...pick(tw.style(getFontSize(5)), ['fontSize']),
           paddingVertical: 0,
         })}
@@ -59,16 +60,11 @@ export default function SearchBar({
         autoCapitalize="none"
       />
       {editable && !!value && (
-        <Pressable
+        <TouchableOpacity
           onPress={() => {
             onChangeText?.('')
           }}
-          style={({ pressed }) =>
-            tw.style(
-              `h-4 w-4 items-center justify-center rounded-full mr-3`,
-              pressed ? `bg-primary` : `bg-primary-focus`
-            )
-          }
+          style={tw`h-4 w-4 items-center justify-center rounded-full mr-3 bg-primary`}
         >
           <Ionicons
             name="close-sharp"
@@ -76,7 +72,7 @@ export default function SearchBar({
             color={'#fff'}
             style={tw`ml-0.5`}
           />
-        </Pressable>
+        </TouchableOpacity>
       )}
     </Pressable>
   )

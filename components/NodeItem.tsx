@@ -1,6 +1,6 @@
 import { compact } from 'lodash-es'
 import { memo } from 'react'
-import { Pressable, Text } from 'react-native'
+import { Text, TouchableOpacity } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { Node } from '@/servicies/types'
@@ -19,7 +19,7 @@ function NodeItem({
   onPressNodeItem: (node: Node) => void
 }) {
   return (
-    <Pressable
+    <TouchableOpacity
       style={tw`h-[${NAV_BAR_HEIGHT}px] px-4 flex-row items-center`}
       onPress={() => {
         onPressNodeItem(node)
@@ -31,9 +31,11 @@ function NodeItem({
           uri: node.avatar_large,
         }}
       />
-      <Text style={tw`${getFontSize(5)} text-tint-secondary ml-2`}>
+      <Text style={tw`${getFontSize(5)} text-foreground ml-2`}>
         {compact([node.title, node.name]).join(' / ')}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   )
 }
+
+NodeItem.height = NAV_BAR_HEIGHT

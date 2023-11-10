@@ -7,7 +7,7 @@ import { FlatList, ListRenderItem, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Empty from '@/components/Empty'
-import NavBar from '@/components/NavBar'
+import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import SearchBar from '@/components/SearchBar'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -65,7 +65,7 @@ export default function SearchNodeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   return (
-    <View style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-background flex-1`}>
       <NavBar hideSafeTop left={null}>
         <SearchBar
           style={tw`flex-1`}
@@ -84,6 +84,11 @@ export default function SearchNodeScreen() {
         data={matchNodes}
         renderItem={renderNodeItem}
         ListEmptyComponent={<Empty description="暂无搜索结果" />}
+        getItemLayout={(_, index) => ({
+          length: NAV_BAR_HEIGHT,
+          offset: index * NAV_BAR_HEIGHT,
+          index,
+        })}
       />
     </View>
   )

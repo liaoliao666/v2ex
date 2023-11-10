@@ -85,10 +85,10 @@ function SettingScreen() {
           />
 
           <View style={tw`flex-1`}>
-            <Text style={tw`text-tint-primary ${getFontSize(4)} font-semibold`}>
+            <Text style={tw`text-foreground ${getFontSize(4)} font-semibold`}>
               V2EX
             </Text>
-            <Text style={tw`text-tint-primary ${getFontSize(5)} mt-1`}>
+            <Text style={tw`text-foreground ${getFontSize(5)} mt-1`}>
               创意工作者们的社区
             </Text>
           </View>
@@ -100,7 +100,7 @@ function SettingScreen() {
               label="自动签到"
               icon={
                 <MaterialCommunityIcons
-                  color={tw.color(`text-tint-primary`)}
+                  color={tw.color(`text-foreground`)}
                   size={24}
                   name={'calendar-check'}
                 />
@@ -125,7 +125,7 @@ function SettingScreen() {
               label="消息通知"
               icon={
                 <MaterialCommunityIcons
-                  color={tw.color(`text-tint-primary`)}
+                  color={tw.color(`text-foreground`)}
                   size={24}
                   name={'bell-outline'}
                 />
@@ -150,7 +150,7 @@ function SettingScreen() {
           label="内容解析"
           icon={
             <MaterialCommunityIcons
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={24}
               name={'format-text'}
             />
@@ -184,7 +184,7 @@ function SettingScreen() {
           label="字体大小"
           icon={
             <MaterialCommunityIcons
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={24}
               name={'format-font'}
             />
@@ -209,7 +209,7 @@ function SettingScreen() {
             label="外观"
             icon={
               <Feather
-                color={tw.color(`text-tint-primary`)}
+                color={tw.color(`text-foreground`)}
                 size={24}
                 name={colorScheme === 'light' ? 'sun' : 'moon'}
               />
@@ -225,6 +225,7 @@ function SettingScreen() {
                 onChange={setTheme}
               />
             }
+            pressable={false}
           />
         )}
 
@@ -232,7 +233,7 @@ function SettingScreen() {
           label="问题反馈"
           icon={
             <Feather
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={24}
               name="github"
             />
@@ -248,7 +249,7 @@ function SettingScreen() {
           label="社区排行"
           icon={
             <Ionicons
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={24}
               name={'md-analytics-outline'}
             />
@@ -262,7 +263,7 @@ function SettingScreen() {
           label="图片上传"
           icon={
             <Feather
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={24}
               name="image"
             />
@@ -279,7 +280,7 @@ function SettingScreen() {
             label="屏蔽列表"
             icon={
               <MaterialIcons
-                color={tw.color(`text-tint-primary`)}
+                color={tw.color(`text-foreground`)}
                 size={24}
                 name={'block'}
               />
@@ -294,7 +295,7 @@ function SettingScreen() {
           label="清除缓存"
           icon={
             <MaterialCommunityIcons
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={24}
               name="delete-empty-outline"
             />
@@ -319,7 +320,7 @@ function SettingScreen() {
             label="注销帐号"
             icon={
               <Feather
-                color={tw.color(`text-tint-primary`)}
+                color={tw.color(`text-foreground`)}
                 size={24}
                 name={'delete'}
               />
@@ -412,14 +413,14 @@ function CheckAppVersion() {
         data?.need_upgrade ? (
           <Badge>
             <MaterialIcons
-              color={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
               size={24}
               name="upgrade"
             />
           </Badge>
         ) : (
           <MaterialIcons
-            color={tw.color(`text-tint-primary`)}
+            color={tw.color(`text-foreground`)}
             size={24}
             name="upgrade"
           />
@@ -446,7 +447,7 @@ function CheckAppVersion() {
       }}
       action={
         !!data?.version && (
-          <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+          <Text style={tw`text-default ${getFontSize(5)}`}>
             v{data.version}
           </Text>
         )

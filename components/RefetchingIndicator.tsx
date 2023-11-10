@@ -29,7 +29,7 @@ export default function RefetchingIndicator({
           pointerEvents="none"
         >
           <View
-            style={tw`rounded-full p-2 shadow-lg dark:shadow-white bg-body-1`}
+            style={tw`rounded-full p-2 shadow-lg dark:shadow-white bg-background`}
           >
             <StyledActivityIndicator />
           </View>

@@ -49,10 +49,10 @@ export default function StyledImageViewer({
         enableSwipeDown
         onCancel={onClose}
         menus={({ cancel, saveToLocal }) => (
-          <Pressable onPress={cancel} style={tw`bg-mask absolute inset-0`}>
+          <Pressable onPress={cancel} style={tw`bg-overlay absolute inset-0`}>
             <View
               style={tw.style(
-                `bg-body-1 absolute bottom-0 inset-x-0 rounded-t-[32px] overflow-hidden`,
+                `bg-background absolute bottom-0 inset-x-0 rounded-t-[32px] overflow-hidden`,
                 {
                   paddingBottom: safeAreaInsets.bottom,
                 }
@@ -99,12 +99,12 @@ export default function StyledImageViewer({
                   onPress={item.onPress}
                   style={({ pressed }) =>
                     tw.style(
-                      `h-[53px] justify-center items-center border-tint-border border-t border-solid`,
-                      pressed && `bg-message-press`
+                      `h-[53px] justify-center items-center border-divider border-t border-solid`,
+                      pressed && `bg-focus`
                     )
                   }
                 >
-                  <Text style={tw`${getFontSize(5)} text-tint-primary`}>
+                  <Text style={tw`${getFontSize(5)} text-foreground`}>
                     {item.label}
                   </Text>
                 </Pressable>

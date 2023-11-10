@@ -13,10 +13,10 @@ const StyledTextInput = forwardRef<
     <TextInput
       ref={ref}
       autoCapitalize="none"
-      placeholderTextColor={tw.color(`text-tint-secondary`)}
+      placeholderTextColor={tw.color(`text-default`)}
       {...props}
       style={tw.style(
-        `bg-input h-9 px-3 rounded-lg text-tint-primary`,
+        `bg-input h-9 px-3 rounded-lg text-foreground`,
         size === 'large' ? `h-12` : `h-9`,
         {
           paddingTop: 0,

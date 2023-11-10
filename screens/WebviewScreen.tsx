@@ -59,7 +59,7 @@ export default function WebviewScreen() {
   return (
     <View style={tw`flex-1`}>
       <NavBar
-        style={tw`border-b border-solid border-tint-border`}
+        style={tw`border-b border-solid border-divider`}
         title={isLoading ? '跳转中...' : title || 'Browse'}
         left={
           <IconButton
@@ -68,8 +68,8 @@ export default function WebviewScreen() {
             }}
             name="close"
             size={24}
-            color={tw.color(`text-tint-primary`)}
-            activeColor={tw.color(`text-tint-primary`)}
+            color={tw.color(`text-foreground`)}
+            activeColor={tw.color(`text-foreground`)}
           />
         }
         right={
@@ -111,7 +111,7 @@ export default function WebviewScreen() {
           setTitle(nativeEvent.data)
         }}
         renderLoading={() => (
-          <LoadingIndicator style={tw`absolute w-full h-full bg-body-1`} />
+          <LoadingIndicator style={tw`absolute w-full h-full bg-background`} />
         )}
       />
     </View>

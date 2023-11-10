@@ -37,9 +37,7 @@ export default function FormControl<
         <View style={style}>
           <View style={tw`flex flex-row justify-between items-center`}>
             {!!label && (
-              <Text
-                style={tw.style(`text-tint-primary ${getFontSize(5)} mb-1`)}
-              >
+              <Text style={tw.style(`text-foreground ${getFontSize(5)} mb-1`)}>
                 {label}
               </Text>
             )}

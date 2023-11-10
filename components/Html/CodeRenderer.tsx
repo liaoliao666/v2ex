@@ -11,17 +11,18 @@ import RenderHTML, {
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import tw from '@/utils/tw'
+import { useScreenWidth } from '@/utils/useScreenWidth'
 
 import { HtmlContext } from './HtmlContext'
 import TextRenderer from './TextRenderer'
 import { getDefaultProps } from './helper'
 
 const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
-  const { inModalScreen } = useContext(HtmlContext)
+  const { inModalScreen, paddingX } = useContext(HtmlContext)
 
-  const { width } = useWindowDimensions()
+  const screenWidth = useScreenWidth()
 
-  const { html, hasHtmlTag } = useMemo(() => {
+  const { html, isCode } = useMemo(() => {
     const $ = load(tnode.domNode as unknown as string)
     const $code = $('code')
     const language = $code
@@ -37,25 +38,25 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
 
     return {
       html: `<pre><code>${value}</code></pre>`,
-      hasHtmlTag: !!value?.match(/<\/\w+/),
+      isCode: /(\=|\{|\[)/.test(text),
     }
   }, [tnode.domNode])
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
-  const WrapView = hasHtmlTag ? ScrollView : View
+  const WrapView = isCode ? ScrollView : View
 
   return (
     <View style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}>
       <WrapView horizontal nestedScrollEnabled>
         <RenderHTML
-          contentWidth={width}
+          contentWidth={screenWidth - paddingX}
           baseStyle={tw.style(
             `text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(5)}`
           )}
           tagsStyles={{
             pre: tw`my-2`,
-            a: tw`text-tint-secondary no-underline`,
+            a: tw`text-primary no-underline`,
             em: {
               fontStyle: 'italic',
             },

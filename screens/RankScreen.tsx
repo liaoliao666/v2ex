@@ -124,9 +124,9 @@ function RankScreen() {
             <TabBar
               {...props}
               scrollEnabled
-              style={tw`flex-row shadow-none border-b border-tint-border border-solid bg-transparent`}
+              style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
               tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[20px] bg-primary h-1 rounded-full`}
+              indicatorStyle={tw`w-[40px] ml-[20px] bg-foreground h-[3px] rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
                 const active = routes[index].key === route.key
@@ -144,8 +144,8 @@ function RankScreen() {
                       style={tw.style(
                         `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
-                          ? tw`text-tint-primary font-medium`
-                          : tw`text-tint-secondary`
+                          ? tw`text-foreground font-medium`
+                          : tw`text-default`
                       )}
                       numberOfLines={1}
                     >
@@ -233,14 +233,7 @@ function TopPlayerList({ headerHeight }: { headerHeight: number }) {
 const RankItem = memo(
   ({ member, rankTab }: { member: Member; rankTab: RankTab }) => {
     return (
-      <DebouncedPressable
-        style={tw`px-4 py-3 flex-row bg-body-1`}
-        onPress={() => {
-          navigation.push('MemberDetail', {
-            username: member.username,
-          })
-        }}
-      >
+      <View style={tw`px-4 py-3 flex-row bg-background`}>
         <View style={tw`mr-3`}>
           <DebouncedPressable
             onPress={() => {
@@ -261,13 +254,19 @@ const RankItem = memo(
         <View style={tw`flex-1 gap-1`}>
           <View style={tw`flex-row gap-2`}>
             <Text
-              style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
+              style={tw`text-foreground ${getFontSize(5)} font-semibold`}
               numberOfLines={1}
+              onPress={() => {
+                navigation.push('MemberDetail', {
+                  username: member?.username!,
+                })
+              }}
             >
               {member?.username}
             </Text>
+
             {rankTab === 'topPlayer' ? (
-              <Text style={tw`${getFontSize(6)} text-tint-secondary`}>
+              <Text style={tw`${getFontSize(6)} text-default`}>
                 {member.cost}
               </Text>
             ) : (
@@ -276,7 +275,10 @@ const RankItem = memo(
           </View>
 
           {member.motto && (
-            <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
+            <Text
+              style={tw.style(`${getFontSize(6)} text-foreground`)}
+              selectable
+            >
               {member.motto}
             </Text>
           )}
@@ -286,18 +288,18 @@ const RankItem = memo(
               onPress={() => {
                 navigation.navigate('Webview', { url: member.website! })
               }}
-              style={tw.style(`${getFontSize(6)} text-tint-primary`)}
+              style={tw.style(`${getFontSize(6)} text-primary`)}
               numberOfLines={1}
             >
               {member.website.replace(/^https?:\/\//, '')}
             </Text>
           )}
 
-          <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
+          <Text style={tw.style(`${getFontSize(6)} text-default`)}>
             第 {member.id} 号会员
           </Text>
         </View>
-      </DebouncedPressable>
+      </View>
     )
   }
 )

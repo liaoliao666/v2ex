@@ -35,7 +35,7 @@ export default function TopicDetailPlaceholder({
   topic: Partial<Topic>
 }) {
   return (
-    <View style={tw`flex-1 bg-body-1`}>
+    <View style={tw`flex-1 bg-background`}>
       <NavBar />
       {!!topic.member && (
         <View>
@@ -53,17 +53,13 @@ export default function TopicDetailPlaceholder({
             </View>
 
             <View style={tw`flex-1`}>
-              <Text
-                style={tw`text-tint-primary ${getFontSize(4)} font-semibold`}
-              >
+              <Text style={tw`text-foreground ${getFontSize(4)} font-semibold`}>
                 {topic.member?.username}
               </Text>
 
               <Text
                 key="reply_count"
-                style={tw`text-tint-secondary ${getFontSize(
-                  5
-                )} flex-1 min-h-[24px]`}
+                style={tw`text-default ${getFontSize(5)} flex-1 min-h-[24px]`}
                 numberOfLines={1}
               >
                 {`${topic.reply_count} 回复`}
@@ -71,7 +67,7 @@ export default function TopicDetailPlaceholder({
             </View>
           </View>
           <Text
-            style={tw`text-tint-primary border-b border-tint-border border-solid ${getFontSize(
+            style={tw`text-foreground border-b border-divider border-solid ${getFontSize(
               3
             )} font-medium pt-2 px-4`}
           >
@@ -98,7 +94,7 @@ export default function TopicDetailPlaceholder({
           )}
 
           <Placeholder
-            style={tw`pt-2 px-4 border-b border-tint-border border-solid`}
+            style={tw`pt-2 px-4 border-b border-divider border-solid`}
           >
             <PlaceholderLine color={tw.color('bg-loading')} />
             <PlaceholderLine color={tw.color('bg-loading')} />

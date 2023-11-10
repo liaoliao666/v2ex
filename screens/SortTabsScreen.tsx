@@ -49,10 +49,10 @@ export default function SortTabsScreen() {
             style={tw.style(
               `w-[${
                 itemWidth - 8
-              }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-body-2`
+              }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-content`
             )}
           >
-            <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+            <Text style={tw`text-foreground ${getFontSize(5)}`}>
               {item.title}
             </Text>
 
@@ -66,7 +66,7 @@ export default function SortTabsScreen() {
               >
                 <MaterialCommunityIcons
                   name={iconName}
-                  color={tw.color(`text-tint-secondary`)}
+                  color={tw.color(`text-default`)}
                   size={16}
                 />
               </Pressable>
@@ -89,9 +89,9 @@ export default function SortTabsScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={tw`flex-1 bg-body-1`}>
+    <SafeAreaView edges={['top']} style={tw`flex-1 bg-background`}>
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
-        <Text style={tw`text-tint-primary ${getFontSize(4)} font-medium`}>
+        <Text style={tw`text-foreground ${getFontSize(4)} font-medium`}>
           首页板块
         </Text>
 
@@ -102,7 +102,7 @@ export default function SortTabsScreen() {
           style={tw`px-4`}
         >
           <MaterialCommunityIcons
-            color={tw.color(`text-tint-secondary`)}
+            color={tw.color(`text-default`)}
             size={20}
             name="close-circle"
           />
@@ -110,10 +110,10 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`px-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-tint-primary ${getFontSize(5)} font-medium`}>
+        <Text style={tw`text-foreground ${getFontSize(5)} font-medium`}>
           我的板块
         </Text>
-        <Text style={tw`text-tint-secondary ${getFontSize(6)} ml-2`}>
+        <Text style={tw`text-default ${getFontSize(6)} ml-2`}>
           {isEdit ? '长按拖拽排序' : '点击进入板块'}
         </Text>
 
@@ -146,8 +146,8 @@ export default function SortTabsScreen() {
             {({ pressed }) => (
               <Text
                 style={tw.style(
-                  `${getFontSize(5)}`,
-                  pressed ? `text-secondary-focus` : `text-secondary`
+                  `${getFontSize(5)} text-primary`,
+                  pressed && `text-opacity-80`
                 )}
               >
                 添加节点
@@ -164,8 +164,8 @@ export default function SortTabsScreen() {
               {({ pressed }) => (
                 <Text
                   style={tw.style(
-                    `${getFontSize(5)}`,
-                    pressed ? `text-secondary-focus` : `text-secondary`
+                    `${getFontSize(5)} text-primary`,
+                    pressed && `text-opacity-80`
                   )}
                 >
                   重置
@@ -185,8 +185,8 @@ export default function SortTabsScreen() {
             {({ pressed }) => (
               <Text
                 style={tw.style(
-                  `${getFontSize(5)}`,
-                  pressed ? `text-secondary-focus` : `text-secondary`
+                  `${getFontSize(5)} text-primary`,
+                  pressed && `text-opacity-80`
                 )}
               >
                 {isEdit ? '完成' : '编辑'}
@@ -224,17 +224,17 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`pl-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-tint-primary ${getFontSize(5)} font-medium`}>
+        <Text style={tw`text-foreground ${getFontSize(5)} font-medium`}>
           更多板块
         </Text>
-        <Text style={tw`text-tint-secondary ${getFontSize(6)} ml-2`}>
+        <Text style={tw`text-default ${getFontSize(6)} ml-2`}>
           点击添加板块
         </Text>
       </View>
 
       {isEmpty(unselectedItems) && (
-        <View style={tw`py-2 px-4 m-4 bg-body-2 rounded-full`}>
-          <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
+        <View style={tw`py-2 px-4 m-4 bg-content rounded-full`}>
+          <Text style={tw`text-default ${getFontSize(6)}`}>
             已全部添加至我的板块
           </Text>
         </View>

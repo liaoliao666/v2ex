@@ -17,6 +17,7 @@ import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
 import IFrameRenderer from './IFrameRenderer'
 import ImageRenderer from './ImageRenderer'
+import InputRenderer from './InputRenderer'
 import TextRenderer from './TextRenderer'
 import { getDefaultProps } from './helper'
 
@@ -93,23 +94,19 @@ function Html({
       )}
     >
       <RenderHtml
-        baseStyle={tw`text-tint-primary ${getFontSize(5)}`}
+        baseStyle={tw`text-foreground ${getFontSize(5)}`}
         tagsStyles={{
-          h1: tw`${getFontSize(
-            3
-          )} pb-1.5 border-b border-solid border-tint-border`,
-          h2: tw`${getFontSize(
-            4
-          )} pb-1.5 border-b border-solid border-tint-border`,
+          h1: tw`${getFontSize(3)} pb-1.5 border-b border-solid border-divider`,
+          h2: tw`${getFontSize(4)} pb-1.5 border-b border-solid border-divider`,
           h3: tw`${getFontSize(4)}`,
           h4: tw`${getFontSize(4)}`,
           h5: tw`${getFontSize(5)}`,
           h6: tw`${getFontSize(6)}`,
           p: tw`${getFontSize(5)}`,
-          a: tw`text-tint-secondary no-underline`,
+          a: tw`text-primary no-underline`,
           li: tw`text-justify`,
           hr: {
-            backgroundColor: tw.color(`border-tint-border`),
+            backgroundColor: tw.color(`border-divider`),
           },
           em: {
             fontStyle: 'italic',
@@ -122,6 +119,7 @@ function Html({
           pre: CodeRenderer,
           img: ImageRenderer,
           iframe: IFrameRenderer,
+          input: InputRenderer,
           _TEXT_: TextRenderer,
           ...mergedProps.renderers,
         }}

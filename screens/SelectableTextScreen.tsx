@@ -13,11 +13,11 @@ export default function SelectableTextScreen() {
   } = useRoute<RouteProp<RootStackParamList, 'SelectableText'>>()
 
   return (
-    <View style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-background flex-1`}>
       <NavBar
         title="选择文本"
         hideSafeTop
-        style={tw`border-tint-border border-b border-solid`}
+        style={tw`border-divider border-b border-solid`}
       />
 
       <ScrollView style={tw`px-4 pt-4`}>

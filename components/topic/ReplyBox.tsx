@@ -115,24 +115,27 @@ const ReplyBox = ({
 
   return (
     <Fragment>
-      <Pressable style={tw`bg-mask absolute inset-0 z-20`} onPress={onCancel} />
+      <Pressable
+        style={tw`bg-overlay absolute inset-0 z-20`}
+        onPress={onCancel}
+      />
 
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={tw`z-30`}
       >
         <View
-          style={tw`px-4 bg-body-1 flex-row items-center rounded-t-[32px] overflow-hidden`}
+          style={tw`px-4 bg-background flex-row items-center rounded-t-[32px] overflow-hidden`}
         >
           <TextInput
             ref={inputRef}
-            placeholderTextColor={tw.color(`text-tint-secondary`)}
+            placeholderTextColor={tw.color(`text-default`)}
             style={tw.style(
               {
                 ...pick(tw.style(getFontSize(5)), ['fontSize']),
                 paddingVertical: 0,
               },
-              `text-tint-primary flex-1 py-2 px-3 h-32 pt-4 rounded-lg`
+              `text-foreground flex-1 py-2 px-3 h-32 pt-4 rounded-lg`
             )}
             textAlignVertical={'top'}
             multiline
@@ -187,11 +190,11 @@ const ReplyBox = ({
           />
         </View>
 
-        <View style={tw`py-2 px-4 flex-row bg-body-1`}>
+        <View style={tw`py-2 px-4 flex-row bg-background`}>
           <View style={tw`flex-row gap-2 mr-auto`}>
             <StyledButton
               shape="rounded"
-              type="secondary"
+              type="primary"
               size="small"
               onPress={() => {
                 const replacedText = convertSelectedTextToBase64(
@@ -213,7 +216,7 @@ const ReplyBox = ({
             <UploadImageButton
               shape="rounded"
               size="small"
-              type="secondary"
+              type="primary"
               onUploaded={url => {
                 const newContent = getContent()
                   ? `${getContent()}\n${url}`
@@ -229,7 +232,7 @@ const ReplyBox = ({
 
           <StyledButton
             shape="rounded"
-            type="secondary"
+            type="primary"
             size="small"
             pressable={!!getContent().trim()}
             onPress={async () => {

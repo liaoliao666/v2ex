@@ -13,7 +13,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
 
   if (isTablet) {
     return (
-      <View style={tw`flex-1 flex-row bg-body-1 justify-center`}>
+      <View style={tw`flex-1 flex-row bg-background justify-center`}>
         <View style={tw`items-end flex-grow-0 flex-shrink-0`}>
           <Profile onlyIcon />
         </View>
@@ -23,7 +23,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
             style={tw.style(
               // https://github.com/liaoliao666/v2ex/issues/69
               !isLargeTablet && 'hidden',
-              `bg-body-1 border-solid border-l border-r border-tint-border w-[400px]`
+              `bg-background border-solid border-l border-r border-divider w-[400px]`
             )}
           >
             <HomeScreen />
@@ -32,8 +32,8 @@ export default function PageLayout({ children }: { children: ReactNode }) {
 
         <View
           style={tw.style(
-            `flex-1 bg-body-1`,
-            !isLargeTablet && `border-solid border-l border-tint-border`
+            `flex-1 bg-background`,
+            !isLargeTablet && `border-solid border-l border-divider`
           )}
         >
           {children}

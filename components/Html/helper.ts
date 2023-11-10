@@ -37,6 +37,11 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
       tagName: 'iframe',
       contentModel: HTMLContentModel.block,
     }),
+
+    input: HTMLElementModel.fromCustomModel({
+      tagName: 'input',
+      contentModel: HTMLContentModel.textual,
+    }),
   },
 
   defaultTextProps: {

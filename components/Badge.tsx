@@ -39,7 +39,7 @@ export default function Badge(props: BadgeProps) {
             top,
           } as ViewStyle),
         isDot && tw`min-w-[${dotSize}px] w-[${dotSize}px] h-[${dotSize}px]`,
-        props.bordered && tw`border border-tint-border border-solid`,
+        props.bordered && tw`border border-divider border-solid`,
         { backgroundColor: color, borderRadius: 9999 }
       )}
     >

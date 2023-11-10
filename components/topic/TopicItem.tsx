@@ -35,7 +35,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
 
   return (
     <DebouncedPressable
-      style={tw`px-4 py-3 flex-row bg-body-1`}
+      style={tw`px-4 py-3 flex-row bg-background`}
       onPress={() => {
         if (isLargeTablet() && getCurrentRouteName() === 'TopicDetail') {
           navigation.replace('TopicDetail', topic)
@@ -45,13 +45,14 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
       }}
     >
       {!hideAvatar && (
-        <View style={tw`mr-3`}>
+        <View>
           <DebouncedPressable
             onPress={() => {
               navigation.push('MemberDetail', {
                 username: topic.member?.username!,
               })
             }}
+            style={tw`pr-3`}
           >
             <StyledImage
               style={tw`w-6 h-6 rounded-full`}
@@ -66,7 +67,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
       <View style={tw`flex-1`}>
         <View style={tw`flex-row gap-2`}>
           <Text
-            style={tw`text-tint-primary ${getFontSize(5)} flex-shrink`}
+            style={tw`text-foreground ${getFontSize(5)} flex-shrink`}
             numberOfLines={1}
             onPress={() => {
               navigation.push('MemberDetail', {
@@ -97,7 +98,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
         <Text
           style={tw.style(
             `${getFontSize(5)} pt-1 font-medium`,
-            isReaded ? `text-tint-secondary` : `text-tint-primary`
+            isReaded ? `text-default` : `text-foreground`
           )}
         >
           {topic.title}
@@ -106,34 +107,25 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
         <Separator style={tw`mt-1`}>
           {compact([
             !!topic.votes && (
-              <Text
-                key="votes"
-                style={tw`text-tint-secondary ${getFontSize(6)}`}
-              >
+              <Text key="votes" style={tw`text-default ${getFontSize(6)}`}>
                 {`${topic.votes} 赞同`}
               </Text>
             ),
             !!topic.reply_count && (
-              <Text
-                key="replies"
-                style={tw`text-tint-secondary ${getFontSize(6)}`}
-              >
+              <Text key="replies" style={tw`text-default ${getFontSize(6)}`}>
                 {`${topic.reply_count} 回复`}
               </Text>
             ),
-            <Text
-              key="last_touched"
-              style={tw`text-tint-secondary ${getFontSize(6)}`}
-            >
+            <Text key="last_touched" style={tw`text-default ${getFontSize(6)}`}>
               {topic.last_touched}
             </Text>,
             !!topic.last_reply_by && (
               <Text
                 key="last_reply_by"
-                style={tw`text-tint-primary ${getFontSize(6)} flex-1`}
+                style={tw`text-foreground ${getFontSize(6)} flex-1`}
                 numberOfLines={1}
               >
-                <Text style={tw`text-tint-secondary ${getFontSize(6)}`}>
+                <Text style={tw`text-default ${getFontSize(6)}`}>
                   最后回复于
                 </Text>
                 {topic.last_reply_by}

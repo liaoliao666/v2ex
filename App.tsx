@@ -21,6 +21,7 @@ import { fontScaleAtom } from './jotai/fontSacleAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { imgurConfigAtom } from './jotai/imgurConfigAtom'
 import { profileAtom } from './jotai/profileAtom'
+import { sov2exArgsAtom } from './jotai/sov2exArgsAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
 import { topicDraftAtom } from './jotai/topicDraftAtom'
@@ -76,6 +77,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       imgurConfigAtom,
       topicDraftAtom,
       deviceTypeAtom,
+      sov2exArgsAtom,
     ])
   )
 

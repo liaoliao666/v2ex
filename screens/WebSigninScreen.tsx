@@ -107,7 +107,7 @@ export default function WebSigninScreen() {
         <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar
           title="网页登录"
-          style={tw`border-b border-solid border-tint-border`}
+          style={tw`border-b border-solid border-divider`}
         />
       </View>
     </View>

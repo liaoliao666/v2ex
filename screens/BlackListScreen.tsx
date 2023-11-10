@@ -142,9 +142,9 @@ function BlackListScreen() {
             <TabBar
               {...props}
               scrollEnabled
-              style={tw`flex-row shadow-none border-b border-tint-border border-solid bg-transparent`}
+              style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
               tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[20px] bg-primary h-1 rounded-full`}
+              indicatorStyle={tw`w-[40px] ml-[20px] bg-foreground h-[3px] rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
                 const active = routes[index].key === route.key
@@ -162,8 +162,8 @@ function BlackListScreen() {
                       style={tw.style(
                         `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
-                          ? tw`text-tint-primary font-medium`
-                          : tw`text-tint-secondary`
+                          ? tw`text-foreground font-medium`
+                          : tw`text-default`
                       )}
                       numberOfLines={1}
                     >
@@ -183,7 +183,7 @@ function BlackListScreen() {
 const BlockerItem = memo(({ member }: { member: Member }) => {
   return (
     <DebouncedPressable
-      style={tw`px-4 py-3 flex-row bg-body-1`}
+      style={tw`px-4 py-3 flex-row bg-background`}
       onPress={() => {
         navigation.push('MemberDetail', {
           username: member.username,
@@ -210,14 +210,14 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
       <View style={tw`flex-1 gap-1`}>
         <View style={tw`flex-row gap-2`}>
           <Text
-            style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
+            style={tw`text-foreground ${getFontSize(5)} font-semibold`}
             numberOfLines={1}
           >
             {member?.username}
           </Text>
         </View>
 
-        <Text style={tw.style(`${getFontSize(6)} text-tint-secondary`)}>
+        <Text style={tw.style(`${getFontSize(6)} text-default`)}>
           第 {member.id} 号会员
         </Text>
       </View>
@@ -296,7 +296,7 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
 const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
   return (
     <DebouncedPressable
-      style={tw`px-4 py-3 flex-row bg-body-1`}
+      style={tw`px-4 py-3 flex-row bg-background`}
       onPress={() => {
         navigation.push('TopicDetail', topic)
       }}
@@ -320,13 +320,18 @@ const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
 
       <View style={tw`flex-1`}>
         <Text
-          style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}
+          style={tw`text-foreground ${getFontSize(5)} font-semibold`}
           numberOfLines={1}
+          onPress={() => {
+            navigation.push('MemberDetail', {
+              username: topic.member?.username!,
+            })
+          }}
         >
           {topic.member?.username}
         </Text>
 
-        <Text style={tw.style(`${getFontSize(5)} pt-1 text-tint-primary`)}>
+        <Text style={tw.style(`${getFontSize(5)} pt-1 text-foreground`)}>
           {topic.title}
         </Text>
       </View>

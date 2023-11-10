@@ -77,7 +77,7 @@ export default function SearchReplyMemberScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   return (
-    <View style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-background flex-1`}>
       <NavBar
         hideSafeTop
         left={null}
@@ -100,7 +100,7 @@ export default function SearchReplyMemberScreen() {
               navigation.goBack()
             }}
           >
-            <Text style={tw`text-secondary ${getFontSize(5)}`}>确定</Text>
+            <Text style={tw`text-primary ${getFontSize(5)}`}>确定</Text>
           </TouchableOpacity>
         }
       >
@@ -147,10 +147,10 @@ const AtReplyItem = memo(
         />
         <View style={tw`flex-1 mx-2`}>
           <View style={tw`flex-row items-center`}>
-            <Text style={tw`text-tint-primary ${getFontSize(5)} font-medium`}>
+            <Text style={tw`text-foreground ${getFontSize(5)} font-medium`}>
               {reply.member.username}
             </Text>
-            <Text style={tw`${getFontSize(6)} text-tint-secondary ml-2`}>
+            <Text style={tw`${getFontSize(6)} text-default ml-2`}>
               #{reply.no}
             </Text>
           </View>
@@ -168,7 +168,7 @@ const AtReplyItem = memo(
         <BouncyCheckbox
           isChecked={checked}
           size={20}
-          fillColor={tw`text-secondary`.color as string}
+          fillColor={tw`text-primary`.color as string}
           unfillColor={tw`dark:text-[#0f1419] text-white`.color as string}
           onPress={() => {
             onChange({

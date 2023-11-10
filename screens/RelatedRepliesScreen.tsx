@@ -64,7 +64,7 @@ export default function RelatedRepliesScreen() {
     }[]
 
     replyAtNameList.forEach(atName => {
-      const result: typeof results[number] = {
+      const result: (typeof results)[number] = {
         key: atName,
         title: atName,
         data: [],
@@ -121,7 +121,7 @@ export default function RelatedRepliesScreen() {
   const isSingleRoute = routes.length <= 1
 
   return (
-    <View style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-background flex-1`}>
       <NavBar
         title="评论回复"
         hideSafeTop
@@ -140,7 +140,7 @@ export default function RelatedRepliesScreen() {
         }
         style={
           isSingleRoute
-            ? tw`border-tint-border border-b border-solid`
+            ? tw`border-divider border-b border-solid`
             : tw`border-b-0`
         }
       />
@@ -166,13 +166,13 @@ export default function RelatedRepliesScreen() {
           }}
           overdrag={false}
           renderTabBar={props => (
-            <View style={tw`border-b border-tint-border border-solid px-2`}>
+            <View style={tw`border-b border-divider border-solid px-2`}>
               <TabBar
                 {...props}
                 scrollEnabled
-                style={tw`bg-body-1 flex-row shadow-none`}
+                style={tw`bg-background flex-row shadow-none`}
                 tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
+                indicatorStyle={tw`w-[40px] ml-[30px] bg-foreground h-[3px] rounded-full`}
                 indicatorContainerStyle={tw`border-0`}
                 renderTabBarItem={({ route }) => {
                   const active = currentRoute.key === route.key
@@ -194,8 +194,8 @@ export default function RelatedRepliesScreen() {
                         style={tw.style(
                           `ml-2 ${getFontSize(5)} flex-shrink`,
                           active
-                            ? tw`text-tint-primary font-semibold`
-                            : tw`text-tint-secondary font-medium`
+                            ? tw`text-foreground font-semibold`
+                            : tw`text-default font-medium`
                         )}
                         numberOfLines={1}
                       >

@@ -22,7 +22,7 @@ function AvatarPlaceholder() {
 export function TopicItemPlaceholder({ hideAvatar }: { hideAvatar?: boolean }) {
   return (
     <Placeholder
-      style={tw`px-4 py-3 flex-row bg-body-1 border-b border-solid border-tint-border`}
+      style={tw`px-4 py-3 flex-row bg-background border-b border-solid border-divider`}
       Left={hideAvatar ? undefined : AvatarPlaceholder}
     >
       <View style={tw`gap-2`}>

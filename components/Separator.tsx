@@ -11,14 +11,12 @@ export type SeparatorProps = {
 
 export function DotSeparator() {
   return (
-    <Text style={tw`w-4 text-tint-secondary text-center ${getFontSize(5)}`}>
-      ·
-    </Text>
+    <Text style={tw`w-4 text-default text-center ${getFontSize(5)}`}>·</Text>
   )
 }
 
 export function LineSeparator() {
-  return <View style={tw`border-t border-solid border-tint-border`} />
+  return <View style={tw`border-t border-solid border-divider`} />
 }
 
 export default function Separator({ children, style }: SeparatorProps) {

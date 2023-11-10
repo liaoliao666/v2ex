@@ -142,9 +142,9 @@ function MyFollowingScreen() {
             <TabBar
               {...props}
               scrollEnabled
-              style={tw`flex-row shadow-none border-b border-tint-border border-solid bg-transparent`}
+              style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
               tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[30px] bg-primary h-1 rounded-full`}
+              indicatorStyle={tw`w-[40px] ml-[30px] bg-foreground h-[3px] rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
                 const active = routes[index].key === route.key
@@ -168,8 +168,8 @@ function MyFollowingScreen() {
                       style={tw.style(
                         `ml-2 ${getFontSize(5)} flex-shrink`,
                         active
-                          ? tw`text-tint-primary font-semibold`
-                          : tw`text-tint-secondary font-medium`
+                          ? tw`text-foreground font-semibold`
+                          : tw`text-default font-medium`
                       )}
                       numberOfLines={1}
                     >

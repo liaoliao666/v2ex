@@ -183,7 +183,7 @@ const NoticeItem = memo(
         <Pressable
           onPress={() => {
             navigation.navigate('MemberDetail', {
-              username: notice.member?.username!,
+              username: notice.member.username,
             })
           }}
         >
@@ -197,11 +197,21 @@ const NoticeItem = memo(
 
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center justify-between`}>
-            <Separator style={tw`mr-auto`}>
-              <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+            <Separator style={tw`flex-1 mr-2`}>
+              <Text
+                style={tw`text-foreground ${getFontSize(5)}`}
+                onPress={() => {
+                  navigation.push('MemberDetail', {
+                    username: notice.member.username,
+                  })
+                }}
+              >
                 {notice.member.username}
               </Text>
-              <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+              <Text
+                style={tw`text-default ${getFontSize(5)} flex-1`}
+                numberOfLines={1}
+              >
                 {notice.created}
               </Text>
             </Separator>
@@ -210,8 +220,8 @@ const NoticeItem = memo(
               !notice.prev_action_text.includes('感谢了你') && (
                 <IconButton
                   style={tw`mr-2`}
-                  color={tw.color(`text-tint-secondary`)}
-                  activeColor="rgb(29,155,240)"
+                  color={tw.color(`text-default`)}
+                  activeColor={tw.color(`text-primary`)}
                   size={15}
                   icon={<Feather name="message-circle" />}
                   onPress={() => onReply(notice)}
@@ -221,18 +231,14 @@ const NoticeItem = memo(
             <DeleteNoticeButton id={notice.id} once={notice.once} />
           </View>
 
-          <Text
-            style={tw`flex-row flex-wrap ${getFontSize(5)} text-tint-secondary`}
-          >
+          <Text style={tw`flex-row flex-wrap ${getFontSize(5)} text-default`}>
             {notice.prev_action_text}
-            <Text style={tw`text-tint-primary`}>{notice.topic.title}</Text>
+            <Text style={tw`text-foreground`}>{notice.topic.title}</Text>
             {notice.next_action_text}
           </Text>
 
           {!!notice.content && (
-            <View
-              style={tw`bg-[#f0f3f5] dark:bg-[#262626] px-4 py-3 mt-2 rounded`}
-            >
+            <View style={tw`bg-content px-4 py-3 mt-2 rounded`}>
               <Html
                 source={{ html: notice.content }}
                 defaultTextProps={{ selectable: false }}
@@ -255,8 +261,8 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
     <IconButton
       size={16}
       name="delete-outline"
-      color={tw.color(`text-tint-secondary`)}
-      activeColor={tw.color(`text-tint-primary`)}
+      color={tw.color(`text-default`)}
+      activeColor={tw.color(`text-foreground`)}
       onPress={async () => {
         if (!isSignined()) {
           navigation.navigate('Login')

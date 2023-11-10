@@ -14,7 +14,13 @@ import {
 import { useQuery, useSuspenseQuery } from 'quaere'
 import { useCallback, useMemo, useState } from 'react'
 import { memo } from 'react'
-import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
+import {
+  FlatList,
+  ListRenderItem,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
 
@@ -23,7 +29,7 @@ import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
-import NavBar, { useNavBarHeight } from '@/components/NavBar'
+import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import { FallbackComponent, QuerySuspense } from '@/components/QuerySuspense'
 import SearchBar from '@/components/SearchBar'
@@ -98,8 +104,10 @@ export default function SearchScreen() {
 
   const sov2exArgs = useAtomValue(sov2exArgsAtom)
 
+  const isGoogleSearch = sov2exArgs.source === 'google'
+
   return (
-    <View style={tw`flex-1 bg-body-1`}>
+    <View style={tw`flex-1 bg-background`}>
       {isSearchNode ? (
         <FlatList
           key={colorScheme}
@@ -109,23 +117,25 @@ export default function SearchScreen() {
           ListHeaderComponent={
             <View>
               {!!trimedSearchText && (
-                <Pressable
-                  style={tw`px-4 py-2.5 border-tint-border border-b border-solid`}
+                <TouchableOpacity
+                  style={tw`px-4 py-2.5`}
                   onPress={() => {
                     setIsSearchNode(!trimedSearchText)
                   }}
                 >
-                  <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
-                    SOV2EX:{' '}
-                    <Text style={tw`text-primary`}>{trimedSearchText}</Text>
+                  <Text style={tw`text-foreground ${getFontSize(5)}`}>
+                    {isGoogleSearch ? 'Google' : 'SOV2EX'}:{' '}
+                    <Text style={tw`text-foreground`}>
+                      “{trimedSearchText}”
+                    </Text>
                   </Text>
-                </Pressable>
+                </TouchableOpacity>
               )}
               {!isEmpty(matchNodes) && (
-                <View style={tw`px-4 pt-2.5 pb-2`}>
-                  <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
-                    节点
-                  </Text>
+                <View
+                  style={tw`px-4 pt-2.5 pb-2 border-divider border-t border-solid`}
+                >
+                  <Text style={tw`text-default ${getFontSize(5)}`}>节点</Text>
                 </View>
               )}
             </View>
@@ -133,6 +143,11 @@ export default function SearchScreen() {
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
           data={matchNodes}
           renderItem={renderNodeItem}
+          getItemLayout={(_, index) => ({
+            length: NAV_BAR_HEIGHT,
+            offset: index * NAV_BAR_HEIGHT,
+            index,
+          })}
         />
       ) : (
         <QuerySuspense
@@ -145,7 +160,7 @@ export default function SearchScreen() {
             </View>
           )}
         >
-          {sov2exArgs.source === 'google' ? (
+          {isGoogleSearch ? (
             <GoogleSearch
               query={trimedSearchText}
               navbarHeight={navbarHeight}
@@ -167,16 +182,15 @@ export default function SearchScreen() {
             <IconButton
               name="filter-outline"
               size={24}
-              color={tw.color(`text-tint-primary`)}
-              activeColor={tw.color(`text-tint-primary`)}
+              color={tw.color(`text-foreground`)}
+              activeColor={tw.color(`text-foreground`)}
               onPress={() => {
                 navigation.navigate('SearchOptions')
               }}
             />
           }
           style={tw.style(
-            sov2exArgs.source === 'google' &&
-              `border-tint-border border-solid border-b`
+            isGoogleSearch && `border-divider border-solid border-b`
           )}
         >
           <SearchBar
@@ -259,7 +273,7 @@ function SoV2exList({
       ListHeaderComponent={
         !isEmpty(flatedData) ? (
           <View style={tw`px-4 py-2.5`}>
-            <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+            <Text style={tw`text-foreground ${getFontSize(5)}`}>
               以下搜索结果来自于{' '}
               <Text
                 style={tw`text-primary`}
@@ -331,7 +345,7 @@ const HitItem = memo(
 
     return (
       <DebouncedPressable
-        style={tw`px-4 py-3 flex-row bg-body-1`}
+        style={tw`px-4 py-3 flex-row bg-background`}
         onPress={() => {
           navigation.push('TopicDetail', topic)
         }}
@@ -352,26 +366,28 @@ const HitItem = memo(
               </StyledButton>
             )}
             <Text
-              style={tw`text-tint-primary ${getFontSize(
+              style={tw`text-foreground ${getFontSize(
                 5
               )} font-semibold flex-shrink`}
               numberOfLines={1}
+              onPress={() => {
+                navigation.push('MemberDetail', {
+                  username: topic.member?.username!,
+                })
+              }}
             >
               {topic.member?.username}
             </Text>
 
             <Separator>
               {compact([
-                <Text
-                  key="created"
-                  style={tw`text-tint-secondary ${getFontSize(5)}`}
-                >
+                <Text key="created" style={tw`text-default ${getFontSize(5)}`}>
                   {dayjs(topic.created).fromNow()}
                 </Text>,
                 !!topic.reply_count && (
                   <Text
                     key="replies"
-                    style={tw`text-tint-secondary ${getFontSize(5)}`}
+                    style={tw`text-default ${getFontSize(5)}`}
                   >
                     {`${topic.reply_count} 回复`}
                   </Text>
@@ -383,7 +399,7 @@ const HitItem = memo(
           <Text
             style={tw.style(
               `${getFontSize(5)} font-medium pt-2`,
-              isReaded ? `text-tint-secondary` : `text-tint-primary`
+              isReaded ? `text-default` : `text-foreground`
             )}
           >
             {topic.title}
@@ -397,7 +413,7 @@ const HitItem = memo(
                 }}
                 baseStyle={tw.style(
                   `${getFontSize(5)}`,
-                  isReaded ? `text-tint-secondary` : `text-tint-primary`
+                  isReaded ? `text-default` : `text-foreground`
                 )}
                 defaultTextProps={{ selectable: false }}
               />
@@ -464,7 +480,7 @@ function GoogleSearch({
       scalesPageToFit={true}
       renderLoading={() => (
         <LoadingIndicator
-          style={tw.style(`absolute w-full h-full bg-body-1`, {
+          style={tw.style(`absolute w-full h-full bg-background`, {
             paddingTop: navbarHeight,
           })}
         />

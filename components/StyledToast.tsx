@@ -21,7 +21,7 @@ function getToastProps(props: ToastConfigParams<any>) {
     ...props,
     contentContainerStyle: tw`overflow-hidden dark:bg-[#262626]`,
     text1Style: tw.style(
-      `${getFontSize(5)} text-tint-primary`,
+      `${getFontSize(5)} text-foreground`,
       !props.text2 && `font-normal`
     ),
     text2Style: tw`${getFontSize(6)}`,

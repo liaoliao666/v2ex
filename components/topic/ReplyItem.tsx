@@ -64,8 +64,8 @@ function ReplyItem({
   return (
     <View
       style={tw.style(
-        `px-4 py-3 bg-body-1`,
-        hightlight && `bg-[#f0f3f5] dark:bg-[#262626]`,
+        `px-4 py-3`,
+        hightlight ? `bg-content` : `bg-background`,
         isBoolean(related) && !related && `opacity-64`
       )}
       onLayout={onLayout}
@@ -97,7 +97,7 @@ function ReplyItem({
             <View style={tw`flex-row gap-2 mr-auto`}>
               <Text
                 key="username"
-                style={tw`text-tint-primary ${getFontSize(5)} font-medium`}
+                style={tw`text-foreground ${getFontSize(5)} font-medium`}
                 onPress={() => {
                   if (inModalScreen) navigation.goBack()
                   navigation.push('MemberDetail', {
@@ -112,7 +112,7 @@ function ReplyItem({
                 {reply.mod && (
                   <View
                     style={tw.style(
-                      `px-1 bg-secondary border-secondary border border-solid rounded-sm`,
+                      `px-1 bg-primary border-primary border border-solid rounded-sm`,
                       reply.op && `rounded-r-none`
                     )}
                   >
@@ -122,34 +122,29 @@ function ReplyItem({
                 {reply.op && (
                   <View
                     style={tw.style(
-                      `px-1 border-secondary border border-solid rounded-sm`,
+                      `px-1 border-primary border border-solid rounded-sm`,
                       reply.mod && `rounded-l-none`
                     )}
                   >
-                    <Text style={tw`text-secondary`}>OP</Text>
+                    <Text style={tw`text-primary`}>OP</Text>
                   </View>
                 )}
               </View>
             </View>
 
-            <Text style={tw`${getFontSize(6)} text-tint-secondary`}>
-              #{reply.no}
-            </Text>
+            <Text style={tw`${getFontSize(6)} text-default`}>#{reply.no}</Text>
           </View>
 
           <Separator>
             {compact([
-              <Text
-                key={'created'}
-                style={tw`text-tint-secondary ${getFontSize(6)}`}
-              >
+              <Text key={'created'} style={tw`text-default ${getFontSize(6)}`}>
                 {reply.created}
               </Text>,
 
               reply.parsed_content && (
                 <Text
                   key={'isParsing'}
-                  style={tw`text-tint-secondary ${getFontSize(6)}`}
+                  style={tw`text-default ${getFontSize(6)}`}
                   onPress={() => {
                     setIsParsing(!isParsing)
                   }}
@@ -176,7 +171,7 @@ function ReplyItem({
           <View style={tw`flex-row items-center pt-2`}>
             <View style={tw`flex-row gap-4 mr-auto`}>
               {isBoolean(related) && !related && (
-                <Text style={tw`${getFontSize(5)} text-tint-secondary`}>
+                <Text style={tw`${getFontSize(5)} text-default`}>
                   可能是无关内容
                 </Text>
               )}
@@ -193,15 +188,13 @@ function ReplyItem({
                   <Fragment>
                     <IconButton
                       pressed={pressed}
-                      color={tw.color(`text-tint-secondary`)}
-                      activeColor="rgb(29,155,240)"
+                      color={tw.color(`text-default`)}
+                      activeColor={tw.color(`text-primary`)}
                       size={15}
                       icon={<Feather name="message-circle" />}
                     />
 
-                    <Text
-                      style={tw`pl-1 ${getFontSize(6)} text-tint-secondary`}
-                    >
+                    <Text style={tw`pl-1 ${getFontSize(6)} text-default`}>
                       回复
                     </Text>
                   </Fragment>
@@ -226,15 +219,13 @@ function ReplyItem({
                     <Fragment>
                       <IconButton
                         pressed={pressed}
-                        color={tw.color(`text-tint-secondary`)}
-                        activeColor={tw.color(`text-tint-primary`)}
+                        color={tw.color(`text-default`)}
+                        activeColor={tw.color(`text-foreground`)}
                         size={15}
                         icon={<FontAwesome5 name="comments" />}
                       />
 
-                      <Text
-                        style={tw`pl-1 ${getFontSize(6)} text-tint-secondary`}
-                      >
+                      <Text style={tw`pl-1 ${getFontSize(6)} text-default`}>
                         查看评论
                       </Text>
                     </Fragment>
@@ -310,9 +301,7 @@ function ThankReply({
             size={16}
             active={reply.thanked}
             name={reply.thanked ? 'heart' : 'heart-outline'}
-            color={
-              reply.thanks ? `rgb(249,24,128)` : tw.color(`text-tint-secondary`)
-            }
+            color={reply.thanks ? `rgb(249,24,128)` : tw.color(`text-default`)}
             activeColor={'rgb(249,24,128)'}
             pressed={disabled ? false : pressed}
           />
@@ -320,7 +309,7 @@ function ThankReply({
           <Text
             style={tw.style(
               `${getFontSize(6)} pl-0.5`,
-              reply.thanks ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
+              reply.thanks ? `text-[rgb(249,24,128)]` : `text-default`
             )}
           >
             {reply.thanks ? reply.thanks : '感谢'}
@@ -347,8 +336,8 @@ function MoreButton({
   return (
     <IconButton
       name="dots-horizontal"
-      color={tw.color(`text-tint-secondary`)}
-      activeColor={tw.color(`text-tint-primary`)}
+      color={tw.color(`text-default`)}
+      activeColor={tw.color(`text-foreground`)}
       size={16}
       onPress={() => {
         const options = compact([

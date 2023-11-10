@@ -39,7 +39,7 @@ const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
 
 export default withQuerySuspense(NodeTopicsScreen, {
   LoadingComponent: () => (
-    <View style={tw`flex-1 bg-body-1`}>
+    <View style={tw`flex-1 bg-background`}>
       <NavBar
         style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-20')}
         tintColor="#fff"
@@ -158,7 +158,15 @@ function NodeTopicsScreen() {
             tintColor={Platform.OS === 'ios' ? '#fff' : undefined}
           />
         }
-        ListEmptyComponent={<Empty description="无法访问该节点" />}
+        ListEmptyComponent={
+          <Empty
+            description={
+              !!node?.stars && node.stars < 10
+                ? '目前还没有帖子'
+                : '无法访问该节点'
+            }
+          />
+        }
         ItemSeparatorComponent={LineSeparator}
         renderItem={renderItem}
         onScroll={Animated.event(
@@ -234,12 +242,16 @@ function NodeInfo({
           </View>
 
           <View style={tw`mt-1 flex-row justify-between`}>
-            {node?.header && (
+            {node?.header ? (
               <Html
                 baseStyle={tw`text-[#e7e9ea] ${getFontSize(6)}`}
                 tagsStyles={{ a: tw`text-[#03C8FF] no-underline` }}
                 source={{ html: node?.header }}
               />
+            ) : (
+              <Text style={tw`text-[#e7e9ea] ${getFontSize(6)}`}>
+                主题总数{node?.topics}
+              </Text>
             )}
           </View>
         </View>

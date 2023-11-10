@@ -142,7 +142,7 @@ function MemberDetailScreen() {
   }
 
   return (
-    <View style={tw`flex-1 bg-body-1`}>
+    <View style={tw`flex-1 bg-background`}>
       <NavBar
         style={tw.style(TOP_BAR_BG_CLS)}
         tintColor="#fff"
@@ -261,7 +261,7 @@ function MemberDetailScreen() {
               <View
                 onLayout={ev => setHeaderHeight(ev.nativeEvent.layout.height)}
                 pointerEvents="box-none"
-                style={tw`bg-body-1`}
+                style={tw`bg-background`}
               >
                 <MemberHeader />
               </View>
@@ -269,9 +269,9 @@ function MemberDetailScreen() {
               <TabBar
                 {...props}
                 scrollEnabled
-                style={tw`bg-body-1 flex-row shadow-none border-b border-tint-border border-solid`}
+                style={tw`bg-background flex-row shadow-none border-b border-divider border-solid`}
                 tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[30px] ml-[25px] bg-primary h-1 rounded-full`}
+                indicatorStyle={tw`w-[30px] ml-[25px] bg-foreground h-[3px] rounded-full`}
                 renderTabBarItem={({ route }) => {
                   const active = routes[index].key === route.key
 
@@ -288,8 +288,8 @@ function MemberDetailScreen() {
                         style={tw.style(
                           getFontSize(5),
                           active
-                            ? tw`text-tint-primary font-medium`
-                            : tw`text-tint-secondary`
+                            ? tw`text-foreground font-medium`
+                            : tw`text-default`
                         )}
                       >
                         {route.title}
@@ -322,7 +322,7 @@ const MemberHeader = memo(() => {
       />
 
       <View style={tw`-mt-8 px-4 flex-row`}>
-        <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
+        <View pointerEvents="none" style={tw`p-0.5 bg-background rounded-full`}>
           <StyledImage
             style={tw`w-[81.25px] h-[81.25px] rounded-full`}
             source={{
@@ -343,7 +343,7 @@ const MemberHeader = memo(() => {
       <View pointerEvents="none" style={tw`mt-3 px-4 gap-1`}>
         <View style={tw`flex-row gap-2`}>
           <Text
-            style={tw`text-tint-primary ${getFontSize(2)} font-extrabold`}
+            style={tw`text-foreground ${getFontSize(2)} font-extrabold`}
             selectable
           >
             {member.username}
@@ -378,7 +378,7 @@ const MemberHeader = memo(() => {
 
         {!!member.motto && (
           <View pointerEvents="none">
-            <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+            <Text style={tw`text-default ${getFontSize(5)}`}>
               {member.motto}
             </Text>
           </View>
@@ -387,33 +387,31 @@ const MemberHeader = memo(() => {
         {some([member.company, member.title]) && (
           <View style={tw`flex-row flex-wrap`}>
             {member.company && (
-              <Text style={tw`font-medium text-tint-primary ${getFontSize(5)}`}>
+              <Text style={tw`font-medium text-foreground ${getFontSize(5)}`}>
                 🏢 {member.company}
               </Text>
             )}
             {every([member.company, member.title]) && (
-              <Text style={tw`text-tint-secondary ${getFontSize(5)} px-1`}>
-                /
-              </Text>
+              <Text style={tw`text-default ${getFontSize(5)} px-1`}>/</Text>
             )}
             {member.title && (
-              <Text style={tw`text-tint-secondary ${getFontSize(5)} flex-1`}>
+              <Text style={tw`text-default ${getFontSize(5)} flex-1`}>
                 {member.title}
               </Text>
             )}
           </View>
         )}
 
-        <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+        <Text style={tw`text-default ${getFontSize(5)}`}>
           {`V2EX 第 ${member.id} 号会员，加入于 ${member.created}`}
         </Text>
 
-        <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+        <Text style={tw`text-default ${getFontSize(5)}`}>
           {`今日活跃度排名 ${member.activity}`}
         </Text>
 
         {!!member.overview && (
-          <View style={tw`border-t border-solid border-tint-border pt-2`}>
+          <View style={tw`border-t border-solid border-divider pt-2`}>
             <Html source={{ html: member.overview }} />
           </View>
         )}
@@ -427,7 +425,7 @@ const MemberHeader = memo(() => {
           {member.widgets.map(widget => (
             <TouchableOpacity
               key={widget.link}
-              style={tw`bg-[#f0f3f5] dark:bg-[#262626] rounded-full py-1.5 pl-2 pr-2.5 flex-row items-center`}
+              style={tw`bg-content rounded-full py-1.5 pl-2 pr-2.5 flex-row items-center`}
               onPress={() => {
                 navigation.navigate('Webview', { url: widget.link })
               }}
@@ -439,7 +437,7 @@ const MemberHeader = memo(() => {
                 }}
               />
               <Text
-                style={tw`${getFontSize(5)} text-tint-secondary flex-shrink`}
+                style={tw`${getFontSize(5)} text-default flex-shrink`}
                 numberOfLines={1}
               >
                 {widget.title}
@@ -602,7 +600,7 @@ const MemberReply = memo(
     return (
       <DebouncedPressable
         key={topic.id}
-        style={tw`px-4 py-3 bg-body-1`}
+        style={tw`px-4 py-3 bg-background`}
         onPress={() => {
           navigation.push('TopicDetail', topic)
         }}
@@ -619,28 +617,35 @@ const MemberReply = memo(
           </StyledButton>
 
           <Separator>
-            <Text style={tw`text-tint-primary ${getFontSize(5)} font-semibold`}>
+            <Text
+              style={tw`text-foreground ${getFontSize(5)} font-semibold`}
+              onPress={() => {
+                navigation.push('MemberDetail', {
+                  username: topic.member?.username!,
+                })
+              }}
+            >
               {topic.member?.username}
             </Text>
 
             {!!topic.reply_count && (
-              <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+              <Text style={tw`text-default ${getFontSize(5)}`}>
                 {`${topic.reply_count} 回复`}
               </Text>
             )}
           </Separator>
         </View>
 
-        <Text style={tw`text-tint-primary ${getFontSize(5)} pt-2`}>
+        <Text style={tw`text-foreground ${getFontSize(5)} pt-2`}>
           {topic.title}
         </Text>
 
-        <View style={tw`bg-[#f0f3f5] dark:bg-[#262626] px-4 py-3 mt-2 rounded`}>
+        <View style={tw`bg-content px-4 py-3 mt-2 rounded`}>
           <Separator style={tw`mb-2`}>
-            <Text style={tw`text-tint-primary ${getFontSize(5)}`}>
+            <Text style={tw`text-foreground ${getFontSize(5)}`}>
               {params.username}
             </Text>
-            <Text style={tw`text-tint-secondary ${getFontSize(5)}`}>
+            <Text style={tw`text-default ${getFontSize(5)}`}>
               {topic.reply.created}
             </Text>
           </Separator>
@@ -773,7 +778,7 @@ function BlockMember({
 
 function MemberDetailSkeleton({ children }: { children: ReactNode }) {
   return (
-    <View style={tw`flex-1 bg-body-1`}>
+    <View style={tw`flex-1 bg-background`}>
       <NavBar
         style={tw.style(TOP_BAR_BG_CLS)}
         tintColor="#fff"
@@ -786,7 +791,7 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
       />
 
       <View style={tw`-mt-8 px-4 flex-row`}>
-        <View pointerEvents="none" style={tw`p-0.5 bg-body-1 rounded-full`}>
+        <View pointerEvents="none" style={tw`p-0.5 bg-background rounded-full`}>
           <View style={tw`w-[81.25px] h-[81.25px] rounded-full img-loading`} />
         </View>
       </View>

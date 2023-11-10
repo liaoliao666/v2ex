@@ -50,7 +50,7 @@
     "react-error-boundary": "^3.1.4",
     "react-hook-form": "^7.39.4",
     "react-native": "0.72.6",
-    "react-native-bouncy-checkbox": "^3.0.6",
+    "react-native-bouncy-checkbox": "^3.0.7",
     "react-native-drag-sort": "^2.4.4",
     "react-native-gesture-handler": "~2.12.0",
     "react-native-image-zoom-viewer": "^3.0.1",

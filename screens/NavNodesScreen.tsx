@@ -27,6 +27,8 @@ export default withQuerySuspense(NavNodesScreen, {
   LoadingComponent: () => null,
 })
 
+const ITEM_HEIGHT = 88
+
 function NavNodesScreen() {
   const navNodes = useAtomValue(navNodesAtom)
 
@@ -62,7 +64,7 @@ function NavNodesScreen() {
         onPress={() => {
           navigation.navigate('NodeTopics', { name: node.name })
         }}
-        style={tw`w-1/3 py-2 items-center justify-center`}
+        style={tw`w-1/3 py-1 items-center h-[${ITEM_HEIGHT}px]`}
       >
         <StyledImage
           style={tw`w-12 h-12`}
@@ -71,7 +73,10 @@ function NavNodesScreen() {
           }}
         />
 
-        <Text style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}>
+        <Text
+          style={tw`${getFontSize(6)} mt-auto text-foreground text-center`}
+          numberOfLines={1}
+        >
           {node.title}
         </Text>
       </TouchableOpacity>
@@ -79,10 +84,10 @@ function NavNodesScreen() {
   }, [])
 
   return (
-    <View style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-background flex-1`}>
       <View style={tw`flex-1 flex-row`}>
         <ScrollView
-          style={tw`flex-none border-tint-border border-r border-solid`}
+          style={tw`flex-none border-divider border-r border-solid`}
           contentContainerStyle={{
             paddingTop: navbarHeight,
           }}
@@ -94,16 +99,16 @@ function NavNodesScreen() {
               style={({ pressed }) =>
                 tw.style(
                   `h-[${NAV_BAR_HEIGHT}px] px-4 items-center justify-center`,
-                  pressed && `bg-tab-press`
+                  pressed && `bg-focus`
                 )
               }
             >
               <Text
                 style={tw.style(
-                  `${getFontSize(5)} text-tint-primary`,
+                  `${getFontSize(5)} text-foreground`,
                   i === index
-                    ? tw`text-tint-primary font-medium`
-                    : tw`text-tint-secondary`
+                    ? tw`text-foreground font-medium`
+                    : tw`text-default`
                 )}
               >
                 {route.title}
@@ -121,6 +126,11 @@ function NavNodesScreen() {
           data={routes[index].nodes}
           numColumns={3}
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
+          getItemLayout={(_, itemIndex) => ({
+            length: ITEM_HEIGHT,
+            offset: itemIndex * ITEM_HEIGHT,
+            index: itemIndex,
+          })}
         />
       </View>
 

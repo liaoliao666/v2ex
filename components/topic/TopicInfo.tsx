@@ -1,10 +1,17 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
+import { AntDesign, MaterialIcons } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { compact } from 'lodash-es'
 import { useMutation } from 'quaere'
 import { Fragment, ReactElement, useState } from 'react'
-import { Platform, Pressable, Share, Text, View } from 'react-native'
+import {
+  Platform,
+  Pressable,
+  Share,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import Toast from 'react-native-toast-message'
 
 import { blackListAtom } from '@/jotai/blackListAtom'
@@ -54,7 +61,7 @@ export default function TopicInfo({
     !!topic.parsed_content || topic.supplements?.some(o => !!o.parsed_content)
 
   return (
-    <View style={tw`py-3 px-4 border-b border-solid border-tint-border`}>
+    <View style={tw`py-3 px-4 border-b border-solid border-divider`}>
       <View style={tw`flex-row items-center`}>
         <View style={tw`mr-3`}>
           <Pressable
@@ -78,7 +85,7 @@ export default function TopicInfo({
             {compact([
               <Text
                 key={'username'}
-                style={tw`text-tint-primary ${getFontSize(
+                style={tw`text-foreground ${getFontSize(
                   4
                 )} font-semibold flex-shrink`}
                 numberOfLines={1}
@@ -88,7 +95,7 @@ export default function TopicInfo({
               hasParsedText && (
                 <Text
                   key={'isParsing'}
-                  style={tw`text-tint-secondary ${getFontSize(6)} mr-2`}
+                  style={tw`text-default ${getFontSize(6)} mr-2`}
                   onPress={() => {
                     setIsParsing(!isParsing)
                   }}
@@ -102,17 +109,14 @@ export default function TopicInfo({
           <Separator style={tw`flex-1 flex-nowrap`}>
             {compact([
               topic.created && (
-                <Text
-                  key="created"
-                  style={tw`text-tint-secondary ${getFontSize(5)}`}
-                >
+                <Text key="created" style={tw`text-default ${getFontSize(5)}`}>
                   {topic.created}
                 </Text>
               ),
               topic.views && (
                 <Text
                   key="views"
-                  style={tw`text-tint-secondary ${getFontSize(5)} flex-shrink`}
+                  style={tw`text-default ${getFontSize(5)} flex-shrink`}
                   numberOfLines={1}
                 >
                   {`${topic.views} 点击`}
@@ -126,7 +130,7 @@ export default function TopicInfo({
       </View>
 
       <Text
-        style={tw`text-tint-primary ${getFontSize(3)} font-medium pt-2`}
+        style={tw`text-foreground ${getFontSize(3)} font-medium pt-2`}
         selectable
       >
         {topic.title}
@@ -151,19 +155,16 @@ export default function TopicInfo({
           {topic.supplements.map((supplement, i) => (
             <View
               key={`${supplement.created}_${i}`}
-              style={tw`border-t border-solid border-tint-border py-2`}
+              style={tw`border-t border-solid border-divider py-2`}
             >
               <Separator>
                 {[
-                  <Text
-                    key="i"
-                    style={tw`text-tint-secondary ${getFontSize(5)}`}
-                  >
+                  <Text key="i" style={tw`text-default ${getFontSize(5)}`}>
                     第{i + 1}条附言
                   </Text>,
                   <Text
                     key="created"
-                    style={tw`text-tint-secondary ${getFontSize(5)}`}
+                    style={tw`text-default ${getFontSize(5)}`}
                   >
                     {supplement.created}
                   </Text>,
@@ -235,7 +236,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
       {({ pressed }) => (
         <Fragment>
           <IconButton
-            color={tw.color(`text-tint-secondary`)}
+            color={tw.color(`text-default`)}
             activeColor="rgb(250,219,20)"
             active={topic.liked}
             icon={<AntDesign name={topic.liked ? 'star' : 'staro'} />}
@@ -246,8 +247,8 @@ export function LikeTopic({ topic }: { topic: Topic }) {
           {!!topic.likes && (
             <Text
               style={tw.style(
-                `text-[10px] absolute -top-1 left-4 px-0.5  bg-body-1`,
-                topic.liked ? `text-[rgb(250,219,20)]` : `text-tint-secondary`
+                `text-[10px] absolute -top-1 left-4 px-0.5  bg-background`,
+                topic.liked ? `text-[rgb(250,219,20)]` : `text-default`
               )}
             >
               {topic.likes}
@@ -306,7 +307,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
         <Fragment>
           <IconButton
             name={topic.thanked ? 'heart' : 'heart-outline'}
-            color={tw.color(`text-tint-secondary`)}
+            color={tw.color(`text-default`)}
             activeColor="rgb(249,24,128)"
             active={topic.thanked}
             pressed={pressed}
@@ -316,8 +317,8 @@ export function ThankTopic({ topic }: { topic: Topic }) {
           {!!topic.thanks && (
             <Text
               style={tw.style(
-                `text-[10px] absolute -top-1 left-4 px-0.5 bg-body-1`,
-                topic.thanked ? `text-[rgb(249,24,128)]` : `text-tint-secondary`
+                `text-[10px] absolute -top-1 left-4 px-0.5 bg-background`,
+                topic.thanked ? `text-[rgb(249,24,128)]` : `text-default`
               )}
             >
               {topic.thanks}
@@ -333,8 +334,10 @@ export function VoteButton({ topic }: { topic: Topic }) {
   const { trigger, isMutating } = useMutation({ mutation: voteTopicMutation })
 
   return (
-    <View style={tw`p-2 flex-row items-center rounded-full bg-input`}>
-      <Pressable
+    <View
+      style={tw`p-2 flex-row items-center rounded-full bg-primary bg-opacity-10`}
+    >
+      <TouchableOpacity
         style={tw`px-2 flex-row items-center`}
         onPress={async () => {
           if (!isSignined()) {
@@ -363,24 +366,22 @@ export function VoteButton({ topic }: { topic: Topic }) {
           }
         }}
       >
-        {({ pressed }) => (
-          <Fragment>
-            <MaterialCommunityIcons
-              name="thumb-up-outline"
-              size={22.5}
-              color={tw.color(
-                pressed ? `text-[#ff4500]` : `text-tint-secondary`
-              )}
-            />
+        <MaterialIcons
+          name="thumb-up-off-alt"
+          size={22.5}
+          color={tw.color(`text-primary`)}
+        />
 
-            <Text style={tw.style(`ml-1 text-tint-secondary`)}>
-              {topic.votes ? topic.votes : '赞同'}
-            </Text>
-          </Fragment>
-        )}
-      </Pressable>
+        <Text style={tw.style(`ml-1 text-primary`)}>
+          {topic.votes ? topic.votes : '赞同'}
+        </Text>
+      </TouchableOpacity>
 
-      <Pressable
+      <View
+        style={tw`border-l border-primary border-opacity-20 border-solid w-1 h-5`}
+      />
+
+      <TouchableOpacity
         style={tw`px-2`}
         onPress={async () => {
           if (!isSignined()) {
@@ -406,14 +407,12 @@ export function VoteButton({ topic }: { topic: Topic }) {
           }
         }}
       >
-        {({ pressed }) => (
-          <MaterialCommunityIcons
-            name="thumb-down-outline"
-            size={22.5}
-            color={tw.color(pressed ? `text-[#7193ff]` : `text-tint-secondary`)}
-          />
-        )}
-      </Pressable>
+        <MaterialIcons
+          name="thumb-down-off-alt"
+          size={22.5}
+          color={tw.color(`text-primary`)}
+        />
+      </TouchableOpacity>
     </View>
   )
 }
@@ -434,8 +433,8 @@ function MoreButton({
   return (
     <IconButton
       name="dots-horizontal"
-      color={tw.color(`text-tint-secondary`)}
-      activeColor={tw.color(`text-tint-primary`)}
+      color={tw.color(`text-default`)}
+      activeColor={tw.color(`text-foreground`)}
       onPress={() => {
         const options = compact([
           !isSelf(topic.member?.username) &&

@@ -60,15 +60,13 @@ export default function LoginScreen() {
   function renderLimitContent() {
     return (
       <View style={tw`p-8`}>
-        <Text
-          style={tw`text-[31px] leading-9 font-extrabold text-tint-primary`}
-        >
+        <Text style={tw`text-[31px] leading-9 font-extrabold text-foreground`}>
           登录受限
         </Text>
-        <Text style={tw`${getFontSize(5)} text-tint-secondary mt-2`}>
+        <Text style={tw`${getFontSize(5)} text-default mt-2`}>
           由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
         </Text>
-        <Text style={tw`${getFontSize(5)} text-tint-secondary mt-2`}>
+        <Text style={tw`${getFontSize(5)} text-default mt-2`}>
           你可能会需要等待至多 1 天的时间再继续尝试。
         </Text>
         <StyledButton
@@ -212,13 +210,13 @@ export default function LoginScreen() {
                   onChange(!value)
                 }}
                 size={16}
-                fillColor={tw`text-secondary`.color as string}
+                fillColor={tw`text-primary`.color as string}
                 unfillColor={tw`dark:text-[#0f1419] text-white`.color as string}
               />
-              <Text style={tw`${getFontSize(6)} text-tint-secondary -ml-2`}>
+              <Text style={tw`${getFontSize(6)} text-default -ml-2`}>
                 我已阅读并同意
                 <Text
-                  style={tw`text-tint-primary`}
+                  style={tw`text-foreground`}
                   onPress={() => {
                     navigation.navigate('GItHubMD', {
                       url: 'https://raw.githubusercontent.com/liaoliao666/v2ex/main/terms-and-conditions_zh.md',
@@ -230,7 +228,7 @@ export default function LoginScreen() {
                 </Text>
                 和
                 <Text
-                  style={tw`text-tint-primary`}
+                  style={tw`text-foreground`}
                   onPress={() => {
                     navigation.navigate('GItHubMD', {
                       url: 'https://raw.githubusercontent.com/liaoliao666/v2ex/main/privacy-policy_zh.md',
@@ -256,7 +254,7 @@ export default function LoginScreen() {
               })
             }}
           >
-            <Text style={tw`${getFontSize(5)} text-tint-secondary ml-2`}>
+            <Text style={tw`${getFontSize(5)} text-default ml-2`}>
               网页登录
             </Text>
           </TouchableOpacity>
@@ -309,7 +307,7 @@ function TwoStepSignin({ once }: { once: string }) {
 
   return (
     <View style={tw`w-3/4 mx-auto mt-8`}>
-      <Text style={tw`${getFontSize(5)} text-tint-primary mb-2`}>
+      <Text style={tw`${getFontSize(5)} text-foreground mb-2`}>
         你的 V2EX 账号已经开启了两步验证，请输入验证码继续
       </Text>
 
@@ -351,7 +349,7 @@ function TwoStepSignin({ once }: { once: string }) {
         {isMutating ? '登录中...' : '登录'}
       </StyledButton>
 
-      <Text style={tw`${getFontSize(5)} text-tint-primary mt-2`}>
+      <Text style={tw`${getFontSize(5)} text-foreground mt-2`}>
         出于安全考虑，当你开启了两步验证功能之后，那么你将需要每两周输入一次你的两步验证码续
       </Text>
     </View>

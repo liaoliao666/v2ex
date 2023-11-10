@@ -43,6 +43,8 @@ export default withQuerySuspense(MyNodesScreen, {
   ),
 })
 
+const ITEM_HEIGHT = 88
+
 function MyNodesScreen() {
   const { data: myNodes, refetch } = useSuspenseQuery({
     query: myNodesQuery,
@@ -57,7 +59,7 @@ function MyNodesScreen() {
         onPress={() => {
           navigation.navigate('NodeTopics', { name: node.name })
         }}
-        style={tw`w-1/4 p-2 items-center justify-center`}
+        style={tw`w-1/4 py-1 items-center h-[${ITEM_HEIGHT}px]`}
       >
         <StyledImage
           style={tw`w-12 h-12`}
@@ -66,7 +68,10 @@ function MyNodesScreen() {
           }}
         />
 
-        <Text style={tw`${getFontSize(6)} text-tint-primary text-center mt-2`}>
+        <Text
+          style={tw`${getFontSize(6)} mt-auto text-foreground text-center`}
+          numberOfLines={1}
+        >
           {node.title}
         </Text>
       </TouchableOpacity>
@@ -94,6 +99,11 @@ function MyNodesScreen() {
         }
         ListEmptyComponent={<Empty description={`目前还没有收藏节点`} />}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
+        getItemLayout={(_, itemIndex) => ({
+          length: ITEM_HEIGHT,
+          offset: itemIndex * ITEM_HEIGHT,
+          index: itemIndex,
+        })}
       />
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>

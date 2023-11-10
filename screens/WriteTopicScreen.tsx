@@ -66,7 +66,7 @@ export default withQuerySuspense(WriteTopicScreen, {
     } = useRoute<RouteProp<RootStackParamList, 'WriteTopic'>>()
     const isEdit = !!topic
     return (
-      <View style={tw`bg-body-1 flex-1`}>
+      <View style={tw`bg-background flex-1`}>
         <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
         <LoadingIndicator />
       </View>
@@ -78,7 +78,7 @@ export default withQuerySuspense(WriteTopicScreen, {
     } = useRoute<RouteProp<RootStackParamList, 'WriteTopic'>>()
     const isEdit = !!topic
     return (
-      <View style={tw`bg-body-1 flex-1`}>
+      <View style={tw`bg-background flex-1`}>
         <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
         <FallbackComponent {...props} />
       </View>
@@ -146,7 +146,7 @@ function WriteTopicScreen() {
   }
 
   return (
-    <View style={tw`bg-body-1 flex-1`}>
+    <View style={tw`bg-background flex-1`}>
       <ScrollView
         style={tw`flex-1 p-4`}
         contentContainerStyle={{
@@ -393,7 +393,7 @@ function PreviewTopic({
     <Fragment>
       {title && (
         <Text
-          style={tw`text-tint-primary ${getFontSize(3)} font-medium pb-2`}
+          style={tw`text-foreground ${getFontSize(3)} font-medium pb-2`}
           selectable
         >
           {title}
