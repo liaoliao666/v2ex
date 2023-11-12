@@ -133,7 +133,10 @@ export default function SearchScreen() {
               )}
               {!isEmpty(matchNodes) && (
                 <View
-                  style={tw`px-4 pt-2.5 pb-2 border-divider border-t border-solid`}
+                  style={tw.style(
+                    `px-4 pt-2.5 pb-2`,
+                    !!trimedSearchText && `border-divider border-t border-solid`
+                  )}
                 >
                   <Text style={tw`text-default ${getFontSize(5)}`}>节点</Text>
                 </View>

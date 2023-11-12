@@ -126,7 +126,7 @@ function RankScreen() {
               scrollEnabled
               style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
               tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[20px] bg-foreground h-[3px] rounded-full`}
+              indicatorStyle={tw`w-[40px] ml-[20px] bg-foreground h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
                 const active = routes[index].key === route.key

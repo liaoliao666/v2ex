@@ -58,6 +58,7 @@ export default function SearchBar({
         returnKeyType="search"
         onSubmitEditing={onSubmitEditing}
         autoCapitalize="none"
+        selectionColor={tw.color(`text-primary`)}
       />
       {editable && !!value && (
         <TouchableOpacity

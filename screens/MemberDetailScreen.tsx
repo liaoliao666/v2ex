@@ -271,7 +271,7 @@ function MemberDetailScreen() {
                 scrollEnabled
                 style={tw`bg-background flex-row shadow-none border-b border-divider border-solid`}
                 tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[30px] ml-[25px] bg-foreground h-[3px] rounded-full`}
+                indicatorStyle={tw`w-[30px] ml-[25px] bg-foreground h-1 rounded-full`}
                 renderTabBarItem={({ route }) => {
                   const active = routes[index].key === route.key
 

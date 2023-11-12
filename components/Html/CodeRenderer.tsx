@@ -2,7 +2,7 @@ import { load } from 'cheerio'
 import hljs from 'highlight.js'
 import { useAtomValue } from 'jotai'
 import { useContext, useMemo } from 'react'
-import { ScrollView, View, useWindowDimensions } from 'react-native'
+import { ScrollView, View } from 'react-native'
 import RenderHTML, {
   CustomBlockRenderer,
   MixedStyleDeclaration,

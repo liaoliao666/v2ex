@@ -205,7 +205,7 @@ function HomeScreen() {
                 scrollEnabled
                 style={tw`flex-row flex-1 shadow-none bg-transparent`}
                 tabStyle={tw`w-[60px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[30px] ml-[15px] bg-foreground h-[3px] rounded-full`}
+                indicatorStyle={tw`w-[30px] ml-[15px] bg-foreground h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-b-0`}
                 renderTabBarItem={({ route }) => {
                   const active = tabs[index].key === route.key

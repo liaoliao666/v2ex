@@ -186,6 +186,7 @@ const ReplyBox = ({
             onSelectionChange={ev => {
               selectionRef.current = ev.nativeEvent.selection
             }}
+            selectionColor={tw.color(`text-primary`)}
             autoCapitalize="none"
           />
         </View>

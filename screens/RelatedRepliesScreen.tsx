@@ -172,7 +172,7 @@ export default function RelatedRepliesScreen() {
                 scrollEnabled
                 style={tw`bg-background flex-row shadow-none`}
                 tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[40px] ml-[30px] bg-foreground h-[3px] rounded-full`}
+                indicatorStyle={tw`w-[40px] ml-[30px] bg-foreground h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-0`}
                 renderTabBarItem={({ route }) => {
                   const active = currentRoute.key === route.key

@@ -14,6 +14,7 @@ const StyledTextInput = forwardRef<
       ref={ref}
       autoCapitalize="none"
       placeholderTextColor={tw.color(`text-default`)}
+      selectionColor={tw.color(`text-primary`)}
       {...props}
       style={tw.style(
         `bg-input h-9 px-3 rounded-lg text-foreground`,
