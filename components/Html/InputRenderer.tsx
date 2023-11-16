@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { Text } from 'react-native'
 import { CustomBlockRenderer } from 'react-native-render-html'
 
-const InputRenderer: CustomBlockRenderer = ({ tnode }) => {
+const InputRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const { isCheckbox, isRadio, isChecked } = useMemo(() => {
     const $ = load(tnode.domNode as unknown as string)
     const $input = $('input')
@@ -17,7 +17,9 @@ const InputRenderer: CustomBlockRenderer = ({ tnode }) => {
   }, [tnode.domNode])
 
   return isCheckbox || isRadio ? (
-    <Text>{isCheckbox ? (isChecked ? `▣` : `▢`) : isChecked ? `◉` : `◎`}</Text>
+    <Text style={style}>
+      {isCheckbox ? (isChecked ? `▣` : `▢`) : isChecked ? `◉` : `◎`}
+    </Text>
   ) : null
 }
 

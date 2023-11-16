@@ -3,7 +3,10 @@ import { useSetAtom } from 'jotai'
 import { findIndex, isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
 import { Alert } from 'react-native'
-import RenderHtml, { RenderHTMLProps } from 'react-native-render-html'
+import RenderHtml, {
+  RenderHTMLProps,
+  defaultSystemFonts,
+} from 'react-native-render-html'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
@@ -20,6 +23,8 @@ import ImageRenderer from './ImageRenderer'
 import InputRenderer from './InputRenderer'
 import TextRenderer from './TextRenderer'
 import { getDefaultProps } from './helper'
+
+const systemFonts = ['italic', ...defaultSystemFonts]
 
 export default memo(
   Html,
@@ -94,6 +99,7 @@ function Html({
       )}
     >
       <RenderHtml
+        systemFonts={systemFonts}
         baseStyle={tw`text-foreground ${getFontSize(5)}`}
         tagsStyles={{
           h1: tw`${getFontSize(3)} pb-1.5 border-b border-solid border-divider`,
@@ -108,9 +114,7 @@ function Html({
           hr: {
             backgroundColor: tw.color(`border-divider`),
           },
-          em: {
-            fontStyle: 'italic',
-          },
+          em: tw`italic`,
           ...mergedProps.tagsStyles,
         }}
         contentWidth={screenWidth - paddingX}

@@ -33,6 +33,7 @@ import { Notice } from '@/servicies/types'
 import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -138,7 +139,6 @@ function NotificationsScreen() {
       {replyInfo && (
         <ReplyBox
           onSuccess={() => {
-            refetch()
             setReplyInfo(null)
           }}
           replyInfo={replyInfo}
@@ -301,7 +301,7 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
           queryClient.setQueryData({ query: notificationsQuery }, notifications)
           Toast.show({
             type: 'error',
-            text1: '删除失败',
+            text1: error instanceof BizError ? error.message : '删除失败',
           })
         }
       }}

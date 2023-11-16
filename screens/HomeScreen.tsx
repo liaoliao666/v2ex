@@ -500,7 +500,7 @@ function TopNavBar() {
         <IconButton
           name="note-edit-outline"
           size={24}
-          color={tw.color(`text-default`)}
+          color={tw.color(`text-foreground`)}
           activeColor={tw.color(`text-foreground`)}
           onPress={() => {
             if (!isSignined()) {

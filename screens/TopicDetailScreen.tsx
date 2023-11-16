@@ -45,6 +45,7 @@ import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSelf } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -264,7 +265,10 @@ function TopicDetailScreen() {
                       } catch (error) {
                         Toast.show({
                           type: 'error',
-                          text1: '请求失败',
+                          text1:
+                            error instanceof BizError
+                              ? error.message
+                              : '请求失败',
                         })
                       } finally {
                         setIsFetchingAllPage(false)
@@ -347,7 +351,7 @@ function TopicDetailScreen() {
                   {!!topic.reply_count && (
                     <Text
                       style={tw.style(
-                        `text-[10px] absolute -top-1 left-4 px-0.5  bg-background text-default`
+                        `text-[10px] absolute -top-1 left-4 px-0.5  bg-background text-default rounded-sm overflow-hidden`
                       )}
                     >
                       {topic.reply_count}

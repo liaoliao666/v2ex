@@ -1,11 +1,11 @@
 import { AxiosError } from 'axios'
+import { isObjectLike, isString } from 'lodash-es'
 import { QueryErrorResetBoundary } from 'quaere'
 import type { ComponentType, FC, ReactNode } from 'react'
-import { Suspense } from 'react'
+import { Fragment, Suspense } from 'react'
 import type { ErrorBoundaryProps, FallbackProps } from 'react-error-boundary'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Text, View } from 'react-native'
-import { isObject } from 'twrnc/dist/esm/types'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { confirm } from '@/utils/confirm'
@@ -19,19 +19,35 @@ export function FallbackComponent({
   error,
   resetErrorBoundary,
 }: FallbackProps) {
+  const message =
+    isObjectLike(error) && isString(error.message) && !!error.message
+      ? error.message
+      : null
+
   return (
     <View style={tw`p-8`}>
-      <Text
-        style={tw`text-[31px] leading-9 font-extrabold text-foreground`}
-        selectable
-      >
-        {isObject(error) && error.code
-          ? (error as unknown as AxiosError).code || error.name
-          : error.name || '出现错误了'}
-      </Text>
-      <Text style={tw`${getFontSize(5)} text-default mt-2`} selectable>
-        {isObject(error) && error.message}
-      </Text>
+      {message ? (
+        <Fragment>
+          <Text
+            style={tw`text-[31px] leading-9 font-extrabold text-foreground`}
+            selectable
+          >
+            {(error as AxiosError).code
+              ? (error as AxiosError).code || error.name
+              : error.name || '出现错误了'}
+          </Text>
+          <Text style={tw`${getFontSize(5)} text-default mt-2`} selectable>
+            {error.message}
+          </Text>
+        </Fragment>
+      ) : (
+        <Text
+          style={tw`text-[31px] leading-9 font-extrabold text-foreground`}
+          selectable
+        >
+          出现错误了
+        </Text>
+      )}
       <StyledButton
         style={tw`h-[52px] mt-7`}
         onPress={resetErrorBoundary}

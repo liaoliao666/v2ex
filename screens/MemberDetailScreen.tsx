@@ -64,6 +64,7 @@ import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -514,7 +515,9 @@ const MemberTopics = forwardRef<
         </SafeAreaView>
       }
       ListEmptyComponent={
-        <Empty description={last(data?.pages)?.hidden_text} />
+        <Empty
+          description={last(data?.pages)?.hidden_text || '目前还没有主题'}
+        />
       }
     />
   )
@@ -702,7 +705,7 @@ function FollowMember({
           })
           Toast.show({
             type: 'error',
-            text1: '关注失败',
+            text1: error instanceof BizError ? error.message : '关注失败',
           })
         }
       }}
@@ -766,7 +769,7 @@ function BlockMember({
           })
           Toast.show({
             type: 'error',
-            text1: '操作失败',
+            text1: error instanceof BizError ? error.message : '操作失败',
           })
         }
       }}

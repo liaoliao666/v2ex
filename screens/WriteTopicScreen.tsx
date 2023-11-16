@@ -41,6 +41,7 @@ import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
 import { queryClient } from '@/utils/query'
+import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 
 const LazyPreviewTopic = withQuerySuspense(PreviewTopic, {
@@ -333,7 +334,12 @@ function WriteTopicScreen() {
                   } catch (error) {
                     Toast.show({
                       type: 'error',
-                      text1: isEdit ? `编辑失败` : '发帖失败',
+                      text1:
+                        error instanceof BizError
+                          ? error.message
+                          : isEdit
+                          ? `编辑失败`
+                          : '发帖失败',
                     })
                   }
                 })()

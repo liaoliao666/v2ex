@@ -193,7 +193,9 @@ export default function SearchScreen() {
             />
           }
           style={tw.style(
-            isGoogleSearch && `border-divider border-solid border-b`
+            isGoogleSearch &&
+              !isSearchNode &&
+              `border-divider border-solid border-b`
           )}
         >
           <SearchBar

@@ -64,24 +64,19 @@ export const signinMutation = mutation({
   }: Record<string, any>): Promise<{
     '2fa'?: boolean
     once?: string
-    cookie?: string
   }> => {
     if (await store.get(deletedNamesAtom)?.includes(username)) {
       await sleep(1000)
       return Promise.reject(new Error('该帐号已注销'))
     }
 
-    const { headers, data } = await request.post(
-      '/signin',
-      paramsSerializer(args),
-      {
-        headers: {
-          'content-type': 'application/x-www-form-urlencoded',
-          Referer: `${baseURL}/signin`,
-          origin: baseURL,
-        },
-      }
-    )
+    const { data } = await request.post('/signin', paramsSerializer(args), {
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Referer: `${baseURL}/signin`,
+        origin: baseURL,
+      },
+    })
 
     const $ = load(data)
 
@@ -98,21 +93,14 @@ export const signinMutation = mutation({
       .trim()
 
     if (isLogined($) && !problem) {
-      return {
-        cookie: isArray(headers['set-cookie'])
-          ? headers['set-cookie'].join(';')
-          : '',
-      }
+      return {}
     }
 
     return Promise.reject(
       new Error(
-        `${
-          problem ||
-          ($('#captcha-image').attr('src')
-            ? '登录失败'
-            : '由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。')
-        }`
+        $('#captcha-image').attr('src')
+          ? '登录失败'
+          : '由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。'
       )
     )
   },

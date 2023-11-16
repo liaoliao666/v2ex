@@ -29,7 +29,6 @@
     "expo-constants": "~14.4.2",
     "expo-device": "~5.4.0",
     "expo-file-system": "~15.4.4",
-    "expo-font": "~11.4.0",
     "expo-image": "~1.3.4",
     "expo-image-manipulator": "~11.3.0",
     "expo-image-picker": "~14.3.2",

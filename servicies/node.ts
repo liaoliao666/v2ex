@@ -24,7 +24,7 @@ export const likeNodeMutation = mutation<
   void,
   { id: number; once: string; type: 'unfavorite' | 'favorite' }
 >({
-  fetcher: ({ id, once, type: type }) =>
+  fetcher: ({ id, once, type }) =>
     request.get(`/${type}/node/${id}?once=${once}`, {
       responseType: 'text',
     }),

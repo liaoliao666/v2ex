@@ -15,6 +15,7 @@ import { navigation } from '@/navigation/navigationRef'
 import { appendTopicMutation, replyMutation } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
+import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import useUpdate from '@/utils/useUpdate'
 
@@ -266,7 +267,7 @@ const ReplyBox = ({
               } catch (error) {
                 Toast.show({
                   type: 'error',
-                  text1: '发送失败',
+                  text1: error instanceof BizError ? error.message : '发送失败',
                 })
               }
             }}

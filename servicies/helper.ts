@@ -320,18 +320,21 @@ export function parseMemberReplies(
     .map((i, reply) => {
       const $reply = $(reply)
       const $dock = $reply.find('table tbody tr td').eq(0)
+      const content = $reply.next().find('.reply_content').html()!
+      const { id, ...rest } = parseTopicByATag($dock.find('.gray a').eq(2))
 
       return {
         member: {
           username: $dock.find('.gray a').eq(0).text().trim()!,
         },
         node: parseNodeByATag($dock.find('.gray a').eq(1)),
-        ...parseTopicByATag($dock.find('.gray a').eq(2)),
+        ...rest,
+        id: `${id}_${content}`,
         reply: {
           created: $dock.find('.fr').text().trim()!,
-          content: $reply.next().find('.reply_content').html()!,
+          content,
         },
-      } as Omit<Topic, 'replies'> & { reply: Reply }
+      } as unknown as Omit<Topic, 'replies'> & { reply: Reply }
     })
     .get()
 }
@@ -435,7 +438,7 @@ export function parseRank($: CheerioAPI) {
 export function parseImage(str: string) {
   if (!str) return str
 
-  type Replacer = Parameters<typeof String['prototype']['replace']>[1]
+  type Replacer = Parameters<(typeof String)['prototype']['replace']>[1]
 
   const regex_common_imgurl = /\/.+\.(jpeg|jpg|gif|png|svg)$/
   function is_common_img_url(url: string) {

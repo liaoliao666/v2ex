@@ -32,6 +32,7 @@ import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -306,7 +307,7 @@ function LikeNode({
       })
       Toast.show({
         type: 'error',
-        text1: '操作失败',
+        text1: error instanceof BizError ? error.message : '操作失败',
       })
     }
   }

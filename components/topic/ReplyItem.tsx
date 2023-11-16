@@ -21,6 +21,7 @@ import { Reply } from '@/servicies/types'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
+import { BizError } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 import { sleep } from '@/utils/sleep'
 import tw from '@/utils/tw'
@@ -414,7 +415,8 @@ function MoreButton({
                 } catch (error) {
                   Toast.show({
                     type: 'error',
-                    text1: '隐藏失败',
+                    text1:
+                      error instanceof BizError ? error.message : '隐藏失败',
                   })
                 }
                 break

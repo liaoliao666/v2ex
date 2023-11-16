@@ -160,13 +160,12 @@ export const replyMutation = mutation<
   void,
   { content: string; once: string; topicId: number }
 >({
-  fetcher: ({ topicId, ...args }) => {
-    return request.post(`/t/${topicId}`, paramsSerializer(args), {
+  fetcher: ({ topicId, ...args }) =>
+    request.post(`/t/${topicId}`, paramsSerializer(args), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
       },
-    })
-  },
+    }),
 })
 
 export const writeTopicMutation = mutation<

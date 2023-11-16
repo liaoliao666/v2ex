@@ -3,13 +3,20 @@ import { useAtomValue } from 'jotai'
 import { isString, upperCase } from 'lodash-es'
 import { useQuery } from 'quaere'
 import { useCallback, useState } from 'react'
-import { FlatList, ListRenderItem, View } from 'react-native'
+import {
+  FlatList,
+  ListRenderItem,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Empty from '@/components/Empty'
 import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import SearchBar from '@/components/SearchBar'
+import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { nodesQuery } from '@/servicies/node'
@@ -66,7 +73,20 @@ export default function SearchNodeScreen() {
 
   return (
     <View style={tw`bg-background flex-1`}>
-      <NavBar hideSafeTop left={null}>
+      <NavBar
+        style={tw`border-divider border-solid border-b`}
+        hideSafeTop
+        left={null}
+        right={
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack()
+            }}
+          >
+            <Text style={tw`text-primary ${getFontSize(5)}`}>取消</Text>
+          </TouchableOpacity>
+        }
+      >
         <SearchBar
           style={tw`flex-1`}
           value={searchText}

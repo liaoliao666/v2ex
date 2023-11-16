@@ -50,21 +50,19 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     <View style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}>
       <WrapView horizontal nestedScrollEnabled>
         <RenderHTML
+          {...getDefaultProps({ inModalScreen })}
           contentWidth={screenWidth - paddingX}
-          baseStyle={tw.style(
-            `text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(5)}`
-          )}
+          baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(
+            5
+          )}`}
           tagsStyles={{
-            pre: tw`my-2`,
+            pre: tw`mt-2 mb-0`,
             a: tw`text-primary no-underline`,
-            em: {
-              fontStyle: 'italic',
-            },
+            em: tw`italic`,
           }}
           classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
           source={{ html }}
           renderers={{ _TEXT_: TextRenderer }}
-          {...getDefaultProps({ inModalScreen })}
         />
       </WrapView>
     </View>
@@ -135,5 +133,5 @@ function convertCSSToObject(
     Object.entries(css).flatMap(([key, val]) =>
       key.split(',').map(o => [o.trim().slice(1), val])
     )
-  ) as unknown as Readonly<Record<string, MixedStyleDeclaration>>
+  )
 }

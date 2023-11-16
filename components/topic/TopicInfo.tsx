@@ -36,6 +36,7 @@ import { Topic } from '@/servicies/types'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
+import { BizError } from '@/utils/request'
 import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
 
@@ -228,7 +229,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 
           Toast.show({
             type: 'error',
-            text1: '收藏失败',
+            text1: error instanceof BizError ? error.message : '收藏失败',
           })
         }
       }}
@@ -247,7 +248,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
           {!!topic.likes && (
             <Text
               style={tw.style(
-                `text-[10px] absolute -top-1 left-4 px-0.5  bg-background`,
+                `text-[10px] absolute -top-1 left-4 px-0.5  bg-background rounded-sm overflow-hidden`,
                 topic.liked ? `text-[rgb(250,219,20)]` : `text-default`
               )}
             >
@@ -298,7 +299,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 
           Toast.show({
             type: 'error',
-            text1: '感谢失败',
+            text1: error instanceof BizError ? error.message : '感谢失败',
           })
         }
       }}
@@ -317,7 +318,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
           {!!topic.thanks && (
             <Text
               style={tw.style(
-                `text-[10px] absolute -top-1 left-4 px-0.5 bg-background`,
+                `text-[10px] absolute -top-1 left-4 px-0.5 bg-background rounded-sm overflow-hidden`,
                 topic.thanked ? `text-[rgb(249,24,128)]` : `text-default`
               )}
             >
@@ -361,7 +362,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
           } catch (error) {
             Toast.show({
               type: 'error',
-              text1: '点赞失败',
+              text1: error instanceof BizError ? error.message : '点赞失败',
             })
           }
         }}
@@ -484,7 +485,8 @@ function MoreButton({
                 } catch (error) {
                   Toast.show({
                     type: 'error',
-                    text1: '举报失败',
+                    text1:
+                      error instanceof BizError ? error.message : '举报失败',
                   })
                 }
                 break
@@ -566,7 +568,8 @@ function MoreButton({
                 } catch (error) {
                   Toast.show({
                     type: 'error',
-                    text1: '忽略失败',
+                    text1:
+                      error instanceof BizError ? error.message : '忽略失败',
                   })
                 }
                 break
