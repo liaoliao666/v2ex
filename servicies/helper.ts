@@ -313,17 +313,9 @@ export function parseMember($: CheerioAPI): Omit<Member, 'username'> {
   }
 }
 
-export function parseMemberReplies($: CheerioAPI): (Pick<
-  Reply,
-  'content' | 'created'
-> & {
-  member: {
-    username: string
-  }
-  node: Pick<Node, 'name' | 'title'>
-  topic: Pick<Topic, 'id' | 'title' | 'reply_count'>
-  id: string
-})[] {
+export function parseMemberReplies(
+  $: CheerioAPI
+): (Omit<Topic, 'replies'> & { reply: Reply; topicId: number })[] {
   return $('#Main .box .dock_area')
     .map((i, reply) => {
       const $reply = $(reply)
@@ -336,13 +328,16 @@ export function parseMemberReplies($: CheerioAPI): (Pick<
           username: $dock.find('.gray a').eq(0).text().trim()!,
         },
         node: parseNodeByATag($dock.find('.gray a').eq(1)),
-        topic,
+        ...topic,
+        topicId: topic.id,
         id: `${topic.id}_${content}`,
-        created: $dock.find('.fr').text().trim()!,
-        content,
+        reply: {
+          created: $dock.find('.fr').text().trim()!,
+          content,
+        },
       }
     })
-    .get()
+    .get() as any
 }
 
 export function parseProfile($: CheerioAPI): Profile {

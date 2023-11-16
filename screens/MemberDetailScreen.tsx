@@ -53,7 +53,6 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { parseMemberReplies } from '@/servicies/helper'
 import {
   blockMemberMutation,
   followMemberMutation,
@@ -61,7 +60,7 @@ import {
   memberRepliesQuery,
   memberTopicsQuery,
 } from '@/servicies/member'
-import { Member, Topic } from '@/servicies/types'
+import { Member, Reply, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
@@ -549,7 +548,7 @@ const MemberReplies = forwardRef<
 
   const renderItem: ListRenderItem<
     (typeof data)['pages'][number]['list'][number]
-  > = useCallback(({ item }) => <MemberReply key={item.id} reply={item} />, [])
+  > = useCallback(({ item }) => <MemberReply key={item.id} topic={item} />, [])
 
   const flatedData = useMemo(
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
@@ -592,15 +591,19 @@ const MemberReplies = forwardRef<
 })
 
 const MemberReply = memo(
-  ({ reply }: { reply: ReturnType<typeof parseMemberReplies>[number] }) => {
+  ({
+    topic,
+  }: {
+    topic: Omit<Topic, 'replies'> & { reply: Reply; topicId: number }
+  }) => {
     const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
     return (
       <DebouncedPressable
-        key={reply.id}
+        key={topic.id}
         style={tw`px-4 py-3 bg-background`}
         onPress={() => {
-          navigation.push('TopicDetail', { id: reply.topic.id })
+          navigation.push('TopicDetail', { ...topic, id: topic.topicId })
         }}
       >
         <View style={tw`flex-row gap-2`}>
@@ -608,10 +611,10 @@ const MemberReply = memo(
             size="mini"
             type="tag"
             onPress={() => {
-              navigation.push('NodeTopics', { name: reply.node?.name! })
+              navigation.push('NodeTopics', { name: topic.node?.name! })
             }}
           >
-            {reply.node?.title}
+            {topic.node?.title}
           </StyledButton>
 
           <Separator>
@@ -619,23 +622,23 @@ const MemberReply = memo(
               style={tw`text-foreground ${getFontSize(5)} font-semibold`}
               onPress={() => {
                 navigation.push('MemberDetail', {
-                  username: reply.member?.username!,
+                  username: topic.member?.username!,
                 })
               }}
             >
-              {reply.member?.username}
+              {topic.member?.username}
             </Text>
 
-            {!!reply.topic.reply_count && (
+            {!!topic.reply_count && (
               <Text style={tw`text-default ${getFontSize(5)}`}>
-                {`${reply.topic.reply_count} 回复`}
+                {`${topic.reply_count} 回复`}
               </Text>
             )}
           </Separator>
         </View>
 
         <Text style={tw`text-foreground ${getFontSize(5)} pt-2`}>
-          {reply.topic.title}
+          {topic.title}
         </Text>
 
         <View style={tw`bg-content px-4 py-3 mt-2 rounded`}>
@@ -644,11 +647,11 @@ const MemberReply = memo(
               {params.username}
             </Text>
             <Text style={tw`text-default ${getFontSize(5)}`}>
-              {reply.created}
+              {topic.reply.created}
             </Text>
           </Separator>
           <Html
-            source={{ html: reply.content }}
+            source={{ html: topic.reply.content }}
             defaultTextProps={{ selectable: false }}
           />
         </View>
@@ -656,8 +659,8 @@ const MemberReply = memo(
     )
   },
   (prev, next) =>
-    prev.reply.content === next.reply.content &&
-    prev.reply.topic.reply_count === next.reply.topic.reply_count
+    prev.topic.reply.content === next.topic.reply.content &&
+    prev.topic.reply_count === next.topic.reply_count
 )
 
 function FollowMember({
