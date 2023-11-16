@@ -1,11 +1,13 @@
 import { load } from 'cheerio'
 import hljs from 'highlight.js'
 import { useAtomValue } from 'jotai'
+import { some } from 'lodash-es'
 import { useContext, useMemo } from 'react'
 import { ScrollView, View } from 'react-native'
 import RenderHTML, {
   CustomBlockRenderer,
   MixedStyleDeclaration,
+  TNode,
 } from 'react-native-render-html'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
@@ -18,7 +20,9 @@ import TextRenderer from './TextRenderer'
 import { getDefaultProps } from './helper'
 
 const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
-  const { inModalScreen, paddingX } = useContext(HtmlContext)
+  const context = useContext(HtmlContext)
+
+  const { inModalScreen, paddingX } = context
 
   const screenWidth = useScreenWidth()
 
@@ -47,29 +51,45 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const WrapView = isCode ? ScrollView : View
 
   return (
-    <View style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}>
-      <WrapView horizontal nestedScrollEnabled>
-        <RenderHTML
-          {...getDefaultProps({ inModalScreen })}
-          contentWidth={screenWidth - paddingX}
-          baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(
-            5
-          )}`}
-          tagsStyles={{
-            pre: tw`mt-2 mb-0`,
-            a: tw`text-primary no-underline`,
-            em: tw`italic`,
-          }}
-          classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
-          source={{ html }}
-          renderers={{ _TEXT_: TextRenderer }}
-        />
-      </WrapView>
-    </View>
+    <HtmlContext.Provider
+      value={useMemo(() => {
+        const copy = { ...context }
+
+        if (!copy.selectOnly && !hasLink(tnode)) {
+          copy.selectOnly = true
+        }
+
+        return copy
+      }, [context, tnode])}
+    >
+      <View style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}>
+        <WrapView horizontal nestedScrollEnabled>
+          <RenderHTML
+            {...getDefaultProps({ inModalScreen })}
+            contentWidth={screenWidth - paddingX}
+            baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(
+              5
+            )}`}
+            tagsStyles={{
+              pre: tw`mt-2 mb-0`,
+              a: tw`text-primary no-underline`,
+              em: tw`italic`,
+            }}
+            classesStyles={colorScheme === 'dark' ? atomDark : atomLight}
+            source={{ html }}
+            renderers={{ _TEXT_: TextRenderer }}
+          />
+        </WrapView>
+      </View>
+    </HtmlContext.Provider>
   )
 }
 
 export default CodeRenderer
+
+function hasLink(tnode: TNode): boolean {
+  return tnode.domNode?.name === 'a' || some(tnode.children, hasLink)
+}
 
 const atomLight = convertCSSToObject({
   '.hljs-comment,.hljs-quote': { color: '#a0a1a7' },

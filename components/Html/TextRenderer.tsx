@@ -9,26 +9,7 @@ import tw from '@/utils/tw'
 
 import { HtmlContext } from './HtmlContext'
 
-const TextRenderer: CustomTextualRenderer = props => {
-  const { onSelectText, selectOnly } = useContext(HtmlContext)
-
-  if (Platform.OS === 'ios' && selectOnly) {
-    return <SelectableTextRenderer {...props} />
-  }
-
-  let renderProps = getNativePropsForTNode(props)
-
-  if (Platform.OS === 'ios' && renderProps.selectable) {
-    renderProps = {
-      ...renderProps,
-      selectable: false,
-      onLongPress: onSelectText,
-      suppressHighlighting: true,
-    }
-  }
-
-  return <Text selectionColor={tw.color(`text-primary`)} {...renderProps} />
-}
+const IsNestedTextContext = createContext(false)
 
 const resetTextInputStyle = {
   paddingTop: 0,
@@ -36,17 +17,19 @@ const resetTextInputStyle = {
   paddingBottom: 3,
 }
 
-const IsNestedTextContext = createContext(false)
+const TextRenderer: CustomTextualRenderer = props => {
+  const { onSelectText, selectOnly } = useContext(HtmlContext)
 
-const SelectableTextRenderer: CustomTextualRenderer = props => {
-  const renderProps = getNativePropsForTNode(props)
+  let renderProps = getNativePropsForTNode(props)
+
   const isNestedText = useContext(IsNestedTextContext)
 
-  if (isNestedText)
-    return <Text selectionColor={tw.color(`text-primary`)} {...renderProps} />
+  let text = null
 
-  return (
-    <IsNestedTextContext.Provider value={true}>
+  if (isNestedText) {
+    text = <Text selectionColor={tw.color(`text-primary`)} {...renderProps} />
+  } else if (Platform.OS === 'ios' && selectOnly) {
+    text = (
       <TextInput
         editable={false}
         multiline
@@ -55,6 +38,23 @@ const SelectableTextRenderer: CustomTextualRenderer = props => {
       >
         <Text {...renderProps} />
       </TextInput>
+    )
+  } else {
+    if (Platform.OS === 'ios' && renderProps.selectable) {
+      renderProps = {
+        ...renderProps,
+        selectable: false,
+        onLongPress: onSelectText,
+        suppressHighlighting: true,
+      }
+    }
+
+    text = <Text selectionColor={tw.color(`text-primary`)} {...renderProps} />
+  }
+
+  return (
+    <IsNestedTextContext.Provider value={true}>
+      {text}
     </IsNestedTextContext.Provider>
   )
 }

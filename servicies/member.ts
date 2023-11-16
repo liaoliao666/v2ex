@@ -22,7 +22,7 @@ import {
   topicByIdQuery,
   topicDetailQuery,
 } from './topic'
-import { Member, PageData, Reply, Topic } from './types'
+import { Member, PageData, Topic } from './types'
 
 export const memberQuery = query({
   key: 'member',
@@ -90,7 +90,7 @@ export const memberTopicsQuery = queryWithInfinite<
 })
 
 export const memberRepliesQuery = queryWithInfinite<
-  PageData<Omit<Topic, 'replies'> & { reply: Reply }>,
+  PageData<ReturnType<typeof parseMemberReplies>[number]>,
   { username: string }
 >({
   key: 'memberReplies',

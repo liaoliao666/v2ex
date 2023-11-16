@@ -313,28 +313,34 @@ export function parseMember($: CheerioAPI): Omit<Member, 'username'> {
   }
 }
 
-export function parseMemberReplies(
-  $: CheerioAPI
-): (Omit<Topic, 'replies'> & { reply: Reply })[] {
+export function parseMemberReplies($: CheerioAPI): (Pick<
+  Reply,
+  'content' | 'created'
+> & {
+  member: {
+    username: string
+  }
+  node: Pick<Node, 'name' | 'title'>
+  topic: Pick<Topic, 'id' | 'title' | 'reply_count'>
+  id: string
+})[] {
   return $('#Main .box .dock_area')
     .map((i, reply) => {
       const $reply = $(reply)
       const $dock = $reply.find('table tbody tr td').eq(0)
       const content = $reply.next().find('.reply_content').html()!
-      const { id, ...rest } = parseTopicByATag($dock.find('.gray a').eq(2))
+      const topic = parseTopicByATag($dock.find('.gray a').eq(2))
 
       return {
         member: {
           username: $dock.find('.gray a').eq(0).text().trim()!,
         },
         node: parseNodeByATag($dock.find('.gray a').eq(1)),
-        ...rest,
-        id: `${id}_${content}`,
-        reply: {
-          created: $dock.find('.fr').text().trim()!,
-          content,
-        },
-      } as unknown as Omit<Topic, 'replies'> & { reply: Reply }
+        topic,
+        id: `${topic.id}_${content}`,
+        created: $dock.find('.fr').text().trim()!,
+        content,
+      }
     })
     .get()
 }
