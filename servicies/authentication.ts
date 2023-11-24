@@ -6,9 +6,9 @@ import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { store } from '@/jotai/store'
 import { getCookie } from '@/utils/cookie'
 import { request } from '@/utils/request'
-import { baseURL } from '@/utils/request/baseURL'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 import { sleep } from '@/utils/sleep'
+import { getBaseURL } from '@/utils/url'
 
 import { isLogined } from './helper'
 
@@ -73,8 +73,8 @@ export const signinMutation = mutation({
     const { data } = await request.post('/signin', paramsSerializer(args), {
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
-        Referer: `${baseURL}/signin`,
-        origin: baseURL,
+        Referer: `${getBaseURL()}/signin`,
+        origin: getBaseURL(),
       },
     })
 
@@ -114,8 +114,8 @@ export const useTwoStepSignin = mutation({
       {
         headers: {
           'content-type': 'application/x-www-form-urlencoded',
-          Referer: `${baseURL}/2fa`,
-          origin: baseURL,
+          Referer: `${getBaseURL()}/2fa`,
+          origin: getBaseURL(),
         },
       }
     )

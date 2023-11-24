@@ -7,6 +7,7 @@ import { Fragment, memo, useState } from 'react'
 import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
 
+import { v2exURL } from '@/jotai/baseUrlAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
@@ -22,7 +23,6 @@ import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
-import { baseURL } from '@/utils/request/baseURL'
 import { sleep } from '@/utils/sleep'
 import tw from '@/utils/tw'
 
@@ -359,7 +359,7 @@ function MoreButton({
           async selectedIndex => {
             switch (selectedIndex) {
               case options.indexOf('分享'):
-                const url = `${baseURL}/t/${topicId}?p=${Math.ceil(
+                const url = `${v2exURL}/t/${topicId}?p=${Math.ceil(
                   reply.no / 100
                 )}#r_${reply.id}`
                 Share.share(

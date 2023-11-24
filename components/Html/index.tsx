@@ -81,6 +81,7 @@ function Html({
               )
               return
             }
+
             setImageViewer({
               index: findIndex(imageUrls, { url }),
               visible: true,

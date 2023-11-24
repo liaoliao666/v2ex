@@ -13,6 +13,7 @@ import { useDeviceContext } from 'twrnc'
 import { AsyncStoragePersist } from './components/AsyncStoragePersist'
 import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
+import { baseUrlAtom } from './jotai/baseUrlAtom'
 import { deviceTypeAtom } from './jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
@@ -78,6 +79,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       topicDraftAtom,
       deviceTypeAtom,
       sov2exArgsAtom,
+      baseUrlAtom,
     ])
   )
 

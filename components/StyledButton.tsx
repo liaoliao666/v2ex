@@ -24,12 +24,12 @@ const colors = {
     activeDarkColor: `rgb(26,140,216)`,
   },
   tag: {
-    color: `rgb(239,243,244)`,
-    darkColor: `rgb(32,35,39)`,
-    textColor: '#536471',
-    darkTextColor: '#71767b',
-    activeColor: `rgba(239,243,244,0.5)`,
-    activeDarkColor: `rgba(32,35,39,0.5)`,
+    color: `rgba(29,155,240,.2)`,
+    darkColor: `rgba(29,155,240,.2)`,
+    textColor: '#0f1419',
+    darkTextColor: 'rgb(219,219,219)',
+    activeColor: `rgba(29,155,240,0.5)`,
+    activeDarkColor: `rgba(29,155,240,0.5)`,
   },
   danger: {
     color: `rgb(249,24,128)`,

@@ -22,6 +22,7 @@ import PageLayout from '@/components/PageLayout'
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
+import ConfigureDomainScreen from '@/screens/ConfigureDomainScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import HotestTopicsScreen from '@/screens/HotestTopicsScreen'
@@ -260,6 +261,8 @@ function StackNavigator() {
       <Stack.Screen name="ImgurConfig" component={ImgurConfigScreen} />
 
       <Stack.Screen name="HotestTopics" component={HotestTopicsScreen} />
+
+      <Stack.Screen name="ConfigureDomain" component={ConfigureDomainScreen} />
     </Stack.Navigator>
   )
 }

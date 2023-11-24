@@ -11,8 +11,8 @@ import { navigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
 import { queryClient } from '@/utils/query'
 import { request } from '@/utils/request'
-import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
+import { getBaseURL } from '@/utils/url'
 
 export default function WebSigninScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'WebSignin'>>()
@@ -49,7 +49,7 @@ export default function WebSigninScreen() {
             style={tw.style(`flex-1`, {
               marginTop: navbarHeight,
             })}
-            source={{ uri: `${baseURL}/signin` }}
+            source={{ uri: `${getBaseURL()}/signin` }}
             // source={{ uri: `${baseURL}/signin` }}
             javaScriptEnabled={true}
             domStorageEnabled={true}
@@ -62,7 +62,7 @@ export default function WebSigninScreen() {
             // incognito={true}
             renderLoading={() => <View />}
             onNavigationStateChange={async state => {
-              if (state.url.startsWith(`${baseURL}/auth/google?code`)) {
+              if (state.url.startsWith(`${getBaseURL()}/auth/google?code`)) {
                 setIsLoading(true)
                 setWebviewVisible(false)
 

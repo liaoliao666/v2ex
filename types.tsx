@@ -75,6 +75,7 @@ export type RootStackParamList = {
     html: string
   }
   HotestTopics: undefined
+  ConfigureDomain: undefined
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =

@@ -14,6 +14,7 @@ import {
 } from 'react-native'
 import Toast from 'react-native-toast-message'
 
+import { v2exURL } from '@/jotai/baseUrlAtom'
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { getFontSize } from '@/jotai/fontSacleAtom'
@@ -37,8 +38,8 @@ import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
-import { baseURL } from '@/utils/request/baseURL'
 import tw from '@/utils/tw'
+import { getBaseURL } from '@/utils/url'
 
 import Html from '../Html'
 import IconButton from '../IconButton'
@@ -496,11 +497,11 @@ function MoreButton({
                   Platform.OS === 'android'
                     ? {
                         title: topic.title,
-                        message: `${baseURL}/t/${topic.id}`,
+                        message: `${v2exURL}/t/${topic.id}`,
                       }
                     : {
                         title: topic.title,
-                        url: `${baseURL}/t/${topic.id}`,
+                        url: `${v2exURL}/t/${topic.id}`,
                       }
                 )
                 break
@@ -585,7 +586,7 @@ function MoreButton({
 
               case options.indexOf('Webview 打开'):
                 navigation.navigate('Webview', {
-                  url: `${baseURL}/t/${topic.id}`,
+                  url: `${getBaseURL()}/t/${topic.id}`,
                 })
                 break
 

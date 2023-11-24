@@ -2,8 +2,8 @@
 import { isArray, noop } from 'lodash-es'
 
 import { isExpoGo } from './isExpoGo'
-import { baseURL } from './request/baseURL'
 import { sleep } from './sleep'
+import { getBaseURL } from './url'
 
 const RCTNetworking =
   require(`react-native/Libraries/Network/RCTNetworking`).default
@@ -32,7 +32,7 @@ export function clearCookie() {
 export function setCookie(cookies: string[] | string) {
   return Promise.race([
     CookieManager.setFromResponse(
-      baseURL,
+      getBaseURL(),
       isArray(cookies) ? cookies.join(';') : cookies
     ),
     sleep(300),
@@ -41,8 +41,10 @@ export function setCookie(cookies: string[] | string) {
 
 export async function getCookie(): Promise<string> {
   return Object.entries(
-    ((await Promise.race([CookieManager.get(baseURL), sleep(300)])) as any) ||
-      {}
+    ((await Promise.race([
+      CookieManager.get(getBaseURL()),
+      sleep(300),
+    ])) as any) || {}
   )
     .map(([key, { value }]: any) => `${key}=${value}`)
     .join(';')

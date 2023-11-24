@@ -37,6 +37,8 @@ export default function WebviewScreen() {
 
   const canGoBackRef = useRef(false)
 
+  const urlRef = useRef(params.url)
+
   useEffect(() => {
     if (Platform.OS === 'android') {
       const handlebackpressed = () => {
@@ -76,7 +78,7 @@ export default function WebviewScreen() {
           <StyledButton
             shape="rounded"
             onPress={() => {
-              openURL(params.url)
+              openURL(urlRef.current)
             }}
           >
             浏览器打开
@@ -96,6 +98,7 @@ export default function WebviewScreen() {
         }}
         onNavigationStateChange={ev => {
           canGoBackRef.current = ev.canGoBack
+          urlRef.current = ev.url
           setTitle(ev.title)
         }}
         source={{ uri: params.url }}

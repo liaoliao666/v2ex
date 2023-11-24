@@ -273,6 +273,14 @@ function SettingScreen() {
           }}
         />
 
+        <ListItem
+          label="域名配置"
+          icon={<Ionicons name="planet-outline" size={24} />}
+          onPress={() => {
+            navigation.navigate('ConfigureDomain')
+          }}
+        />
+
         {Platform.OS === 'android' && <CheckAppVersion />}
 
         {isSignined && (

@@ -20,8 +20,7 @@ import {
   parseRecentTopics,
 } from '@/servicies/helper'
 
-import { openURL } from '../url'
-import { baseURL } from './baseURL'
+import { getBaseURL, openURL } from '../url'
 
 export class BizError extends Error {
   constructor(message: string) {
@@ -31,7 +30,14 @@ export class BizError extends Error {
 }
 
 export const request = axios.create({
-  baseURL,
+  baseURL: getBaseURL(),
+})
+
+request.interceptors.request.use(config => {
+  return {
+    ...config,
+    baseURL: getBaseURL(),
+  }
 })
 
 request.interceptors.response.use(
@@ -95,7 +101,7 @@ async function handle503Error(error: any) {
       const open503UrlTime = await store.get(open503UrlTimeAtom)
       if (dayjs().diff(open503UrlTime, 'hour') > 8) {
         store.set(open503UrlTimeAtom, Date.now())
-        openURL(`${baseURL}${error.config.url}`)
+        openURL(`${getBaseURL()}${error.config.url}`)
       }
     }
   } catch {

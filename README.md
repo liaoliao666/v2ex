@@ -39,6 +39,11 @@
 
 [**See Feature Requests**][requests]
 
+## 感谢
+
+- [V2HOT](https://www.v2ex.com/t/822020?utm_source=pipecraft.net) : 一个能看每天 V2EX 最热的网站，历史最热功能基于此实现，感谢 🙏
+- [SOV2EX](https://github.com/Bynil/sov2ex) : 一个便捷的 V2EX 站内搜索引擎，搜索功能基于此实现，感谢 🙏
+
 ## LICENSE
 
 MIT

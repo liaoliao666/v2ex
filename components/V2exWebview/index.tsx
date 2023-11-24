@@ -4,10 +4,10 @@ import { useEffect, useReducer, useRef } from 'react'
 import { View } from 'react-native'
 import WebView from 'react-native-webview'
 
-import { baseURL } from '@/utils/request/baseURL'
 import { sleep } from '@/utils/sleep'
 import { timeout } from '@/utils/timeout'
 import tw from '@/utils/tw'
+import { getBaseURL } from '@/utils/url'
 
 import v2exMessage from './v2exMessage'
 
@@ -105,7 +105,7 @@ export default function V2exWebview() {
         key={forceRenderKey}
         ref={webViewRef}
         source={{
-          uri: `${baseURL}/signin`,
+          uri: `${getBaseURL()}/signin`,
         }}
         onLoadEnd={() => handleLoad()}
         onError={() => {

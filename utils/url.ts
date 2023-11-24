@@ -1,7 +1,8 @@
 import { Linking } from 'react-native'
 import Toast from 'react-native-toast-message'
 
-import { baseURL } from './request/baseURL'
+import { baseUrlAtom, v2exURL } from '@/jotai/baseUrlAtom'
+import { store } from '@/jotai/store'
 
 export function getURLSearchParams(url?: string): Record<string, string> {
   if (!url) return {}
@@ -14,10 +15,10 @@ export function getURLSearchParams(url?: string): Record<string, string> {
 
 export function resolveURL(url: string) {
   if (url.startsWith('//')) return `https:${url}`
-  if (url.startsWith('about://')) return url.replace('about://', baseURL)
+  if (url.startsWith('about://')) return url.replace('about://', getBaseURL())
   if (url.startsWith('https://v2ex.com'))
-    return url.replace('https://v2ex.com', baseURL)
-  if (url.startsWith('/')) return `${baseURL}${url}`
+    return url.replace('https://v2ex.com', getBaseURL())
+  if (url.startsWith('/')) return `${getBaseURL()}${url}`
   return url
 }
 
@@ -51,4 +52,21 @@ export async function openURL(url: string) {
     })
     return Promise.reject(new Error(`Failed to openURL`))
   }
+}
+
+export function getBaseURL() {
+  return store.get(baseUrlAtom) || v2exURL
+}
+
+export function isValidURL(url: string) {
+  const urlPattern = new RegExp(
+    '^(https?:\\/\\/)?' + // validate protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // validate domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // validate OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // validate port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // validate query string
+      '(\\#[-a-z\\d_]*)?$',
+    'i'
+  ) // validate fragment locator
+  return !!urlPattern.test(url)
 }
