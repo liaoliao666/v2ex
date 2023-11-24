@@ -1,6 +1,7 @@
 import {
   Feather,
   MaterialCommunityIcons,
+  MaterialIcons,
   SimpleLineIcons,
 } from '@expo/vector-icons'
 import { useAtom, useAtomValue } from 'jotai'
@@ -137,6 +138,22 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       ),
       style: tw`border-t border-solid border-divider`,
       pressable: false,
+    },
+    {
+      label: '历史最热',
+      value: 'hotest_topics',
+      icon: (
+        <IconButton
+          pressed={false}
+          icon={<MaterialIcons name={'whatshot'} />}
+          size={24}
+          color={tw.color(`text-foreground`)}
+          activeColor={tw.color(`text-default`)}
+        />
+      ),
+      onPress: () => {
+        navigation.navigate('HotestTopics')
+      },
     },
     {
       label: '最近浏览',

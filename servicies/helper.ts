@@ -40,7 +40,7 @@ export function parseTopicByATag(
   const [_, id, replies] =
     $topic
       .attr('href')
-      ?.match(/t\/(\d+).+reply(\d+)/)
+      ?.match(/t\/(\d+)(?:.+reply(\d+))?/)
       ?.map(Number) || []
 
   return {
@@ -102,6 +102,7 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
       const $this = $(table)
       const $topicItem = $this.find('table > tbody > tr:first-child')
       const $topicInfo = $topicItem.find('.topic_info')
+      const $avatar = $topicItem.find('td:first-child').find('a > img')
       const topic = parseTopicByATag($topicItem.find('.item_title a'))
 
       if (ignoredTopics.has(topic.id)) return
@@ -137,13 +138,14 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
         ...topic,
         member: {
           username: $topicInfo.find('strong a').eq(0).text().trim(),
-          avatar: $topicItem.find('td:first-child').find('a > img').attr('src'),
+          avatar: $avatar.attr('data-src') || $avatar.attr('src'),
         },
         votes: parseInt($topicItem.find('.votes').text().trim(), 10),
         last_reply_by: pasreArgByATag(
           $topicInfo.find('strong:nth-of-type(2) a'),
           'member'
         ),
+        pin_to_top: $this.attr('style')?.includes('corner_star'),
       } as Topic
     })
     .get()

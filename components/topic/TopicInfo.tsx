@@ -309,7 +309,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
           <IconButton
             name={topic.thanked ? 'heart' : 'heart-outline'}
             color={tw.color(`text-default`)}
-            activeColor="rgb(249,24,128)"
+            activeColor={tw.color(`text-danger`)}
             active={topic.thanked}
             pressed={pressed}
             size={24}
@@ -319,7 +319,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
             <Text
               style={tw.style(
                 `text-[10px] absolute -top-1 left-4 px-0.5 bg-background rounded-sm overflow-hidden`,
-                topic.thanked ? `text-[rgb(249,24,128)]` : `text-default`
+                topic.thanked ? `text-danger` : `text-default`
               )}
             >
               {topic.thanks}

@@ -24,6 +24,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
 import HomeScreen from '@/screens/HomeScreen'
+import HotestTopicsScreen from '@/screens/HotestTopicsScreen'
 import ImgurConfigScreen from '@/screens/ImgurConfigScreen'
 import LoginScreen from '@/screens/LoginScreen'
 import MemberDetailScreen from '@/screens/MemberDetailScreen'
@@ -257,6 +258,8 @@ function StackNavigator() {
       />
 
       <Stack.Screen name="ImgurConfig" component={ImgurConfigScreen} />
+
+      <Stack.Screen name="HotestTopics" component={HotestTopicsScreen} />
     </Stack.Navigator>
   )
 }

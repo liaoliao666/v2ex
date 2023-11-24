@@ -31,11 +31,19 @@ const colors = {
     activeColor: `rgba(239,243,244,0.5)`,
     activeDarkColor: `rgba(32,35,39,0.5)`,
   },
+  danger: {
+    color: `rgb(249,24,128)`,
+    darkColor: `rgb(249,24,128)`,
+    textColor: '#fff',
+    darkTextColor: '#fff',
+    activeColor: `rgba(249,24,128,.8)`,
+    activeDarkColor: `rgba(249,24,128,.8)`,
+  },
 }
 
 export interface StyledButtonProps {
   size?: 'middle' | 'large' | 'small' | 'mini'
-  type?: 'default' | 'primary' | 'tag'
+  type?: 'default' | 'primary' | 'tag' | 'danger'
   shape?: 'default' | 'rounded' | 'rectangular'
   onPress?: PressableProps['onPress']
   children?: string

@@ -302,15 +302,15 @@ function ThankReply({
             size={16}
             active={reply.thanked}
             name={reply.thanked ? 'heart' : 'heart-outline'}
-            color={reply.thanks ? `rgb(249,24,128)` : tw.color(`text-default`)}
-            activeColor={'rgb(249,24,128)'}
+            color={tw.color(reply.thanks ? `text-danger` : `text-default`)}
+            activeColor={tw.color(`text-danger`)}
             pressed={disabled ? false : pressed}
           />
 
           <Text
             style={tw.style(
               `${getFontSize(6)} pl-0.5`,
-              reply.thanks ? `text-[rgb(249,24,128)]` : `text-default`
+              reply.thanks ? `text-danger` : `text-default`
             )}
           >
             {reply.thanks ? reply.thanks : '感谢'}

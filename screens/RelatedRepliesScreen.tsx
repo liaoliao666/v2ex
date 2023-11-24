@@ -161,9 +161,7 @@ export default function RelatedRepliesScreen() {
             <Replies replies={isSmartMode ? route.relatedData : route.data} />
           )}
           onIndexChange={setIndex}
-          initialLayout={{
-            width: layout.width,
-          }}
+          initialLayout={{ width: layout.width }}
           overdrag={false}
           renderTabBar={props => (
             <View style={tw`border-b border-divider border-solid px-2`}>

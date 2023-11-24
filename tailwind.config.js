@@ -12,6 +12,8 @@ module.exports = {
       colors: {
         primary: 'rgb(29,155,240)',
         'primary-focus': 'rgb(26,140,216)',
+        danger: `rgb(249,24,128)`,
+        'danger-focus': `rgba(249,24,128,.8)`,
       },
     },
     screens: {

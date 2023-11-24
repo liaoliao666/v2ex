@@ -42,7 +42,7 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
 
     return {
       html: `<pre><code>${value}</code></pre>`,
-      isCode: /(\=|\{|\[)/.test(text),
+      isCode: !!language || /(\=|\{|\[)/.test(text),
     }
   }, [tnode.domNode])
 

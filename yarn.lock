@@ -4332,10 +4332,10 @@ expo-image-picker@~14.3.2:
   dependencies:
     expo-image-loader "~4.3.0"
 
-expo-image@~1.3.4:
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-1.3.4.tgz#50f8468b118972698a4382853773db2f39e46190"
-  integrity sha512-2N6etMJA5OWbbvL9IdPVchNoJd18kVo5gcN4uC9Xtv1VM/ik6PRB3Tz+qP/0Uglkzh/yyJjw7aDTqWozj5nLZw==
+expo-image@~1.3.5:
+  version "1.3.5"
+  resolved "https://registry.yarnpkg.com/expo-image/-/expo-image-1.3.5.tgz#426deca8cc9a8a3e72a649e9d98c5019efde0d37"
+  integrity sha512-yrIR2mnfIKbKcguoqWK3U5m3zvLPnonvSCabB2ErVGhws8zQs7ILYf+7T08j8U6eFcohjw0CoAFJ6RWNsX2EhA==
 
 expo-json-utils@~0.7.0:
   version "0.7.1"
@@ -7398,10 +7398,10 @@ react-native@0.72.6:
     ws "^6.2.2"
     yargs "^17.6.2"
 
-react-query-kit@^2.0.8:
-  version "2.0.8"
-  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-2.0.8.tgz#0b034c97efe9b98bd9ad8685a668a1b1c604d8aa"
-  integrity sha512-K8Nn7KqtQjYNJRxVIofkZULuUQI5PX8FndKlJ1hqnmPTsnhh1vHX5s+e6lkcOPd0W7MkSKmDeQGET9Aa2Tbzcg==
+react-query-kit@^3.0.0-beta.0:
+  version "3.0.0-beta.0"
+  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-3.0.0-beta.0.tgz#b5d9e26312b5a9f7cc4e68507136a32a8d5ed2b6"
+  integrity sha512-4CPX1WHortQABeKSBdw+l2RrCqrmP1ASHjtXGOrp3asiea2mm0sMkvlLdzGqC+1818Lhu/evkjgN8nljeW56XQ==
 
 react-refresh@^0.4.0:
   version "0.4.3"

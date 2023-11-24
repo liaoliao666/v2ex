@@ -31,6 +31,23 @@ export const tabTopicsQuery = query<Topic[], { tab?: string }>({
   staleTime: 10 * 1000,
 })
 
+export const hotestTopicsQuery = query<Topic[], { tab: string }>({
+  key: 'hotestTopics',
+  fetcher: async ({ tab }, { signal }) => {
+    const { data } = await request.get(
+      `https://v2hot.pipecraft.net/hot/${tab}`,
+      {
+        responseType: 'text',
+        signal,
+      }
+    )
+    const $ = load(data)
+    return parseTopicItems($, '#Main .box .cell.item')
+  },
+  structuralSharing: false,
+  staleTime: 10 * 1000,
+})
+
 export const recentTopicsQuery = queryWithInfinite<PageData<Topic>, void>({
   key: 'recentTopics',
   fetcher: async (_, { pageParam, signal }) => {

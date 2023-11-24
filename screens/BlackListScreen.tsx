@@ -119,9 +119,7 @@ function BlackListScreen() {
           )
         }
         onIndexChange={setIndex}
-        initialLayout={{
-          width: layout.width,
-        }}
+        initialLayout={{ width: layout.width }}
         tabBarPosition="bottom"
         renderTabBar={props => (
           <View style={tw`absolute top-0 inset-x-0 z-10`}>

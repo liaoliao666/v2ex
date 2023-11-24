@@ -93,6 +93,12 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
               {topic.node?.title}
             </StyledButton>
           )}
+
+          {topic.pin_to_top && (
+            <StyledButton size="mini" type="danger" pressable={false} ghost>
+              置顶
+            </StyledButton>
+          )}
         </View>
 
         <Text
