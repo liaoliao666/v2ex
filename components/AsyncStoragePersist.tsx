@@ -31,6 +31,7 @@ export function AsyncStoragePersist({ children }: { children: ReactNode }) {
             JSON.stringify(
               dehydrate(queryClient, {
                 shouldDehydrateQuery: queryInfo =>
+                  queryInfo.state.status === 'success' &&
                   !queryInfo.isStaleByTime(1000 * 60 * 60 * 24),
               })
             )
