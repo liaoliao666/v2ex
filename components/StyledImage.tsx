@@ -15,6 +15,8 @@ import { View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 import { suspend } from 'suspend-react'
 
+import { store } from '@/jotai/store'
+import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { hasSize } from '@/utils/hasSize'
 import { request } from '@/utils/request'
 import tw from '@/utils/tw'
@@ -62,9 +64,12 @@ function CustomImage({
         }
         onError?.(err)
       }}
+      placeholder={
+        store.get(colorSchemeAtom) === 'light'
+          ? require('../assets/image-light-placeholder.png')
+          : require('../assets/image-dark-placeholder.png')
+      }
       style={tw.style(
-        // Display loading if image size is not available
-        (!size || size === 'error') && 'img-loading',
         // Compute image size if style has no size
         !hasSize(style) && computeImageSize(containerWidth, size),
         style as ViewStyle
