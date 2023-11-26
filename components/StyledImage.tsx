@@ -49,7 +49,7 @@ function CustomImage({
         const newSize: any = pick(ev.source, ['width', 'height'])
         if (!isEqual(size, newSize)) {
           uriToSize.set(uri, newSize)
-          update()
+          if (!hasSize(style)) update()
         }
         onLoad?.(ev)
       }}
@@ -58,13 +58,13 @@ function CustomImage({
         // maybe fixed in next expo-image version
         if (!hasSize(size)) {
           uriToSize.set(uri, 'error')
-          update()
+          if (!hasSize(style)) update()
         }
         onError?.(err)
       }}
       style={tw.style(
         // Display loading if image size is not available
-        !size && 'img-loading',
+        (!size || size === 'error') && 'img-loading',
         // Compute image size if style has no size
         !hasSize(style) && computeImageSize(containerWidth, size),
         style as ViewStyle
