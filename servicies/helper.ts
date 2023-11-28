@@ -201,7 +201,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
     title: $('h1').eq(0).text(),
     created: $('small.gray > span').text().trim(),
     ...invoke(() => {
-      const content = $('.topic_content').html()!
+      const content = $('#Main .topic_content').html()!
       return {
         content,
         parsed_content: parseBase64Text(content),
@@ -209,7 +209,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
     }),
     thanked: !!$('.topic_thanked').length,
     votes: parseInt($($('.votes').find('a').get(0)).text() || '0', 10),
-    supplements: $('.subtle')
+    supplements: $('#Main .subtle')
       .map((i, subtle) => {
         const content = $(subtle).find('.topic_content').html()!
         return {

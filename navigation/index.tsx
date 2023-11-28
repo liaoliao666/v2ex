@@ -92,7 +92,7 @@ export default function Navigation() {
       ref={navigationRef}
       linking={linking}
       theme={theme}
-      onReady={() => sleep(100).then(SplashScreen.hideAsync)}
+      onReady={() => sleep(300).then(SplashScreen.hideAsync)}
     >
       <PageLayout>
         <StackNavigator />
@@ -236,7 +236,7 @@ function StackNavigator() {
           isTablet
             ? undefined
             : {
-                presentation: 'containedModal',
+                presentation: 'fullScreenModal',
                 ...androidSlideFromBottomOptions,
               }
         }
