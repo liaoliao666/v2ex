@@ -138,7 +138,7 @@ function HotestTopicsScreen() {
                 scrollEnabled
                 style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
                 tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[20px] ml-[30px] bg-foreground h-1 rounded-full`}
+                indicatorStyle={tw`w-[30px] ml-[25px] bg-foreground h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-b-0`}
                 renderTabBarItem={({ route }) => {
                   const active = routes[index].key === route.key

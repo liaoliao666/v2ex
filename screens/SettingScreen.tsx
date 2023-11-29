@@ -313,6 +313,8 @@ function SettingScreen() {
               await confirm(`确认清除缓存吗？`, `该动作会导致删除所有缓存数据`)
               queryClient.removeQueries()
               Image.clearDiskCache()
+              Image.clearMemoryCache()
+
               Toast.show({
                 type: 'success',
                 text1: `清除缓存成功`,

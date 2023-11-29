@@ -74,20 +74,18 @@ function NotificationsScreen() {
 
   const profile = useAtomValue(profileAtom)
 
+  const handleReply = useCallback((notice: Notice) => {
+    setReplyInfo({
+      topicId: notice.topic.id,
+      username: notice.member.username,
+    })
+  }, [])
+
   const renderItem: ListRenderItem<Notice> = useCallback(
     ({ item }) => (
-      <NoticeItem
-        key={item.id}
-        notice={item}
-        onReply={notice => {
-          setReplyInfo({
-            topicId: notice.topic.id,
-            username: notice.member.username,
-          })
-        }}
-      />
+      <NoticeItem key={item.id} notice={item} onReply={handleReply} />
     ),
-    []
+    [handleReply]
   )
 
   const flatedData = useMemo(

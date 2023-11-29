@@ -19,7 +19,7 @@ export const notificationsQuery = queryWithInfinite<PageData<Notice>, void>({
     return {
       page: pageParam,
       last_page: parseLastPage($),
-      list: $('#notifications .cell')
+      list: $('#notifications .cell[id^=n_]')
         .map((i, cell) => {
           const $td = $(cell).find('tr').eq(0).find('td')
           const $avatar = $td.find('a > img')
