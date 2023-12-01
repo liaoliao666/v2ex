@@ -23,6 +23,7 @@ import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
 import ConfigureDomainScreen from '@/screens/ConfigureDomainScreen'
+import EditSocks5Screen from '@/screens/EditSocks5Screen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import HotestTopicsScreen from '@/screens/HotestTopicsScreen'
@@ -263,6 +264,15 @@ function StackNavigator() {
       <Stack.Screen name="HotestTopics" component={HotestTopicsScreen} />
 
       <Stack.Screen name="ConfigureDomain" component={ConfigureDomainScreen} />
+
+      <Stack.Screen
+        name="EditSocks5Screen"
+        component={EditSocks5Screen}
+        options={{
+          presentation: 'modal',
+          ...androidSlideFromBottomOptions,
+        }}
+      />
     </Stack.Navigator>
   )
 }

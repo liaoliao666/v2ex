@@ -9,7 +9,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { useMutation, useQuery } from 'quaere'
 import { Fragment } from 'react'
-import { Platform, ScrollView, Switch, Text, View } from 'react-native'
+import { Platform, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
@@ -21,6 +21,7 @@ import RadioButtonGroup from '@/components/RadioButtonGroup'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
+import StyledSwitch from '@/components/StyledSwtich'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
@@ -106,13 +107,8 @@ function SettingScreen() {
                 />
               }
               action={
-                <Switch
+                <StyledSwitch
                   value={enabledAutoCheckin}
-                  trackColor={
-                    Platform.OS === 'android'
-                      ? undefined
-                      : { true: `rgb(26,140,216)` }
-                  }
                   onValueChange={() =>
                     setEnabledAutoCheckin(!enabledAutoCheckin)
                   }
@@ -131,13 +127,8 @@ function SettingScreen() {
                 />
               }
               action={
-                <Switch
+                <StyledSwitch
                   value={enabledMsgPush}
-                  trackColor={
-                    Platform.OS === 'android'
-                      ? undefined
-                      : { true: `rgb(26,140,216)` }
-                  }
                   onValueChange={() => setEnabledMsgPush(!enabledMsgPush)}
                 />
               }
@@ -156,13 +147,8 @@ function SettingScreen() {
             />
           }
           action={
-            <Switch
+            <StyledSwitch
               value={enabledParseContent}
-              trackColor={
-                Platform.OS === 'android'
-                  ? undefined
-                  : { true: `rgb(26,140,216)` }
-              }
               onValueChange={async () => {
                 try {
                   if (enabledParseContent)

@@ -15,7 +15,7 @@ export const socksAgentConfigAtom = atomWithAsyncStorage<{
   agents: ProxyAgent[]
   index: number
   enabled: boolean
-}>('agentConfig', {
+}>('socksAgentConfig', {
   agents: [],
   index: 0,
   enabled: false,

@@ -10,9 +10,11 @@ import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
+import StyledSwitch from '@/components/StyledSwtich'
 import StyledTextInput from '@/components/StyledTextInput'
 import { baseUrlAtom, v2exURL } from '@/jotai/baseUrlAtom'
 import { getFontSize } from '@/jotai/fontSacleAtom'
+import { socksAgentConfigAtom } from '@/jotai/socksAgentConfigAtom'
 import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 import { isValidURL } from '@/utils/url'
@@ -46,6 +48,8 @@ function ConfigureDomainScreen() {
     },
   })
 
+  const [socksAgentConfig, setSocksAgentConfig] = useAtom(socksAgentConfigAtom)
+
   return (
     <View style={tw`flex-1`}>
       <ScrollView
@@ -73,6 +77,31 @@ function ConfigureDomainScreen() {
               />
             )}
           />
+
+          <View style={tw`flex-row items-center`}>
+            <Text style={tw`${getFontSize(4)} text-foreground mr-2`}>
+              Socks5
+            </Text>
+
+            <Text
+              style={tw`${getFontSize(5)} text-primary mr-auto`}
+              onPress={() => {
+                navigation.navigate('EditSocks5Screen', {})
+              }}
+            >
+              添加
+            </Text>
+
+            <StyledSwitch
+              value={socksAgentConfig.enabled}
+              onValueChange={() =>
+                setSocksAgentConfig(prev => ({
+                  ...prev,
+                  enabled: !prev.enabled,
+                }))
+              }
+            />
+          </View>
 
           <StyledButton
             size="large"

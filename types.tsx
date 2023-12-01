@@ -76,6 +76,9 @@ export type RootStackParamList = {
   }
   HotestTopics: undefined
   ConfigureDomain: undefined
+  EditSocks5Screen: {
+    index?: number
+  }
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
