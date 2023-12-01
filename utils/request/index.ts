@@ -2,16 +2,16 @@ import axios from 'axios'
 import { CheerioAPI, load } from 'cheerio'
 import dayjs from 'dayjs'
 import { RESET } from 'jotai/utils'
-import { isInteger, isObjectLike } from 'lodash-es'
+import { isInteger, isObjectLike, isString } from 'lodash-es'
 import { isEqual } from 'lodash-es'
 import Toast from 'react-native-toast-message'
-import { isString } from 'twrnc/dist/esm/types'
 
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { open503UrlTimeAtom } from '@/jotai/open503UrlTimeAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { getAgents } from '@/jotai/socksAgentConfigAtom'
 import { store } from '@/jotai/store'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import {
@@ -36,6 +36,7 @@ export const request = axios.create({
 request.interceptors.request.use(config => {
   return {
     ...config,
+    ...getAgents(),
     baseURL: getBaseURL(),
   }
 })
