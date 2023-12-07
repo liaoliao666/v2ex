@@ -1,5 +1,9 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { HydrationBoundary, dehydrate, useQueryClient } from 'quaere'
+import {
+  HydrationBoundary,
+  dehydrate,
+  useQueryClient,
+} from '@tanstack/react-query'
 import { ReactNode, useEffect } from 'react'
 import { suspend } from 'suspend-react'
 
@@ -16,23 +20,25 @@ export function AsyncStoragePersist({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
 
   useEffect(() => {
-    let lastTime = 0
+    let changed = false
     let running = false
 
-    const timer = setInterval(async () => {
-      const { lastUpdated } = queryClient.getQueryCache()
+    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
+      changed = true
+    })
 
-      if (lastUpdated !== lastTime && !running) {
+    const timer = setInterval(async () => {
+      if (changed && !running) {
         try {
-          lastTime = lastUpdated
+          changed = false
           running = true
           await AsyncStorage.setItem(
             CACHE_KEY,
             JSON.stringify(
               dehydrate(queryClient, {
-                shouldDehydrateQuery: queryInfo =>
-                  queryInfo.state.status === 'success' &&
-                  !queryInfo.isStaleByTime(1000 * 60 * 60 * 24),
+                shouldDehydrateQuery: query =>
+                  query.state.status === 'success' &&
+                  !query.isStaleByTime(1000 * 60 * 60 * 24),
               })
             )
           )
@@ -44,6 +50,7 @@ export function AsyncStoragePersist({ children }: { children: ReactNode }) {
     }, 1000)
 
     return () => {
+      unsubscribe()
       clearTimeout(timer)
     }
   }, [queryClient])

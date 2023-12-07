@@ -1,7 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { isString, upperCase } from 'lodash-es'
-import { useQuery } from 'quaere'
 import { useCallback, useState } from 'react'
 import {
   FlatList,
@@ -19,7 +18,7 @@ import SearchBar from '@/components/SearchBar'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodesQuery } from '@/servicies/node'
+import { nodeService } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -29,8 +28,7 @@ export default function SearchNodeScreen() {
 
   const [searchText, setSearchText] = useState('')
 
-  const { data: matchNodes } = useQuery({
-    query: nodesQuery,
+  const { data: matchNodes } = nodeService.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => {
         return searchText

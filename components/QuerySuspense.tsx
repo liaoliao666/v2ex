@@ -1,6 +1,6 @@
+import { QueryErrorResetBoundary } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
 import { isObjectLike, isString } from 'lodash-es'
-import { QueryErrorResetBoundary } from 'quaere'
 import type { ComponentType, FC, ReactNode } from 'react'
 import { Fragment, Suspense } from 'react'
 import type { ErrorBoundaryProps, FallbackProps } from 'react-error-boundary'

@@ -2,7 +2,6 @@ import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { last, uniqBy } from 'lodash-es'
-import { useSuspenseQuery } from 'quaere'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
   Animated,
@@ -40,11 +39,11 @@ import TopicInfo, {
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { topicDetailQuery } from '@/servicies/topic'
+import { topicService } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSelf } from '@/utils/authentication'
-import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -73,11 +72,6 @@ type OrderBy = 'asc' | 'desc'
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
 
-  useRemoveUnnecessaryPages({
-    query: topicDetailQuery,
-    variables: { id: params.id },
-  })
-
   const {
     data,
     refetch,
@@ -85,8 +79,7 @@ function TopicDetailScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useSuspenseQuery({
-    query: topicDetailQuery,
+  } = topicService.detail.useSuspenseInfiniteQuery({
     variables: { id: params.id },
   })
 
@@ -233,11 +226,10 @@ function TopicDetailScreen() {
                         const pageDatas = await Promise.all(
                           allPageNo.map(page => {
                             if (pageToData[page]) return pageToData[page]
-                            return topicDetailQuery.fetcher(
+                            return topicService.detail.fetcher(
                               {
                                 id: params.id,
                               },
-                              // @ts-ignore
                               {
                                 pageParam: page,
                               }
@@ -246,10 +238,7 @@ function TopicDetailScreen() {
                         )
 
                         queryClient.setQueryData(
-                          {
-                            query: topicDetailQuery,
-                            variables: { id: params.id },
-                          },
+                          topicService.detail.getKey({ id: params.id }),
                           allPageNo.reduce(
                             (acc, p, i) => {
                               acc.pageParams[i] = p

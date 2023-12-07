@@ -1,5 +1,4 @@
 import { useAtomValue } from 'jotai'
-import { useQuery } from 'quaere'
 import { useCallback, useState } from 'react'
 import {
   FlatList,
@@ -19,7 +18,7 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodesQuery } from '@/servicies/node'
+import { nodeService } from '@/servicies/node'
 import { Node } from '@/servicies/types'
 import tw from '@/utils/tw'
 
@@ -32,8 +31,7 @@ const ITEM_HEIGHT = 88
 function NavNodesScreen() {
   const navNodes = useAtomValue(navNodesAtom)
 
-  const { data: routes = [] } = useQuery({
-    query: nodesQuery,
+  const { data: routes = [] } = nodeService.all.useQuery({
     select: nodes => {
       const nodeMap: Record<string, Node> = Object.fromEntries(
         nodes.map(node => [node.name, node])

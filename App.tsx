@@ -1,9 +1,9 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
+import { QueryClientProvider } from '@tanstack/react-query'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
-import { QueryClientProvider, useQuery } from 'quaere'
 import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
@@ -27,8 +27,8 @@ import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
 import { topicDraftAtom } from './jotai/topicDraftAtom'
 import Navigation from './navigation'
-import { checkinQuery } from './servicies/member'
-import { nodesQuery } from './servicies/node'
+import { memberService } from './servicies/member'
+import { nodeService } from './servicies/node'
 import './utils/dayjsPlugins'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
 import { queryClient } from './utils/query'
@@ -88,12 +88,11 @@ function AppInitializer({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useQuery({ query: nodesQuery })
+  nodeService.all.useQuery()
 
   useDeviceContext(tw, { withDeviceColorScheme: false })
 
-  useQuery({
-    query: checkinQuery,
+  memberService.checkin.useQuery({
     enabled: !!profile && enabledAutoCheckin,
   })
 

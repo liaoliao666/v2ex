@@ -2,7 +2,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { RESET } from 'jotai/utils'
 import { compact, isString } from 'lodash-es'
-import { useMutation, useQuery } from 'quaere'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
@@ -29,13 +28,7 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { WriteTopicArgs, topicDraftAtom } from '@/jotai/topicDraftAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { previewQuery } from '@/servicies/preview'
-import {
-  editTopicInfoQuery,
-  eitTopicMutation,
-  topicDetailQuery,
-  writeTopicMutation,
-} from '@/servicies/topic'
+import { topicService } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
@@ -94,10 +87,10 @@ function WriteTopicScreen() {
 
   const isEdit = !!topic
 
-  const { data: editTopicInfo } = useQuery({
-    query: editTopicInfoQuery,
+  const { data: editTopicInfo } = topicService.editInfo.useQuery({
     variables: { id: topic?.id! },
     enabled: isEdit,
+    // @ts-ignore
     suspense: isEdit,
   })
 
@@ -117,9 +110,9 @@ function WriteTopicScreen() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  const writeTopicResult = useMutation({ mutation: writeTopicMutation })
+  const writeTopicResult = topicService.write.useMutation()
 
-  const editTopicResult = useMutation({ mutation: eitTopicMutation })
+  const editTopicResult = topicService.edit.useMutation()
 
   const navbarHeight = useNavBarHeight()
 
@@ -293,14 +286,11 @@ function WriteTopicScreen() {
 
                 handleSubmit(async values => {
                   try {
-                    if (
-                      writeTopicResult.isMutating ||
-                      editTopicResult.isMutating
-                    )
+                    if (writeTopicResult.isPending || editTopicResult.isPending)
                       return
 
                     if (isEdit) {
-                      await editTopicResult.trigger({
+                      await editTopicResult.mutateAsync({
                         title: values.title.trim(),
                         content: values.content?.trim(),
                         node_name: values.node.name,
@@ -309,12 +299,11 @@ function WriteTopicScreen() {
                       })
 
                       queryClient.refetchQueries({
-                        query: topicDetailQuery,
-                        variables: { id: topic?.id },
+                        queryKey: topicService.detail.getKey({ id: topic?.id }),
                         type: 'active',
                       })
                     } else {
-                      await writeTopicResult.trigger({
+                      await writeTopicResult.mutateAsync({
                         title: values.title.trim(),
                         content: values.content?.trim(),
                         node_name: values.node.name,
@@ -388,10 +377,10 @@ function PreviewTopic({
   text: string
   syntax: 'default' | 'markdown'
 }) {
-  const { data } = useQuery({
-    query: previewQuery,
+  const { data } = topicService.preview.useQuery({
     variables,
     enabled: !!variables.text,
+    // @ts-ignore
     suspense: true,
   })
 

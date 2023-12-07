@@ -1,6 +1,5 @@
 import { useAtomValue } from 'jotai'
 import { findIndex, last, uniqBy } from 'lodash-es'
-import { useSuspenseQuery } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
@@ -29,9 +28,9 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { memberTopicsQuery, myFollowingQuery } from '@/servicies/member'
+import { memberService } from '@/servicies/member'
+import { myService } from '@/servicies/my'
 import { Topic } from '@/servicies/types'
-import { useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -82,13 +81,7 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
 })
 
 function MyFollowingScreen() {
-  useRemoveUnnecessaryPages({
-    query: myFollowingQuery,
-  })
-
-  const { data } = useSuspenseQuery({
-    query: myFollowingQuery,
-  })
+  const { data } = myService.following.useSuspenseInfiniteQuery()
 
   const following = last(data.pages)?.following
 
@@ -192,9 +185,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useSuspenseQuery({
-    query: myFollowingQuery,
-  })
+  } = myService.following.useSuspenseInfiniteQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -252,11 +243,6 @@ function MemberTopics({
   username: string
   headerHeight: number
 }) {
-  useRemoveUnnecessaryPages({
-    query: memberTopicsQuery,
-    variables: { username },
-  })
-
   const {
     data,
     refetch,
@@ -264,8 +250,7 @@ function MemberTopics({
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useSuspenseQuery({
-    query: memberTopicsQuery,
+  } = memberService.topics.useSuspenseInfiniteQuery({
     variables: { username },
   })
 

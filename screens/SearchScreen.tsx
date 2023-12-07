@@ -7,11 +7,9 @@ import {
   isEqual,
   isString,
   maxBy,
-  omit,
   uniqBy,
   upperCase,
 } from 'lodash-es'
-import { useQuery, useSuspenseQuery } from 'quaere'
 import { useCallback, useMemo, useState } from 'react'
 import { memo } from 'react'
 import {
@@ -43,12 +41,11 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodesQuery } from '@/servicies/node'
-import { sov2exQuery } from '@/servicies/other'
-import { topicDetailQuery } from '@/servicies/topic'
+import { nodeService } from '@/servicies/node'
+import { useSov2exQuery } from '@/servicies/other'
+import { topicService } from '@/servicies/topic'
 import { Member, Node, Sov2exResult } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
-import { useRemoveUnnecessaryPages } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -61,8 +58,7 @@ export default function SearchScreen() {
 
   const [isSearchNode, setIsSearchNode] = useState(!params?.query)
 
-  const { data: matchNodes } = useQuery({
-    query: nodesQuery,
+  const { data: matchNodes } = nodeService.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => {
         if (!isSearchNode) return []
@@ -227,19 +223,12 @@ function SoV2exList({
 }) {
   const sov2exArgs = useAtomValue(sov2exArgsAtom)
 
-  useRemoveUnnecessaryPages({
-    query: sov2exQuery,
-    variables: { ...omit(sov2exArgs, ['source']), q: query },
-  })
-
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSuspenseQuery({
-      query: sov2exQuery,
+    useSov2exQuery({
       variables: { ...sov2exArgs, q: query },
     })
 
-  const { data: nodeMap } = useQuery({
-    query: nodesQuery,
+  const { data: nodeMap } = nodeService.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => Object.fromEntries(nodes.map(node => [node.id, node])),
       []
@@ -338,8 +327,7 @@ const HitItem = memo(
       content: string
     }
   }) => {
-    const { data: isReaded } = useQuery({
-      query: topicDetailQuery,
+    const { data: isReaded } = topicService.detail.useInfiniteQuery({
       variables: { id: topic.id },
       select: data => {
         const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0

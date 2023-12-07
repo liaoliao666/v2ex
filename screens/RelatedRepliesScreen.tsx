@@ -1,8 +1,7 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { find, findIndex, isEmpty, last, uniqBy } from 'lodash-es'
-import { useQuery } from 'quaere'
-import { memo, useCallback, useMemo, useRef, useState } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -22,7 +21,7 @@ import StyledImage from '@/components/StyledImage'
 import ReplyItem from '@/components/topic/ReplyItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { topicDetailQuery } from '@/servicies/topic'
+import { topicService } from '@/servicies/topic'
 import { Reply } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -38,8 +37,7 @@ export default function RelatedRepliesScreen() {
     params: { replyId, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
-  const { data } = useQuery({
-    query: topicDetailQuery,
+  const { data } = topicService.detail.useInfiniteQuery({
     variables: { id: topicId },
     enabled: false,
   })
@@ -216,13 +214,16 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
     params: { onReply, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
-  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } = useQuery({
-    query: topicDetailQuery,
+  const {
+    data,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    isFetchedAfterMount,
+  } = topicService.detail.useInfiniteQuery({
     variables: { id: topicId },
     enabled: false,
   })
-
-  const canFetchNextPage = useRef(hasNextPage)
 
   const lastPage = last(data?.pages)!
 
@@ -247,8 +248,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
       renderItem={renderItem}
       onEndReached={() => {
         // only fetch once when scroll to bottom
-        if (hasNextPage && canFetchNextPage.current) {
-          canFetchNextPage.current = false
+        if (hasNextPage && !isFetchedAfterMount) {
           fetchNextPage()
         }
       }}

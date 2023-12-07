@@ -2,7 +2,6 @@ import { Feather } from '@expo/vector-icons'
 import { DrawerActions } from '@react-navigation/native'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
-import { useSuspenseQuery } from 'quaere'
 import {
   ReactNode,
   RefObject,
@@ -49,11 +48,11 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
-import { nodeTopicsQuery } from '@/servicies/node'
-import { recentTopicsQuery, tabTopicsQuery } from '@/servicies/topic'
+import { nodeService } from '@/servicies/node'
+import { topicService } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import { isLargeTablet, useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -111,33 +110,31 @@ function HomeScreen() {
   function handleInexChange(i: number, forceFetch = false) {
     const activeTab = tabs[i]
     const activeTabKey = activeTab.key
-    const filters: any =
+    const activeQueryKey: any =
       activeTab.type === 'node'
-        ? {
-            query: nodeTopicsQuery,
-            variables: { name: activeTabKey },
-          }
+        ? nodeService.topics.getKey({ name: activeTabKey })
         : activeTab.key === Recent_TAB_KEY
-        ? {
-            query: recentTopicsQuery,
-          }
-        : {
-            query: tabTopicsQuery,
-            variables: { tab: activeTabKey },
-          }
-    const queryInfo = queryClient.getQueryCache().find(filters)
+        ? topicService.recent.getKey()
+        : topicService.tab.getKey({ tab: activeTabKey })
+    const query = queryClient.getQueryCache().find({
+      queryKey: activeQueryKey,
+    })
 
-    if (queryInfo?.state.error) {
+    if (query?.state.error) {
       errorResetMap[activeTabKey]?.()
-    } else if (
-      queryInfo?.getObserversCount() &&
-      (forceFetch || queryInfo?.isStale())
-    ) {
-      queryClient.prefetchQuery({
-        ...filters,
-        staleTime: 0,
-        pages: 1,
-      })
+    } else if (query?.getObserversCount() && (forceFetch || query?.isStale())) {
+      if (activeTab.type === 'node' || activeTab.key === Recent_TAB_KEY) {
+        queryClient.prefetchInfiniteQuery({
+          ...(activeTab.type === 'node'
+            ? nodeService.topics.getFetchOptions({ name: activeTabKey })
+            : topicService.recent.getFetchOptions()),
+          pages: 1,
+        })
+      } else {
+        queryClient.prefetchQuery(
+          topicService.tab.getFetchOptions({ tab: activeTabKey })
+        )
+      }
     }
 
     setIndex(i)
@@ -265,10 +262,6 @@ function HomeScreen() {
 
 const RecentTopics = memo(
   forwardRef<FlatList, { headerHeight: number }>(({ headerHeight }, ref) => {
-    useRemoveUnnecessaryPages({
-      query: recentTopicsQuery,
-    })
-
     const {
       data,
       refetch,
@@ -276,8 +269,7 @@ const RecentTopics = memo(
       fetchNextPage,
       isFetchingNextPage,
       isFetching,
-    } = useSuspenseQuery({
-      query: recentTopicsQuery,
+    } = topicService.recent.useSuspenseInfiniteQuery({
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(Recent_TAB_KEY),
     })
 
@@ -341,8 +333,7 @@ const TabTopics = memo(
       headerHeight: number
     }
   >(({ tab, headerHeight }, ref) => {
-    const { data, refetch, isFetching } = useSuspenseQuery({
-      query: tabTopicsQuery,
+    const { data, refetch, isFetching } = topicService.tab.useSuspenseQuery({
       variables: { tab },
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(tab),
     })
@@ -391,11 +382,6 @@ const NodeTopics = memo(
       headerHeight: number
     }
   >(({ nodeName, headerHeight }, ref) => {
-    useRemoveUnnecessaryPages({
-      query: nodeTopicsQuery,
-      variables: { name: nodeName },
-    })
-
     const {
       data,
       refetch,
@@ -403,8 +389,7 @@ const NodeTopics = memo(
       fetchNextPage,
       isFetchingNextPage,
       isFetching,
-    } = useSuspenseQuery({
-      query: nodeTopicsQuery,
+    } = nodeService.topics.useSuspenseInfiniteQuery({
       variables: { name: nodeName },
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(nodeName),
     })

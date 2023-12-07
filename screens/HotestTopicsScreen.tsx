@@ -1,7 +1,6 @@
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { findIndex } from 'lodash-es'
-import { useSuspenseQuery } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
@@ -28,7 +27,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { hotestTopicsQuery } from '@/servicies/topic'
+import { topicService } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -182,8 +181,7 @@ function HotestTopics({
   tab: string
   headerHeight: number
 }) {
-  const { data, refetch, isFetching } = useSuspenseQuery({
-    query: hotestTopicsQuery,
+  const { data, refetch, isFetching } = topicService.hotest.useSuspenseQuery({
     variables: { tab },
   })
 

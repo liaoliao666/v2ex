@@ -7,7 +7,6 @@ import {
 import { Image } from 'expo-image'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
-import { useMutation, useQuery } from 'quaere'
 import { Fragment } from 'react'
 import { Platform, ScrollView, Switch, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -30,8 +29,8 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { signoutMutation } from '@/servicies/authentication'
-import { latestVersionQuery } from '@/servicies/version'
+import { authService } from '@/servicies/auth'
+import { useLatestVersionQuery } from '@/servicies/other'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
 import { queryClient } from '@/utils/query'
@@ -380,16 +379,14 @@ function SettingScreen() {
 }
 
 function SignoutItem({ once }: { once: string }) {
-  const { isMutating, trigger } = useMutation({
-    mutation: signoutMutation,
-  })
+  const { isPending, mutateAsync } = authService.signout.useMutation()
 
   const setProfileAtom = useSetAtom(profileAtom)
 
   async function logout() {
     try {
-      if (isMutating) return
-      await trigger({ once })
+      if (isPending) return
+      await mutateAsync({ once })
     } catch (error) {
       // empty
     } finally {
@@ -406,9 +403,7 @@ function SignoutItem({ once }: { once: string }) {
 }
 
 function CheckAppVersion() {
-  const { data, refetch, isFetching } = useQuery({
-    query: latestVersionQuery,
-  })
+  const { data, refetch, isFetching } = useLatestVersionQuery()
 
   return (
     <ListItem

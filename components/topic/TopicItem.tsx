@@ -1,11 +1,10 @@
 import { compact, isEqual, maxBy } from 'lodash-es'
-import { useQuery } from 'quaere'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
-import { topicDetailQuery } from '@/servicies/topic'
+import { topicService } from '@/servicies/topic'
 import { Topic } from '@/servicies/types'
 import { isLargeTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
@@ -23,8 +22,7 @@ export interface TopicItemProps {
 export default memo(TopicItem, isEqual)
 
 function TopicItem({ topic, hideAvatar }: TopicItemProps) {
-  const { data: isReaded } = useQuery({
-    query: topicDetailQuery,
+  const { data: isReaded } = topicService.detail.useInfiniteQuery({
     variables: { id: topic.id },
     select: data => {
       const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0

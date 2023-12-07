@@ -1,5 +1,4 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useSuspenseQuery } from 'quaere'
 import { ScrollView, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -11,7 +10,7 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
-import { repoReadmeQuery } from '@/servicies/other'
+import { useRepoReadmeQuery } from '@/servicies/other'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
@@ -40,8 +39,7 @@ export default withQuerySuspense(GItHubMDScreen, {
 function GItHubMDScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'GItHubMD'>>()
 
-  const { data: html } = useSuspenseQuery({
-    query: repoReadmeQuery,
+  const { data: html } = useRepoReadmeQuery({
     variables: { url: params.url },
   })
 

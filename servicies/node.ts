@@ -1,80 +1,63 @@
 import { load } from 'cheerio'
-import { mutation, query, queryWithInfinite } from 'quaere'
+import { router } from 'react-query-kit'
 
 import { invoke } from '@/utils/invoke'
-import { queryClient } from '@/utils/query'
+import { removeUnnecessaryPages } from '@/utils/query'
 import { request } from '@/utils/request'
 import { getURLSearchParams } from '@/utils/url'
 
-import {
-  getNextPageParam,
-  parseLastPage,
-  parseTopicItems,
-  pasreArgByATag,
-} from './helper'
+import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
 import { Node, PageData, Topic } from './types'
 
-export const nodesQuery = query<Node[], void>({
-  key: 'nodes',
-  fetcher: (_, { signal }) =>
-    request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),
-})
+export const nodeService = router(`node`, {
+  all: router.query({
+    fetcher: (_, { signal }): Promise<Node[]> =>
+      request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),
+  }),
 
-export const likeNodeMutation = mutation<
-  void,
-  { id: number; once: string; type: 'unfavorite' | 'favorite' }
->({
-  fetcher: ({ id, once, type }) =>
-    request.get(`/${type}/node/${id}?once=${once}`, {
-      responseType: 'text',
-    }),
-})
+  topics: router.infiniteQuery({
+    fetcher: async (
+      { name }: { name: string },
+      { pageParam, signal }
+    ): Promise<PageData<Topic> & { liked?: boolean; once?: string }> => {
+      const { data } = await request.get(`/go/${name}?p=${pageParam}`, {
+        responseType: 'text',
+        signal,
+      })
+      const $ = load(data)
 
-export const nodeTopicsQuery = queryWithInfinite<
-  PageData<Topic> & { liked?: boolean; once?: string },
-  { name: string }
->({
-  key: 'nodeTopics',
-  fetcher: async ({ name }, { pageParam, signal }) => {
-    const { data } = await request.get(`/go/${name}?p=${pageParam}`, {
-      responseType: 'text',
-      signal,
-    })
-    const $ = load(data)
+      return {
+        page: pageParam,
+        last_page: parseLastPage($),
+        list: parseTopicItems($, '#TopicsNode .cell'),
+        ...invoke(() => {
+          const url = $('.cell_ops a').attr('href')
+          if (!url) return
+          return {
+            once: getURLSearchParams(url).once,
+            liked: url.includes('unfavorite'),
+          }
+        }),
+      }
+    },
+    initialPageParam: 1,
+    getNextPageParam,
+    structuralSharing: false,
+    use: [removeUnnecessaryPages],
+  }),
 
-    return {
-      page: pageParam,
-      last_page: parseLastPage($),
-      list: parseTopicItems($, '#TopicsNode .cell'),
-      ...invoke(() => {
-        const url = $('.cell_ops a').attr('href')
-        if (!url) return
-        return {
-          once: getURLSearchParams(url).once,
-          liked: url.includes('unfavorite'),
-        }
+  like: router.mutation({
+    mutationFn: ({
+      id,
+      once,
+      type,
+    }: {
+      id: number
+      once: string
+      type: 'unfavorite' | 'favorite'
+    }) =>
+      request.get(`/${type}/node/${id}?once=${once}`, {
+        responseType: 'text',
       }),
-    }
-  },
-  initialPageParam: 1,
-  getNextPageParam,
-  structuralSharing: false,
-})
-
-export const myNodesQuery = query<Node[], void>({
-  key: 'myNodes',
-  fetcher: async (_, { signal }) => {
-    const [data, nodes] = await Promise.all([
-      request.get(`/my/nodes`, { signal }).then(res => res.data),
-      queryClient.ensureQueryData({
-        query: nodesQuery,
-      }),
-    ])
-    const nodeMap = Object.fromEntries(nodes.map(node => [node.name, node]))
-    const $ = load(data)
-    return $('#my-nodes a')
-      .map((i, a) => nodeMap[pasreArgByATag($(a), 'go')])
-      .get()
-      .filter(Boolean)
-  },
+  }),
 })

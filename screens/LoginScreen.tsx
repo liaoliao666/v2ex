@@ -1,7 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
-import { useMutation, useQuery } from 'quaere'
 import { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import {
@@ -19,11 +18,7 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import {
-  signinInfoQuery,
-  signinMutation,
-  useTwoStepSignin,
-} from '@/servicies/authentication'
+import { authService } from '@/servicies/auth'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
@@ -43,9 +38,9 @@ const SigninArgs = z.object({
 })
 
 export default function LoginScreen() {
-  const signinInfoResult = useQuery({ query: signinInfoQuery })
+  const signinInfoResult = authService.signinInfo.useQuery()
 
-  const signinResult = useMutation({ mutation: signinMutation })
+  const signinResult = authService.signin.useMutation()
 
   const { control, getValues, handleSubmit } = useForm<
     z.infer<typeof SigninArgs>
@@ -170,11 +165,11 @@ export default function LoginScreen() {
           size="large"
           style={tw`w-full mt-4`}
           onPress={handleSubmit(async () => {
-            if (signinResult.isMutating) return
+            if (signinResult.isPending) return
             if (!signinInfoResult.data) return
 
             try {
-              const result = await signinResult.trigger({
+              const result = await signinResult.mutateAsync({
                 [signinInfoResult.data.username_hash!]:
                   getValues('username').trim(),
                 [signinInfoResult.data.password_hash!]:
@@ -196,7 +191,7 @@ export default function LoginScreen() {
             }
           })}
         >
-          {signinResult.isMutating ? '登录中...' : '登录'}
+          {signinResult.isPending ? '登录中...' : '登录'}
         </StyledButton>
 
         <FormControl
@@ -301,9 +296,8 @@ function TwoStepSignin({ once }: { once: string }) {
     resolver: zodResolver(TwoStepSigninArgs),
   })
 
-  const { trigger, isMutating, error } = useMutation({
-    mutation: useTwoStepSignin,
-  })
+  const { mutateAsync, isPending, error } =
+    authService.twoStepSignin.useMutation()
 
   return (
     <View style={tw`w-3/4 mx-auto mt-8`}>
@@ -337,8 +331,8 @@ function TwoStepSignin({ once }: { once: string }) {
         size="large"
         style={tw`w-full mt-4`}
         onPress={handleSubmit(async () => {
-          if (isMutating) return
-          await trigger({
+          if (isPending) return
+          await mutateAsync({
             ...getValues(),
             once,
           })
@@ -346,7 +340,7 @@ function TwoStepSignin({ once }: { once: string }) {
           queryClient.refetchQueries({ type: 'active' })
         })}
       >
-        {isMutating ? '登录中...' : '登录'}
+        {isPending ? '登录中...' : '登录'}
       </StyledButton>
 
       <Text style={tw`${getFontSize(5)} text-foreground mt-2`}>

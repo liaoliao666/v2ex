@@ -3,11 +3,11 @@ import { RouteProp, useRoute } from '@react-navigation/native'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
-import { useMutation, useQuery, useSuspenseQuery } from 'quaere'
 import { useCallback, useMemo, useRef } from 'react'
 import { Animated, ListRenderItem, Platform, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import Empty from '@/components/Empty'
 import Html from '@/components/Html'
@@ -27,11 +27,11 @@ import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { likeNodeMutation, nodeTopicsQuery, nodesQuery } from '@/servicies/node'
+import { nodeService } from '@/servicies/node'
 import { Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
-import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -66,19 +66,12 @@ export default withQuerySuspense(NodeTopicsScreen, {
 function NodeTopicsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
-  useRemoveUnnecessaryPages({
-    query: nodeTopicsQuery,
-    variables: { name: params.name },
-  })
-
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSuspenseQuery({
-      query: nodeTopicsQuery,
+    nodeService.topics.useSuspenseInfiniteQuery({
       variables: { name: params.name },
     })
 
-  const { data: node } = useQuery({
-    query: nodesQuery,
+  const { data: node } = nodeService.all.useQuery({
     select: nodes => find(nodes, { name: params.name }),
   })
 
@@ -205,8 +198,7 @@ function NodeInfo({
 }) {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
-  const { data: node } = useQuery({
-    query: nodesQuery,
+  const { data: node } = nodeService.all.useQuery({
     select: nodes => find(nodes, { name: params.name }),
   })
 
@@ -276,9 +268,7 @@ function LikeNode({
   liked?: boolean
   type: 'button' | 'icon'
 }) {
-  const { trigger, isMutating } = useMutation({
-    mutation: likeNodeMutation,
-  })
+  const { mutateAsync, isPending } = nodeService.like.useMutation()
 
   async function likeNode() {
     if (!isSignined()) {
@@ -286,7 +276,7 @@ function LikeNode({
       return
     }
 
-    if (isMutating) return
+    if (isPending) return
     if (!id || !once) return
 
     try {
@@ -295,7 +285,7 @@ function LikeNode({
         stars: stars + (liked ? -1 : 1),
       })
 
-      await trigger({
+      await mutateAsync({
         id,
         type: liked ? 'unfavorite' : 'favorite',
         once,
@@ -351,11 +341,8 @@ function updateNode(
   }
 ) {
   queryClient.setQueryData(
-    {
-      query: nodeTopicsQuery,
-      variables: { name },
-    },
-    produce(data => {
+    nodeService.topics.getKey({ name }),
+    produce<inferData<typeof nodeService.topics>>(data => {
       data?.pages.forEach(page => {
         Object.assign(page, node)
       })

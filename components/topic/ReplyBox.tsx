@@ -1,5 +1,4 @@
 import { pick } from 'lodash-es'
-import { useMutation } from 'quaere'
 import { Fragment, useRef } from 'react'
 import {
   KeyboardAvoidingView,
@@ -12,7 +11,7 @@ import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { appendTopicMutation, replyMutation } from '@/servicies/topic'
+import { topicService } from '@/servicies/topic'
 import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
 import { BizError } from '@/utils/request'
@@ -103,11 +102,11 @@ const ReplyBox = ({
 
   const inputRef = useRef<TextInput>(null)
 
-  const replyResult = useMutation({ mutation: replyMutation })
+  const replyResult = topicService.replyService.useMutation()
 
-  const appendTopicResult = useMutation({ mutation: appendTopicMutation })
+  const appendTopicResult = topicService.append.useMutation()
 
-  const { isMutating, trigger } = isAppend ? appendTopicResult : replyResult
+  const { isPending, mutateAsync } = isAppend ? appendTopicResult : replyResult
 
   const selectionRef = useRef<{
     start: number
@@ -243,10 +242,10 @@ const ReplyBox = ({
                 return
               }
 
-              if (isMutating) return
+              if (isPending) return
 
               try {
-                await trigger({
+                await mutateAsync({
                   once: once!,
                   topicId,
                   content: getContent().trim(),
@@ -272,7 +271,7 @@ const ReplyBox = ({
               }
             }}
           >
-            {isMutating ? '发送中' : '发送'}
+            {isPending ? '发送中' : '发送'}
           </StyledButton>
         </View>
       </KeyboardAvoidingView>

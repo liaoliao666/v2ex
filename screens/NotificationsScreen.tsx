@@ -2,11 +2,11 @@ import { Feather } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
-import { useMutation, useSuspenseQuery } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
+import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Html from '@/components/Html'
@@ -28,11 +28,11 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { deleteNoticeMutation, notificationsQuery } from '@/servicies/notice'
+import { notificationService } from '@/servicies/notification'
 import { Notice } from '@/servicies/types'
 import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
-import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -53,10 +53,6 @@ export default withQuerySuspense(NotificationsScreen, {
 })
 
 function NotificationsScreen() {
-  useRemoveUnnecessaryPages({
-    query: notificationsQuery,
-  })
-
   const {
     data,
     refetch,
@@ -64,9 +60,7 @@ function NotificationsScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = useSuspenseQuery({
-    query: notificationsQuery,
-  })
+  } = notificationService.list.useSuspenseInfiniteQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -251,9 +245,7 @@ const NoticeItem = memo(
 )
 
 function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
-  const { trigger, isMutating } = useMutation({
-    mutation: deleteNoticeMutation,
-  })
+  const { mutateAsync, isPending } = notificationService.delete.useMutation()
 
   return (
     <IconButton
@@ -267,20 +259,18 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
           return
         }
 
-        if (isMutating) return
+        if (isPending) return
 
         await confirm(`确认删除这条提醒么？`)
 
-        const notifications = queryClient.getQueryData({
-          query: notificationsQuery,
-        })
+        const notifications = queryClient.getQueryData(
+          notificationService.list.getKey()
+        )
 
         try {
           queryClient.setQueryData(
-            {
-              query: notificationsQuery,
-            },
-            produce(draft => {
+            notificationService.list.getKey(),
+            produce<inferData<typeof notificationService.list>>(draft => {
               for (const page of draft?.pages || []) {
                 const index = findIndex(page.list, { id })
                 if (index > -1) {
@@ -291,12 +281,15 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
             })
           )
 
-          await trigger({
+          await mutateAsync({
             id,
             once,
           })
         } catch (error) {
-          queryClient.setQueryData({ query: notificationsQuery }, notifications)
+          queryClient.setQueryData(
+            notificationService.list.getKey(),
+            notifications
+          )
           Toast.show({
             type: 'error',
             text1: error instanceof BizError ? error.message : '删除失败',

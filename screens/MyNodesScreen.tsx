@@ -1,5 +1,4 @@
 import { useAtomValue } from 'jotai'
-import { useSuspenseQuery } from 'quaere'
 import { useCallback } from 'react'
 import {
   FlatList,
@@ -23,7 +22,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { myNodesQuery } from '@/servicies/node'
+import { myService } from '@/servicies/my'
 import { Node } from '@/servicies/types'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -46,9 +45,7 @@ export default withQuerySuspense(MyNodesScreen, {
 const ITEM_HEIGHT = 88
 
 function MyNodesScreen() {
-  const { data: myNodes, refetch } = useSuspenseQuery({
-    query: myNodesQuery,
-  })
+  const { data: myNodes, refetch } = myService.nodes.useSuspenseQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 

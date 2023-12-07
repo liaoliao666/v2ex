@@ -1,6 +1,5 @@
 import { useAtomValue } from 'jotai'
 import { findIndex, isEmpty, uniqBy } from 'lodash-es'
-import { useMutation, useSuspenseQuery } from 'quaere'
 import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
@@ -31,11 +30,8 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { blockersQuery, ignoredTopicsQuery } from '@/servicies/member'
-import {
-  resetBlockersMutation,
-  resetIgnoredTopicsMutation,
-} from '@/servicies/settings'
+import { memberService } from '@/servicies/member'
+import { settingService } from '@/servicies/settings'
 import { Member, Topic } from '@/servicies/types'
 import tw from '@/utils/tw'
 
@@ -226,8 +222,7 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
 function Blockers({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
-  const { data } = useSuspenseQuery({
-    query: blockersQuery,
+  const { data } = memberService.blockers.useSuspenseInfiniteQuery({
     variables: { ids: blackList.blockers },
   })
 
@@ -259,8 +254,7 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
 function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
-  const { data } = useSuspenseQuery({
-    query: ignoredTopicsQuery,
+  const { data } = memberService.ignoredTopics.useSuspenseInfiniteQuery({
     variables: {
       ids: blackList.ignoredTopics,
     },
@@ -338,18 +332,16 @@ const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
 })
 
 function ResetBlockersButton() {
-  const { isMutating, trigger } = useMutation({
-    mutation: resetBlockersMutation,
-  })
+  const { isPending, mutateAsync } = settingService.resetBlockers.useMutation()
 
   return (
     <StyledButton
       shape="rounded"
       onPress={async () => {
-        if (isMutating) return
+        if (isPending) return
 
         try {
-          await trigger()
+          await mutateAsync()
 
           store.set(blackListAtom, prev => ({
             ...prev,
@@ -368,24 +360,23 @@ function ResetBlockersButton() {
         }
       }}
     >
-      {isMutating ? '清除中...' : '清除屏蔽用户'}
+      {isPending ? '清除中...' : '清除屏蔽用户'}
     </StyledButton>
   )
 }
 
 function ResetIgnoredTopicsButton() {
-  const { isMutating, trigger } = useMutation({
-    mutation: resetIgnoredTopicsMutation,
-  })
+  const { isPending, mutateAsync } =
+    settingService.resetIgnoredTopics.useMutation()
 
   return (
     <StyledButton
       shape="rounded"
       onPress={async () => {
-        if (isMutating) return
+        if (isPending) return
 
         try {
-          await trigger()
+          await mutateAsync()
 
           store.set(blackListAtom, prev => ({
             ...prev,
@@ -404,7 +395,7 @@ function ResetIgnoredTopicsButton() {
         }
       }}
     >
-      {isMutating ? '清除中...' : '清除忽略主题'}
+      {isPending ? '清除中...' : '清除忽略主题'}
     </StyledButton>
   )
 }

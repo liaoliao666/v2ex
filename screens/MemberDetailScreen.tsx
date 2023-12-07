@@ -1,8 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { every, findIndex, last, pick, some, uniqBy } from 'lodash-es'
-import { useMutation, useSuspenseQuery } from 'quaere'
 import {
   Fragment,
   ReactNode,
@@ -31,6 +29,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
+import { inferFnData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -53,17 +52,11 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import {
-  blockMemberMutation,
-  followMemberMutation,
-  memberQuery,
-  memberRepliesQuery,
-  memberTopicsQuery,
-} from '@/servicies/member'
-import { Member, Reply, Topic } from '@/servicies/types'
+import { memberService } from '@/servicies/member'
+import { Member, Topic } from '@/servicies/types'
 import { RootStackParamList } from '@/types'
 import { isSelf, isSignined } from '@/utils/authentication'
-import { queryClient, useRemoveUnnecessaryPages } from '@/utils/query'
+import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -89,21 +82,32 @@ function MemberDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   useMemo(() => {
-    queryClient.ensureQueryData({
-      query: memberTopicsQuery,
-      variables: { username: params.username },
-      pages: 1,
-    })
+    if (
+      !queryClient.getQueryData(
+        memberService.topics.getKey({ username: params.username })
+      )
+    ) {
+      queryClient.prefetchInfiniteQuery(
+        memberService.topics.getFetchOptions({
+          username: params.username,
+        })
+      )
+    }
 
-    queryClient.ensureQueryData({
-      query: memberRepliesQuery,
-      variables: { username: params.username },
-      pages: 1,
-    })
+    if (
+      !queryClient.getQueryData(
+        memberService.replies.getKey({ username: params.username })
+      )
+    ) {
+      queryClient.prefetchInfiniteQuery(
+        memberService.replies.getFetchOptions({
+          username: params.username,
+        })
+      )
+    }
   }, [params.username])
 
-  const { data: member } = useSuspenseQuery({
-    query: memberQuery,
+  const { data: member } = memberService.byUsername.useSuspenseQuery({
     variables: { username: params.username },
   })
 
@@ -310,8 +314,7 @@ function MemberDetailScreen() {
 const MemberHeader = memo(() => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  const { data: member } = useSuspenseQuery({
-    query: memberQuery,
+  const { data: member } = memberService.byUsername.useSuspenseQuery({
     variables: { username: params.username },
   })
 
@@ -461,14 +464,8 @@ const MemberTopics = forwardRef<
 >(({ contentContainerStyle, onScroll, onScrollEnd }, ref) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  useRemoveUnnecessaryPages({
-    query: memberTopicsQuery,
-    variables: { username: params.username },
-  })
-
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSuspenseQuery({
-      query: memberTopicsQuery,
+    memberService.topics.useSuspenseInfiniteQuery({
       variables: { username: params.username },
     })
 
@@ -533,26 +530,21 @@ const MemberReplies = forwardRef<
 >(({ contentContainerStyle, onScroll, onScrollEnd }, ref) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  useRemoveUnnecessaryPages({
-    query: memberRepliesQuery,
-    variables: { username: params.username },
-  })
-
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSuspenseQuery({
-      query: memberRepliesQuery,
+    memberService.replies.useSuspenseInfiniteQuery({
       variables: { username: params.username },
     })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
-  const renderItem: ListRenderItem<
-    (typeof data)['pages'][number]['list'][number]
-  > = useCallback(({ item }) => <MemberReply key={item.id} topic={item} />, [])
-
   const flatedData = useMemo(
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
     [data.pages]
+  )
+
+  const renderItem: ListRenderItem<(typeof flatedData)[number]> = useCallback(
+    ({ item }) => <MemberReply key={item.id} topic={item} />,
+    []
   )
 
   return (
@@ -594,7 +586,7 @@ const MemberReply = memo(
   ({
     topic,
   }: {
-    topic: Omit<Topic, 'replies'> & { reply: Reply; topicId: number }
+    topic: inferFnData<typeof memberService.replies>['list'][number]
   }) => {
     const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
@@ -669,9 +661,7 @@ function FollowMember({
   once,
   followed,
 }: Pick<Member, 'username' | 'id' | 'once' | 'followed'>) {
-  const { isMutating, trigger } = useMutation({
-    mutation: followMemberMutation,
-  })
+  const { isPending, mutateAsync } = memberService.follow.useMutation()
 
   return (
     <StyledButton
@@ -682,7 +672,7 @@ function FollowMember({
           return
         }
 
-        if (isMutating) return
+        if (isPending) return
         if (!id || !once) return
 
         try {
@@ -691,7 +681,7 @@ function FollowMember({
             followed: !followed,
           })
 
-          await trigger({
+          await mutateAsync({
             id,
             type: followed ? 'unfollow' : 'follow',
             once,
@@ -719,9 +709,7 @@ function BlockMember({
   once,
   blocked,
 }: Pick<Member, 'username' | 'id' | 'once' | 'blocked'>) {
-  const { trigger, isMutating } = useMutation({
-    mutation: blockMemberMutation,
-  })
+  const { mutateAsync, isPending } = memberService.block.useMutation()
 
   return (
     <StyledButton
@@ -734,7 +722,7 @@ function BlockMember({
           return
         }
 
-        if (isMutating) return
+        if (isPending) return
         if (!id || !once) return
 
         try {
@@ -743,7 +731,7 @@ function BlockMember({
             blocked: !blocked,
           })
 
-          await trigger({
+          await mutateAsync({
             id,
             type: blocked ? 'unblock' : 'block',
             once,
@@ -803,11 +791,10 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
 
 function updateMember(member: Member) {
   queryClient.setQueryData(
-    { query: memberQuery, variables: { username: member.username } },
-    produce(data => {
-      if (data) {
-        Object.assign(data, member)
-      }
+    memberService.byUsername.getKey({ username: member.username }),
+    prev => ({
+      ...prev,
+      ...member,
     })
   )
 }
