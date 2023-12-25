@@ -22,8 +22,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { myService } from '@/servicies/my'
-import { Node } from '@/servicies/types'
+import { Node, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -45,7 +44,7 @@ export default withQuerySuspense(MyNodesScreen, {
 const ITEM_HEIGHT = 88
 
 function MyNodesScreen() {
-  const { data: myNodes, refetch } = myService.nodes.useSuspenseQuery()
+  const { data: myNodes, refetch } = k.my.nodes.useSuspenseQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 

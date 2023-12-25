@@ -18,7 +18,7 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { authService } from '@/servicies/auth'
+import { k } from '@/servicies'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { stripString } from '@/utils/zodHelper'
@@ -38,9 +38,9 @@ const SigninArgs = z.object({
 })
 
 export default function LoginScreen() {
-  const signinInfoResult = authService.signinInfo.useQuery()
+  const signinInfoResult = k.auth.signinInfo.useQuery()
 
-  const signinResult = authService.signin.useMutation()
+  const signinResult = k.auth.signin.useMutation()
 
   const { control, getValues, handleSubmit } = useForm<
     z.infer<typeof SigninArgs>
@@ -296,8 +296,7 @@ function TwoStepSignin({ once }: { once: string }) {
     resolver: zodResolver(TwoStepSigninArgs),
   })
 
-  const { mutateAsync, isPending, error } =
-    authService.twoStepSignin.useMutation()
+  const { mutateAsync, isPending, error } = k.auth.twoStepSignin.useMutation()
 
   return (
     <View style={tw`w-3/4 mx-auto mt-8`}>

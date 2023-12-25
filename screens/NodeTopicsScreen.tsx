@@ -27,8 +27,7 @@ import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodeService } from '@/servicies/node'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
@@ -67,11 +66,11 @@ function NodeTopicsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    nodeService.topics.useSuspenseInfiniteQuery({
+    k.node.topics.useSuspenseInfiniteQuery({
       variables: { name: params.name },
     })
 
-  const { data: node } = nodeService.all.useQuery({
+  const { data: node } = k.node.all.useQuery({
     select: nodes => find(nodes, { name: params.name }),
   })
 
@@ -198,7 +197,7 @@ function NodeInfo({
 }) {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
-  const { data: node } = nodeService.all.useQuery({
+  const { data: node } = k.node.all.useQuery({
     select: nodes => find(nodes, { name: params.name }),
   })
 
@@ -268,7 +267,7 @@ function LikeNode({
   liked?: boolean
   type: 'button' | 'icon'
 }) {
-  const { mutateAsync, isPending } = nodeService.like.useMutation()
+  const { mutateAsync, isPending } = k.node.like.useMutation()
 
   async function likeNode() {
     if (!isSignined()) {
@@ -341,8 +340,8 @@ function updateNode(
   }
 ) {
   queryClient.setQueryData(
-    nodeService.topics.getKey({ name }),
-    produce<inferData<typeof nodeService.topics>>(data => {
+    k.node.topics.getKey({ name }),
+    produce<inferData<typeof k.node.topics>>(data => {
       data?.pages.forEach(page => {
         Object.assign(page, node)
       })

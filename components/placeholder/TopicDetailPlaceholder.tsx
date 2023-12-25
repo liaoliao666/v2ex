@@ -11,7 +11,7 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { Topic } from '@/servicies/types'
+import { Topic } from '@/servicies'
 import tw from '@/utils/tw'
 
 import NavBar from '../NavBar'

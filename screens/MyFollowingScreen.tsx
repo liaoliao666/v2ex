@@ -28,9 +28,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { memberService } from '@/servicies/member'
-import { myService } from '@/servicies/my'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -81,7 +79,7 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
 })
 
 function MyFollowingScreen() {
-  const { data } = myService.following.useSuspenseInfiniteQuery()
+  const { data } = k.my.following.useSuspenseInfiniteQuery()
 
   const following = last(data.pages)?.following
 
@@ -185,7 +183,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = myService.following.useSuspenseInfiniteQuery()
+  } = k.my.following.useSuspenseInfiniteQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -250,7 +248,7 @@ function MemberTopics({
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = memberService.topics.useSuspenseInfiniteQuery({
+  } = k.member.topics.useSuspenseInfiniteQuery({
     variables: { username },
   })
 

@@ -10,7 +10,7 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
-import { useRepoReadmeQuery } from '@/servicies/other'
+import { k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
@@ -39,7 +39,7 @@ export default withQuerySuspense(GItHubMDScreen, {
 function GItHubMDScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'GItHubMD'>>()
 
-  const { data: html } = useRepoReadmeQuery({
+  const { data: html } = k.other.repoReadme.useSuspenseQuery({
     variables: { url: params.url },
   })
 

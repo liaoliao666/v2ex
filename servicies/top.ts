@@ -5,7 +5,7 @@ import { request } from '@/utils/request'
 
 import { parseRank } from './helper'
 
-export const topService = router(`top`, {
+export const top = router(`top`, {
   rich: router.query({
     fetcher: async () => {
       const { data } = await request(`/top/rich`, {

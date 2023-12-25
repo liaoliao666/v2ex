@@ -48,9 +48,7 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
-import { nodeService } from '@/servicies/node'
-import { topicService } from '@/servicies/topic'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import { isLargeTablet, useIsTablet } from '@/utils/tablet'
@@ -112,10 +110,10 @@ function HomeScreen() {
     const activeTabKey = activeTab.key
     const activeQueryKey: any =
       activeTab.type === 'node'
-        ? nodeService.topics.getKey({ name: activeTabKey })
+        ? k.node.topics.getKey({ name: activeTabKey })
         : activeTab.key === Recent_TAB_KEY
-        ? topicService.recent.getKey()
-        : topicService.tab.getKey({ tab: activeTabKey })
+        ? k.topic.recent.getKey()
+        : k.topic.tab.getKey({ tab: activeTabKey })
     const query = queryClient.getQueryCache().find({
       queryKey: activeQueryKey,
     })
@@ -126,13 +124,13 @@ function HomeScreen() {
       if (activeTab.type === 'node' || activeTab.key === Recent_TAB_KEY) {
         queryClient.prefetchInfiniteQuery({
           ...(activeTab.type === 'node'
-            ? nodeService.topics.getFetchOptions({ name: activeTabKey })
-            : topicService.recent.getFetchOptions()),
+            ? k.node.topics.getFetchOptions({ name: activeTabKey })
+            : k.topic.recent.getFetchOptions()),
           pages: 1,
         })
       } else {
         queryClient.prefetchQuery(
-          topicService.tab.getFetchOptions({ tab: activeTabKey })
+          k.topic.tab.getFetchOptions({ tab: activeTabKey })
         )
       }
     }
@@ -269,7 +267,7 @@ const RecentTopics = memo(
       fetchNextPage,
       isFetchingNextPage,
       isFetching,
-    } = topicService.recent.useSuspenseInfiniteQuery({
+    } = k.topic.recent.useSuspenseInfiniteQuery({
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(Recent_TAB_KEY),
     })
 
@@ -333,7 +331,7 @@ const TabTopics = memo(
       headerHeight: number
     }
   >(({ tab, headerHeight }, ref) => {
-    const { data, refetch, isFetching } = topicService.tab.useSuspenseQuery({
+    const { data, refetch, isFetching } = k.topic.tab.useSuspenseQuery({
       variables: { tab },
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(tab),
     })
@@ -389,7 +387,7 @@ const NodeTopics = memo(
       fetchNextPage,
       isFetchingNextPage,
       isFetching,
-    } = nodeService.topics.useSuspenseInfiniteQuery({
+    } = k.node.topics.useSuspenseInfiniteQuery({
       variables: { name: nodeName },
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(nodeName),
     })

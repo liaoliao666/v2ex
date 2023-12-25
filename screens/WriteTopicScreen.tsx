@@ -28,8 +28,7 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { WriteTopicArgs, topicDraftAtom } from '@/jotai/topicDraftAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { topicService } from '@/servicies/topic'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
@@ -87,7 +86,7 @@ function WriteTopicScreen() {
 
   const isEdit = !!topic
 
-  const { data: editTopicInfo } = topicService.editInfo.useQuery({
+  const { data: editTopicInfo } = k.topic.editInfo.useQuery({
     variables: { id: topic?.id! },
     enabled: isEdit,
     // @ts-ignore
@@ -110,9 +109,9 @@ function WriteTopicScreen() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  const writeTopicResult = topicService.write.useMutation()
+  const writeTopicResult = k.topic.write.useMutation()
 
-  const editTopicResult = topicService.edit.useMutation()
+  const editTopicResult = k.topic.edit.useMutation()
 
   const navbarHeight = useNavBarHeight()
 
@@ -299,7 +298,7 @@ function WriteTopicScreen() {
                       })
 
                       queryClient.refetchQueries({
-                        queryKey: topicService.detail.getKey({ id: topic?.id }),
+                        queryKey: k.topic.detail.getKey({ id: topic?.id }),
                         type: 'active',
                       })
                     } else {
@@ -377,7 +376,7 @@ function PreviewTopic({
   text: string
   syntax: 'default' | 'markdown'
 }) {
-  const { data } = topicService.preview.useQuery({
+  const { data } = k.topic.preview.useQuery({
     variables,
     enabled: !!variables.text,
     // @ts-ignore

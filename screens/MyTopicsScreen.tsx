@@ -17,8 +17,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { myService } from '@/servicies/my'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -45,7 +44,7 @@ function MyTopicsScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = myService.topics.useSuspenseInfiniteQuery()
+  } = k.my.topics.useSuspenseInfiniteQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 

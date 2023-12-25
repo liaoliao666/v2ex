@@ -15,11 +15,11 @@ import {
   parseMemberReplies,
   parseTopicItems,
 } from './helper'
-import { nodeService } from './node'
-import { topicService } from './topic'
+import { node } from './node'
+import { topic } from './topic'
 import { Member, PageData, Topic } from './types'
 
-export const memberService = router(`member`, {
+export const member = router(`member`, {
   byUsername: router.query({
     fetcher: async (
       { username }: { username: string },
@@ -167,12 +167,12 @@ export const memberService = router(`member`, {
       const pageSize = 10
       const chunkIds = ids.slice(pageParam - 1, pageParam * 10)
       const cacheMemberMap = queryClient
-        .getQueriesData<inferData<typeof memberService.byUsername>>({
-          queryKey: memberService.byUsername.getKey(),
+        .getQueriesData<inferData<typeof member.byUsername>>({
+          queryKey: member.byUsername.getKey(),
         })
-        .reduce((acc, [, member]) => {
-          if (member?.id) {
-            acc[member.id] = member
+        .reduce((acc, [, item]) => {
+          if (item?.id) {
+            acc[item.id] = item
           }
           return acc
         }, {} as Record<string, Member>)
@@ -185,7 +185,7 @@ export const memberService = router(`member`, {
             chunkIds.map(async id => {
               if (cacheMemberMap[id]) return cacheMemberMap[id]
               return await queryClient
-                .ensureQueryData(memberService.byId.getFetchOptions({ id }))
+                .ensureQueryData(member.byId.getFetchOptions({ id }))
                 .catch(() => null)
             })
           )
@@ -208,45 +208,43 @@ export const memberService = router(`member`, {
       const cacheTopicMap = {} as Record<string, Topic>
 
       const recentTopics = await store.get(recentTopicsAtom)
-      recentTopics?.forEach(topic => {
-        cacheTopicMap[topic.id] = topic as Topic
+      recentTopics?.forEach(item => {
+        cacheTopicMap[item.id] = item as Topic
       })
 
       queryClient
-        .getQueriesData<inferData<typeof nodeService.topics>>({
-          queryKey: nodeService.topics.getKey(),
+        .getQueriesData<inferData<typeof node.topics>>({
+          queryKey: node.topics.getKey(),
         })
         .forEach(([, data]) => {
           data?.pages?.forEach(p => {
-            p.list.forEach(topic => {
-              cacheTopicMap[topic.id] = topic
+            p.list.forEach(item => {
+              cacheTopicMap[item.id] = item
             })
           })
         })
+      queryClient.getQueryData(topic.recent.getKey())?.pages?.forEach(p => {
+        p.list.forEach(item => {
+          cacheTopicMap[item.id] = item
+        })
+      })
       queryClient
-        .getQueryData(topicService.recent.getKey())
-        ?.pages?.forEach(p => {
-          p.list.forEach(topic => {
-            cacheTopicMap[topic.id] = topic
+        .getQueriesData<inferData<typeof topic.tab>>({
+          queryKey: topic.tab.getKey(),
+        })
+        .forEach(([, data]) => {
+          data?.forEach(item => {
+            cacheTopicMap[item.id] = item
           })
         })
       queryClient
-        .getQueriesData<inferData<typeof topicService.tab>>({
-          queryKey: topicService.tab.getKey(),
+        .getQueriesData<inferData<typeof topic.detail>>({
+          queryKey: topic.detail.getKey(),
         })
         .forEach(([, data]) => {
-          data?.forEach(topic => {
-            cacheTopicMap[topic.id] = topic
-          })
-        })
-      queryClient
-        .getQueriesData<inferData<typeof topicService.detail>>({
-          queryKey: topicService.detail.getKey(),
-        })
-        .forEach(([, data]) => {
-          const topic = last(data?.pages)
-          if (topic?.id) {
-            cacheTopicMap[topic.id] = topic
+          const item = last(data?.pages)
+          if (item?.id) {
+            cacheTopicMap[item.id] = item
           }
         })
 
@@ -258,7 +256,7 @@ export const memberService = router(`member`, {
             chunkIds.map(async id => {
               if (cacheTopicMap[id]) return cacheTopicMap[id]
               return await queryClient
-                .ensureQueryData(topicService.byId.getFetchOptions({ id }))
+                .ensureQueryData(topic.byId.getFetchOptions({ id }))
                 .catch(() => null)
             })
           )

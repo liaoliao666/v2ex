@@ -9,7 +9,7 @@ import { getURLSearchParams } from '@/utils/url'
 import { getNextPageParam, parseLastPage, parseTopicItems } from './helper'
 import { Node, PageData, Topic } from './types'
 
-export const nodeService = router(`node`, {
+export const node = router(`node`, {
   all: router.query({
     fetcher: (_, { signal }): Promise<Node[]> =>
       request.get(`/api/nodes/all.json`, { signal }).then(res => res.data),

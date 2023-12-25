@@ -22,9 +22,7 @@ import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodeService } from '@/servicies/node'
-import { topicService } from '@/servicies/topic'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
@@ -185,7 +183,7 @@ export default function TopicInfo({
 }
 
 export function LikeTopic({ topic }: { topic: Topic }) {
-  const { isPending, mutateAsync } = topicService.like.useMutation()
+  const { isPending, mutateAsync } = k.topic.like.useMutation()
 
   return (
     <Pressable
@@ -252,7 +250,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 }
 
 export function ThankTopic({ topic }: { topic: Topic }) {
-  const { mutateAsync, isPending } = topicService.thank.useMutation()
+  const { mutateAsync, isPending } = k.topic.thank.useMutation()
 
   return (
     <Pressable
@@ -320,7 +318,7 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 }
 
 export function VoteButton({ topic }: { topic: Topic }) {
-  const { mutateAsync, isPending } = topicService.vote.useMutation()
+  const { mutateAsync, isPending } = k.topic.vote.useMutation()
 
   return (
     <View
@@ -415,9 +413,9 @@ function MoreButton({
 }) {
   const { showActionSheetWithOptions } = useActionSheet()
 
-  const ignoreTopicResult = topicService.ignore.useMutation()
+  const ignoreTopicResult = k.topic.ignore.useMutation()
 
-  const reportTopicResult = topicService.report.useMutation()
+  const reportTopicResult = k.topic.report.useMutation()
 
   return (
     <IconButton
@@ -514,7 +512,7 @@ function MoreButton({
 
                   // refetch related queries
                   queryClient.refetchQueries(
-                    nodeService.topics.getFetchOptions({
+                    k.node.topics.getFetchOptions({
                       name: topic.node?.name!,
                     })
                   )
@@ -522,12 +520,12 @@ function MoreButton({
                     store.get(homeTabsAtom)?.[store.get(homeTabIndexAtom)!]?.key
                   if (tab === 'recent') {
                     queryClient.refetchQueries({
-                      queryKey: topicService.recent.getKey(),
+                      queryKey: k.topic.recent.getKey(),
                       type: 'active',
                     })
                   } else {
                     queryClient.refetchQueries({
-                      queryKey: topicService.tab.getKey({
+                      queryKey: k.topic.tab.getKey({
                         tab,
                       }),
                       type: 'active',
@@ -589,8 +587,8 @@ function MoreButton({
 
 function updateTopicDetail(newTopic: Partial<Topic>) {
   queryClient.setQueryData(
-    topicService.detail.getKey({ id: newTopic.id! }),
-    produce<inferData<typeof topicService.detail>>(data => {
+    k.topic.detail.getKey({ id: newTopic.id! }),
+    produce<inferData<typeof k.topic.detail>>(data => {
       data?.pages.forEach(topic => {
         Object.assign(topic, newTopic)
       })

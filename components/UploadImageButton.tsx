@@ -4,7 +4,7 @@ import Toast from 'react-native-toast-message'
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
 import { navigation } from '@/navigation/navigationRef'
-import { imageService } from '@/servicies/image'
+import { k } from '@/servicies'
 
 import StyledButton, { StyledButtonProps } from './StyledButton'
 
@@ -14,7 +14,7 @@ export default function UploadImageButton({
 }: StyledButtonProps & {
   onUploaded: (url: string) => void
 }) {
-  const { mutateAsync, isPending } = imageService.upload.useMutation()
+  const { mutateAsync, isPending } = k.other.uploadImage.useMutation()
 
   return (
     <StyledButton

@@ -30,9 +30,8 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { memberService } from '@/servicies/member'
-import { settingService } from '@/servicies/settings'
-import { Member, Topic } from '@/servicies/types'
+import { Member, Topic, k } from '@/servicies'
+import '@/servicies/types'
 import tw from '@/utils/tw'
 
 const TAB_BAR_HEIGHT = 40
@@ -222,7 +221,7 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
 function Blockers({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
-  const { data } = memberService.blockers.useSuspenseInfiniteQuery({
+  const { data } = k.member.blockers.useSuspenseInfiniteQuery({
     variables: { ids: blackList.blockers },
   })
 
@@ -254,7 +253,7 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
 function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   const blackList = useAtomValue(blackListAtom)
 
-  const { data } = memberService.ignoredTopics.useSuspenseInfiniteQuery({
+  const { data } = k.member.ignoredTopics.useSuspenseInfiniteQuery({
     variables: {
       ids: blackList.ignoredTopics,
     },
@@ -332,7 +331,7 @@ const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
 })
 
 function ResetBlockersButton() {
-  const { isPending, mutateAsync } = settingService.resetBlockers.useMutation()
+  const { isPending, mutateAsync } = k.settings.resetBlockers.useMutation()
 
   return (
     <StyledButton
@@ -366,8 +365,7 @@ function ResetBlockersButton() {
 }
 
 function ResetIgnoredTopicsButton() {
-  const { isPending, mutateAsync } =
-    settingService.resetIgnoredTopics.useMutation()
+  const { isPending, mutateAsync } = k.settings.resetIgnoredTopics.useMutation()
 
   return (
     <StyledButton

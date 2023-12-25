@@ -29,8 +29,7 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { authService } from '@/servicies/auth'
-import { useLatestVersionQuery } from '@/servicies/other'
+import { k } from '@/servicies'
 import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
 import { queryClient } from '@/utils/query'
@@ -379,7 +378,7 @@ function SettingScreen() {
 }
 
 function SignoutItem({ once }: { once: string }) {
-  const { isPending, mutateAsync } = authService.signout.useMutation()
+  const { isPending, mutateAsync } = k.auth.signout.useMutation()
 
   const setProfileAtom = useSetAtom(profileAtom)
 
@@ -403,7 +402,7 @@ function SignoutItem({ once }: { once: string }) {
 }
 
 function CheckAppVersion() {
-  const { data, refetch, isFetching } = useLatestVersionQuery()
+  const { data, refetch, isFetching } = k.other.latestVersion.useQuery()
 
   return (
     <ListItem

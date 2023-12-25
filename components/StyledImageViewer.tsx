@@ -9,18 +9,11 @@ import tw from '@/utils/tw'
 import IconButton from './IconButton'
 
 export interface StyledImageViewerProps
-  extends Omit<ComponentProps<typeof ImageViewer>, 'onCancel'> {
-  onClose: () => void
-}
+  extends ComponentProps<typeof ImageViewer> {}
 
-export default function StyledImageViewer({
-  visible,
-  onClose,
-  ...props
-}: StyledImageViewerProps) {
+export default function StyledImageViewer(props: StyledImageViewerProps) {
   return (
     <ImageViewer
-      visible={visible}
       FooterComponent={({ imageIndex }) => (
         <StyledImageViewerFooter
           images={props.images}
@@ -28,7 +21,6 @@ export default function StyledImageViewer({
         />
       )}
       {...props}
-      onRequestClose={onClose}
     />
   )
 }

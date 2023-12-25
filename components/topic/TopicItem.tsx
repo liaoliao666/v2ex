@@ -4,8 +4,7 @@ import { Text, View } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
-import { topicService } from '@/servicies/topic'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import { isLargeTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 
@@ -22,7 +21,7 @@ export interface TopicItemProps {
 export default memo(TopicItem, isEqual)
 
 function TopicItem({ topic, hideAvatar }: TopicItemProps) {
-  const { data: isReaded } = topicService.detail.useInfiniteQuery({
+  const { data: isReaded } = k.topic.detail.useInfiniteQuery({
     variables: { id: topic.id },
     select: data => {
       const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0

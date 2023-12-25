@@ -2,7 +2,7 @@ import { router } from 'react-query-kit'
 
 import { request } from '@/utils/request'
 
-export const replyService = router(`reply`, {
+export const reply = router(`reply`, {
   thank: router.mutation<void, { id: number; once: string }>({
     mutationFn: ({ id, once }) =>
       request.post(`/thank/reply/${id}?once=${once}`),

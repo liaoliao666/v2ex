@@ -11,7 +11,7 @@ import Toast from 'react-native-toast-message'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { topicService } from '@/servicies/topic'
+import { k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
 import { convertSelectedTextToBase64 } from '@/utils/convertSelectedTextToBase64'
 import { BizError } from '@/utils/request'
@@ -102,9 +102,9 @@ const ReplyBox = ({
 
   const inputRef = useRef<TextInput>(null)
 
-  const replyResult = topicService.reply.useMutation()
+  const replyResult = k.topic.reply.useMutation()
 
-  const appendTopicResult = topicService.append.useMutation()
+  const appendTopicResult = k.topic.append.useMutation()
 
   const { isPending, mutateAsync } = isAppend ? appendTopicResult : replyResult
 

@@ -1,4 +1,4 @@
-import { Profile } from '@/servicies/types'
+import { Profile } from '@/servicies'
 
 import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 

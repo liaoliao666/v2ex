@@ -28,8 +28,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { notificationService } from '@/servicies/notification'
-import { Notice } from '@/servicies/types'
+import { Notice, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
@@ -60,7 +59,7 @@ function NotificationsScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = notificationService.list.useSuspenseInfiniteQuery()
+  } = k.notification.list.useSuspenseInfiniteQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -245,7 +244,7 @@ const NoticeItem = memo(
 )
 
 function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
-  const { mutateAsync, isPending } = notificationService.delete.useMutation()
+  const { mutateAsync, isPending } = k.notification.delete.useMutation()
 
   return (
     <IconButton
@@ -264,13 +263,13 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
         await confirm(`确认删除这条提醒么？`)
 
         const notifications = queryClient.getQueryData(
-          notificationService.list.getKey()
+          k.notification.list.getKey()
         )
 
         try {
           queryClient.setQueryData(
-            notificationService.list.getKey(),
-            produce<inferData<typeof notificationService.list>>(draft => {
+            k.notification.list.getKey(),
+            produce<inferData<typeof k.notification.list>>(draft => {
               for (const page of draft?.pages || []) {
                 const index = findIndex(page.list, { id })
                 if (index > -1) {
@@ -286,10 +285,7 @@ function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
             once,
           })
         } catch (error) {
-          queryClient.setQueryData(
-            notificationService.list.getKey(),
-            notifications
-          )
+          queryClient.setQueryData(k.notification.list.getKey(), notifications)
           Toast.show({
             type: 'error',
             text1: error instanceof BizError ? error.message : '删除失败',

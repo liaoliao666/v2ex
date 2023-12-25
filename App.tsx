@@ -27,8 +27,7 @@ import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
 import { topicDraftAtom } from './jotai/topicDraftAtom'
 import Navigation from './navigation'
-import { memberService } from './servicies/member'
-import { nodeService } from './servicies/node'
+import { k } from './servicies'
 import './utils/dayjsPlugins'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
 import { queryClient } from './utils/query'
@@ -88,11 +87,11 @@ function AppInitializer({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  nodeService.all.useQuery()
+  k.node.all.useQuery()
 
   useDeviceContext(tw, { withDeviceColorScheme: false })
 
-  memberService.checkin.useQuery({
+  k.member.checkin.useQuery({
     enabled: !!profile && enabledAutoCheckin,
   })
 
@@ -104,8 +103,12 @@ function GlobalImageViewer() {
   return (
     <StyledImageViewer
       {...imageViewer}
-      onClose={() =>
-        setImageViewer({ visible: false, index: 0, imageUrls: [] })
+      onRequestClose={() =>
+        setImageViewer({
+          imageIndex: 0,
+          visible: false,
+          images: [],
+        })
       }
     />
   )

@@ -27,8 +27,7 @@ import StyledRefreshControl from '@/components/StyledRefreshControl'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { topService } from '@/servicies/top'
-import { Member } from '@/servicies/types'
+import { Member, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -160,7 +159,7 @@ function RankScreen() {
 }
 
 function TopRichList({ headerHeight }: { headerHeight: number }) {
-  const { data, refetch } = topService.rich.useSuspenseQuery()
+  const { data, refetch } = k.top.rich.useSuspenseQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -193,7 +192,7 @@ function TopRichList({ headerHeight }: { headerHeight: number }) {
 }
 
 function TopPlayerList({ headerHeight }: { headerHeight: number }) {
-  const { data, refetch } = topService.player.useSuspenseQuery()
+  const { data, refetch } = k.top.player.useSuspenseQuery()
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 

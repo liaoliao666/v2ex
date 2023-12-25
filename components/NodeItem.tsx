@@ -3,7 +3,7 @@ import { memo } from 'react'
 import { Text, TouchableOpacity } from 'react-native'
 
 import { getFontSize } from '@/jotai/fontSacleAtom'
-import { Node } from '@/servicies/types'
+import { Node } from '@/servicies'
 import tw from '@/utils/tw'
 
 import { NAV_BAR_HEIGHT } from './NavBar'

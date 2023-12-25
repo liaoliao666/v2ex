@@ -18,8 +18,7 @@ import SearchBar from '@/components/SearchBar'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodeService } from '@/servicies/node'
-import { Node } from '@/servicies/types'
+import { Node, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
@@ -28,7 +27,7 @@ export default function SearchNodeScreen() {
 
   const [searchText, setSearchText] = useState('')
 
-  const { data: matchNodes } = nodeService.all.useQuery({
+  const { data: matchNodes } = k.node.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => {
         return searchText

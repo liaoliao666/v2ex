@@ -21,8 +21,7 @@ import StyledImage from '@/components/StyledImage'
 import ReplyItem from '@/components/topic/ReplyItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { topicService } from '@/servicies/topic'
-import { Reply } from '@/servicies/types'
+import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
@@ -37,7 +36,7 @@ export default function RelatedRepliesScreen() {
     params: { replyId, topicId },
   } = useRoute<RouteProp<RootStackParamList, 'RelatedReplies'>>()
 
-  const { data } = topicService.detail.useInfiniteQuery({
+  const { data } = k.topic.detail.useInfiniteQuery({
     variables: { id: topicId },
     enabled: false,
   })
@@ -220,7 +219,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
     fetchNextPage,
     isFetchingNextPage,
     isFetchedAfterMount,
-  } = topicService.detail.useInfiniteQuery({
+  } = k.topic.detail.useInfiniteQuery({
     variables: { id: topicId },
     enabled: false,
   })

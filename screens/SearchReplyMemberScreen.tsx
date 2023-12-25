@@ -21,8 +21,7 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { topicService } from '@/servicies/topic'
-import { Reply } from '@/servicies/types'
+import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 
@@ -30,7 +29,7 @@ export default function SearchReplyMemberScreen() {
   const { params } =
     useRoute<RouteProp<RootStackParamList, 'SearchReplyMember'>>()
 
-  const { data } = topicService.detail.useInfiniteQuery({
+  const { data } = k.topic.detail.useInfiniteQuery({
     variables: { id: params.topicId },
     enabled: false,
   })

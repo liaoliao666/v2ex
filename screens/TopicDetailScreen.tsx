@@ -39,8 +39,7 @@ import TopicInfo, {
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { topicService } from '@/servicies/topic'
-import { Reply } from '@/servicies/types'
+import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { isSelf } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
@@ -79,7 +78,7 @@ function TopicDetailScreen() {
     fetchNextPage,
     isFetchingNextPage,
     isFetching,
-  } = topicService.detail.useSuspenseInfiniteQuery({
+  } = k.topic.detail.useSuspenseInfiniteQuery({
     variables: { id: params.id },
   })
 
@@ -226,7 +225,7 @@ function TopicDetailScreen() {
                         const pageDatas = await Promise.all(
                           allPageNo.map(page => {
                             if (pageToData[page]) return pageToData[page]
-                            return topicService.detail.fetcher(
+                            return k.topic.detail.fetcher(
                               {
                                 id: params.id,
                               },
@@ -238,7 +237,7 @@ function TopicDetailScreen() {
                         )
 
                         queryClient.setQueryData(
-                          topicService.detail.getKey({ id: params.id }),
+                          k.topic.detail.getKey({ id: params.id }),
                           allPageNo.reduce(
                             (acc, p, i) => {
                               acc.pageParams[i] = p

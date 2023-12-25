@@ -13,9 +13,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { replyService } from '@/servicies/reply'
-import { topicService } from '@/servicies/topic'
-import { Reply } from '@/servicies/types'
+import { Reply, k } from '@/servicies'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
@@ -249,7 +247,7 @@ function ThankReply({
   once?: string
   reply: Reply
 }) {
-  const { mutateAsync, isPending } = replyService.thank.useMutation()
+  const { mutateAsync, isPending } = k.reply.thank.useMutation()
 
   const disabled = isSelf(reply.member.username) || reply.thanked
 
@@ -329,7 +327,7 @@ function MoreButton({
 }) {
   const { showActionSheetWithOptions } = useActionSheet()
 
-  const ignoreReplyResult = replyService.ignore.useMutation()
+  const ignoreReplyResult = k.reply.ignore.useMutation()
 
   return (
     <IconButton
@@ -389,8 +387,8 @@ function MoreButton({
                   })
 
                   queryClient.setQueryData(
-                    topicService.detail.getKey({ id: topicId }),
-                    produce<inferData<typeof topicService.detail>>(draft => {
+                    k.topic.detail.getKey({ id: topicId }),
+                    produce<inferData<typeof k.topic.detail>>(draft => {
                       if (!draft) return
                       for (const page of draft.pages) {
                         const i = findIndex(page.replies, {
@@ -430,8 +428,8 @@ function MoreButton({
 
 function updateReply(topicId: number, reply: Partial<Reply>) {
   queryClient.setQueryData(
-    topicService.detail.getKey({ id: topicId }),
-    produce<inferData<typeof topicService.detail>>(data => {
+    k.topic.detail.getKey({ id: topicId }),
+    produce<inferData<typeof k.topic.detail>>(data => {
       for (const topic of data?.pages || []) {
         const result = find(topic.replies, { id: reply.id })
 

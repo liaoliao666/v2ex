@@ -27,8 +27,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { topicService } from '@/servicies/topic'
-import { Topic } from '@/servicies/types'
+import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -181,7 +180,7 @@ function HotestTopics({
   tab: string
   headerHeight: number
 }) {
-  const { data, refetch, isFetching } = topicService.hotest.useSuspenseQuery({
+  const { data, refetch, isFetching } = k.topic.hotest.useSuspenseQuery({
     variables: { tab },
   })
 

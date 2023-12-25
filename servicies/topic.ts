@@ -15,7 +15,7 @@ import {
 } from './helper'
 import { PageData, Topic } from './types'
 
-export const topicService = router(`topic`, {
+export const topic = router(`topic`, {
   preview: router.query<
     string,
     {
@@ -100,17 +100,17 @@ export const topicService = router(`topic`, {
       const { data } = await request.get(`/api/topics/show.json?id=${id}`, {
         signal,
       })
-      const topic = (isArray(data) ? data[0] || {} : {}) as any
-      if (topic.member) {
-        topic.member.avatar = topic.member.avatar_large
+      const item = (isArray(data) ? data[0] || {} : {}) as any
+      if (item.member) {
+        item.member.avatar = item.member.avatar_large
       }
-      if (topic.node) {
-        topic.node.avatar = topic.node.avatar_large
+      if (item.node) {
+        item.node.avatar = item.node.avatar_large
       }
-      if (topic.last_touched) {
-        topic.last_touched = dayjs.unix(topic.last_touched).fromNow()
+      if (item.last_touched) {
+        item.last_touched = dayjs.unix(item.last_touched).fromNow()
       }
-      return topic as Topic
+      return item as Topic
     },
   }),
 

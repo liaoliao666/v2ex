@@ -41,10 +41,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodeService } from '@/servicies/node'
-import { useSov2exQuery } from '@/servicies/other'
-import { topicService } from '@/servicies/topic'
-import { Member, Node, Sov2exResult } from '@/servicies/types'
+import { Member, Node, Sov2exResult, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -58,7 +55,7 @@ export default function SearchScreen() {
 
   const [isSearchNode, setIsSearchNode] = useState(!params?.query)
 
-  const { data: matchNodes } = nodeService.all.useQuery({
+  const { data: matchNodes } = k.node.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => {
         if (!isSearchNode) return []
@@ -224,11 +221,11 @@ function SoV2exList({
   const sov2exArgs = useAtomValue(sov2exArgsAtom)
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    useSov2exQuery({
+    k.other.sov2ex.useSuspenseInfiniteQuery({
       variables: { ...sov2exArgs, q: query },
     })
 
-  const { data: nodeMap } = nodeService.all.useQuery({
+  const { data: nodeMap } = k.node.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => Object.fromEntries(nodes.map(node => [node.id, node])),
       []
@@ -327,7 +324,7 @@ const HitItem = memo(
       content: string
     }
   }) => {
-    const { data: isReaded } = topicService.detail.useInfiniteQuery({
+    const { data: isReaded } = k.topic.detail.useInfiniteQuery({
       variables: { id: topic.id },
       select: data => {
         const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0

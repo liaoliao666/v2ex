@@ -17,7 +17,7 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { topicService } from '@/servicies/topic'
+import { k } from '@/servicies'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
@@ -31,12 +31,12 @@ export default function RecentTopicScreen() {
     const localRecentTopics = queryClient
       .getQueryCache()
       .findAll({
-        queryKey: topicService.detail.getKey(),
+        queryKey: k.topic.detail.getKey(),
       })
       .sort((a, b) => b.state.dataUpdatedAt - a.state.dataUpdatedAt)
       .map(query => {
         const lastPage = last(
-          (query.state.data as inferData<typeof topicService.detail>)?.pages
+          (query.state.data as inferData<typeof k.topic.detail>)?.pages
         )
         if (!lastPage?.title) return
         return {
@@ -87,7 +87,7 @@ export default function RecentTopicScreen() {
                 try {
                   await confirm(`确认清除最近浏览主题吗？`)
                   queryClient.removeQueries({
-                    queryKey: topicService.detail.getKey(),
+                    queryKey: k.topic.detail.getKey(),
                   })
                   setRecentTopics([])
                   Toast.show({

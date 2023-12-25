@@ -18,8 +18,7 @@ import StyledImage from '@/components/StyledImage'
 import { getFontSize } from '@/jotai/fontSacleAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { nodeService } from '@/servicies/node'
-import { Node } from '@/servicies/types'
+import { Node, k } from '@/servicies'
 import tw from '@/utils/tw'
 
 export default withQuerySuspense(NavNodesScreen, {
@@ -31,7 +30,7 @@ const ITEM_HEIGHT = 88
 function NavNodesScreen() {
   const navNodes = useAtomValue(navNodesAtom)
 
-  const { data: routes = [] } = nodeService.all.useQuery({
+  const { data: routes = [] } = k.node.all.useQuery({
     select: nodes => {
       const nodeMap: Record<string, Node> = Object.fromEntries(
         nodes.map(node => [node.name, node])

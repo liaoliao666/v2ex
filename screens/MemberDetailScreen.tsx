@@ -52,8 +52,7 @@ import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { memberService } from '@/servicies/member'
-import { Member, Topic } from '@/servicies/types'
+import { Member, Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
@@ -84,11 +83,11 @@ function MemberDetailScreen() {
   useMemo(() => {
     if (
       !queryClient.getQueryData(
-        memberService.topics.getKey({ username: params.username })
+        k.member.topics.getKey({ username: params.username })
       )
     ) {
       queryClient.prefetchInfiniteQuery(
-        memberService.topics.getFetchOptions({
+        k.member.topics.getFetchOptions({
           username: params.username,
         })
       )
@@ -96,18 +95,18 @@ function MemberDetailScreen() {
 
     if (
       !queryClient.getQueryData(
-        memberService.replies.getKey({ username: params.username })
+        k.member.replies.getKey({ username: params.username })
       )
     ) {
       queryClient.prefetchInfiniteQuery(
-        memberService.replies.getFetchOptions({
+        k.member.replies.getFetchOptions({
           username: params.username,
         })
       )
     }
   }, [params.username])
 
-  const { data: member } = memberService.byUsername.useSuspenseQuery({
+  const { data: member } = k.member.byUsername.useSuspenseQuery({
     variables: { username: params.username },
   })
 
@@ -314,7 +313,7 @@ function MemberDetailScreen() {
 const MemberHeader = memo(() => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  const { data: member } = memberService.byUsername.useSuspenseQuery({
+  const { data: member } = k.member.byUsername.useSuspenseQuery({
     variables: { username: params.username },
   })
 
@@ -465,7 +464,7 @@ const MemberTopics = forwardRef<
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    memberService.topics.useSuspenseInfiniteQuery({
+    k.member.topics.useSuspenseInfiniteQuery({
       variables: { username: params.username },
     })
 
@@ -531,7 +530,7 @@ const MemberReplies = forwardRef<
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
   const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
-    memberService.replies.useSuspenseInfiniteQuery({
+    k.member.replies.useSuspenseInfiniteQuery({
       variables: { username: params.username },
     })
 
@@ -586,7 +585,7 @@ const MemberReply = memo(
   ({
     topic,
   }: {
-    topic: inferFnData<typeof memberService.replies>['list'][number]
+    topic: inferFnData<typeof k.member.replies>['list'][number]
   }) => {
     const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
@@ -661,7 +660,7 @@ function FollowMember({
   once,
   followed,
 }: Pick<Member, 'username' | 'id' | 'once' | 'followed'>) {
-  const { isPending, mutateAsync } = memberService.follow.useMutation()
+  const { isPending, mutateAsync } = k.member.follow.useMutation()
 
   return (
     <StyledButton
@@ -709,7 +708,7 @@ function BlockMember({
   once,
   blocked,
 }: Pick<Member, 'username' | 'id' | 'once' | 'blocked'>) {
-  const { mutateAsync, isPending } = memberService.block.useMutation()
+  const { mutateAsync, isPending } = k.member.block.useMutation()
 
   return (
     <StyledButton
@@ -791,7 +790,7 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
 
 function updateMember(member: Member) {
   queryClient.setQueryData(
-    memberService.byUsername.getKey({ username: member.username }),
+    k.member.byUsername.getKey({ username: member.username }),
     prev => ({
       ...prev,
       ...member,
