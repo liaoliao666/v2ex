@@ -1,29 +1,16 @@
-import { Ionicons } from '@expo/vector-icons'
-import { Image } from 'expo-image'
 import * as Sharing from 'expo-sharing'
 import { ComponentProps } from 'react'
-import {
-  Modal,
-  Pressable,
-  Text,
-  TouchableWithoutFeedback,
-  View,
-} from 'react-native'
-import ImageViewer from 'react-native-image-zoom-viewer'
+import { Text, View } from 'react-native'
+import ImageViewer from 'react-native-image-viewing'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import Toast from 'react-native-toast-message'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
-import { imageService } from '@/servicies/image'
 import tw from '@/utils/tw'
 
-import { NAV_BAR_HEIGHT } from './NavBar'
-import StyledToast from './StyledToast'
+import IconButton from './IconButton'
 
 export interface StyledImageViewerProps
   extends Omit<ComponentProps<typeof ImageViewer>, 'onCancel'> {
-  visible?: boolean
-  onClose?: () => void
+  onClose: () => void
 }
 
 export default function StyledImageViewer({
@@ -31,132 +18,53 @@ export default function StyledImageViewer({
   onClose,
   ...props
 }: StyledImageViewerProps) {
+  return (
+    <ImageViewer
+      visible={visible}
+      FooterComponent={({ imageIndex }) => (
+        <StyledImageViewerFooter
+          images={props.images}
+          imageIndex={imageIndex}
+        />
+      )}
+      {...props}
+      onRequestClose={onClose}
+    />
+  )
+}
+
+function StyledImageViewerFooter({
+  images,
+  imageIndex,
+}: {
+  images: StyledImageViewerProps['images']
+  imageIndex: number
+}) {
   const safeAreaInsets = useSafeAreaInsets()
 
-  const downloadImageResult = imageService.download.useMutation()
-
   return (
-    <Modal
-      // presentationStyle="fullScreen"
-      visible={visible}
-      onRequestClose={onClose}
-      transparent
+    <View
+      style={tw`flex flex-row justify-between items-center px-8 pb-[${Math.max(
+        safeAreaInsets.bottom,
+        16
+      )}px]`}
     >
-      <ImageViewer
-        enableSwipeDown
-        onCancel={onClose}
-        menus={({ cancel, saveToLocal }) => (
-          <Pressable onPress={cancel} style={tw`bg-overlay absolute inset-0`}>
-            <View
-              style={tw.style(
-                `bg-background absolute bottom-0 inset-x-0 rounded-t-[32px] overflow-hidden`,
-                {
-                  paddingBottom: safeAreaInsets.bottom,
-                }
-              )}
-            >
-              {[
-                {
-                  label: '分享',
-                  value: 'share',
-                  onPress: async () => {
-                    const url = props.imageUrls[props.index!].url
-
-                    if (
-                      downloadImageResult.isPending &&
-                      downloadImageResult.variables === url
-                    )
-                      return
-
-                    try {
-                      const assetUrl = await downloadImageResult.mutateAsync(
-                        url
-                      )
-                      await Sharing.shareAsync(assetUrl)
-                    } catch (error) {
-                      Toast.show({
-                        type: 'error',
-                        text1:
-                          error instanceof Error ? error.message : '分享失败',
-                      })
-                    }
-                  },
-                },
-                {
-                  label: '保存',
-                  value: 'saveToLocal',
-                  onPress: saveToLocal,
-                },
-                {
-                  label: '取消',
-                  value: 'cancel',
-                  onPress: cancel,
-                },
-              ].map(item => (
-                <Pressable
-                  key={item.value}
-                  onPress={item.onPress}
-                  style={({ pressed }) =>
-                    tw.style(
-                      `h-[53px] justify-center items-center border-divider border-t border-solid`,
-                      pressed && `bg-focus`
-                    )
-                  }
-                >
-                  <Text style={tw`${getFontSize(5)} text-foreground`}>
-                    {item.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </Pressable>
-        )}
-        onSave={async url => {
-          try {
-            if (
-              downloadImageResult.isPending &&
-              downloadImageResult.variables === url
-            )
-              return
-
-            await downloadImageResult.mutateAsync(url)
-            Toast.show({
-              type: 'success',
-              text1: '保存成功',
-            })
-          } catch (error) {
-            Toast.show({
-              type: 'error',
-              text1: error instanceof Error ? error.message : '保存失败',
-            })
-          }
-        }}
-        renderHeader={() => (
-          <View
-            style={tw`pt-[${safeAreaInsets.top}px] px-4 z-20 absolute top-0 inset-x-0 flex-row justify-end`}
-          >
-            <TouchableWithoutFeedback
-              onPress={onClose}
-              style={tw`h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
-            >
-              <Ionicons name="close-sharp" size={24} color={'#fff'} />
-            </TouchableWithoutFeedback>
-          </View>
-        )}
-        renderIndicator={(currentIndex, allSize) => (
-          <View
-            style={tw`pt-[${safeAreaInsets.top}px] px-4 z-10 absolute top-0 inset-x-0 flex-row justify-center`}
-          >
-            <Text style={tw`text-white ${getFontSize(4)}`}>
-              {currentIndex + '/' + allSize}
-            </Text>
-          </View>
-        )}
-        renderImage={imageProps => <Image {...imageProps} />}
-        {...props}
-      />
-
-      <StyledToast />
-    </Modal>
+      <View>
+        <Text style={tw`text-[#fff] text-base`}>
+          {imageIndex + 1} / {images.length}
+        </Text>
+      </View>
+      <View style={tw`flex flex-row gap-x-2`}>
+        <IconButton
+          size={16}
+          name="share-variant"
+          color="#fff"
+          activeColor="#fff"
+          onPress={() => {
+            Sharing.shareAsync((images[imageIndex] as any).uri!)
+          }}
+        />
+      </View>
+    </View>
   )
 }

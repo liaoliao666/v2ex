@@ -31,8 +31,8 @@ import StyledImage from '../StyledImage'
 export default memo(
   ReplyItem,
   (prev, next) =>
-    prev.replyService.thanked === next.replyService.thanked &&
-    prev.replyService.created === next.replyService.created &&
+    prev.reply.thanked === next.reply.thanked &&
+    prev.reply.created === next.reply.created &&
     prev.once === next.once
 )
 
@@ -76,7 +76,7 @@ function ReplyItem({
                 navigation.goBack()
               } else {
                 navigation.push('MemberDetail', {
-                  username: replyService.member?.username!,
+                  username: reply.member?.username!,
                 })
               }
             }}
@@ -84,7 +84,7 @@ function ReplyItem({
             <StyledImage
               style={tw`w-6 h-6 rounded-full`}
               source={{
-                uri: replyService.member?.avatar,
+                uri: reply.member?.avatar,
               }}
             />
           </Pressable>
@@ -99,29 +99,29 @@ function ReplyItem({
                 onPress={() => {
                   if (inModalScreen) navigation.goBack()
                   navigation.push('MemberDetail', {
-                    username: replyService.member?.username!,
+                    username: reply.member?.username!,
                   })
                 }}
               >
-                {replyService.member?.username}
+                {reply.member?.username}
               </Text>
 
               <View style={tw`flex-row items-center`}>
-                {replyService.mod && (
+                {reply.mod && (
                   <View
                     style={tw.style(
                       `px-1 bg-primary border-primary border border-solid rounded-sm`,
-                      replyService.op && `rounded-r-none`
+                      reply.op && `rounded-r-none`
                     )}
                   >
                     <Text style={tw`text-white`}>MOD</Text>
                   </View>
                 )}
-                {replyService.op && (
+                {reply.op && (
                   <View
                     style={tw.style(
                       `px-1 border-primary border border-solid rounded-sm`,
-                      replyService.mod && `rounded-l-none`
+                      reply.mod && `rounded-l-none`
                     )}
                   >
                     <Text style={tw`text-primary`}>OP</Text>
@@ -130,18 +130,16 @@ function ReplyItem({
               </View>
             </View>
 
-            <Text style={tw`${getFontSize(6)} text-default`}>
-              #{replyService.no}
-            </Text>
+            <Text style={tw`${getFontSize(6)} text-default`}>#{reply.no}</Text>
           </View>
 
           <Separator>
             {compact([
               <Text key={'created'} style={tw`text-default ${getFontSize(6)}`}>
-                {replyService.created}
+                {reply.created}
               </Text>,
 
-              replyService.parsed_content && (
+              reply.parsed_content && (
                 <Text
                   key={'isParsing'}
                   style={tw`text-default ${getFontSize(6)}`}
@@ -159,9 +157,9 @@ function ReplyItem({
             <Html
               source={{
                 html:
-                  isParsing && replyService.parsed_content
-                    ? replyService.parsed_content
-                    : replyService.content,
+                  isParsing && reply.parsed_content
+                    ? reply.parsed_content
+                    : reply.content,
               }}
               inModalScreen={inModalScreen}
               paddingX={32 + 36}
@@ -176,12 +174,12 @@ function ReplyItem({
                 </Text>
               )}
 
-              {!(
-                isSelf(replyService.member.username) && !replyService.thanks
-              ) && <ThankReply topicId={topicId} once={once} reply={reply} />}
+              {!(isSelf(reply.member.username) && !reply.thanks) && (
+                <ThankReply topicId={topicId} once={once} reply={reply} />
+              )}
 
               <Pressable
-                onPress={() => onReply(replyService.member.username)}
+                onPress={() => onReply(reply.member.username)}
                 style={tw`flex-row items-center`}
               >
                 {({ pressed }) => (
@@ -201,11 +199,11 @@ function ReplyItem({
                 )}
               </Pressable>
 
-              {replyService.has_related_replies && !inModalScreen && (
+              {reply.has_related_replies && !inModalScreen && (
                 <Pressable
                   onPress={() => {
                     navigation.navigate('RelatedReplies', {
-                      replyId: replyService.id,
+                      replyId: reply.id,
                       topicId,
                       onReply: username => {
                         navigation.goBack()
@@ -253,7 +251,7 @@ function ThankReply({
 }) {
   const { mutateAsync, isPending } = replyService.thank.useMutation()
 
-  const disabled = isSelf(replyService.member.username) || replyService.thanked
+  const disabled = isSelf(reply.member.username) || reply.thanked
 
   return (
     <Pressable
@@ -266,25 +264,25 @@ function ThankReply({
         if (isPending || disabled) return
 
         await confirm(
-          `确认花费 10 个铜币向 @${replyService.member.username} 的这条回复发送感谢？`
+          `确认花费 10 个铜币向 @${reply.member.username} 的这条回复发送感谢？`
         )
 
         try {
           updateReply(topicId, {
-            id: replyService.id,
-            thanked: !replyService.thanked,
-            thanks: replyService.thanks + 1,
+            id: reply.id,
+            thanked: !reply.thanked,
+            thanks: reply.thanks + 1,
           })
 
           await mutateAsync({
-            id: replyService.id,
+            id: reply.id,
             once: once!,
           })
         } catch (error) {
           updateReply(topicId, {
-            id: replyService.id,
-            thanked: replyService.thanked,
-            thanks: replyService.thanks,
+            id: reply.id,
+            thanked: reply.thanked,
+            thanks: reply.thanks,
           })
 
           Toast.show({
@@ -299,11 +297,9 @@ function ThankReply({
         <Fragment>
           <IconButton
             size={16}
-            active={replyService.thanked}
-            name={replyService.thanked ? 'heart' : 'heart-outline'}
-            color={tw.color(
-              replyService.thanks ? `text-danger` : `text-default`
-            )}
+            active={reply.thanked}
+            name={reply.thanked ? 'heart' : 'heart-outline'}
+            color={tw.color(reply.thanks ? `text-danger` : `text-default`)}
             activeColor={tw.color(`text-danger`)}
             pressed={disabled ? false : pressed}
           />
@@ -311,10 +307,10 @@ function ThankReply({
           <Text
             style={tw.style(
               `${getFontSize(6)} pl-0.5`,
-              replyService.thanks ? `text-danger` : `text-default`
+              reply.thanks ? `text-danger` : `text-default`
             )}
           >
-            {replyService.thanks ? replyService.thanks : '感谢'}
+            {reply.thanks ? reply.thanks : '感谢'}
           </Text>
         </Fragment>
       )}
@@ -343,7 +339,7 @@ function MoreButton({
       size={16}
       onPress={() => {
         const options = compact([
-          !isSelf(replyService.member.username) && '隐藏',
+          !isSelf(reply.member.username) && '隐藏',
           '分享',
           '取消',
         ])
@@ -361,16 +357,16 @@ function MoreButton({
             switch (selectedIndex) {
               case options.indexOf('分享'):
                 const url = `${v2exURL}/t/${topicId}?p=${Math.ceil(
-                  replyService.no / 100
-                )}#r_${replyService.id}`
+                  reply.no / 100
+                )}#r_${reply.id}`
                 Share.share(
                   Platform.OS === 'android'
                     ? {
-                        title: replyService.content,
+                        title: reply.content,
                         message: url,
                       }
                     : {
-                        title: replyService.content,
+                        title: reply.content,
                         url: url,
                       }
                 )
@@ -388,7 +384,7 @@ function MoreButton({
 
                 try {
                   await ignoreReplyResult.mutateAsync({
-                    id: replyService.id,
+                    id: reply.id,
                     once: once!,
                   })
 
@@ -398,7 +394,7 @@ function MoreButton({
                       if (!draft) return
                       for (const page of draft.pages) {
                         const i = findIndex(page.replies, {
-                          id: replyService.id,
+                          id: reply.id,
                         })
                         if (i > -1) {
                           page.replies.splice(i, 1)
@@ -437,7 +433,7 @@ function updateReply(topicId: number, reply: Partial<Reply>) {
     topicService.detail.getKey({ id: topicId }),
     produce<inferData<typeof topicService.detail>>(data => {
       for (const topic of data?.pages || []) {
-        const result = find(topic.replies, { id: replyService.id })
+        const result = find(topic.replies, { id: reply.id })
 
         if (result) {
           Object.assign(result, reply)

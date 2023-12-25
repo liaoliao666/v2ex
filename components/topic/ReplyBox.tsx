@@ -102,7 +102,7 @@ const ReplyBox = ({
 
   const inputRef = useRef<TextInput>(null)
 
-  const replyResult = topicService.replyService.useMutation()
+  const replyResult = topicService.reply.useMutation()
 
   const appendTopicResult = topicService.append.useMutation()
 

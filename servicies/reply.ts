@@ -9,6 +9,7 @@ export const replyService = router(`reply`, {
   }),
 
   ignore: router.mutation<void, { id: number; once: string }>({
-    fetcher: ({ id, once }) => request.post(`/ignore/reply/${id}?once=${once}`),
+    mutationFn: ({ id, once }) =>
+      request.post(`/ignore/reply/${id}?once=${once}`),
   }),
 })

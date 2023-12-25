@@ -1,5 +1,5 @@
 import { load } from 'cheerio'
-import { Image, ImageProps } from 'expo-image'
+import { Image, ImageBackground, ImageProps } from 'expo-image'
 import * as ImageManipulator from 'expo-image-manipulator'
 import {
   isArray,
@@ -12,6 +12,7 @@ import {
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
 import { View, ViewStyle } from 'react-native'
+import { Text } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 import { suspend } from 'suspend-react'
 
@@ -25,57 +26,72 @@ import useUpdate from '@/utils/useUpdate'
 
 export interface StyledImageProps extends ImageProps {
   containerWidth?: number
+  isGif?: boolean
 }
 
 type Size = { width: number; height: number }
 
 const uriToSize = new Map<string | undefined, Size | 'error'>()
 
-function CustomImage({
+function BasicImage({
   style,
   source,
   onLoad,
   onError,
   containerWidth,
+  isGif,
   ...props
 }: StyledImageProps) {
   const uri = isObject(source) && !isArray(source) ? source.uri : undefined
   const size = uriToSize.get(uri)
   const update = useUpdate()
-
-  return (
-    <Image
-      {...props}
-      source={source}
-      onLoad={ev => {
-        const newSize: any = pick(ev.source, ['width', 'height'])
-        if (!isEqual(size, newSize)) {
-          uriToSize.set(uri, newSize)
-          if (!hasSize(style)) update()
-        }
-        onLoad?.(ev)
-      }}
-      onError={err => {
-        // TODO: This is a trick
-        // maybe fixed in next expo-image version
-        if (!hasSize(size)) {
-          uriToSize.set(uri, 'error')
-          if (!hasSize(style)) update()
-        }
-        onError?.(err)
-      }}
-      placeholder={
-        store.get(colorSchemeAtom) === 'light'
-          ? require('../assets/image-light-placeholder.png')
-          : require('../assets/image-dark-placeholder.png')
+  const imageProps: ImageProps = {
+    ...props,
+    source,
+    onLoad: ev => {
+      const newSize: any = pick(ev.source, ['width', 'height'])
+      if (!isEqual(size, newSize)) {
+        uriToSize.set(uri, newSize)
+        if (!hasSize(style)) update()
       }
-      style={tw.style(
-        // Compute image size if style has no size
-        !hasSize(style) && computeImageSize(containerWidth, size),
-        style as ViewStyle
-      )}
-    />
-  )
+      onLoad?.(ev)
+    },
+    onError: err => {
+      // TODO: This is a trick
+      // maybe fixed in next expo-image version
+      if (!hasSize(size)) {
+        uriToSize.set(uri, 'error')
+        if (!hasSize(style)) update()
+      }
+      onError?.(err)
+    },
+    placeholder:
+      store.get(colorSchemeAtom) === 'light'
+        ? require('../assets/image-light-placeholder.png')
+        : require('../assets/image-dark-placeholder.png'),
+    style: tw.style(
+      // Compute image size if style has no size
+      !hasSize(style) && computeImageSize(containerWidth, size),
+      isGif && `items-center justify-center`,
+      style as ViewStyle
+    ),
+  }
+
+  if (isGif) {
+    return (
+      <ImageBackground {...imageProps}>
+        <View style={tw`rounded-full p-0.5 bg-black bg-opacity-50`}>
+          <View
+            style={tw`border-white border-2 rounded-full w-[42px] h-[42px] items-center justify-center`}
+          >
+            <Text style={tw`text-white font-bold text-[12px]`}>GIF</Text>
+          </View>
+        </View>
+      </ImageBackground>
+    )
+  }
+
+  return <Image {...imageProps} />
 }
 
 function imageLoadingRender({
@@ -149,12 +165,18 @@ const Svg = ({
   )
 }
 
-async function getCompressedImage(uri: string) {
+async function comporessImage(uri: string) {
   try {
-    const staticImage = await ImageManipulator.manipulateAsync(uri, [], {
-      compress: 1,
-      format: ImageManipulator.SaveFormat.JPEG,
-    })
+    await Image.prefetch(uri)
+    const localURI = await Image.getCachePathAsync(uri)
+    const staticImage = await ImageManipulator.manipulateAsync(
+      localURI || uri,
+      [],
+      {
+        compress: 1,
+        format: ImageManipulator.SaveFormat.JPEG,
+      }
+    )
     return {
       uri: staticImage.uri,
       size: pick(staticImage, ['width', 'height']),
@@ -165,14 +187,14 @@ async function getCompressedImage(uri: string) {
 }
 
 const CompressedImage = (props: StyledImageProps) => {
-  const { uri, size } = suspend(getCompressedImage, [
-    (props.source as any).uri!,
-  ])
+  const { uri, size } = suspend(comporessImage, [(props.source as any).uri!])
   if (!uriToSize.has(uri) && hasSize(size)) {
     uriToSize.set(uri, size)
   }
 
-  return <StyledImage {...props} source={{ ...(props.source as any), uri }} />
+  return (
+    <StyledImage {...props} isGif source={{ ...(props.source as any), uri }} />
+  )
 }
 
 function computeImageSize(
@@ -262,7 +284,7 @@ function StyledImage({ source, ...props }: StyledImageProps) {
   }
 
   return (
-    <CustomImage
+    <BasicImage
       {...props}
       source={
         isObject(source)

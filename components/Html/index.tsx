@@ -1,6 +1,7 @@
 import { load } from 'cheerio'
+import { Image } from 'expo-image'
 import { useSetAtom } from 'jotai'
-import { findIndex, isString } from 'lodash-es'
+import { isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
 import { Alert } from 'react-native'
 import RenderHtml, {
@@ -56,11 +57,9 @@ function Html({
     if (!isString(html)) return []
     const $ = load(html)
     return $('img')
-      .map((i, img) => ({
-        url: $(img).attr('src')!,
-      }))
+      .map((i, img) => $(img).attr('src')!)
       .get()
-      .filter(item => !!item.url)
+      .filter(url => !!url)
   }, [html])
 
   const screenWidth = useScreenWidth()
@@ -69,7 +68,7 @@ function Html({
     <HtmlContext.Provider
       value={useMemo(
         () => ({
-          onPreview: url => {
+          onPreview: async previewUrl => {
             if (inModalScreen) {
               Alert.alert(
                 '评论回复内暂不支持查看图片',
@@ -82,10 +81,16 @@ function Html({
               return
             }
 
+            const images = await Promise.all(
+              imageUrls.map(async url => ({
+                uri: (await Image.getCachePathAsync(url)) || url,
+              }))
+            )
+
             setImageViewer({
-              index: findIndex(imageUrls, { url }),
+              imageIndex: imageUrls.findIndex(url => url === previewUrl),
               visible: true,
-              imageUrls,
+              images,
             })
           },
           onSelectText: () => {
