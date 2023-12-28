@@ -9,7 +9,7 @@ import tw from '@/utils/tw'
 
 export default function SelectableTextScreen() {
   const {
-    params: { html },
+    params: { html, htmlLayout },
   } = useRoute<RouteProp<RootStackParamList, 'SelectableText'>>()
 
   return (
@@ -20,8 +20,12 @@ export default function SelectableTextScreen() {
         style={tw`border-divider border-b border-solid`}
       />
 
-      <ScrollView style={tw`px-4 pt-4`}>
-        <Html source={{ html }} selectOnly />
+      <ScrollView style={tw`px-4`}>
+        <View style={tw`pt-4`}>
+          <View style={{ minHeight: htmlLayout?.height }}>
+            <Html source={{ html }} selectOnly />
+          </View>
+        </View>
         <SafeAreaView edges={['bottom']} />
       </ScrollView>
     </View>

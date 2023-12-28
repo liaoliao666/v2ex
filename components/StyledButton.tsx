@@ -32,12 +32,12 @@ const colors = {
     activeDarkColor: `rgba(32,35,39,0.5)`,
   },
   danger: {
-    color: `rgba(249,24,128,.1)`,
-    darkColor: `rgba(249,24,128,.2)`,
-    textColor: 'rgba(249,24,128,1)',
-    darkTextColor: 'rgba(249,24,128,1)',
-    activeColor: `rgba(249,24,128,.8)`,
-    activeDarkColor: `rgba(249,24,128,.8)`,
+    color: `rgba(211,47,47,.1)`,
+    darkColor: `rgba(244,67,54,.2)`,
+    textColor: 'rgba(211,47,47,1)',
+    darkTextColor: 'rgba(244,67,54,1)',
+    activeColor: `rgba(211,47,47,.8)`,
+    activeDarkColor: `rgba(244,67,54,.8)`,
   },
 }
 

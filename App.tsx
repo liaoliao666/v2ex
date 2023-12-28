@@ -103,12 +103,8 @@ function GlobalImageViewer() {
   return (
     <StyledImageViewer
       {...imageViewer}
-      onRequestClose={() =>
-        setImageViewer({
-          imageIndex: 0,
-          visible: false,
-          images: [],
-        })
+      onClose={() =>
+        setImageViewer({ visible: false, index: 0, imageUrls: [] })
       }
     />
   )

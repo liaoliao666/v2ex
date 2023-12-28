@@ -31,7 +31,7 @@ export interface StyledImageProps extends ImageProps {
 
 type Size = { width: number; height: number }
 
-const uriToSize = new Map<string | undefined, Size | 'error'>()
+export const uriToSize = new Map<string | undefined, Size | 'error'>()
 
 function BasicImage({
   style,
@@ -71,8 +71,7 @@ function BasicImage({
         : require('../assets/image-dark-placeholder.png'),
     style: tw.style(
       // Compute image size if style has no size
-      !hasSize(style) && computeImageSize(containerWidth, size),
-      isGif && `items-center justify-center`,
+      !hasSize(style) && computeImageDispalySize(containerWidth, size),
       style as ViewStyle
     ),
   }
@@ -80,11 +79,11 @@ function BasicImage({
   if (isGif) {
     return (
       <ImageBackground {...imageProps}>
-        <View style={tw`rounded-full p-0.5 bg-black bg-opacity-50`}>
-          <View
-            style={tw`border-white border-2 rounded-full w-[42px] h-[42px] items-center justify-center`}
-          >
-            <Text style={tw`text-white font-bold text-[12px]`}>GIF</Text>
+        <View
+          style={tw`absolute left-2 top-2 rounded p-0.5 bg-black bg-opacity-50`}
+        >
+          <View style={tw`border-white border rounded px-1 py-0.5`}>
+            <Text style={tw`text-white font-bold text-[10px]`}>GIF</Text>
           </View>
         </View>
       </ImageBackground>
@@ -104,7 +103,7 @@ function imageLoadingRender({
   return (
     <View
       style={tw.style(
-        !hasSize(style) && computeImageSize(containerWidth),
+        !hasSize(style) && computeImageDispalySize(containerWidth),
         `img-loading`,
         style
       )}
@@ -146,7 +145,7 @@ const Svg = ({
   ...props
 }: UriProps & { containerWidth?: number }) => {
   const { xml, size } = suspend(getSvgInfo, [uri!])
-  const svgStyle = computeImageSize(containerWidth, size)
+  const svgStyle = computeImageDispalySize(containerWidth, size)
 
   return (
     <SvgXml
@@ -186,7 +185,7 @@ async function comporessImage(uri: string) {
   }
 }
 
-const CompressedImage = (props: StyledImageProps) => {
+const Gif = (props: StyledImageProps) => {
   const { uri, size } = suspend(comporessImage, [(props.source as any).uri!])
   if (!uriToSize.has(uri) && hasSize(size)) {
     uriToSize.set(uri, size)
@@ -197,7 +196,7 @@ const CompressedImage = (props: StyledImageProps) => {
   )
 }
 
-function computeImageSize(
+function computeImageDispalySize(
   containerWidth?: number,
   size?: Size | 'error'
 ): ViewStyle {
@@ -272,7 +271,7 @@ function StyledImage({ source, ...props }: StyledImageProps) {
   if (isString(resolvedURI) && isGifURL(resolvedURI) && !hasSize(props.style)) {
     return (
       <Suspense fallback={imageLoadingRender(props)}>
-        <CompressedImage
+        <Gif
           {...props}
           source={{
             ...(source as any),

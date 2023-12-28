@@ -3,6 +3,7 @@
  * https://reactnavigation.org/docs/typescript/
  */
 import { NativeStackScreenProps } from '@react-navigation/native-stack'
+import { LayoutRectangle } from 'react-native'
 
 import { Node, Topic } from './servicies/types'
 
@@ -73,6 +74,7 @@ export type RootStackParamList = {
   ImgurConfig: undefined
   SelectableText: {
     html: string
+    htmlLayout?: LayoutRectangle
   }
   HotestTopics: undefined
   ConfigureDomain: undefined
