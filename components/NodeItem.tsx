@@ -25,12 +25,7 @@ function NodeItem({
         onPressNodeItem(node)
       }}
     >
-      <StyledImage
-        style={tw`w-5 h-5`}
-        source={{
-          uri: node.avatar_large,
-        }}
-      />
+      <StyledImage style={tw`w-5 h-5`} source={node.avatar_large} />
       <Text style={tw`${getFontSize(5)} text-foreground ml-2`}>
         {compact([node.title, node.name]).join(' / ')}
       </Text>

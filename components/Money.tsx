@@ -29,7 +29,7 @@ export default function Money({
       {moneyOptions.map(o => (
         <View style={tw`flex-row items-center`} key={o.uri}>
           <Text style={tw`text-default ${getFontSize(6)}`}>{o.value}</Text>
-          <StyledImage style={tw`w-4 h-4 ml-0.5`} source={{ uri: o.uri }} />
+          <StyledImage style={tw`w-4 h-4 ml-0.5`} source={o.uri} />
         </View>
       ))}
     </View>

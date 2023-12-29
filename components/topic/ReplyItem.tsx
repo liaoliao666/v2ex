@@ -81,9 +81,7 @@ function ReplyItem({
           >
             <StyledImage
               style={tw`w-6 h-6 rounded-full`}
-              source={{
-                uri: reply.member?.avatar,
-              }}
+              source={reply.member?.avatar}
             />
           </Pressable>
         </View>

@@ -183,7 +183,7 @@ export default function RelatedRepliesScreen() {
                     >
                       <StyledImage
                         style={tw`w-5 h-5 rounded-full`}
-                        source={{ uri: route.avatar }}
+                        source={route.avatar}
                       />
                       <Text
                         style={tw.style(

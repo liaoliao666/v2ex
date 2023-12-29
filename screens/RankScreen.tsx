@@ -238,9 +238,7 @@ const RankItem = memo(
           >
             <StyledImage
               style={tw`w-6 h-6 rounded-full`}
-              source={{
-                uri: member?.avatar,
-              }}
+              source={member?.avatar}
             />
           </DebouncedPressable>
         </View>

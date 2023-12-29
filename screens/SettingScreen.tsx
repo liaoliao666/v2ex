@@ -77,9 +77,7 @@ function SettingScreen() {
         <View style={tw`px-4 pt-3 pb-3 flex-row`}>
           <StyledImage
             style={tw`w-12 h-12 mr-3 rounded`}
-            source={{
-              uri: `https://cdn.v2ex.com/navatar/c81e/728d/2_large.png?m=1497247332`,
-            }}
+            source={`https://cdn.v2ex.com/navatar/c81e/728d/2_large.png?m=1497247332`}
           />
 
           <View style={tw`flex-1`}>

@@ -57,12 +57,7 @@ function MyNodesScreen() {
         }}
         style={tw`w-1/4 py-1 items-center h-[${ITEM_HEIGHT}px]`}
       >
-        <StyledImage
-          style={tw`w-12 h-12`}
-          source={{
-            uri: node.avatar_large,
-          }}
-        />
+        <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
 
         <Text
           style={tw`${getFontSize(6)} mt-auto text-foreground text-center`}

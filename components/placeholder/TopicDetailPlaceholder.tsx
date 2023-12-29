@@ -46,9 +46,7 @@ export default function TopicDetailPlaceholder({
                   `w-12 h-12 rounded-full`,
                   !topic.member.avatar && `bg-loading`
                 )}
-                source={{
-                  uri: topic.member?.avatar,
-                }}
+                source={topic.member?.avatar}
               />
             </View>
 

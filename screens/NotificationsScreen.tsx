@@ -180,9 +180,7 @@ const NoticeItem = memo(
         >
           <StyledImage
             style={tw`w-6 h-6 mr-3 rounded-full`}
-            source={{
-              uri: notice.member.avatar,
-            }}
+            source={notice.member.avatar}
           />
         </Pressable>
 

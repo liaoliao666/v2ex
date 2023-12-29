@@ -186,13 +186,23 @@ async function comporessImage(uri: string) {
 }
 
 const Gif = (props: StyledImageProps) => {
-  const { uri, size } = suspend(comporessImage, [(props.source as any).uri!])
+  const sourceURI = isString(props.source)
+    ? props.source
+    : (props.source as any).uri
+  const { uri, size } = suspend(comporessImage, [sourceURI!])
   if (!uriToSize.has(uri) && hasSize(size)) {
     uriToSize.set(uri, size)
   }
 
   return (
-    <StyledImage {...props} isGif source={{ ...(props.source as any), uri }} />
+    <StyledImage
+      {...props}
+      isGif={sourceURI !== uri}
+      source={{
+        ...(isObject(props.source) && !isArray(props.source) && props.source),
+        uri,
+      }}
+    />
   )
 }
 
@@ -253,10 +263,12 @@ function computeImageDispalySize(
 }
 
 function StyledImage({ source, ...props }: StyledImageProps) {
-  const resolvedURI =
-    isObject(source) && !isArray(source) && isString(source.uri)
-      ? resolveURL(source.uri)
-      : undefined
+  const URI = isString(source)
+    ? source
+    : isObject(source) && !isArray(source) && isString(source.uri)
+    ? source.uri
+    : undefined
+  const resolvedURI = URI ? resolveURL(URI) : undefined
 
   if (isString(resolvedURI) && isSvgURL(resolvedURI)) {
     return (
@@ -274,7 +286,7 @@ function StyledImage({ source, ...props }: StyledImageProps) {
         <Gif
           {...props}
           source={{
-            ...(source as any),
+            ...(isObject(source) && !isArray(source) && source),
             uri: resolvedURI,
           }}
         />
@@ -285,14 +297,10 @@ function StyledImage({ source, ...props }: StyledImageProps) {
   return (
     <BasicImage
       {...props}
-      source={
-        isObject(source)
-          ? {
-              ...source,
-              uri: resolvedURI,
-            }
-          : source
-      }
+      source={{
+        ...(isObject(source) && !isArray(source) && source),
+        uri: resolvedURI,
+      }}
     />
   )
 }

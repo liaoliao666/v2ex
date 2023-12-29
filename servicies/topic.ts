@@ -144,13 +144,6 @@ export const topic = router(`topic`, {
     use: [removeUnnecessaryPages],
   }),
 
-  deleteNotification: router.mutation({
-    mutationFn: ({ id, once }: { id: number; once: string }) =>
-      request.post(`/delete/notification/${id}?once=${once}`, {
-        responseType: 'text',
-      }),
-  }),
-
   like: router.mutation<
     void,
     { id: number; once: string; type: 'unfavorite' | 'favorite' }

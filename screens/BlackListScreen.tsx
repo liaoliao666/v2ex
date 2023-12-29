@@ -193,9 +193,7 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
         >
           <StyledImage
             style={tw`w-6 h-6 rounded-full`}
-            source={{
-              uri: member?.avatar,
-            }}
+            source={member?.avatar}
           />
         </DebouncedPressable>
       </View>
@@ -302,9 +300,7 @@ const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
         >
           <StyledImage
             style={tw`w-6 h-6 rounded-full`}
-            source={{
-              uri: topic.member?.avatar,
-            }}
+            source={topic.member?.avatar}
           />
         </DebouncedPressable>
       </View>

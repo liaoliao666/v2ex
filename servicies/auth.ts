@@ -12,7 +12,7 @@ import { getBaseURL } from '@/utils/url'
 
 import { isLogined } from './helper'
 
-export const authService = router(`auth`, {
+export const auth = router(`auth`, {
   signout: router.mutation({
     mutationFn: async ({ once }: { once: string }) => {
       const { data } = await request.get(`/signout?once=${once}`, {

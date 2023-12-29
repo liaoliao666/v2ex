@@ -223,9 +223,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           >
             <StyledImage
               style={tw`w-8 h-8 rounded-full`}
-              source={{
-                uri: profile?.avatar,
-              }}
+              source={profile?.avatar}
             />
           </TouchableOpacity>
         ) : (
@@ -233,9 +231,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             <View style={tw`flex-row justify-between items-center`}>
               <StyledImage
                 style={tw`w-10 h-10 rounded-full`}
-                source={{
-                  uri: profile?.avatar,
-                }}
+                source={profile?.avatar}
               />
 
               <TouchableOpacity

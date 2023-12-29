@@ -171,7 +171,7 @@ function MemberDetailScreen() {
         >
           <StyledImage
             style={tw`w-5 h-5 rounded-full mr-2`}
-            source={{ uri: member.avatar }}
+            source={member.avatar}
           />
 
           <Text
@@ -328,9 +328,7 @@ const MemberHeader = memo(() => {
         <View pointerEvents="none" style={tw`p-0.5 bg-background rounded-full`}>
           <StyledImage
             style={tw`w-[81.25px] h-[81.25px] rounded-full`}
-            source={{
-              uri: member.avatar,
-            }}
+            source={member.avatar}
           />
         </View>
 
@@ -433,12 +431,7 @@ const MemberHeader = memo(() => {
                 navigation.navigate('Webview', { url: widget.link })
               }}
             >
-              <StyledImage
-                style={tw`w-5 h-5 mr-1`}
-                source={{
-                  uri: widget.uri,
-                }}
-              />
+              <StyledImage style={tw`w-5 h-5 mr-1`} source={widget.uri} />
               <Text
                 style={tw`${getFontSize(5)} text-default flex-shrink`}
                 numberOfLines={1}

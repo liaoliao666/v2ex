@@ -56,7 +56,7 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 const TAB_BAR_HEIGHT = 40
-const Recent_TAB_KEY = 'recent'
+const RECENT_TAB_KEY = 'recent'
 const errorResetMap: Record<string, () => void> = {}
 
 function TabPlaceholder({
@@ -111,7 +111,7 @@ function HomeScreen() {
     const activeQueryKey: any =
       activeTab.type === 'node'
         ? k.node.topics.getKey({ name: activeTabKey })
-        : activeTab.key === Recent_TAB_KEY
+        : activeTab.key === RECENT_TAB_KEY
         ? k.topic.recent.getKey()
         : k.topic.tab.getKey({ tab: activeTabKey })
     const query = queryClient.getQueryCache().find({
@@ -121,7 +121,7 @@ function HomeScreen() {
     if (query?.state.error) {
       errorResetMap[activeTabKey]?.()
     } else if (query?.getObserversCount() && (forceFetch || query?.isStale())) {
-      if (activeTab.type === 'node' || activeTab.key === Recent_TAB_KEY) {
+      if (activeTab.type === 'node' || activeTab.key === RECENT_TAB_KEY) {
         queryClient.prefetchInfiniteQuery({
           ...(activeTab.type === 'node'
             ? k.node.topics.getFetchOptions({ name: activeTabKey })
@@ -163,9 +163,9 @@ function HomeScreen() {
             )
           }
 
-          if (route.key === Recent_TAB_KEY) {
+          if (route.key === RECENT_TAB_KEY) {
             return (
-              <TabPlaceholder tab={Recent_TAB_KEY}>
+              <TabPlaceholder tab={RECENT_TAB_KEY}>
                 <RecentTopics ref={ref} headerHeight={headerHeight} />
               </TabPlaceholder>
             )
@@ -268,7 +268,7 @@ const RecentTopics = memo(
       isFetchingNextPage,
       isFetching,
     } = k.topic.recent.useSuspenseInfiniteQuery({
-      refetchOnWindowFocus: () => isRefetchOnWindowFocus(Recent_TAB_KEY),
+      refetchOnWindowFocus: () => isRefetchOnWindowFocus(RECENT_TAB_KEY),
     })
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
@@ -464,9 +464,7 @@ function TopNavBar() {
                 <StyledImage
                   priority="high"
                   style={tw`w-8 h-8 rounded-full`}
-                  source={{
-                    uri: profile.avatar,
-                  }}
+                  source={profile.avatar}
                 />
               </Badge>
             ) : (

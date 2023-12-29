@@ -27,7 +27,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     return (
       <StyledImage
         style={style as any}
-        source={{ uri: url }}
+        source={url}
         containerWidth={containerWidth}
       />
     )
@@ -41,7 +41,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     >
       <StyledImage
         style={style as any}
-        source={{ uri: url }}
+        source={url}
         containerWidth={containerWidth}
         priority="low"
       />

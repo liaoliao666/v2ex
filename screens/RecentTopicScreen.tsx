@@ -134,9 +134,7 @@ const RecentTopicItem = memo(
           >
             <StyledImage
               style={tw`w-6 h-6 rounded-full`}
-              source={{
-                uri: recentTopic.member?.avatar,
-              }}
+              source={recentTopic.member?.avatar}
             />
           </DebouncedPressable>
         </View>

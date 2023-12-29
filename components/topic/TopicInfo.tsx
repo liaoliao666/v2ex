@@ -64,9 +64,7 @@ export default function TopicInfo({
           >
             <StyledImage
               style={tw`w-12 h-12 rounded-full`}
-              source={{
-                uri: topic.member?.avatar,
-              }}
+              source={topic.member?.avatar}
             />
           </Pressable>
         </View>

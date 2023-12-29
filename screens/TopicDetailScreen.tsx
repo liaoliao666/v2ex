@@ -66,8 +66,6 @@ export default withQuerySuspense(TopicDetailScreen, {
   },
 })
 
-type OrderBy = 'asc' | 'desc'
-
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
 
@@ -86,7 +84,7 @@ function TopicDetailScreen() {
 
   const topic = last(data?.pages)!
 
-  const [orderBy, setOrderBy] = useState<OrderBy>('asc')
+  const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('asc')
 
   const flatedData = useMemo(() => {
     const result = uniqBy(
@@ -187,7 +185,7 @@ function TopicDetailScreen() {
                     { label: '最新', value: 'desc' },
                   ] as {
                     label: string
-                    value: OrderBy
+                    value: typeof orderBy
                   }[]
                 }
                 value={orderBy}
@@ -203,6 +201,14 @@ function TopicDetailScreen() {
                   setOrderBy(v)
 
                   if (v === 'desc' && hasNextPage) {
+                    if (topic.last_page - topic.page > 9) {
+                      Toast.show({
+                        type: 'error',
+                        text1: '该帖子页数过多无法启用最新模式',
+                      })
+                      return
+                    }
+
                     // using fetchNextPage if the topic has only a next page
                     if (topic.last_page - topic.page === 1) {
                       fetchNextPage()
@@ -224,15 +230,17 @@ function TopicDetailScreen() {
                         }).map((_, i) => i + 1)
                         const pageDatas = await Promise.all(
                           allPageNo.map(page => {
-                            if (pageToData[page]) return pageToData[page]
-                            return k.topic.detail.fetcher(
-                              {
-                                id: params.id,
-                              },
-                              {
-                                pageParam: page,
-                              }
-                            )
+                            if (!pageToData[page] || page === topic.last_page) {
+                              return k.topic.detail.fetcher(
+                                {
+                                  id: params.id,
+                                },
+                                {
+                                  pageParam: page,
+                                }
+                              )
+                            }
+                            return pageToData[page]
                           })
                         )
 
@@ -359,9 +367,7 @@ function TopicDetailScreen() {
             >
               <StyledImage
                 style={tw`rounded-full w-7 h-7`}
-                source={{
-                  uri: topic.member?.avatar,
-                }}
+                source={topic.member?.avatar}
               />
 
               <View

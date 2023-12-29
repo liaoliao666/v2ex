@@ -150,7 +150,7 @@ function MyFollowingScreen() {
                     {route.avatar && (
                       <StyledImage
                         style={tw`w-5 h-5 rounded-full`}
-                        source={{ uri: route.avatar }}
+                        source={route.avatar}
                       />
                     )}
                     <Text

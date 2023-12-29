@@ -210,9 +210,7 @@ function NodeInfo({
       <View style={tw`${TOP_BAR_BG_CLS} px-4 py-3 flex-row z-10`}>
         <StyledImage
           style={tw`w-12 h-12 mr-3 rounded`}
-          source={{
-            uri: node?.avatar_large,
-          }}
+          source={node?.avatar_large}
         />
 
         <View style={tw`flex-1`}>

@@ -138,9 +138,7 @@ const AtReplyItem = memo(
       <View style={tw`px-4 py-3 flex-row`}>
         <StyledImage
           style={tw`w-5 h-5 rounded-full`}
-          source={{
-            uri: reply.member.avatar,
-          }}
+          source={reply.member.avatar}
         />
         <View style={tw`flex-1 mx-2`}>
           <View style={tw`flex-row items-center`}>
