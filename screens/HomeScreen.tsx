@@ -227,6 +227,10 @@ function HomeScreen() {
                             ? tw`text-foreground font-medium`
                             : tw`text-default`
                         )}
+                        numberOfLines={1}
+                        ellipsizeMode={
+                          route.title.length > 4 ? 'middle' : undefined
+                        }
                       >
                         {route.title}
                       </Text>

@@ -1,7 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, isEmpty, some } from 'lodash-es'
-import { useCallback, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -31,52 +31,53 @@ export default function SortTabsScreen() {
   const [tabIndex, setTabIndex] = useAtom(homeTabIndexAtom)
   const [isEdit, setIsEdit] = useState(false)
 
-  const renderItem = useCallback(
-    ({
-      item,
-      iconName,
-      onIconPress,
-    }: {
-      item: HomeTab
-      iconName?: React.ComponentProps<typeof MaterialCommunityIcons>['name']
-      onIconPress?: () => void
-    }) => {
-      return (
+  const renderItem = ({
+    item,
+    iconName,
+    onIconPress,
+  }: {
+    item: HomeTab
+    iconName?: React.ComponentProps<typeof MaterialCommunityIcons>['name']
+    onIconPress?: () => void
+  }) => {
+    return (
+      <View
+        style={tw`w-[${itemWidth}px] h-[${itemHeight}px] px-1 flex-row justify-center items-center`}
+      >
         <View
-          style={tw`w-[${itemWidth}px] h-[${itemHeight}px] px-1 flex-row justify-center items-center`}
+          style={tw.style(
+            `w-[${
+              itemWidth - 8
+            }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-content`
+          )}
         >
-          <View
-            style={tw.style(
-              `w-[${
-                itemWidth - 8
-              }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-content`
-            )}
+          <Text
+            style={tw`text-foreground ${getFontSize(5)}`}
+            numberOfLines={1}
+            ellipsizeMode={item.title.length > 4 ? 'middle' : undefined}
           >
-            <Text style={tw`text-foreground ${getFontSize(5)}`}>
-              {item.title}
-            </Text>
+            {item.title}
+          </Text>
 
-            {!!iconName && (
-              <Pressable
-                style={tw.style(`absolute w-4 h-4`, {
-                  top: -4,
-                  right: -4,
-                })}
-                onPress={onIconPress}
-              >
-                <MaterialCommunityIcons
-                  name={iconName}
-                  color={tw.color(`text-default`)}
-                  size={16}
-                />
-              </Pressable>
-            )}
-          </View>
+          {!!iconName && (
+            <Pressable
+              style={tw.style(`absolute w-4 h-4`, {
+                top: -4,
+                right: -4,
+              })}
+              onPress={onIconPress}
+            >
+              <MaterialCommunityIcons
+                name={iconName}
+                color={tw.color(`text-default`)}
+                size={16}
+              />
+            </Pressable>
+          )}
         </View>
-      )
-    },
-    [itemWidth]
-  )
+      </View>
+    )
+  }
 
   useAtomValue(colorSchemeAtom)
 
