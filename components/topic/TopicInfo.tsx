@@ -1,6 +1,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { AntDesign, MaterialIcons } from '@expo/vector-icons'
 import { produce } from 'immer'
+import { useAtomValue } from 'jotai'
 import { compact } from 'lodash-es'
 import { Fragment, ReactElement, useState } from 'react'
 import {
@@ -17,10 +18,10 @@ import { inferData } from 'react-query-kit'
 import { v2exURL } from '@/jotai/baseUrlAtom'
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { isSelf, isSignined } from '@/utils/authentication'
@@ -51,8 +52,12 @@ export default function TopicInfo({
   const hasParsedText =
     !!topic.parsed_content || topic.supplements?.some(o => !!o.parsed_content)
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`py-3 px-4 border-b border-solid border-divider`}>
+    <View
+      style={tw`py-3 px-4 border-b border-solid border-[${colors.divider}]`}
+    >
       <View style={tw`flex-row items-center`}>
         <View style={tw`mr-3`}>
           <Pressable
@@ -74,9 +79,7 @@ export default function TopicInfo({
             {compact([
               <Text
                 key={'username'}
-                style={tw`text-foreground ${getFontSize(
-                  4
-                )} font-semibold flex-shrink`}
+                style={tw`text-[${colors.foreground}] ${fontSize.xlarge} font-semibold flex-shrink`}
                 numberOfLines={1}
               >
                 {topic.member?.username}
@@ -84,7 +87,7 @@ export default function TopicInfo({
               hasParsedText && (
                 <Text
                   key={'isParsing'}
-                  style={tw`text-default ${getFontSize(6)} mr-2`}
+                  style={tw`text-[${colors.default}] ${fontSize.small} mr-2`}
                   onPress={() => {
                     setIsParsing(!isParsing)
                   }}
@@ -98,14 +101,17 @@ export default function TopicInfo({
           <Separator style={tw`flex-1 flex-nowrap`}>
             {compact([
               topic.created && (
-                <Text key="created" style={tw`text-default ${getFontSize(5)}`}>
+                <Text
+                  key="created"
+                  style={tw`text-[${colors.default}] ${fontSize.medium}`}
+                >
                   {topic.created}
                 </Text>
               ),
               topic.views && (
                 <Text
                   key="views"
-                  style={tw`text-default ${getFontSize(5)} flex-shrink`}
+                  style={tw`text-[${colors.default}] ${fontSize.medium} flex-shrink`}
                   numberOfLines={1}
                 >
                   {`${topic.views} 点击`}
@@ -119,7 +125,7 @@ export default function TopicInfo({
       </View>
 
       <Text
-        style={tw`text-foreground ${getFontSize(3)} font-medium pt-2`}
+        style={tw`text-[${colors.foreground}] ${fontSize.xxlarge} font-medium pt-2`}
         selectable
       >
         {topic.title}
@@ -144,16 +150,19 @@ export default function TopicInfo({
           {topic.supplements.map((supplement, i) => (
             <View
               key={`${supplement.created}_${i}`}
-              style={tw`border-t border-solid border-divider py-2`}
+              style={tw`border-t border-solid border-[${colors.divider}] py-2`}
             >
               <Separator>
                 {[
-                  <Text key="i" style={tw`text-default ${getFontSize(5)}`}>
+                  <Text
+                    key="i"
+                    style={tw`text-[${colors.default}] ${fontSize.medium}`}
+                  >
                     第{i + 1}条附言
                   </Text>,
                   <Text
                     key="created"
-                    style={tw`text-default ${getFontSize(5)}`}
+                    style={tw`text-[${colors.default}] ${fontSize.medium}`}
                   >
                     {supplement.created}
                   </Text>,
@@ -182,6 +191,8 @@ export default function TopicInfo({
 
 export function LikeTopic({ topic }: { topic: Topic }) {
   const { isPending, mutateAsync } = k.topic.like.useMutation()
+
+  const { colors } = useAtomValue(uiAtom)
 
   return (
     <Pressable
@@ -223,7 +234,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
       {({ pressed }) => (
         <Fragment>
           <IconButton
-            color={tw.color(`text-default`)}
+            color={colors.default}
             activeColor="rgb(250,219,20)"
             active={topic.liked}
             icon={<AntDesign name={topic.liked ? 'star' : 'staro'} />}
@@ -234,8 +245,10 @@ export function LikeTopic({ topic }: { topic: Topic }) {
           {!!topic.likes && (
             <Text
               style={tw.style(
-                `text-[10px] absolute -top-1 left-4 px-0.5  bg-background rounded-sm overflow-hidden`,
-                topic.liked ? `text-[rgb(250,219,20)]` : `text-default`
+                `text-[10px] absolute -top-1 left-4 px-0.5  bg-[${colors.base100}] rounded-sm overflow-hidden`,
+                topic.liked
+                  ? `text-[rgb(250,219,20)]`
+                  : `text-[${colors.default}]`
               )}
             >
               {topic.likes}
@@ -249,6 +262,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 
 export function ThankTopic({ topic }: { topic: Topic }) {
   const { mutateAsync, isPending } = k.topic.thank.useMutation()
+  const { colors } = useAtomValue(uiAtom)
 
   return (
     <Pressable
@@ -292,8 +306,8 @@ export function ThankTopic({ topic }: { topic: Topic }) {
         <Fragment>
           <IconButton
             name={topic.thanked ? 'heart' : 'heart-outline'}
-            color={tw.color(`text-default`)}
-            activeColor={tw.color(`text-danger`)}
+            color={colors.default}
+            activeColor={colors.danger}
             active={topic.thanked}
             pressed={pressed}
             size={24}
@@ -302,8 +316,10 @@ export function ThankTopic({ topic }: { topic: Topic }) {
           {!!topic.thanks && (
             <Text
               style={tw.style(
-                `text-[10px] absolute -top-1 left-4 px-0.5 bg-background rounded-sm overflow-hidden`,
-                topic.thanked ? `text-danger` : `text-default`
+                `text-[10px] absolute -top-1 left-4 px-0.5 bg-[${colors.base100}] rounded-sm overflow-hidden`,
+                topic.thanked
+                  ? `text-[${colors.danger}]`
+                  : `text-[${colors.default}]`
               )}
             >
               {topic.thanks}
@@ -318,9 +334,11 @@ export function ThankTopic({ topic }: { topic: Topic }) {
 export function VoteButton({ topic }: { topic: Topic }) {
   const { mutateAsync, isPending } = k.topic.vote.useMutation()
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
     <View
-      style={tw`p-2 flex-row items-center rounded-full bg-primary bg-opacity-10`}
+      style={tw`p-2 flex-row items-center rounded-full bg-[${colors.primary}] bg-opacity-10`}
     >
       <TouchableOpacity
         style={tw`px-2 flex-row items-center`}
@@ -354,16 +372,16 @@ export function VoteButton({ topic }: { topic: Topic }) {
         <MaterialIcons
           name="thumb-up-off-alt"
           size={22.5}
-          color={tw.color(`text-primary`)}
+          color={colors.primary}
         />
 
-        <Text style={tw.style(`ml-1 text-primary`)}>
+        <Text style={tw.style(`ml-1 text-[${colors.primary}]`)}>
           {topic.votes ? topic.votes : '赞同'}
         </Text>
       </TouchableOpacity>
 
       <View
-        style={tw`border-l border-primary border-opacity-20 border-solid w-1 h-5`}
+        style={tw`border-l border-[${colors.primary}] border-opacity-20 border-solid w-1 h-5`}
       />
 
       <TouchableOpacity
@@ -395,7 +413,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
         <MaterialIcons
           name="thumb-down-off-alt"
           size={22.5}
-          color={tw.color(`text-primary`)}
+          color={colors.primary}
         />
       </TouchableOpacity>
     </View>
@@ -411,15 +429,17 @@ function MoreButton({
 }) {
   const { showActionSheetWithOptions } = useActionSheet()
 
-  const ignoreTopicResult = k.topic.ignore.useMutation()
+  const ignoreTopicMutation = k.topic.ignore.useMutation()
 
-  const reportTopicResult = k.topic.report.useMutation()
+  const reportTopicMutation = k.topic.report.useMutation()
+
+  const { colors } = useAtomValue(uiAtom)
 
   return (
     <IconButton
       name="dots-horizontal"
-      color={tw.color(`text-default`)}
-      activeColor={tw.color(`text-foreground`)}
+      color={colors.default}
+      activeColor={colors.foreground}
       onPress={() => {
         const options = compact([
           !isSelf(topic.member?.username) &&
@@ -452,12 +472,12 @@ function MoreButton({
                   return
                 }
 
-                if (reportTopicResult.isPending) return
+                if (reportTopicMutation.isPending) return
 
                 await confirm('确定举报该主题么?')
 
                 try {
-                  await reportTopicResult.mutateAsync({
+                  await reportTopicMutation.mutateAsync({
                     id: topic.id,
                     once: topic.once!,
                   })
@@ -495,12 +515,12 @@ function MoreButton({
                   return
                 }
 
-                if (ignoreTopicResult.isPending) return
+                if (ignoreTopicMutation.isPending) return
 
                 if (!topic.ignored) await confirm(`确定忽略该主题么?`)
 
                 try {
-                  await ignoreTopicResult.mutateAsync({
+                  await ignoreTopicMutation.mutateAsync({
                     id: topic.id,
                     once: topic.once!,
                     type: topic.ignored ? 'unignore' : 'ignore',

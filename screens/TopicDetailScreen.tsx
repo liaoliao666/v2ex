@@ -36,8 +36,8 @@ import TopicInfo, {
   ThankTopic,
   VoteButton,
 } from '@/components/topic/TopicInfo'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -127,8 +127,10 @@ function TopicDetailScreen() {
 
   const scrollY = useRef(new Animated.Value(0)).current
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`flex-1 bg-background`}>
+    <View style={tw`flex-1 bg-[${colors.base100}]`}>
       <Animated.FlatList
         ref={flatListRef}
         key={colorScheme}
@@ -167,10 +169,10 @@ function TopicDetailScreen() {
           >
             <View
               style={tw.style(
-                `flex-row items-center pt-3 mt-2 border-t border-solid border-divider`
+                `flex-row items-center pt-3 mt-2 border-t border-solid border-[${colors.divider}]`
               )}
             >
-              <Text style={tw`text-foreground ${getFontSize(5)}`}>
+              <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
                 全部回复
               </Text>
               {(isFetching || isFetchingAllPage) && !isRefetchingByUser && (
@@ -283,7 +285,7 @@ function TopicDetailScreen() {
         }
         ListEmptyComponent={
           <View style={tw.style(`items-center py-32`)}>
-            <Text style={tw`text-default ${getFontSize(6)}`}>
+            <Text style={tw`text-[${colors.default}] ${fontSize.small}`}>
               目前还没有回复
             </Text>
           </View>
@@ -308,15 +310,15 @@ function TopicDetailScreen() {
             `flex-row items-center justify-between pt-4 pb-[${Math.max(
               safeAreaInsets.bottom,
               16
-            )}px] px-4 border-t border-solid border-divider`
+            )}px] px-4 border-t border-solid border-[${colors.divider}]`
           )}
         >
           <VoteButton topic={topic} />
 
           <View style={tw`flex flex-row flex-shrink-0 ml-auto gap-4`}>
             <IconButton
-              color={tw.color(`text-default`)}
-              activeColor={tw.color(`text-default`)}
+              color={colors.default}
+              activeColor={colors.foreground}
               size={24}
               name="arrow-collapse-up"
               onPress={() => {
@@ -337,8 +339,8 @@ function TopicDetailScreen() {
               {({ pressed }) => (
                 <Fragment>
                   <IconButton
-                    color={tw.color(`text-default`)}
-                    activeColor={tw.color(`text-primary`)}
+                    color={colors.default}
+                    activeColor={colors.primary}
                     icon={<Feather name="message-circle" />}
                     pressed={pressed}
                     size={24}
@@ -347,7 +349,7 @@ function TopicDetailScreen() {
                   {!!topic.reply_count && (
                     <Text
                       style={tw.style(
-                        `text-[10px] absolute -top-1 left-4 px-0.5  bg-background text-default rounded-sm overflow-hidden`
+                        `text-[10px] absolute -top-1 left-4 px-0.5  bg-[${colors.base100}] text-[${colors.default}] rounded-sm overflow-hidden`
                       )}
                     >
                       {topic.reply_count}
@@ -376,13 +378,9 @@ function TopicDetailScreen() {
                 )}
               >
                 <View
-                  style={tw`border border-divider border-solid px-1 bg-background rounded-full`}
+                  style={tw`border border-[${colors.divider}] border-solid px-1 bg-[${colors.base100}] rounded-full`}
                 >
-                  <Entypo
-                    name="link"
-                    size={10}
-                    color={tw.color(`text-primary`)}
-                  />
+                  <Entypo name="link" size={10} color={colors.primary} />
                 </View>
               </View>
             </TouchableOpacity>
@@ -396,21 +394,38 @@ function TopicDetailScreen() {
         <NavBar>
           <Animated.Text
             numberOfLines={1}
-            style={tw.style(`text-foreground ${getFontSize(4)} font-semibold`, {
-              opacity: scrollY.interpolate({
-                inputRange: [70, 96],
-                outputRange: [0, 1],
-              }),
-              transform: [
-                {
-                  translateY: scrollY.interpolate({
-                    inputRange: [70, 106],
-                    outputRange: [36, 0],
-                    extrapolate: 'clamp',
-                  }),
-                },
-              ],
-            })}
+            style={tw.style(
+              `text-[${colors.foreground}] ${fontSize.large} font-semibold absolute inset-x-0`,
+              {
+                opacity: scrollY.interpolate({
+                  inputRange: [0, 96],
+                  outputRange: [1, 0],
+                }),
+              }
+            )}
+          >
+            帖子
+          </Animated.Text>
+          <Animated.Text
+            numberOfLines={1}
+            style={tw.style(
+              `text-[${colors.foreground}] ${fontSize.large} font-semibold absolute w-full inset-x-0`,
+              {
+                opacity: scrollY.interpolate({
+                  inputRange: [70, 96],
+                  outputRange: [0, 1],
+                }),
+                transform: [
+                  {
+                    translateY: scrollY.interpolate({
+                      inputRange: [70, 106],
+                      outputRange: [36, 0],
+                      extrapolate: 'clamp',
+                    }),
+                  },
+                ],
+              }
+            )}
           >
             {topic.title}
           </Animated.Text>

@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai'
 import { ReactNode } from 'react'
 import {
   Controller,
@@ -8,7 +9,7 @@ import {
 import { Text, View } from 'react-native'
 import { ViewStyle } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 interface FormControlProps<
@@ -30,6 +31,8 @@ export default function FormControl<
   extra,
   ...rest
 }: FormControlProps<TFieldValues, TName>) {
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <Controller
       {...rest}
@@ -37,7 +40,11 @@ export default function FormControl<
         <View style={style}>
           <View style={tw`flex flex-row justify-between items-center`}>
             {!!label && (
-              <Text style={tw.style(`text-foreground ${getFontSize(5)} mb-1`)}>
+              <Text
+                style={tw.style(
+                  `text-[${colors.foreground}] ${fontSize.medium} mb-1`
+                )}
+              >
                 {label}
               </Text>
             )}

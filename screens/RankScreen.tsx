@@ -24,8 +24,8 @@ import { LineSeparator } from '@/components/Separator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Member, k } from '@/servicies'
 import tw from '@/utils/tw'
@@ -94,6 +94,8 @@ function RankScreen() {
 
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <TabView
@@ -120,9 +122,9 @@ function RankScreen() {
             <TabBar
               {...props}
               scrollEnabled
-              style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
+              style={tw`flex-row shadow-none border-b border-[${colors.divider}] border-solid bg-transparent`}
               tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[20px] bg-foreground h-1 rounded-full`}
+              indicatorStyle={tw`w-[40px] ml-[20px] bg-[${colors.foreground}] h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
                 const active = routes[index].key === route.key
@@ -138,10 +140,11 @@ function RankScreen() {
                   >
                     <Text
                       style={tw.style(
-                        `ml-2 ${getFontSize(5)} flex-shrink`,
+                        fontSize.medium,
+                        `ml-2 flex-shrink`,
                         active
-                          ? tw`text-foreground font-medium`
-                          : tw`text-default`
+                          ? tw`text-[${colors.foreground}] font-medium`
+                          : tw`text-[${colors.default}]`
                       )}
                       numberOfLines={1}
                     >
@@ -226,8 +229,10 @@ function TopPlayerList({ headerHeight }: { headerHeight: number }) {
 
 const RankItem = memo(
   ({ member, rankTab }: { member: Member; rankTab: RankTab }) => {
+    const { colors, fontSize } = useAtomValue(uiAtom)
+
     return (
-      <View style={tw`px-4 py-3 flex-row bg-background`}>
+      <View style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}>
         <View style={tw`mr-3`}>
           <DebouncedPressable
             onPress={() => {
@@ -246,7 +251,7 @@ const RankItem = memo(
         <View style={tw`flex-1 gap-1`}>
           <View style={tw`flex-row gap-2`}>
             <Text
-              style={tw`text-foreground ${getFontSize(5)} font-semibold`}
+              style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold`}
               numberOfLines={1}
               onPress={() => {
                 navigation.push('MemberDetail', {
@@ -258,7 +263,7 @@ const RankItem = memo(
             </Text>
 
             {rankTab === 'topPlayer' ? (
-              <Text style={tw`${getFontSize(6)} text-default`}>
+              <Text style={tw`${fontSize.small} text-[${colors.default}]`}>
                 {member.cost}
               </Text>
             ) : (
@@ -268,7 +273,7 @@ const RankItem = memo(
 
           {member.motto && (
             <Text
-              style={tw.style(`${getFontSize(6)} text-foreground`)}
+              style={tw.style(`${fontSize.small} text-[${colors.foreground}]`)}
               selectable
             >
               {member.motto}
@@ -280,14 +285,14 @@ const RankItem = memo(
               onPress={() => {
                 navigation.navigate('Webview', { url: member.website! })
               }}
-              style={tw.style(`${getFontSize(6)} text-primary`)}
+              style={tw.style(`${fontSize.small} text-[${colors.primary}]`)}
               numberOfLines={1}
             >
               {member.website.replace(/^https?:\/\//, '')}
             </Text>
           )}
 
-          <Text style={tw.style(`${getFontSize(6)} text-default`)}>
+          <Text style={tw.style(`${fontSize.small} text-[${colors.default}]`)}>
             第 {member.id} 号会员
           </Text>
         </View>

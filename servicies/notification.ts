@@ -8,7 +8,7 @@ import { request } from '@/utils/request'
 import { getNextPageParam, parseLastPage, parseTopicByATag } from './helper'
 import { Member, Notice, PageData, Topic } from './types'
 
-export const notification = router(`notification`, {
+export const notificationRouter = router(`notification`, {
   list: router.infiniteQuery({
     fetcher: async (_, { pageParam, signal }): Promise<PageData<Notice>> => {
       const { data } = await request.get(`/notifications?p=${pageParam}`, {

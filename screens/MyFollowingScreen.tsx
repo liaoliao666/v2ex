@@ -26,8 +26,8 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
@@ -102,6 +102,8 @@ function MyFollowingScreen() {
 
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <TabView
@@ -131,9 +133,9 @@ function MyFollowingScreen() {
             <TabBar
               {...props}
               scrollEnabled
-              style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
+              style={tw`flex-row shadow-none border-b border-[${colors.divider}] border-solid bg-transparent`}
               tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[30px] bg-foreground h-1 rounded-full`}
+              indicatorStyle={tw`w-[40px] ml-[30px] bg-[${colors.foreground}] h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
                 const active = routes[index].key === route.key
@@ -155,10 +157,11 @@ function MyFollowingScreen() {
                     )}
                     <Text
                       style={tw.style(
-                        `ml-2 ${getFontSize(5)} flex-shrink`,
+                        fontSize.medium,
+                        `ml-2 flex-shrink`,
                         active
-                          ? tw`text-foreground font-semibold`
-                          : tw`text-default font-medium`
+                          ? tw`text-[${colors.foreground}] font-semibold`
+                          : tw`text-[${colors.default}] font-medium`
                       )}
                       numberOfLines={1}
                     >

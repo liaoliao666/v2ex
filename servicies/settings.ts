@@ -4,7 +4,7 @@ import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { request } from '@/utils/request'
 
-export const settings = router(`settings`, {
+export const settingsRouter = router(`settings`, {
   resetBlockers: router.mutation({
     mutationFn: () =>
       request.get(

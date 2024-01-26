@@ -15,8 +15,8 @@ import Empty from '@/components/Empty'
 import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import SearchBar from '@/components/SearchBar'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Node, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -68,10 +68,12 @@ export default function SearchNodeScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`bg-background flex-1`}>
+    <View style={tw`bg-[${colors.base100}] flex-1`}>
       <NavBar
-        style={tw`border-divider border-solid border-b`}
+        style={tw`border-[${colors.divider}] border-solid border-b`}
         hideSafeTop
         left={null}
         right={
@@ -80,7 +82,9 @@ export default function SearchNodeScreen() {
               navigation.goBack()
             }}
           >
-            <Text style={tw`text-primary ${getFontSize(5)}`}>取消</Text>
+            <Text style={tw`text-[${colors.primary}] ${fontSize.medium}`}>
+              取消
+            </Text>
           </TouchableOpacity>
         }
       >

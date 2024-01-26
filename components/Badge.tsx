@@ -1,6 +1,8 @@
+import { useAtomValue } from 'jotai'
 import React from 'react'
 import { Text, View, ViewStyle } from 'react-native'
 
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 const dot = <React.Fragment />
@@ -29,6 +31,8 @@ export default function Badge(props: BadgeProps) {
 
   const isDot = content === dot
 
+  const { colors } = useAtomValue(uiAtom)
+
   const element = content ? (
     <View
       style={tw.style(
@@ -39,7 +43,7 @@ export default function Badge(props: BadgeProps) {
             top,
           } as ViewStyle),
         isDot && tw`min-w-[${dotSize}px] w-[${dotSize}px] h-[${dotSize}px]`,
-        props.bordered && tw`border border-divider border-solid`,
+        props.bordered && tw`border border-[${colors.divider}] border-solid`,
         { backgroundColor: color, borderRadius: 9999 }
       )}
     >

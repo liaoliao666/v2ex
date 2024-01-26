@@ -8,7 +8,7 @@ import { Image } from 'expo-image'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { Fragment } from 'react'
-import { Platform, ScrollView, Switch, Text, View } from 'react-native'
+import { Platform, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
@@ -20,14 +20,15 @@ import RadioButtonGroup from '@/components/RadioButtonGroup'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
+import StyledSwitch from '@/components/StyledSwitch'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
-import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { k } from '@/servicies'
 import { confirm } from '@/utils/confirm'
@@ -51,8 +52,6 @@ function SettingScreen() {
 
   const [enabledMsgPush, setEnabledMsgPush] = useAtom(enabledMsgPushAtom)
 
-  const [fontScale, setFontScale] = useAtom(fontScaleAtom)
-
   const [enabledParseContent, setEnabledParseContent] = useAtom(
     enabledParseContentAtom
   )
@@ -66,6 +65,8 @@ function SettingScreen() {
   const isSignined = !!profile?.once
 
   const safeAreaInsets = useSafeAreaInsets()
+
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <View style={tw`flex-1`}>
@@ -81,10 +82,14 @@ function SettingScreen() {
           />
 
           <View style={tw`flex-1`}>
-            <Text style={tw`text-foreground ${getFontSize(4)} font-semibold`}>
+            <Text
+              style={tw`text-[${colors.foreground}] ${fontSize.large} font-semibold`}
+            >
               V2EX
             </Text>
-            <Text style={tw`text-foreground ${getFontSize(5)} mt-1`}>
+            <Text
+              style={tw`text-[${colors.foreground}] ${fontSize.medium} mt-1`}
+            >
               创意工作者们的社区
             </Text>
           </View>
@@ -96,19 +101,14 @@ function SettingScreen() {
               label="自动签到"
               icon={
                 <MaterialCommunityIcons
-                  color={tw.color(`text-foreground`)}
+                  color={colors.foreground}
                   size={24}
                   name={'calendar-check'}
                 />
               }
               action={
-                <Switch
+                <StyledSwitch
                   value={enabledAutoCheckin}
-                  trackColor={
-                    Platform.OS === 'android'
-                      ? undefined
-                      : { true: `rgb(26,140,216)` }
-                  }
                   onValueChange={() =>
                     setEnabledAutoCheckin(!enabledAutoCheckin)
                   }
@@ -121,19 +121,14 @@ function SettingScreen() {
               label="消息通知"
               icon={
                 <MaterialCommunityIcons
-                  color={tw.color(`text-foreground`)}
+                  color={colors.foreground}
                   size={24}
                   name={'bell-outline'}
                 />
               }
               action={
-                <Switch
+                <StyledSwitch
                   value={enabledMsgPush}
-                  trackColor={
-                    Platform.OS === 'android'
-                      ? undefined
-                      : { true: `rgb(26,140,216)` }
-                  }
                   onValueChange={() => setEnabledMsgPush(!enabledMsgPush)}
                 />
               }
@@ -146,19 +141,14 @@ function SettingScreen() {
           label="内容解析"
           icon={
             <MaterialCommunityIcons
-              color={tw.color(`text-foreground`)}
+              color={colors.foreground}
               size={24}
               name={'format-text'}
             />
           }
           action={
-            <Switch
+            <StyledSwitch
               value={enabledParseContent}
-              trackColor={
-                Platform.OS === 'android'
-                  ? undefined
-                  : { true: `rgb(26,140,216)` }
-              }
               onValueChange={async () => {
                 try {
                   if (enabledParseContent)
@@ -176,36 +166,12 @@ function SettingScreen() {
           pressable={false}
         />
 
-        <ListItem
-          label="字体大小"
-          icon={
-            <MaterialCommunityIcons
-              color={tw.color(`text-foreground`)}
-              size={24}
-              name={'format-font'}
-            />
-          }
-          action={
-            <RadioButtonGroup
-              options={[
-                { label: '小', value: 'small' },
-                { label: '中', value: 'medium' },
-                { label: '大', value: 'large' },
-                { label: '超大', value: 'super' },
-              ]}
-              value={fontScale}
-              onChange={setFontScale}
-            />
-          }
-          pressable={false}
-        />
-
         {isTablet && (
           <ListItem
             label="外观"
             icon={
               <Feather
-                color={tw.color(`text-foreground`)}
+                color={colors.foreground}
                 size={24}
                 name={colorScheme === 'light' ? 'sun' : 'moon'}
               />
@@ -226,14 +192,22 @@ function SettingScreen() {
         )}
 
         <ListItem
-          label="问题反馈"
+          label="主题设置"
           icon={
-            <Feather
-              color={tw.color(`text-foreground`)}
+            <Ionicons
+              color={colors.foreground}
+              name="color-filter-sharp"
               size={24}
-              name="github"
             />
           }
+          onPress={() => {
+            navigation.navigate('CustomizeTheme')
+          }}
+        />
+
+        <ListItem
+          label="问题反馈"
+          icon={<Feather color={colors.foreground} size={24} name="github" />}
           onPress={() => {
             navigation.navigate('Webview', {
               url: 'https://github.com/liaoliao666/v2ex/issues',
@@ -245,9 +219,9 @@ function SettingScreen() {
           label="社区排行"
           icon={
             <Ionicons
-              color={tw.color(`text-foreground`)}
+              color={colors.foreground}
               size={24}
-              name={'md-analytics-outline'}
+              name={'analytics-sharp'}
             />
           }
           onPress={() => {
@@ -257,13 +231,7 @@ function SettingScreen() {
 
         <ListItem
           label="图片上传"
-          icon={
-            <Feather
-              color={tw.color(`text-foreground`)}
-              size={24}
-              name="image"
-            />
-          }
+          icon={<Feather color={colors.foreground} size={24} name="image" />}
           onPress={() => {
             navigation.navigate('ImgurConfig')
           }}
@@ -271,7 +239,13 @@ function SettingScreen() {
 
         <ListItem
           label="域名配置"
-          icon={<Ionicons name="planet-outline" size={24} />}
+          icon={
+            <Ionicons
+              color={colors.foreground}
+              name="planet-outline"
+              size={24}
+            />
+          }
           onPress={() => {
             navigation.navigate('ConfigureDomain')
           }}
@@ -284,7 +258,7 @@ function SettingScreen() {
             label="屏蔽列表"
             icon={
               <MaterialIcons
-                color={tw.color(`text-foreground`)}
+                color={colors.foreground}
                 size={24}
                 name={'block'}
               />
@@ -299,7 +273,7 @@ function SettingScreen() {
           label="清除缓存"
           icon={
             <MaterialCommunityIcons
-              color={tw.color(`text-foreground`)}
+              color={colors.foreground}
               size={24}
               name="delete-empty-outline"
             />
@@ -325,11 +299,7 @@ function SettingScreen() {
           <ListItem
             label="注销帐号"
             icon={
-              <Feather
-                color={tw.color(`text-foreground`)}
-                size={24}
-                name={'delete'}
-              />
+              <Feather color={colors.foreground} size={24} name={'delete'} />
             }
             onPress={async () => {
               try {
@@ -401,6 +371,7 @@ function SignoutItem({ once }: { once: string }) {
 
 function CheckAppVersion() {
   const { data, refetch, isFetching } = k.other.latestVersion.useQuery()
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <ListItem
@@ -414,18 +385,10 @@ function CheckAppVersion() {
       icon={
         data?.need_upgrade ? (
           <Badge>
-            <MaterialIcons
-              color={tw.color(`text-foreground`)}
-              size={24}
-              name="upgrade"
-            />
+            <MaterialIcons color={colors.foreground} size={24} name="upgrade" />
           </Badge>
         ) : (
-          <MaterialIcons
-            color={tw.color(`text-foreground`)}
-            size={24}
-            name="upgrade"
-          />
+          <MaterialIcons color={colors.foreground} size={24} name="upgrade" />
         )
       }
       onPress={() => {
@@ -449,7 +412,7 @@ function CheckAppVersion() {
       }}
       action={
         !!data?.version && (
-          <Text style={tw`text-default ${getFontSize(5)}`}>
+          <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
             v{data.version}
           </Text>
         )

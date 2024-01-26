@@ -10,15 +10,15 @@ import {
   parseTopicItems,
   pasreArgByATag,
 } from './helper'
-import { node } from './node'
+import { nodeRouter } from './node'
 import { Member, Node, PageData, Topic } from './types'
 
-export const my = router(`my`, {
+export const myRouter = router(`my`, {
   nodes: router.query({
     fetcher: async (_, { signal }): Promise<Node[]> => {
       const [data, nodes] = await Promise.all([
         request.get(`/my/nodes`, { signal }).then(res => res.data),
-        queryClient.ensureQueryData(node.all.getFetchOptions()),
+        queryClient.ensureQueryData(nodeRouter.all.getFetchOptions()),
       ])
       const nodeMap = Object.fromEntries(nodes.map(item => [item.name, item]))
       const $ = load(data)

@@ -24,9 +24,9 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Notice, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
@@ -156,6 +156,8 @@ const NoticeItem = memo(
     notice: Notice
     onReply: (notice: Notice) => void
   }) => {
+    const { colors, fontSize } = useAtomValue(uiAtom)
+
     return (
       <DebouncedPressable
         style={tw`flex-row flex-wrap p-4`}
@@ -188,7 +190,7 @@ const NoticeItem = memo(
           <View style={tw`flex-row items-center justify-between`}>
             <Separator style={tw`flex-1 mr-2`}>
               <Text
-                style={tw`text-foreground ${getFontSize(5)}`}
+                style={tw`text-[${colors.foreground}] ${fontSize.medium}`}
                 onPress={() => {
                   navigation.push('MemberDetail', {
                     username: notice.member.username,
@@ -198,7 +200,7 @@ const NoticeItem = memo(
                 {notice.member.username}
               </Text>
               <Text
-                style={tw`text-default ${getFontSize(5)} flex-1`}
+                style={tw`text-[${colors.default}] ${fontSize.medium} flex-1`}
                 numberOfLines={1}
               >
                 {notice.created}
@@ -209,8 +211,8 @@ const NoticeItem = memo(
               !notice.prev_action_text.includes('感谢了你') && (
                 <IconButton
                   style={tw`mr-2`}
-                  color={tw.color(`text-default`)}
-                  activeColor={tw.color(`text-primary`)}
+                  color={colors.default}
+                  activeColor={colors.primary}
                   size={15}
                   icon={<Feather name="message-circle" />}
                   onPress={() => onReply(notice)}
@@ -220,14 +222,18 @@ const NoticeItem = memo(
             <DeleteNoticeButton id={notice.id} once={notice.once} />
           </View>
 
-          <Text style={tw`flex-row flex-wrap ${getFontSize(5)} text-default`}>
+          <Text
+            style={tw`flex-row flex-wrap ${fontSize.medium} text-[${colors.default}]`}
+          >
             {notice.prev_action_text}
-            <Text style={tw`text-foreground`}>{notice.topic.title}</Text>
+            <Text style={tw`text-[${colors.foreground}]`}>
+              {notice.topic.title}
+            </Text>
             {notice.next_action_text}
           </Text>
 
           {!!notice.content && (
-            <View style={tw`bg-content px-4 py-3 mt-2 rounded`}>
+            <View style={tw`bg-[${colors.base200}] px-4 py-3 mt-2 rounded`}>
               <Html
                 source={{ html: notice.content }}
                 defaultTextProps={{ selectable: false }}
@@ -244,12 +250,14 @@ const NoticeItem = memo(
 function DeleteNoticeButton({ id, once }: { id: number; once: string }) {
   const { mutateAsync, isPending } = k.notification.delete.useMutation()
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
     <IconButton
       size={16}
       name="delete-outline"
-      color={tw.color(`text-default`)}
-      activeColor={tw.color(`text-foreground`)}
+      color={colors.default}
+      activeColor={colors.foreground}
       onPress={async () => {
         if (!isSignined()) {
           navigation.navigate('Login')

@@ -1,7 +1,9 @@
+import { useAtomValue } from 'jotai'
 import { ReactNode } from 'react'
 import { View } from 'react-native'
 import Animated, { FadeIn, FadeOut } from 'react-native-reanimated'
 
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 import StyledActivityIndicator from './StyledActivityIndicator'
@@ -15,6 +17,7 @@ export default function RefetchingIndicator({
   progressViewOffset?: number
   isRefetching: boolean
 }) {
+  const { colors } = useAtomValue(uiAtom)
   return (
     <View style={tw`flex-1`}>
       {children}
@@ -29,7 +32,7 @@ export default function RefetchingIndicator({
           pointerEvents="none"
         >
           <View
-            style={tw`rounded-full p-2 shadow-lg dark:shadow-white bg-background`}
+            style={tw`rounded-full p-2 shadow-lg dark:shadow-white bg-[${colors.base100}]`}
           >
             <StyledActivityIndicator />
           </View>

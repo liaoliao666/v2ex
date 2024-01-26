@@ -10,8 +10,8 @@ import RenderHTML, {
   TNode,
 } from 'react-native-render-html'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 import { useScreenWidth } from '@/utils/useScreenWidth'
 
@@ -50,6 +50,8 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
 
   const WrapView = isCode ? ScrollView : View
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <HtmlContext.Provider
       value={useMemo(() => {
@@ -67,12 +69,10 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
           <RenderHTML
             {...getDefaultProps({ inModalScreen })}
             contentWidth={screenWidth - paddingX}
-            baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] px-3 ${getFontSize(
-              5
-            )}`}
+            baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] px-3 ${fontSize.medium}`}
             tagsStyles={{
               pre: tw`mt-2 mb-0`,
-              a: tw`text-primary no-underline`,
+              a: tw`text-[${colors.primary}] no-underline`,
               em: tw`italic`,
             }}
             classesStyles={colorScheme === 'dark' ? atomDark : atomLight}

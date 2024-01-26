@@ -1,12 +1,15 @@
 import { load } from 'cheerio'
+import { toRgba } from 'color2k'
 import { Image, ImageBackground, ImageProps } from 'expo-image'
 import * as ImageManipulator from 'expo-image-manipulator'
+import { useAtomValue } from 'jotai'
 import {
   isArray,
   isEqual,
   isObject,
   isPlainObject,
   isString,
+  memoize,
   pick,
 } from 'lodash-es'
 import { Suspense } from 'react'
@@ -16,12 +19,11 @@ import { Text } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 import { suspend } from 'suspend-react'
 
-import { store } from '@/jotai/store'
-import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { getUI, uiAtom } from '@/jotai/uiAtom'
 import { hasSize } from '@/utils/hasSize'
 import { request } from '@/utils/request'
 import tw from '@/utils/tw'
-import { isGifURL, isSvgURL, resolveURL } from '@/utils/url'
+import { genBMPUri, isGifURL, isSvgURL, resolveURL } from '@/utils/url'
 import useUpdate from '@/utils/useUpdate'
 
 export interface StyledImageProps extends ImageProps {
@@ -33,7 +35,18 @@ type Size = { width: number; height: number }
 
 export const uriToSize = new Map<string | undefined, Size | 'error'>()
 
-function BasicImage({
+const genPlaceholder = memoize((color: string) => {
+  const [r, g, b, a = 1] = toRgba(color)
+    .replace(/^(rgb|rgba)\(/, '')
+    .replace(/\)$/, '')
+    .replace(/\s/g, '')
+    .split(',')
+    .map(Number)
+  const rgba = [b, g, r, parseInt(String(a * 255), 10)]
+  return genBMPUri(1, rgba)
+})
+
+function BaseImage({
   style,
   source,
   onLoad,
@@ -42,6 +55,7 @@ function BasicImage({
   isGif,
   ...props
 }: StyledImageProps) {
+  const { colors } = useAtomValue(uiAtom)
   const uri = isObject(source) && !isArray(source) ? source.uri : undefined
   const size = uriToSize.get(uri)
   const update = useUpdate()
@@ -65,10 +79,8 @@ function BasicImage({
       }
       onError?.(err)
     },
-    placeholder:
-      store.get(colorSchemeAtom) === 'light'
-        ? require('../assets/image-light-placeholder.png')
-        : require('../assets/image-dark-placeholder.png'),
+    placeholder: genPlaceholder(colors.base300),
+    placeholderContentFit: 'cover',
     style: tw.style(
       // Compute image size if style has no size
       !hasSize(style) && computeImageDispalySize(containerWidth, size),
@@ -80,7 +92,7 @@ function BasicImage({
     return (
       <ImageBackground {...imageProps}>
         <View
-          style={tw`absolute left-2 top-2 rounded p-0.5 bg-black bg-opacity-50`}
+          style={tw`absolute left-1 top-1 rounded p-0.5 bg-black bg-opacity-50`}
         >
           <View style={tw`border-white border rounded px-1 py-0.5`}>
             <Text style={tw`text-white font-bold text-[10px]`}>GIF</Text>
@@ -104,7 +116,7 @@ function imageLoadingRender({
     <View
       style={tw.style(
         !hasSize(style) && computeImageDispalySize(containerWidth),
-        `img-loading`,
+        `bg-[${getUI().colors.base300}]`,
         style
       )}
     />
@@ -272,7 +284,7 @@ function StyledImage({ source, ...props }: StyledImageProps) {
 
   if (isString(resolvedURI) && isSvgURL(resolvedURI)) {
     return (
-      <ErrorBoundary fallbackRender={() => null}>
+      <ErrorBoundary fallback={null}>
         <Suspense fallback={imageLoadingRender(props)}>
           <Svg uri={resolvedURI} {...(props as any)} />
         </Suspense>
@@ -295,7 +307,7 @@ function StyledImage({ source, ...props }: StyledImageProps) {
   }
 
   return (
-    <BasicImage
+    <BaseImage
       {...props}
       source={{
         ...(isObject(source) && !isArray(source) && source),

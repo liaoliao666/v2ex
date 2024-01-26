@@ -1,6 +1,7 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Feather, FontAwesome5 } from '@expo/vector-icons'
 import { produce } from 'immer'
+import { useAtomValue } from 'jotai'
 import { compact, find, findIndex, isBoolean } from 'lodash-es'
 import { Fragment, memo, useState } from 'react'
 import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
@@ -9,9 +10,9 @@ import { inferData } from 'react-query-kit'
 
 import { v2exURL } from '@/jotai/baseUrlAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Reply, k } from '@/servicies'
 import { isSelf, isSignined } from '@/utils/authentication'
@@ -57,11 +58,13 @@ function ReplyItem({
     store.get(enabledParseContentAtom)!
   )
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View
       style={tw.style(
         `px-4 py-3`,
-        hightlight ? `bg-content` : `bg-background`,
+        hightlight ? `bg-[${colors.base200}]` : `bg-[${colors.base100}]`,
         isBoolean(related) && !related && `opacity-64`
       )}
       onLayout={onLayout}
@@ -91,7 +94,7 @@ function ReplyItem({
             <View style={tw`flex-row gap-2 mr-auto`}>
               <Text
                 key="username"
-                style={tw`text-foreground ${getFontSize(5)} font-medium`}
+                style={tw`text-[${colors.foreground}] ${fontSize.medium} font-medium`}
                 onPress={() => {
                   if (inModalScreen) navigation.goBack()
                   navigation.push('MemberDetail', {
@@ -106,7 +109,7 @@ function ReplyItem({
                 {reply.mod && (
                   <View
                     style={tw.style(
-                      `px-1 bg-primary border-primary border border-solid rounded-sm`,
+                      `px-1 bg-[${colors.primary}] border-[${colors.primary}] border border-solid rounded-sm`,
                       reply.op && `rounded-r-none`
                     )}
                   >
@@ -116,29 +119,34 @@ function ReplyItem({
                 {reply.op && (
                   <View
                     style={tw.style(
-                      `px-1 border-primary border border-solid rounded-sm`,
+                      `px-1 border-[${colors.primary}] border border-solid rounded-sm`,
                       reply.mod && `rounded-l-none`
                     )}
                   >
-                    <Text style={tw`text-primary`}>OP</Text>
+                    <Text style={tw`text-[${colors.primary}]`}>OP</Text>
                   </View>
                 )}
               </View>
             </View>
 
-            <Text style={tw`${getFontSize(6)} text-default`}>#{reply.no}</Text>
+            <Text style={tw`${fontSize.small} text-[${colors.default}]`}>
+              #{reply.no}
+            </Text>
           </View>
 
           <Separator>
             {compact([
-              <Text key={'created'} style={tw`text-default ${getFontSize(6)}`}>
+              <Text
+                key={'created'}
+                style={tw`text-[${colors.default}] ${fontSize.small}`}
+              >
                 {reply.created}
               </Text>,
 
               reply.parsed_content && (
                 <Text
                   key={'isParsing'}
-                  style={tw`text-default ${getFontSize(6)}`}
+                  style={tw`text-[${colors.default}] ${fontSize.small}`}
                   onPress={() => {
                     setIsParsing(!isParsing)
                   }}
@@ -165,7 +173,7 @@ function ReplyItem({
           <View style={tw`flex-row items-center pt-2`}>
             <View style={tw`flex-row gap-4 mr-auto`}>
               {isBoolean(related) && !related && (
-                <Text style={tw`${getFontSize(5)} text-default`}>
+                <Text style={tw`${fontSize.medium} text-[${colors.default}]`}>
                   可能是无关内容
                 </Text>
               )}
@@ -182,13 +190,15 @@ function ReplyItem({
                   <Fragment>
                     <IconButton
                       pressed={pressed}
-                      color={tw.color(`text-default`)}
-                      activeColor={tw.color(`text-primary`)}
+                      color={colors.default}
+                      activeColor={colors.primary}
                       size={15}
                       icon={<Feather name="message-circle" />}
                     />
 
-                    <Text style={tw`pl-1 ${getFontSize(6)} text-default`}>
+                    <Text
+                      style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
+                    >
                       回复
                     </Text>
                   </Fragment>
@@ -213,13 +223,15 @@ function ReplyItem({
                     <Fragment>
                       <IconButton
                         pressed={pressed}
-                        color={tw.color(`text-default`)}
-                        activeColor={tw.color(`text-foreground`)}
+                        color={colors.default}
+                        activeColor={colors.foreground}
                         size={15}
                         icon={<FontAwesome5 name="comments" />}
                       />
 
-                      <Text style={tw`pl-1 ${getFontSize(6)} text-default`}>
+                      <Text
+                        style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
+                      >
                         查看评论
                       </Text>
                     </Fragment>
@@ -248,6 +260,8 @@ function ThankReply({
   const { mutateAsync, isPending } = k.reply.thank.useMutation()
 
   const disabled = isSelf(reply.member.username) || reply.thanked
+
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <Pressable
@@ -295,15 +309,17 @@ function ThankReply({
             size={16}
             active={reply.thanked}
             name={reply.thanked ? 'heart' : 'heart-outline'}
-            color={tw.color(reply.thanks ? `text-danger` : `text-default`)}
-            activeColor={tw.color(`text-danger`)}
+            color={reply.thanks ? colors.danger : colors.default}
+            activeColor={colors.danger}
             pressed={disabled ? false : pressed}
           />
 
           <Text
             style={tw.style(
-              `${getFontSize(6)} pl-0.5`,
-              reply.thanks ? `text-danger` : `text-default`
+              `${fontSize.small} pl-0.5`,
+              reply.thanks
+                ? `text-[${colors.danger}]`
+                : `text-[${colors.default}]`
             )}
           >
             {reply.thanks ? reply.thanks : '感谢'}
@@ -327,11 +343,13 @@ function MoreButton({
 
   const ignoreReplyResult = k.reply.ignore.useMutation()
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
     <IconButton
       name="dots-horizontal"
-      color={tw.color(`text-default`)}
-      activeColor={tw.color(`text-foreground`)}
+      color={colors.default}
+      activeColor={colors.foreground}
       size={16}
       onPress={() => {
         const options = compact([

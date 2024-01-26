@@ -18,8 +18,8 @@ import NavBar from '@/components/NavBar'
 import SearchBar from '@/components/SearchBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledImage from '@/components/StyledImage'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -73,8 +73,10 @@ export default function SearchReplyMemberScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`bg-background flex-1`}>
+    <View style={tw`bg-[${colors.base100}] flex-1`}>
       <NavBar
         hideSafeTop
         left={null}
@@ -97,7 +99,9 @@ export default function SearchReplyMemberScreen() {
               navigation.goBack()
             }}
           >
-            <Text style={tw`text-primary ${getFontSize(5)}`}>确定</Text>
+            <Text style={tw`text-[${colors.primary}] ${fontSize.medium}`}>
+              确定
+            </Text>
           </TouchableOpacity>
         }
       >
@@ -134,6 +138,8 @@ const AtReplyItem = memo(
     onChange: (info: { checked: boolean; reply: Reply }) => void
     checked: boolean
   }) => {
+    const { colors, fontSize } = useAtomValue(uiAtom)
+
     return (
       <View style={tw`px-4 py-3 flex-row`}>
         <StyledImage
@@ -142,10 +148,12 @@ const AtReplyItem = memo(
         />
         <View style={tw`flex-1 mx-2`}>
           <View style={tw`flex-row items-center`}>
-            <Text style={tw`text-foreground ${getFontSize(5)} font-medium`}>
+            <Text
+              style={tw`text-[${colors.foreground}] ${fontSize.medium} font-medium`}
+            >
               {reply.member.username}
             </Text>
-            <Text style={tw`${getFontSize(6)} text-default ml-2`}>
+            <Text style={tw`${fontSize.small} text-[${colors.default}] ml-2`}>
               #{reply.no}
             </Text>
           </View>
@@ -163,7 +171,7 @@ const AtReplyItem = memo(
         <BouncyCheckbox
           isChecked={checked}
           size={20}
-          fillColor={tw`text-primary`.color as string}
+          fillColor={tw`text-[${colors.primary}]`.color as string}
           unfillColor={tw`dark:text-[#0f1419] text-white`.color as string}
           onPress={() => {
             onChange({

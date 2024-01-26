@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
-import { pick } from 'lodash-es'
+import { useAtomValue } from 'jotai'
+import { omit } from 'lodash-es'
 import {
   Pressable,
   PressableProps,
@@ -9,7 +10,7 @@ import {
   ViewStyle,
 } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 export default function SearchBar({
@@ -31,22 +32,26 @@ export default function SearchBar({
   autoFocus?: boolean
   placeholder?: string
 }) {
+  const { colors, fontSize } = useAtomValue(uiAtom)
   return (
     <Pressable
-      style={tw.style(`flex-row items-center h-9 bg-input rounded-full`, style)}
+      style={tw.style(
+        `flex-row items-center h-9 bg-[${colors.base200}] rounded-full`,
+        style
+      )}
       onPress={onPress}
     >
       <Ionicons
         name="search"
         size={18}
-        color={tw.color(`text-default`)}
+        color={colors.default}
         style={tw`pl-3`}
       />
       <TextInput
         placeholder={placeholder || '搜索V2EX内容'}
-        placeholderTextColor={tw.color(`text-default`)}
-        style={tw.style(`text-foreground px-3 py-1 flex-1`, {
-          ...pick(tw.style(getFontSize(5)), ['fontSize']),
+        placeholderTextColor={colors.default}
+        style={tw.style(`px-3 py-1 flex-1 text-[${colors.foreground}]`, {
+          ...omit(tw.style(fontSize.medium), ['lineHeight']),
           paddingVertical: 0,
         })}
         textAlignVertical="center"
@@ -58,14 +63,14 @@ export default function SearchBar({
         returnKeyType="search"
         onSubmitEditing={onSubmitEditing}
         autoCapitalize="none"
-        selectionColor={tw.color(`text-primary`)}
+        selectionColor={colors.primary}
       />
       {editable && !!value && (
         <TouchableOpacity
           onPress={() => {
             onChangeText?.('')
           }}
-          style={tw`h-4 w-4 items-center justify-center rounded-full mr-3 bg-primary`}
+          style={tw`h-4 w-4 items-center justify-center rounded-full mr-3 bg-[${colors.primary}]`}
         >
           <Ionicons
             name="close-sharp"

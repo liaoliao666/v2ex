@@ -70,3 +70,32 @@ export function isValidURL(url: string) {
   ) // validate fragment locator
   return !!urlPattern.test(url)
 }
+
+/**
+ * Generate dataURI raw BMP image
+ *
+ * @param width - image width (num of pixels)
+ * @param pixels - 1D array of RGBA pixels (pixel = 4 numbers in
+ *                 range 0-255; staring from left bottom corner)
+ * @return dataURI string
+ */
+export function genBMPUri(width: number, pixels: number[]) {
+  const LE = (n: number) =>
+    (n + 2 ** 32).toString(16).match(/\B../g)!.reverse().join('')
+  const wh = LE(width) + LE(pixels.length / width / 4)
+  const size = LE(108 + pixels.length)
+  const r = (n: number) => '0'.repeat(n)
+  const head = `424d${size}ZZ7AZ006CZ00${wh}01002Z3${r(50)}FFZFFZFFZZZFF${r(
+    104
+  )}`
+
+  return (
+    'data:image/bmp,' +
+    [
+      ...head.replace(/Z/g, '0000').match(/../g)!,
+      ...pixels.map(x => x.toString(16).padStart(2, '0')),
+    ]
+      .map(x => '%' + x)
+      .join('')
+  )
+}

@@ -6,7 +6,6 @@ import { Pressable, Text, View } from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import {
   HomeTab,
   allTabs,
@@ -14,6 +13,7 @@ import {
   homeTabsAtom,
 } from '@/jotai/homeTabsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 import { useScreenWidth } from '@/utils/useScreenWidth'
@@ -30,6 +30,7 @@ export default function SortTabsScreen() {
   }, [selectedItems])
   const [tabIndex, setTabIndex] = useAtom(homeTabIndexAtom)
   const [isEdit, setIsEdit] = useState(false)
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   const renderItem = ({
     item,
@@ -48,11 +49,13 @@ export default function SortTabsScreen() {
           style={tw.style(
             `w-[${
               itemWidth - 8
-            }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-content`
+            }px] h-[${itemHeight}px] items-center rounded-full justify-center bg-[${
+              colors.base200
+            }]`
           )}
         >
           <Text
-            style={tw`text-foreground ${getFontSize(5)}`}
+            style={tw`text-[${colors.foreground}] ${fontSize.medium}`}
             numberOfLines={1}
             ellipsizeMode={item.title.length > 4 ? 'middle' : undefined}
           >
@@ -69,7 +72,7 @@ export default function SortTabsScreen() {
             >
               <MaterialCommunityIcons
                 name={iconName}
-                color={tw.color(`text-default`)}
+                color={colors.default}
                 size={16}
               />
             </Pressable>
@@ -90,9 +93,11 @@ export default function SortTabsScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={tw`flex-1 bg-background`}>
+    <SafeAreaView edges={['top']} style={tw`flex-1 bg-[${colors.base100}]`}>
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
-        <Text style={tw`text-foreground ${getFontSize(4)} font-medium`}>
+        <Text
+          style={tw`text-[${colors.foreground}] ${fontSize.large} font-medium`}
+        >
           首页板块
         </Text>
 
@@ -103,7 +108,7 @@ export default function SortTabsScreen() {
           style={tw`px-4`}
         >
           <MaterialCommunityIcons
-            color={tw.color(`text-default`)}
+            color={colors.default}
             size={20}
             name="close-circle"
           />
@@ -111,10 +116,12 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`px-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-foreground ${getFontSize(5)} font-medium`}>
+        <Text
+          style={tw`text-[${colors.foreground}] ${fontSize.medium} font-medium`}
+        >
           我的板块
         </Text>
-        <Text style={tw`text-default ${getFontSize(6)} ml-2`}>
+        <Text style={tw`text-[${colors.default}] ${fontSize.small} ml-2`}>
           {isEdit ? '长按拖拽排序' : '点击进入板块'}
         </Text>
 
@@ -147,7 +154,7 @@ export default function SortTabsScreen() {
             {({ pressed }) => (
               <Text
                 style={tw.style(
-                  `${getFontSize(5)} text-primary`,
+                  `${fontSize.medium} text-[${colors.primary}]`,
                   pressed && `text-opacity-80`
                 )}
               >
@@ -165,7 +172,7 @@ export default function SortTabsScreen() {
               {({ pressed }) => (
                 <Text
                   style={tw.style(
-                    `${getFontSize(5)} text-primary`,
+                    `${fontSize.medium} text-[${colors.primary}]`,
                     pressed && `text-opacity-80`
                   )}
                 >
@@ -186,7 +193,7 @@ export default function SortTabsScreen() {
             {({ pressed }) => (
               <Text
                 style={tw.style(
-                  `${getFontSize(5)} text-primary`,
+                  `${fontSize.medium} text-[${colors.primary}]`,
                   pressed && `text-opacity-80`
                 )}
               >
@@ -225,17 +232,19 @@ export default function SortTabsScreen() {
       </View>
 
       <View style={tw`pl-4 pt-4 flex-row items-center`}>
-        <Text style={tw`text-foreground ${getFontSize(5)} font-medium`}>
+        <Text
+          style={tw`text-[${colors.foreground}] ${fontSize.medium} font-medium`}
+        >
           更多板块
         </Text>
-        <Text style={tw`text-default ${getFontSize(6)} ml-2`}>
+        <Text style={tw`text-[${colors.default}] ${fontSize.small} ml-2`}>
           点击添加板块
         </Text>
       </View>
 
       {isEmpty(unselectedItems) && (
-        <View style={tw`py-2 px-4 m-4 bg-content rounded-full`}>
-          <Text style={tw`text-default ${getFontSize(6)}`}>
+        <View style={tw`py-2 px-4 m-4 bg-[${colors.base200}] rounded-full`}>
+          <Text style={tw`text-[${colors.default}] ${fontSize.small}`}>
             已全部添加至我的板块
           </Text>
         </View>

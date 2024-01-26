@@ -15,8 +15,8 @@ import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { navNodesAtom } from '@/jotai/navNodesAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Node, k } from '@/servicies'
 import tw from '@/utils/tw'
@@ -54,32 +54,37 @@ function NavNodesScreen() {
 
   const navbarHeight = useNavBarHeight()
 
-  const renderItem: ListRenderItem<Node> = useCallback(({ item: node }) => {
-    return (
-      <TouchableOpacity
-        key={node.id}
-        onPress={() => {
-          navigation.navigate('NodeTopics', { name: node.name })
-        }}
-        style={tw`w-1/3 py-1 items-center h-[${ITEM_HEIGHT}px]`}
-      >
-        <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
-        <Text
-          style={tw`${getFontSize(6)} mt-auto text-foreground text-center`}
-          numberOfLines={1}
+  const renderItem: ListRenderItem<Node> = useCallback(
+    ({ item: node }) => {
+      return (
+        <TouchableOpacity
+          key={node.id}
+          onPress={() => {
+            navigation.navigate('NodeTopics', { name: node.name })
+          }}
+          style={tw`w-1/3 py-1 items-center h-[${ITEM_HEIGHT}px]`}
         >
-          {node.title}
-        </Text>
-      </TouchableOpacity>
-    )
-  }, [])
+          <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
+
+          <Text
+            style={tw`${fontSize.small} mt-auto text-[${colors.foreground}] text-center`}
+            numberOfLines={1}
+          >
+            {node.title}
+          </Text>
+        </TouchableOpacity>
+      )
+    },
+    [colors, fontSize]
+  )
 
   return (
-    <View style={tw`bg-background flex-1`}>
+    <View style={tw`bg-[${colors.base100}] flex-1`}>
       <View style={tw`flex-1 flex-row`}>
         <ScrollView
-          style={tw`flex-none border-divider border-r border-solid`}
+          style={tw`flex-none border-[${colors.divider}] border-r border-solid`}
           contentContainerStyle={{
             paddingTop: navbarHeight,
           }}
@@ -91,16 +96,16 @@ function NavNodesScreen() {
               style={({ pressed }) =>
                 tw.style(
                   `h-[${NAV_BAR_HEIGHT}px] px-4 items-center justify-center`,
-                  pressed && `bg-focus`
+                  pressed && `bg-[${colors.foreground}] bg-opacity-10`
                 )
               }
             >
               <Text
                 style={tw.style(
-                  `${getFontSize(5)} text-foreground`,
+                  `${fontSize.medium} text-[${colors.foreground}]`,
                   i === index
-                    ? tw`text-foreground font-medium`
-                    : tw`text-default`
+                    ? tw`text-[${colors.foreground}] font-medium`
+                    : tw`text-[${colors.default}]`
                 )}
               >
                 {route.title}

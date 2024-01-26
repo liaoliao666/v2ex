@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai'
 import { createContext, useContext } from 'react'
 import { Platform, Text, TextInput } from 'react-native'
 import {
@@ -5,7 +6,7 @@ import {
   getNativePropsForTNode,
 } from 'react-native-render-html'
 
-import tw from '@/utils/tw'
+import { uiAtom } from '@/jotai/uiAtom'
 
 import { HtmlContext } from './HtmlContext'
 
@@ -20,6 +21,8 @@ const resetTextInputStyle = {
 const TextRenderer: CustomTextualRenderer = props => {
   const { onSelectText, selectOnly } = useContext(HtmlContext)
 
+  const { colors } = useAtomValue(uiAtom)
+
   let renderProps = getNativePropsForTNode(props)
 
   const isNestedText = useContext(IsNestedTextContext)
@@ -27,14 +30,14 @@ const TextRenderer: CustomTextualRenderer = props => {
   let text = null
 
   if (isNestedText) {
-    text = <Text selectionColor={tw.color(`text-primary`)} {...renderProps} />
+    text = <Text selectionColor={colors.primary} {...renderProps} />
   } else if (Platform.OS === 'ios' && selectOnly) {
     text = (
       <TextInput
         editable={false}
         multiline
         style={resetTextInputStyle}
-        selectionColor={tw.color(`text-primary`)}
+        selectionColor={colors.primary}
       >
         <Text {...renderProps} />
       </TextInput>
@@ -49,7 +52,7 @@ const TextRenderer: CustomTextualRenderer = props => {
       }
     }
 
-    text = <Text selectionColor={tw.color(`text-primary`)} {...renderProps} />
+    text = <Text selectionColor={colors.primary} {...renderProps} />
   }
 
   return (

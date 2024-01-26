@@ -1,5 +1,6 @@
 import { zodResolver } from '@hookform/resolvers/zod'
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { useAtomValue } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { compact, isString } from 'lodash-es'
 import { Fragment, useEffect, useRef, useState } from 'react'
@@ -23,10 +24,10 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import UploadImageButton from '@/components/UploadImageButton'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { WriteTopicArgs, topicDraftAtom } from '@/jotai/topicDraftAtom'
+import { getUI, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -59,7 +60,7 @@ export default withQuerySuspense(WriteTopicScreen, {
     } = useRoute<RouteProp<RootStackParamList, 'WriteTopic'>>()
     const isEdit = !!topic
     return (
-      <View style={tw`bg-background flex-1`}>
+      <View style={tw`bg-[${getUI().colors.base100}] flex-1`}>
         <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
         <LoadingIndicator />
       </View>
@@ -71,7 +72,7 @@ export default withQuerySuspense(WriteTopicScreen, {
     } = useRoute<RouteProp<RootStackParamList, 'WriteTopic'>>()
     const isEdit = !!topic
     return (
-      <View style={tw`bg-background flex-1`}>
+      <View style={tw`bg-[${getUI().colors.base100}] flex-1`}>
         <NavBar title={isEdit ? '编辑主题' : '创作新主题'} />
         <FallbackComponent {...props} />
       </View>
@@ -109,9 +110,9 @@ function WriteTopicScreen() {
     return () => subscription.unsubscribe()
   }, [watch])
 
-  const writeTopicResult = k.topic.write.useMutation()
+  const writeTopicMutation = k.topic.write.useMutation()
 
-  const editTopicResult = k.topic.edit.useMutation()
+  const editTopicMutation = k.topic.edit.useMutation()
 
   const navbarHeight = useNavBarHeight()
 
@@ -138,8 +139,10 @@ function WriteTopicScreen() {
     }
   }
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`bg-background flex-1`}>
+    <View style={tw`bg-[${colors.base100}] flex-1`}>
       <ScrollView
         style={tw`flex-1 p-4`}
         contentContainerStyle={{
@@ -219,7 +222,7 @@ function WriteTopicScreen() {
                 </View>
               }
               render={({ field: { value, onChange, onBlur } }) => (
-                <View style={tw`bg-input pb-2`}>
+                <View style={tw`bg-[${colors.base200}] pb-2`}>
                   <StyledTextInput
                     ref={inputRef}
                     placeholder="标题如果能够表达完整内容，则正文可以为空"
@@ -285,11 +288,14 @@ function WriteTopicScreen() {
 
                 handleSubmit(async values => {
                   try {
-                    if (writeTopicResult.isPending || editTopicResult.isPending)
+                    if (
+                      writeTopicMutation.isPending ||
+                      editTopicMutation.isPending
+                    )
                       return
 
                     if (isEdit) {
-                      await editTopicResult.mutateAsync({
+                      await editTopicMutation.mutateAsync({
                         title: values.title.trim(),
                         content: values.content?.trim(),
                         node_name: values.node.name,
@@ -302,7 +308,7 @@ function WriteTopicScreen() {
                         type: 'active',
                       })
                     } else {
-                      await writeTopicResult.mutateAsync({
+                      await writeTopicMutation.mutateAsync({
                         title: values.title.trim(),
                         content: values.content?.trim(),
                         node_name: values.node.name,
@@ -383,11 +389,13 @@ function PreviewTopic({
     suspense: true,
   })
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <Fragment>
       {title && (
         <Text
-          style={tw`text-foreground ${getFontSize(3)} font-medium pb-2`}
+          style={tw`text-[${colors.foreground}] ${fontSize.xxlarge} font-medium pb-2`}
           selectable
         >
           {title}

@@ -26,9 +26,9 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import { blackListAtom } from '@/jotai/blackListAtom'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Member, Topic, k } from '@/servicies'
 import '@/servicies/types'
@@ -99,6 +99,8 @@ function BlackListScreen() {
 
   const blackList = useAtomValue(blackListAtom)
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <TabView
@@ -135,9 +137,9 @@ function BlackListScreen() {
             <TabBar
               {...props}
               scrollEnabled
-              style={tw`flex-row shadow-none border-b border-divider border-solid bg-transparent`}
+              style={tw`flex-row shadow-none border-b border-[${colors.divider}] border-solid bg-transparent`}
               tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[20px] bg-foreground h-1 rounded-full`}
+              indicatorStyle={tw`w-[40px] ml-[20px] bg-[${colors.foreground}] h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               renderTabBarItem={({ route }) => {
                 const active = routes[index].key === route.key
@@ -153,10 +155,10 @@ function BlackListScreen() {
                   >
                     <Text
                       style={tw.style(
-                        `ml-2 ${getFontSize(5)} flex-shrink`,
+                        `ml-2 ${fontSize.medium} flex-shrink`,
                         active
-                          ? tw`text-foreground font-medium`
-                          : tw`text-default`
+                          ? tw`text-[${colors.foreground}] font-medium`
+                          : tw`text-[${colors.default}]`
                       )}
                       numberOfLines={1}
                     >
@@ -174,9 +176,11 @@ function BlackListScreen() {
 }
 
 const BlockerItem = memo(({ member }: { member: Member }) => {
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <DebouncedPressable
-      style={tw`px-4 py-3 flex-row bg-background`}
+      style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
       onPress={() => {
         navigation.push('MemberDetail', {
           username: member.username,
@@ -201,14 +205,14 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
       <View style={tw`flex-1 gap-1`}>
         <View style={tw`flex-row gap-2`}>
           <Text
-            style={tw`text-foreground ${getFontSize(5)} font-semibold`}
+            style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold`}
             numberOfLines={1}
           >
             {member?.username}
           </Text>
         </View>
 
-        <Text style={tw.style(`${getFontSize(6)} text-default`)}>
+        <Text style={tw.style(`${fontSize.small} text-[${colors.default}]`)}>
           第 {member.id} 号会员
         </Text>
       </View>
@@ -283,9 +287,11 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
 }
 
 const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <DebouncedPressable
-      style={tw`px-4 py-3 flex-row bg-background`}
+      style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
       onPress={() => {
         navigation.push('TopicDetail', topic)
       }}
@@ -307,7 +313,7 @@ const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
 
       <View style={tw`flex-1`}>
         <Text
-          style={tw`text-foreground ${getFontSize(5)} font-semibold`}
+          style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold`}
           numberOfLines={1}
           onPress={() => {
             navigation.push('MemberDetail', {
@@ -318,7 +324,11 @@ const IgnoreTopicItem = memo(({ topic }: { topic: Topic }) => {
           {topic.member?.username}
         </Text>
 
-        <Text style={tw.style(`${getFontSize(5)} pt-1 text-foreground`)}>
+        <Text
+          style={tw.style(
+            `${fontSize.medium} pt-1 text-[${colors.foreground}]`
+          )}
+        >
           {topic.title}
         </Text>
       </View>

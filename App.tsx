@@ -18,7 +18,6 @@ import { deviceTypeAtom } from './jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from './jotai/enabledParseContent'
-import { fontScaleAtom } from './jotai/fontSacleAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { imgurConfigAtom } from './jotai/imgurConfigAtom'
 import { profileAtom } from './jotai/profileAtom'
@@ -26,6 +25,7 @@ import { sov2exArgsAtom } from './jotai/sov2exArgsAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
 import { topicDraftAtom } from './jotai/topicDraftAtom'
+import { colorsAtom, fontScaleAtom, themeNameAtom } from './jotai/uiAtom'
 import Navigation from './navigation'
 import { k } from './servicies'
 import './utils/dayjsPlugins'
@@ -54,11 +54,11 @@ export default function App() {
                   <Navigation />
                   <StatusBar />
                   <GlobalImageViewer />
+                  <StyledToast />
                 </AppInitializer>
               </AsyncStoragePersist>
             </Suspense>
           </QueryClientProvider>
-          <StyledToast />
         </SafeAreaProvider>
       </Provider>
     </ActionSheetProvider>
@@ -79,21 +79,23 @@ function AppInitializer({ children }: { children: ReactNode }) {
       deviceTypeAtom,
       sov2exArgsAtom,
       baseUrlAtom,
+      colorsAtom,
+      themeNameAtom,
     ])
   )
+
+  k.member.checkin.useQuery({
+    enabled: !!profile && enabledAutoCheckin,
+  })
+
+  k.node.all.useQuery()
 
   useMemo(() => {
     tw.setColorScheme(colorScheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  k.node.all.useQuery()
-
   useDeviceContext(tw, { withDeviceColorScheme: false })
-
-  k.member.checkin.useQuery({
-    enabled: !!profile && enabledAutoCheckin,
-  })
 
   return children as ReactElement
 }

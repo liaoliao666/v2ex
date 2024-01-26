@@ -42,11 +42,11 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
-import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { fontScaleAtom, uiAtom } from '@/jotai/uiAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
@@ -140,8 +140,10 @@ function HomeScreen() {
 
   const [refs] = useState<Record<string, RefObject<FlatList>>>({})
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`flex-1 bg-background`}>
+    <View style={tw`flex-1 bg-[${colors.base100}]`}>
       <TabView
         key={`${colorScheme}_${fontScale}`}
         navigationState={{ index, routes: tabs }}
@@ -191,14 +193,14 @@ function HomeScreen() {
             <TopNavBar />
 
             <View
-              style={tw`flex-row items-center border-b border-divider border-solid`}
+              style={tw`flex-row items-center border-b border-[${colors.divider}] border-solid`}
             >
               <TabBar
                 {...props}
                 scrollEnabled
                 style={tw`flex-row flex-1 shadow-none bg-transparent`}
                 tabStyle={tw`w-[60px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[30px] ml-[15px] bg-foreground h-1 rounded-full`}
+                indicatorStyle={tw`w-[30px] ml-[15px] bg-[${colors.foreground}] h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-b-0`}
                 renderTabBarItem={({ route }) => {
                   const active = tabs[index].key === route.key
@@ -222,10 +224,10 @@ function HomeScreen() {
                     >
                       <Text
                         style={tw.style(
-                          getFontSize(5),
+                          fontSize.medium,
                           active
-                            ? tw`text-foreground font-medium`
-                            : tw`text-default`
+                            ? tw`text-[${colors.foreground}] font-medium`
+                            : tw`text-[${colors.default}]`
                         )}
                         numberOfLines={1}
                         ellipsizeMode={
@@ -248,7 +250,7 @@ function HomeScreen() {
                 <Feather
                   name="menu"
                   size={17}
-                  color={tw.color(`text-default`)}
+                  color={colors.default}
                   style={tw`pr-4 pl-2`}
                 />
               </TouchableOpacity>
@@ -453,6 +455,8 @@ function TopNavBar() {
 
   const isTablet = useIsTablet()
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
     <NavBar
       style={tw`border-b-0`}
@@ -473,7 +477,7 @@ function TopNavBar() {
               </Badge>
             ) : (
               <View
-                style={tw`w-8 h-8 items-center justify-center rounded-full img-loading`}
+                style={tw`w-8 h-8 items-center justify-center rounded-full bg-[${colors.base300}]`}
               />
             )}
           </Pressable>
@@ -483,8 +487,8 @@ function TopNavBar() {
         <IconButton
           name="note-edit-outline"
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-foreground`)}
+          color={colors.foreground}
+          activeColor={colors.foreground}
           onPress={() => {
             if (!isSignined()) {
               navigation.navigate('Login')

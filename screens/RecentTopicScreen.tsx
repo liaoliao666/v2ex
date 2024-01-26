@@ -1,4 +1,4 @@
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { compact, isString, last, pick, uniqBy, upperCase } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
 import { FlatList, ListRenderItem, Text, View } from 'react-native'
@@ -14,8 +14,8 @@ import SearchBar from '@/components/SearchBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { RecentTopic, recentTopicsAtom } from '@/jotai/recentTopicsAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { k } from '@/servicies'
 import { confirm } from '@/utils/confirm'
@@ -62,6 +62,8 @@ export default function RecentTopicScreen() {
 
   const navbarHeight = useNavBarHeight()
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <FlatList
@@ -81,8 +83,8 @@ export default function RecentTopicScreen() {
           right={
             <IconButton
               name="delete-empty-outline"
-              color={tw.color(`text-foreground`)}
-              activeColor={tw.color(`text-foreground`)}
+              color={colors.foreground}
+              activeColor={colors.foreground}
               onPress={async () => {
                 try {
                   await confirm(`确认清除最近浏览主题吗？`)
@@ -117,9 +119,11 @@ export default function RecentTopicScreen() {
 
 const RecentTopicItem = memo(
   ({ recentTopic }: { recentTopic: RecentTopic }) => {
+    const { colors, fontSize } = useAtomValue(uiAtom)
+
     return (
       <DebouncedPressable
-        style={tw`px-4 py-3 flex-row bg-background`}
+        style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
         onPress={() => {
           navigation.push('TopicDetail', recentTopic)
         }}
@@ -141,7 +145,7 @@ const RecentTopicItem = memo(
 
         <View style={tw`flex-1`}>
           <Text
-            style={tw`text-foreground ${getFontSize(5)} font-semibold`}
+            style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold`}
             numberOfLines={1}
             onPress={() => {
               navigation.push('MemberDetail', {
@@ -152,7 +156,11 @@ const RecentTopicItem = memo(
             {recentTopic.member?.username}
           </Text>
 
-          <Text style={tw.style(`${getFontSize(5)} pt-1 text-foreground`)}>
+          <Text
+            style={tw.style(
+              `${fontSize.medium} pt-1 text-[${colors.foreground}]`
+            )}
+          >
             {recentTopic.title}
           </Text>
         </View>

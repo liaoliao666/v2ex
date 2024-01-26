@@ -19,8 +19,8 @@ import {
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Node, k } from '@/servicies'
 import tw from '@/utils/tw'
@@ -48,26 +48,31 @@ function MyNodesScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
-  const renderItem: ListRenderItem<Node> = useCallback(({ item: node }) => {
-    return (
-      <TouchableOpacity
-        key={node.id}
-        onPress={() => {
-          navigation.navigate('NodeTopics', { name: node.name })
-        }}
-        style={tw`w-1/4 py-1 items-center h-[${ITEM_HEIGHT}px]`}
-      >
-        <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
-        <Text
-          style={tw`${getFontSize(6)} mt-auto text-foreground text-center`}
-          numberOfLines={1}
+  const renderItem: ListRenderItem<Node> = useCallback(
+    ({ item: node }) => {
+      return (
+        <TouchableOpacity
+          key={node.id}
+          onPress={() => {
+            navigation.navigate('NodeTopics', { name: node.name })
+          }}
+          style={tw`w-1/4 py-1 items-center h-[${ITEM_HEIGHT}px]`}
         >
-          {node.title}
-        </Text>
-      </TouchableOpacity>
-    )
-  }, [])
+          <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
+
+          <Text
+            style={tw`${fontSize.small} mt-auto text-[${colors.foreground}] text-center`}
+            numberOfLines={1}
+          >
+            {node.title}
+          </Text>
+        </TouchableOpacity>
+      )
+    },
+    [colors, fontSize]
+  )
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 

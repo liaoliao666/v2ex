@@ -19,8 +19,8 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import ReplyItem from '@/components/topic/ReplyItem'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -117,8 +117,10 @@ export default function RelatedRepliesScreen() {
 
   const isSingleRoute = routes.length <= 1
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`bg-background flex-1`}>
+    <View style={tw`bg-[${colors.base100}] flex-1`}>
       <NavBar
         title="评论回复"
         hideSafeTop
@@ -137,7 +139,7 @@ export default function RelatedRepliesScreen() {
         }
         style={
           isSingleRoute
-            ? tw`border-divider border-b border-solid`
+            ? tw`border-[${colors.divider}] border-b border-solid`
             : tw`border-b-0`
         }
       />
@@ -161,13 +163,15 @@ export default function RelatedRepliesScreen() {
           initialLayout={{ width: layout.width }}
           overdrag={false}
           renderTabBar={props => (
-            <View style={tw`border-b border-divider border-solid px-2`}>
+            <View
+              style={tw`border-b border-[${colors.divider}] border-solid px-2`}
+            >
               <TabBar
                 {...props}
                 scrollEnabled
-                style={tw`bg-background flex-row shadow-none`}
+                style={tw`bg-[${colors.base100}] flex-row shadow-none`}
                 tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[40px] ml-[30px] bg-foreground h-1 rounded-full`}
+                indicatorStyle={tw`w-[40px] ml-[30px] bg-[${colors.foreground}] h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-0`}
                 renderTabBarItem={({ route }) => {
                   const active = currentRoute.key === route.key
@@ -187,10 +191,10 @@ export default function RelatedRepliesScreen() {
                       />
                       <Text
                         style={tw.style(
-                          `ml-2 ${getFontSize(5)} flex-shrink`,
+                          `ml-2 ${fontSize.medium} flex-shrink`,
                           active
-                            ? tw`text-foreground font-semibold`
-                            : tw`text-default font-medium`
+                            ? tw`text-[${colors.foreground}] font-semibold`
+                            : tw`text-[${colors.default}] font-medium`
                         )}
                         numberOfLines={1}
                       >

@@ -1,28 +1,27 @@
+import { useAtomValue } from 'jotai'
 import { View, ViewStyle } from 'react-native'
-import {
-  Fade,
-  Placeholder,
-  PlaceholderLine,
-  PlaceholderMedia,
-} from 'rn-placeholder'
+import { Placeholder, PlaceholderLine, PlaceholderMedia } from 'rn-placeholder'
 
-import { store } from '@/jotai/store'
-import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
+import StyledFade from './StyledFade'
+
 function AvatarPlaceholder() {
+  const { colors } = useAtomValue(uiAtom)
   return (
     <PlaceholderMedia
       style={tw`w-6 h-6 rounded-full mr-3`}
-      color={tw.color('bg-loading')}
+      color={colors.base300}
     />
   )
 }
 
 export function TopicItemPlaceholder({ hideAvatar }: { hideAvatar?: boolean }) {
+  const { colors } = useAtomValue(uiAtom)
   return (
     <Placeholder
-      style={tw`px-4 py-3 flex-row bg-background border-b border-solid border-divider`}
+      style={tw`px-4 py-3 flex-row bg-[${colors.base100}] border-b border-solid border-[${colors.divider}]`}
       Left={hideAvatar ? undefined : AvatarPlaceholder}
     >
       <View style={tw`gap-2`}>
@@ -30,10 +29,10 @@ export function TopicItemPlaceholder({ hideAvatar }: { hideAvatar?: boolean }) {
           width={40}
           noMargin
           style={tw`mt-1`}
-          color={tw.color('bg-loading')}
+          color={colors.base300}
         />
-        <PlaceholderLine noMargin color={tw.color('bg-loading')} />
-        <PlaceholderLine width={80} noMargin color={tw.color('bg-loading')} />
+        <PlaceholderLine noMargin color={colors.base300} />
+        <PlaceholderLine width={80} noMargin color={colors.base300} />
       </View>
     </Placeholder>
   )
@@ -50,11 +49,7 @@ export default function TopicPlaceholder({
 }) {
   return (
     <Placeholder
-      Animation={
-        store.get(colorSchemeAtom) === 'dark' || hideAnimation
-          ? undefined
-          : Fade
-      }
+      Animation={hideAnimation ? undefined : StyledFade}
       style={style}
     >
       {Array.from({ length: 10 }).map((_, i) => (

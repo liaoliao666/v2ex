@@ -1,14 +1,17 @@
 import { StatusBarStyle } from 'expo-status-bar'
+import { useAtomValue } from 'jotai'
+import { isArray } from 'lodash-es'
 import { ReactNode, isValidElement } from 'react'
 import { Platform, PressableProps, Text, View, ViewStyle } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { getUI, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 import { useStatusBarStyle } from '@/utils/useStatusBarStyle'
 
 import IconButton from './IconButton'
+import { supportsBlurviewColors } from './StyledBlurView'
 
 export const NAV_BAR_HEIGHT = 53
 
@@ -16,7 +19,7 @@ export default function NavBar({
   children,
   style,
   title,
-  tintColor = tw.color(`text-foreground`),
+  tintColor = getUI().colors.foreground,
   statusBarStyle = 'auto',
   left = <BackButton tintColor={tintColor} />,
   right,
@@ -34,12 +37,15 @@ export default function NavBar({
   useStatusBarStyle(statusBarStyle)
 
   const safeTop = useNavBarSafeTop(hideSafeTop)
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <View
       style={tw.style(
         `pt-[${safeTop}px`,
-        Platform.OS === 'android' && `border-divider border-solid border-b`,
+        (Platform.OS === 'android' ||
+          !supportsBlurviewColors.includes(colors.base100)) &&
+          `border-[${colors.divider}] border-solid border-b`,
         style
       )}
     >
@@ -51,12 +57,13 @@ export default function NavBar({
         )}
 
         <View style={tw`flex-1 flex-row items-center`}>
-          {isValidElement(children) ? (
+          {isArray(children) || isValidElement(children) ? (
             children
           ) : (
             <Text
               style={tw.style(
-                `text-foreground ${getFontSize(4)} font-semibold`,
+                fontSize.large,
+                `text-[${colors.foreground}] font-semibold`,
                 {
                   color: tintColor,
                 }
@@ -85,7 +92,8 @@ export function BackButton({
   tintColor?: string
   onPress?: PressableProps['onPress']
 }) {
-  const color = tintColor || tw.color(`text-foreground`)
+  const { colors } = useAtomValue(uiAtom)
+  const color = tintColor || colors.foreground
 
   return (
     <IconButton

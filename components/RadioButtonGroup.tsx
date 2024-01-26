@@ -1,6 +1,7 @@
+import { useAtomValue } from 'jotai'
 import { Pressable, Text, View, ViewStyle } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 export default function RadioButtonGroup<
@@ -16,9 +17,10 @@ export default function RadioButtonGroup<
   options: { label: string; value: T }[]
   style?: ViewStyle
 }) {
+  const { colors, fontSize } = useAtomValue(uiAtom)
   return (
     <View style={tw.style(`flex-row`, style)}>
-      <View style={tw`flex-row p-0.5 rounded-lg bg-input`}>
+      <View style={tw`flex-row p-0.5 rounded-lg bg-[${colors.base200}]`}>
         {options.map(item => {
           const active = value === item.value
 
@@ -32,13 +34,13 @@ export default function RadioButtonGroup<
               }}
               style={tw.style(
                 `px-1.5 flex-row items-center rounded-lg`,
-                active && `bg-white dark:bg-black`
+                active && `bg-[${colors.base100}]`
               )}
             >
               <Text
                 style={tw.style(
-                  getFontSize(5),
-                  active ? `text-foreground` : `text-default`
+                  fontSize.medium,
+                  `text-[${active ? colors.foreground : colors.default}]`
                 )}
               >
                 {item.label}

@@ -1,7 +1,8 @@
+import { useAtomValue } from 'jotai'
 import { Text, View, ViewStyle } from 'react-native'
 import Svg, { Ellipse, G, Path } from 'react-native-svg'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 export default function Empty({
@@ -11,6 +12,8 @@ export default function Empty({
   description?: string
   style?: ViewStyle
 }) {
+  const { fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw.style(`py-32 items-center`, style)}>
       <Svg width={64} height={41}>
@@ -35,9 +38,7 @@ export default function Empty({
         </G>
       </Svg>
       <Text
-        style={tw`text-[rgba(0,0,0,.25)] dark:text-[rgba(255,255,255,.25)] ${getFontSize(
-          5
-        )} mt-2 px-4`}
+        style={tw`text-[rgba(0,0,0,.25)] dark:text-[rgba(255,255,255,.25)] ${fontSize.medium} mt-2 px-4`}
       >
         {description}
       </Text>

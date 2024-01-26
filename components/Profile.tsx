@@ -12,9 +12,9 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Money from '@/components/Money'
 import StyledImage from '@/components/StyledImage'
-import { fontScaleAtom, getFontSize } from '@/jotai/fontSacleAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
+import { fontScaleAtom, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { clearCookie } from '@/utils/cookie'
 import tw from '@/utils/tw'
@@ -39,6 +39,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
 
   const isLogin = !!profile?.once
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   const listOptions = compact([
     isLogin && {
       label: '节点收藏',
@@ -48,8 +50,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<MaterialCommunityIcons name={'family-tree'} />}
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -64,8 +66,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<Feather name={'bookmark'} />}
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -80,8 +82,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<MaterialCommunityIcons name={'account-heart-outline'} />}
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -100,14 +102,14 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
                 <MaterialCommunityIcons
                   size={24}
                   name={'bell-outline'}
-                  color={tw.color(`text-foreground`)}
+                  color={colors.foreground}
                 />
               </Badge>
             </View>
           }
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -119,7 +121,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
       value: 'color_scheme',
       icon: (
         <Feather
-          color={tw.color(`text-foreground`)}
+          color={colors.foreground}
           size={24}
           name={colorScheme === 'light' ? 'sun' : 'moon'}
         />
@@ -136,7 +138,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           onChange={setTheme}
         />
       ),
-      style: tw`border-t border-solid border-divider`,
+      style: tw`border-t border-solid border-[${colors.divider}]`,
       pressable: false,
     },
     {
@@ -147,8 +149,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<MaterialIcons name={'whatshot'} />}
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -163,8 +165,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<MaterialCommunityIcons name={'clock-check-outline'} />}
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -179,8 +181,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<Feather name="navigation" />}
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -195,8 +197,8 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           pressed={false}
           icon={<Feather name="settings" />}
           size={24}
-          color={tw.color(`text-foreground`)}
-          activeColor={tw.color(`text-default`)}
+          color={colors.foreground}
+          activeColor={colors.default}
         />
       ),
       onPress: () => {
@@ -208,7 +210,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
   return (
     <SafeAreaView
       edges={['top']}
-      style={tw.style(`flex-1 bg-background`, onlyIcon && `px-2`)}
+      style={tw.style(`flex-1 bg-[${colors.base100}]`, onlyIcon && `px-2`)}
       key={onlyIcon ? 'profile' : fontScale}
     >
       {isLogin ? (
@@ -242,12 +244,14 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
                 }}
                 style={tw`flex-row items-center`}
               >
-                <Text style={tw`text-default mr-1 ${getFontSize(5)}`}>
+                <Text
+                  style={tw`text-[${colors.default}] mr-1 ${fontSize.medium} leading-none`}
+                >
                   个人主页
                 </Text>
                 <SimpleLineIcons
                   name="arrow-right"
-                  color={tw.color(`text-default`)}
+                  color={colors.default}
                   size={10}
                 />
               </TouchableOpacity>
@@ -255,9 +259,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
 
             <View style={tw`pt-2 flex-row items-center`}>
               <Text
-                style={tw`text-foreground ${getFontSize(
-                  2
-                )} font-bold flex-shrink mr-2`}
+                style={tw`text-[${colors.foreground}] ${fontSize.xxlarge} font-bold flex-shrink mr-2`}
                 numberOfLines={1}
               >
                 {profile?.username}
@@ -270,7 +272,9 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             </View>
 
             {!!profile?.motto && (
-              <Text style={tw`text-default ${getFontSize(5)} mt-2`}>
+              <Text
+                style={tw`text-[${colors.default}] ${fontSize.medium} mt-2`}
+              >
                 {profile?.motto}
               </Text>
             )}
@@ -287,7 +291,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             }
           }}
         >
-          <View style={tw`w-8 h-8 rounded-full img-loading`} />
+          <View style={tw`w-8 h-8 rounded-full bg-[${colors.base300}]`} />
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
@@ -300,12 +304,18 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             }
           }}
         >
-          <View style={tw`w-16 h-16 mb-2 rounded-full img-loading`} />
+          <View
+            style={tw`w-16 h-16 mb-2 rounded-full bg-[${colors.base300}]`}
+          />
           <View style={tw`flex-row items-center ml-2`}>
-            <Text style={tw`text-[24px] text-foreground`}>点我登录</Text>
+            <Text
+              style={tw`${fontSize.xxxlarge} leading-none text-[${colors.foreground}]`}
+            >
+              点我登录
+            </Text>
             <SimpleLineIcons
               name="arrow-right"
-              color={tw.color(`text-foreground`)}
+              color={colors.foreground}
               size={14}
             />
           </View>

@@ -1,49 +1,15 @@
+import { useAtomValue } from 'jotai'
 import { ReactNode, cloneElement, isValidElement } from 'react'
 import { PressableProps, Text, TextProps, ViewStyle } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 import DebouncedPressable from './DebouncedPressable'
 
-const colors = {
-  default: {
-    color: `#0f1419`,
-    darkColor: `rgb(239,243,244)`,
-    textColor: '#fff',
-    darkTextColor: '#0f1419',
-    activeColor: `rgb(63,67,71)`,
-    activeDarkColor: `rgb(191,194,195)`,
-  },
-  primary: {
-    color: `rgb(29,155,240)`,
-    darkColor: `rgb(239,243,244)`,
-    textColor: '#fff',
-    darkTextColor: 'rgb(29,155,240)',
-    activeColor: `rgb(26,140,216)`,
-    activeDarkColor: `rgb(26,140,216)`,
-  },
-  tag: {
-    color: `rgb(239,243,244)`,
-    darkColor: `rgb(32,35,39)`,
-    textColor: '#536471',
-    darkTextColor: '#71767b',
-    activeColor: `rgba(239,243,244,0.5)`,
-    activeDarkColor: `rgba(32,35,39,0.5)`,
-  },
-  danger: {
-    color: `rgba(211,47,47,.1)`,
-    darkColor: `rgba(244,67,54,.2)`,
-    textColor: 'rgba(211,47,47,1)',
-    darkTextColor: 'rgba(244,67,54,1)',
-    activeColor: `rgba(211,47,47,.8)`,
-    activeDarkColor: `rgba(244,67,54,.8)`,
-  },
-}
-
 export interface StyledButtonProps {
   size?: 'middle' | 'large' | 'small' | 'mini'
-  type?: 'default' | 'primary' | 'tag' | 'danger'
+  type?: 'default' | 'primary' | 'tag'
   shape?: 'default' | 'rounded' | 'rectangular'
   onPress?: PressableProps['onPress']
   children?: string
@@ -52,6 +18,7 @@ export interface StyledButtonProps {
   textProps?: TextProps
   pressable?: boolean
   icon?: ReactNode
+  color?: string
 }
 
 export default function StyledButton({
@@ -64,59 +31,47 @@ export default function StyledButton({
   textProps,
   shape = 'default',
   pressable = true,
+  color,
   icon,
 }: StyledButtonProps) {
-  const {
-    color,
-    activeColor,
-    darkColor,
-    activeDarkColor,
-    textColor,
-    darkTextColor,
-  }: {
-    color: string
-    activeColor: string
-    darkColor: string
-    activeDarkColor: string
-    textColor: string
-    darkTextColor: string
-  } = colors[type]
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
-  const { color: btnTextColor } = ghost
-    ? tw`dark:text-[${darkColor}] text-[${color}]`
-    : tw`text-[${textColor}] dark:text-[${darkTextColor}]`
-
-  const fontSize = tw.style(getFontSize(size === 'mini' ? 6 : 5))
+  const textSize = tw.style(fontSize[size === 'mini' ? 'small' : 'medium'])
     .fontSize as number
+
+  const buttonStyle = tw.style(
+    size === 'middle' && `h-9 px-4`,
+    size === 'large' && `h-[52px] px-8`,
+    size === 'small' && `h-8 px-3`,
+    size === 'mini' && `px-1 py-0.5`,
+    shape === 'default' && (size === 'mini' ? tw`rounded` : tw`rounded-lg`),
+    shape === 'rounded' && `rounded-full`,
+    shape === 'rectangular' && `rounded-none`,
+    `flex-row items-center justify-center rounded-full border border-solid gap-1`,
+    type === 'primary' &&
+      `border-[${colors.primary}] text-[${colors.primary}] dark:text-white`,
+    !ghost &&
+      type === 'primary' &&
+      tw`bg-[${colors.primary}] text-[${colors.primaryContent}]`,
+    type === 'tag' && `border-[${colors.base200}] text-[${colors.default}]`,
+    !ghost &&
+      type === 'tag' &&
+      `bg-[${colors.base200}] text-[${colors.default}]`,
+    type === 'default' &&
+      `border-[#0f1419] dark:border-white text-[#0f1419] dark:text-white`,
+    !ghost &&
+      type === 'default' &&
+      `bg-[#0f1419] dark:bg-white text-white dark:text-[#0f1419]`,
+    color && `border-[${color}] text-[${color}]`,
+    !ghost && color && `bg-[${color}] text-[#fff]`,
+    !pressable && tw`opacity-80`,
+    style
+  )
 
   return (
     <DebouncedPressable
       style={({ pressed }) =>
-        tw.style(
-          {
-            middle: tw`h-9 px-4`,
-            large: tw`h-[52px] px-8`,
-            small: tw`h-8 px-3`,
-            mini: tw`px-1 py-0.5`,
-          }[size],
-          {
-            default: size === 'mini' ? tw`rounded` : tw`rounded-lg`,
-            rounded: tw`rounded-full`,
-            rectangular: tw`rounded-none`,
-          }[shape],
-          `flex-row items-center justify-center rounded-full border border-solid gap-1`,
-          pressed && pressable
-            ? tw.style(
-                `border-[${activeColor}] dark:border-[${activeDarkColor}]`,
-                !ghost && tw`bg-[${activeColor}] dark:bg-[${activeDarkColor}]`
-              )
-            : tw.style(
-                `border-[${color}] dark:border-[${darkColor}]`,
-                !ghost && tw`bg-[${color}] dark:bg-[${darkColor}]`,
-                !pressable && tw`opacity-80`
-              ),
-          style
-        )
+        tw.style(buttonStyle, pressed && pressable && `opacity-80`)
       }
       onPress={ev => {
         if (pressable) {
@@ -126,15 +81,15 @@ export default function StyledButton({
     >
       {isValidElement(icon) &&
         cloneElement(icon as any, {
-          color: btnTextColor,
+          color: buttonStyle.color,
         })}
       <Text
         {...textProps}
         style={[
           {
-            color: btnTextColor as string,
-            fontSize,
-            lineHeight: fontSize + 2,
+            color: buttonStyle.color as string,
+            fontSize: textSize,
+            lineHeight: textSize + 2,
           },
           textProps?.style,
         ]}

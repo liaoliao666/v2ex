@@ -37,9 +37,9 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Member, Node, Sov2exResult, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -99,8 +99,10 @@ export default function SearchScreen() {
 
   const isGoogleSearch = sov2exArgs.source === 'google'
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`flex-1 bg-background`}>
+    <View style={tw`flex-1 bg-[${colors.base100}]`}>
       {isSearchNode ? (
         <FlatList
           key={colorScheme}
@@ -116,9 +118,11 @@ export default function SearchScreen() {
                     setIsSearchNode(!trimedSearchText)
                   }}
                 >
-                  <Text style={tw`text-foreground ${getFontSize(5)}`}>
+                  <Text
+                    style={tw`text-[${colors.foreground}] ${fontSize.medium}`}
+                  >
                     {isGoogleSearch ? 'Google' : 'SOV2EX'}:{' '}
-                    <Text style={tw`text-foreground`}>
+                    <Text style={tw`text-[${colors.foreground}]`}>
                       “{trimedSearchText}”
                     </Text>
                   </Text>
@@ -128,10 +132,13 @@ export default function SearchScreen() {
                 <View
                   style={tw.style(
                     `px-4 pt-2.5 pb-2`,
-                    !!trimedSearchText && `border-divider border-t border-solid`
+                    !!trimedSearchText &&
+                      `border-[${colors.divider}] border-t border-solid`
                   )}
                 >
-                  <Text style={tw`text-default ${getFontSize(5)}`}>节点</Text>
+                  <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
+                    节点
+                  </Text>
                 </View>
               )}
             </View>
@@ -178,8 +185,8 @@ export default function SearchScreen() {
             <IconButton
               name="filter-outline"
               size={24}
-              color={tw.color(`text-foreground`)}
-              activeColor={tw.color(`text-foreground`)}
+              color={colors.foreground}
+              activeColor={colors.foreground}
               onPress={() => {
                 navigation.navigate('SearchOptions')
               }}
@@ -188,7 +195,7 @@ export default function SearchScreen() {
           style={tw.style(
             isGoogleSearch &&
               !isSearchNode &&
-              `border-divider border-solid border-b`
+              `border-[${colors.divider}] border-solid border-b`
           )}
         >
           <SearchBar
@@ -258,16 +265,18 @@ function SoV2exList({
     [data.pages]
   )
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <FlatList
       data={flatedData}
       ListHeaderComponent={
         !isEmpty(flatedData) ? (
           <View style={tw`px-4 py-2.5`}>
-            <Text style={tw`text-foreground ${getFontSize(5)}`}>
+            <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
               以下搜索结果来自于{' '}
               <Text
-                style={tw`text-primary`}
+                style={tw`text-[${colors.primary}]`}
                 onPress={() => {
                   navigation.navigate('Webview', {
                     url: `https://www.sov2ex.com`,
@@ -332,10 +341,11 @@ const HitItem = memo(
       },
       enabled: false,
     })
+    const { colors, fontSize } = useAtomValue(uiAtom)
 
     return (
       <DebouncedPressable
-        style={tw`px-4 py-3 flex-row bg-background`}
+        style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
         onPress={() => {
           navigation.push('TopicDetail', topic)
         }}
@@ -356,9 +366,7 @@ const HitItem = memo(
               </StyledButton>
             )}
             <Text
-              style={tw`text-foreground ${getFontSize(
-                5
-              )} font-semibold flex-shrink`}
+              style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold flex-shrink`}
               numberOfLines={1}
               onPress={() => {
                 navigation.push('MemberDetail', {
@@ -371,13 +379,16 @@ const HitItem = memo(
 
             <Separator>
               {compact([
-                <Text key="created" style={tw`text-default ${getFontSize(5)}`}>
+                <Text
+                  key="created"
+                  style={tw`text-[${colors.default}] ${fontSize.medium}`}
+                >
                   {dayjs(topic.created).fromNow()}
                 </Text>,
                 !!topic.reply_count && (
                   <Text
                     key="replies"
-                    style={tw`text-default ${getFontSize(5)}`}
+                    style={tw`text-[${colors.default}] ${fontSize.medium}`}
                   >
                     {`${topic.reply_count} 回复`}
                   </Text>
@@ -388,8 +399,10 @@ const HitItem = memo(
 
           <Text
             style={tw.style(
-              `${getFontSize(5)} font-medium pt-2`,
-              isReaded ? `text-default` : `text-foreground`
+              `${fontSize.medium} font-medium pt-2`,
+              isReaded
+                ? `text-[${colors.default}]`
+                : `text-[${colors.foreground}]`
             )}
           >
             {topic.title}
@@ -402,8 +415,10 @@ const HitItem = memo(
                   html: topic.content,
                 }}
                 baseStyle={tw.style(
-                  `${getFontSize(5)}`,
-                  isReaded ? `text-default` : `text-foreground`
+                  `${fontSize.medium}`,
+                  isReaded
+                    ? `text-[${colors.default}]`
+                    : `text-[${colors.foreground}]`
                 )}
                 defaultTextProps={{ selectable: false }}
               />
@@ -440,6 +455,8 @@ function GoogleSearch({
   navbarHeight: number
   query: string
 }) {
+  const { colors } = useAtomValue(uiAtom)
+
   return (
     <WebView
       injectedJavaScript={getTopicLink}
@@ -470,7 +487,7 @@ function GoogleSearch({
       scalesPageToFit={true}
       renderLoading={() => (
         <LoadingIndicator
-          style={tw.style(`absolute w-full h-full bg-background`, {
+          style={tw.style(`absolute w-full h-full bg-[${colors.base100}]`, {
             paddingTop: navbarHeight,
           })}
         />

@@ -15,8 +15,7 @@ import { z } from 'zod'
 
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
-import { getFontSize } from '@/jotai/fontSacleAtom'
-import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { k } from '@/servicies'
 import { queryClient } from '@/utils/query'
@@ -38,9 +37,9 @@ const SigninArgs = z.object({
 })
 
 export default function LoginScreen() {
-  const signinInfoResult = k.auth.signinInfo.useQuery()
+  const signinInfoQuery = k.auth.signinInfo.useQuery()
 
-  const signinResult = k.auth.signin.useMutation()
+  const signinMutation = k.auth.signin.useMutation()
 
   const { control, getValues, handleSubmit } = useForm<
     z.infer<typeof SigninArgs>
@@ -50,29 +49,31 @@ export default function LoginScreen() {
 
   const [twoStepOnce, setTwoStepOnce] = useState('')
 
-  useAtomValue(colorSchemeAtom)
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   function renderLimitContent() {
     return (
       <View style={tw`p-8`}>
-        <Text style={tw`text-[31px] leading-9 font-extrabold text-foreground`}>
+        <Text
+          style={tw`text-[31px] leading-9 font-extrabold text-[${colors.foreground}]`}
+        >
           登录受限
         </Text>
-        <Text style={tw`${getFontSize(5)} text-default mt-2`}>
+        <Text style={tw`${fontSize.medium} text-[${colors.default}] mt-2`}>
           由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。
         </Text>
-        <Text style={tw`${getFontSize(5)} text-default mt-2`}>
+        <Text style={tw`${fontSize.medium} text-[${colors.default}] mt-2`}>
           你可能会需要等待至多 1 天的时间再继续尝试。
         </Text>
         <StyledButton
           style={tw`h-[52px] mt-7`}
           onPress={() => {
-            signinInfoResult.refetch()
+            signinInfoQuery.refetch()
           }}
           size="large"
           shape="rounded"
         >
-          {signinInfoResult.isFetching ? '重试中...' : '重试'}
+          {signinInfoQuery.isFetching ? '重试中...' : '重试'}
         </StyledButton>
       </View>
     )
@@ -122,19 +123,19 @@ export default function LoginScreen() {
             <View>
               <TouchableOpacity
                 onPress={() => {
-                  if (!signinInfoResult.isFetching) {
-                    signinInfoResult.refetch()
+                  if (!signinInfoQuery.isFetching) {
+                    signinInfoQuery.refetch()
                   }
                 }}
                 style={tw`aspect-4 mb-2 w-full`}
               >
                 <StyledImage
-                  style={tw`w-full h-full rounded-lg img-loading`}
+                  style={tw`w-full h-full rounded-lg bg-[${colors.base300}]`}
                   source={{
-                    uri: signinInfoResult.data?.captcha,
-                    headers: signinInfoResult.data?.cookie
+                    uri: signinInfoQuery.data?.captcha,
+                    headers: signinInfoQuery.data?.cookie
                       ? {
-                          Cookie: signinInfoResult.data.cookie,
+                          Cookie: signinInfoQuery.data.cookie,
                         }
                       : undefined,
                   }}
@@ -154,9 +155,9 @@ export default function LoginScreen() {
         />
 
         <View style={tw`min-h-[16px]`}>
-          {!!signinResult.error?.message && (
-            <Text style={tw`${getFontSize(6)} text-[#ff4d4f]`}>
-              {signinResult.error.message}
+          {!!signinMutation.error?.message && (
+            <Text style={tw`${fontSize.small} text-[#ff4d4f]`}>
+              {signinMutation.error.message}
             </Text>
           )}
         </View>
@@ -165,17 +166,17 @@ export default function LoginScreen() {
           size="large"
           style={tw`w-full mt-4`}
           onPress={handleSubmit(async () => {
-            if (signinResult.isPending) return
-            if (!signinInfoResult.data) return
+            if (signinMutation.isPending) return
+            if (!signinInfoQuery.data) return
 
             try {
-              const result = await signinResult.mutateAsync({
-                [signinInfoResult.data.username_hash!]:
+              const result = await signinMutation.mutateAsync({
+                [signinInfoQuery.data.username_hash!]:
                   getValues('username').trim(),
-                [signinInfoResult.data.password_hash!]:
+                [signinInfoQuery.data.password_hash!]:
                   getValues('password').trim(),
-                [signinInfoResult.data.code_hash!]: getValues('code').trim(),
-                once: signinInfoResult.data.once!,
+                [signinInfoQuery.data.code_hash!]: getValues('code').trim(),
+                once: signinInfoQuery.data.once!,
                 username: getValues('username').trim(),
               })
 
@@ -187,11 +188,11 @@ export default function LoginScreen() {
               navigation.goBack()
               queryClient.refetchQueries({ type: 'active' })
             } catch (error) {
-              signinInfoResult.refetch()
+              signinInfoQuery.refetch()
             }
           })}
         >
-          {signinResult.isPending ? '登录中...' : '登录'}
+          {signinMutation.isPending ? '登录中...' : '登录'}
         </StyledButton>
 
         <FormControl
@@ -205,13 +206,15 @@ export default function LoginScreen() {
                   onChange(!value)
                 }}
                 size={16}
-                fillColor={tw`text-primary`.color as string}
+                fillColor={tw`text-[${colors.primary}]`.color as string}
                 unfillColor={tw`dark:text-[#0f1419] text-white`.color as string}
               />
-              <Text style={tw`${getFontSize(6)} text-default -ml-2`}>
+              <Text
+                style={tw`${fontSize.small} text-[${colors.default}] -ml-2`}
+              >
                 我已阅读并同意
                 <Text
-                  style={tw`text-foreground`}
+                  style={tw`text-[${colors.foreground}]`}
                   onPress={() => {
                     navigation.navigate('GItHubMD', {
                       url: 'https://raw.githubusercontent.com/liaoliao666/v2ex/main/terms-and-conditions_zh.md',
@@ -223,7 +226,7 @@ export default function LoginScreen() {
                 </Text>
                 和
                 <Text
-                  style={tw`text-foreground`}
+                  style={tw`text-[${colors.foreground}]`}
                   onPress={() => {
                     navigation.navigate('GItHubMD', {
                       url: 'https://raw.githubusercontent.com/liaoliao666/v2ex/main/privacy-policy_zh.md',
@@ -238,18 +241,18 @@ export default function LoginScreen() {
           )}
         />
 
-        {(Platform.OS === 'android' || dayjs().isAfter('2023-11-29 12:00')) && (
+        {(Platform.OS === 'android' || dayjs().isAfter('2024-01-27 12:00')) && (
           <TouchableOpacity
             style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
             onPress={() => {
-              if (!signinInfoResult.data?.once) return
+              if (!signinInfoQuery.data?.once) return
               navigation.navigate('WebSignin', {
-                once: signinInfoResult.data.once,
+                once: signinInfoQuery.data.once,
                 onTwoStepOnce: setTwoStepOnce,
               })
             }}
           >
-            <Text style={tw`${getFontSize(5)} text-default ml-2`}>
+            <Text style={tw`${fontSize.medium} text-[${colors.default}] ml-2`}>
               网页登录
             </Text>
           </TouchableOpacity>
@@ -268,7 +271,7 @@ export default function LoginScreen() {
           paddingTop: navbarHeight,
         }}
       >
-        {signinInfoResult.data?.is_limit ? (
+        {signinInfoQuery.data?.is_limit ? (
           renderLimitContent()
         ) : twoStepOnce ? (
           <TwoStepSignin once={twoStepOnce} />
@@ -298,9 +301,11 @@ function TwoStepSignin({ once }: { once: string }) {
 
   const { mutateAsync, isPending, error } = k.auth.twoStepSignin.useMutation()
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`w-3/4 mx-auto mt-8`}>
-      <Text style={tw`${getFontSize(5)} text-foreground mb-2`}>
+      <Text style={tw`${fontSize.medium} text-[${colors.foreground}] mb-2`}>
         你的 V2EX 账号已经开启了两步验证，请输入验证码继续
       </Text>
 
@@ -321,7 +326,7 @@ function TwoStepSignin({ once }: { once: string }) {
 
       <View style={tw`min-h-[16px]`}>
         {!!error?.message && (
-          <Text style={tw`${getFontSize(6)} text-[#ff4d4f]`}>
+          <Text style={tw`${fontSize.small} text-[#ff4d4f]`}>
             {error.message}
           </Text>
         )}
@@ -342,7 +347,7 @@ function TwoStepSignin({ once }: { once: string }) {
         {isPending ? '登录中...' : '登录'}
       </StyledButton>
 
-      <Text style={tw`${getFontSize(5)} text-foreground mt-2`}>
+      <Text style={tw`${fontSize.medium} text-[${colors.foreground}] mt-2`}>
         出于安全考虑，当你开启了两步验证功能之后，那么你将需要每两周输入一次你的两步验证码续
       </Text>
     </View>

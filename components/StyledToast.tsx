@@ -7,7 +7,7 @@ import Toast, {
   ToastConfigParams,
 } from 'react-native-toast-message'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { getUI } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 const toastConfig: ToastConfig = {
@@ -17,14 +17,15 @@ const toastConfig: ToastConfig = {
 }
 
 function getToastProps(props: ToastConfigParams<any>) {
+  const { fontSize, colors } = getUI()
   return {
     ...props,
     contentContainerStyle: tw`overflow-hidden dark:bg-[#262626]`,
     text1Style: tw.style(
-      `${getFontSize(5)} text-foreground`,
+      `${fontSize.medium} text-[${colors.foreground}]`,
       !props.text2 && `font-normal`
     ),
-    text2Style: tw`${getFontSize(6)}`,
+    text2Style: tw`${fontSize.small}`,
   }
 }
 

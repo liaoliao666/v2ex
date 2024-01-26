@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { darken, lighten } from 'color2k'
 import { useAtomValue } from 'jotai'
 import { every, findIndex, last, pick, some, uniqBy } from 'lodash-es'
 import {
@@ -48,9 +49,9 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicItem from '@/components/topic/TopicItem'
 import { blackListAtom } from '@/jotai/blackListAtom'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { formatColor, getUI, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Member, Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -61,8 +62,17 @@ import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 const TAB_BAR_HEIGHT = 53
-const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
 const TAB_VIEW_MARGIN_TOP = -2
+
+function getTopBarBgCls() {
+  if (getUI().colors.base100 === 'rgba(255,255,255,1)')
+    return `bg-[rgb(51,51,68)]`
+  return `bg-[${formatColor(
+    store.get(colorSchemeAtom) === 'light'
+      ? darken(getUI().colors.base300, 0.6)
+      : lighten(getUI().colors.base300, 0.2)
+  )}]`
+}
 
 export default withQuerySuspense(MemberDetailScreen, {
   LoadingComponent: () => (
@@ -145,10 +155,12 @@ function MemberDetailScreen() {
     paddingTop: headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0,
   }
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`flex-1 bg-background`}>
+    <View style={tw`flex-1 bg-[${colors.base100}]`}>
       <NavBar
-        style={tw.style(TOP_BAR_BG_CLS)}
+        style={tw.style(getTopBarBgCls())}
         tintColor="#fff"
         statusBarStyle="light"
       >
@@ -175,7 +187,7 @@ function MemberDetailScreen() {
           />
 
           <Text
-            style={tw`text-white ${getFontSize(4)} font-semibold flex-1 mr-2`}
+            style={tw`text-white ${fontSize.large} font-semibold flex-1 mr-2`}
             numberOfLines={1}
           >
             {member.username}
@@ -265,7 +277,7 @@ function MemberDetailScreen() {
               <View
                 onLayout={ev => setHeaderHeight(ev.nativeEvent.layout.height)}
                 pointerEvents="box-none"
-                style={tw`bg-background`}
+                style={tw`bg-[${colors.base100}]`}
               >
                 <MemberHeader />
               </View>
@@ -273,9 +285,9 @@ function MemberDetailScreen() {
               <TabBar
                 {...props}
                 scrollEnabled
-                style={tw`bg-background flex-row shadow-none border-b border-divider border-solid`}
+                style={tw`bg-[${colors.base100}] flex-row shadow-none border-b border-[${colors.divider}] border-solid`}
                 tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[30px] ml-[25px] bg-foreground h-1 rounded-full`}
+                indicatorStyle={tw`w-[30px] ml-[25px] bg-[${colors.foreground}] h-1 rounded-full`}
                 renderTabBarItem={({ route }) => {
                   const active = routes[index].key === route.key
 
@@ -290,10 +302,10 @@ function MemberDetailScreen() {
                     >
                       <Text
                         style={tw.style(
-                          getFontSize(5),
+                          fontSize.medium,
                           active
-                            ? tw`text-foreground font-medium`
-                            : tw`text-default`
+                            ? tw`text-[${colors.foreground}] font-medium`
+                            : tw`text-[${colors.default}]`
                         )}
                       >
                         {route.title}
@@ -317,15 +329,20 @@ const MemberHeader = memo(() => {
     variables: { username: params.username },
   })
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <Fragment>
       <View
         pointerEvents="none"
-        style={tw.style(TOP_BAR_BG_CLS, `pt-10 px-4`)}
+        style={tw.style(getTopBarBgCls(), `pt-10 px-4`)}
       />
 
       <View style={tw`-mt-8 px-4 flex-row`}>
-        <View pointerEvents="none" style={tw`p-0.5 bg-background rounded-full`}>
+        <View
+          pointerEvents="none"
+          style={tw`p-0.5 bg-[${colors.base100}] rounded-full`}
+        >
           <StyledImage
             style={tw`w-[81.25px] h-[81.25px] rounded-full`}
             source={member.avatar}
@@ -344,7 +361,7 @@ const MemberHeader = memo(() => {
       <View pointerEvents="none" style={tw`mt-3 px-4 gap-1`}>
         <View style={tw`flex-row gap-2`}>
           <Text
-            style={tw`text-foreground ${getFontSize(2)} font-extrabold`}
+            style={tw`text-[${colors.foreground}] ${fontSize.xxxlarge} font-extrabold`}
             selectable
           >
             {member.username}
@@ -365,9 +382,7 @@ const MemberHeader = memo(() => {
               </Svg>
 
               <Text
-                style={tw`px-1 text-white ${getFontSize(
-                  6
-                )} font-medium text-center`}
+                style={tw`px-1 text-white ${fontSize.small} font-medium text-center`}
               >
                 ONLINE
               </Text>
@@ -379,7 +394,7 @@ const MemberHeader = memo(() => {
 
         {!!member.motto && (
           <View pointerEvents="none">
-            <Text style={tw`text-default ${getFontSize(5)}`}>
+            <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
               {member.motto}
             </Text>
           </View>
@@ -388,31 +403,41 @@ const MemberHeader = memo(() => {
         {some([member.company, member.title]) && (
           <View style={tw`flex-row flex-wrap`}>
             {member.company && (
-              <Text style={tw`font-medium text-foreground ${getFontSize(5)}`}>
+              <Text
+                style={tw`font-medium text-[${colors.foreground}] ${fontSize.medium}`}
+              >
                 🏢 {member.company}
               </Text>
             )}
             {every([member.company, member.title]) && (
-              <Text style={tw`text-default ${getFontSize(5)} px-1`}>/</Text>
+              <Text
+                style={tw`text-[${colors.default}] ${fontSize.medium} px-1`}
+              >
+                /
+              </Text>
             )}
             {member.title && (
-              <Text style={tw`text-default ${getFontSize(5)} flex-1`}>
+              <Text
+                style={tw`text-[${colors.default}] ${fontSize.medium} flex-1`}
+              >
                 {member.title}
               </Text>
             )}
           </View>
         )}
 
-        <Text style={tw`text-default ${getFontSize(5)}`}>
+        <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
           {`V2EX 第 ${member.id} 号会员，加入于 ${member.created}`}
         </Text>
 
-        <Text style={tw`text-default ${getFontSize(5)}`}>
+        <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
           {`今日活跃度排名 ${member.activity}`}
         </Text>
 
         {!!member.overview && (
-          <View style={tw`border-t border-solid border-divider pt-2`}>
+          <View
+            style={tw`border-t border-solid border-[${colors.divider}] pt-2`}
+          >
             <Html source={{ html: member.overview }} />
           </View>
         )}
@@ -426,14 +451,14 @@ const MemberHeader = memo(() => {
           {member.widgets.map(widget => (
             <TouchableOpacity
               key={widget.link}
-              style={tw`bg-content rounded-full py-1.5 pl-2 pr-2.5 flex-row items-center`}
+              style={tw`bg-[${colors.base200}] rounded-full py-1.5 pl-2 pr-2.5 flex-row items-center`}
               onPress={() => {
                 navigation.navigate('Webview', { url: widget.link })
               }}
             >
               <StyledImage style={tw`w-5 h-5 mr-1`} source={widget.uri} />
               <Text
-                style={tw`${getFontSize(5)} text-default flex-shrink`}
+                style={tw`${fontSize.medium} text-[${colors.default}] flex-shrink`}
                 numberOfLines={1}
               >
                 {widget.title}
@@ -582,10 +607,12 @@ const MemberReply = memo(
   }) => {
     const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
+    const { colors, fontSize } = useAtomValue(uiAtom)
+
     return (
       <DebouncedPressable
         key={topic.id}
-        style={tw`px-4 py-3 bg-background`}
+        style={tw`px-4 py-3 bg-[${colors.base100}]`}
         onPress={() => {
           navigation.push('TopicDetail', { ...topic, id: topic.topicId })
         }}
@@ -603,7 +630,7 @@ const MemberReply = memo(
 
           <Separator>
             <Text
-              style={tw`text-foreground ${getFontSize(5)} font-semibold`}
+              style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold`}
               onPress={() => {
                 navigation.push('MemberDetail', {
                   username: topic.member?.username!,
@@ -614,23 +641,23 @@ const MemberReply = memo(
             </Text>
 
             {!!topic.reply_count && (
-              <Text style={tw`text-default ${getFontSize(5)}`}>
+              <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
                 {`${topic.reply_count} 回复`}
               </Text>
             )}
           </Separator>
         </View>
 
-        <Text style={tw`text-foreground ${getFontSize(5)} pt-2`}>
+        <Text style={tw`text-[${colors.foreground}] ${fontSize.medium} pt-2`}>
           {topic.title}
         </Text>
 
-        <View style={tw`bg-content px-4 py-3 mt-2 rounded`}>
+        <View style={tw`bg-[${colors.base200}] px-4 py-3 mt-2 rounded`}>
           <Separator style={tw`mb-2`}>
-            <Text style={tw`text-foreground ${getFontSize(5)}`}>
+            <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
               {params.username}
             </Text>
-            <Text style={tw`text-default ${getFontSize(5)}`}>
+            <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
               {topic.reply.created}
             </Text>
           </Separator>
@@ -758,22 +785,29 @@ function BlockMember({
 }
 
 function MemberDetailSkeleton({ children }: { children: ReactNode }) {
+  const { colors } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`flex-1 bg-background`}>
+    <View style={tw`flex-1 bg-[${colors.base100}]`}>
       <NavBar
-        style={tw.style(TOP_BAR_BG_CLS)}
+        style={tw.style(getTopBarBgCls())}
         tintColor="#fff"
         statusBarStyle="light"
       />
       <View
-        style={tw.style(TOP_BAR_BG_CLS, `pt-10 px-4`, {
+        style={tw.style(getTopBarBgCls(), `pt-10 px-4`, {
           marginTop: TAB_VIEW_MARGIN_TOP,
         })}
       />
 
-      <View style={tw`-mt-8 px-4 flex-row`}>
-        <View pointerEvents="none" style={tw`p-0.5 bg-background rounded-full`}>
-          <View style={tw`w-[81.25px] h-[81.25px] rounded-full img-loading`} />
+      <View style={tw.style(`-mt-8 px-4 flex-row`)}>
+        <View
+          pointerEvents="none"
+          style={tw`p-0.5 bg-[${colors.base100}] rounded-full`}
+        >
+          <View
+            style={tw`w-[81.25px] h-[81.25px] rounded-full bg-[${colors.base300}]`}
+          />
         </View>
       </View>
       {children}

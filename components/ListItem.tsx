@@ -1,7 +1,8 @@
+import { useAtomValue } from 'jotai'
 import { ReactNode, cloneElement, isValidElement } from 'react'
 import { PressableProps, Text, ViewStyle } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 import DebouncedPressable from './DebouncedPressable'
@@ -23,12 +24,17 @@ export default function ListItem({
   pressable = true,
   style,
 }: ListItemProps) {
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <DebouncedPressable
       style={({ pressed }) =>
         tw.style(
           `px-4 h-[56px] flex-row items-center`,
-          pressed && pressable && !!label && `bg-focus`,
+          pressed &&
+            pressable &&
+            !!label &&
+            `bg-[${colors.foreground}] bg-opacity-10`,
           style
         )
       }
@@ -42,9 +48,7 @@ export default function ListItem({
 
           {!!label && (
             <Text
-              style={tw`ml-6 font-medium text-foreground mr-auto ${getFontSize(
-                4
-              )}`}
+              style={tw`ml-6 font-medium text-[${colors.foreground}] mr-auto ${fontSize.large}`}
             >
               {label}
             </Text>

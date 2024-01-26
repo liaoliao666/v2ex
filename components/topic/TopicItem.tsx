@@ -1,8 +1,9 @@
+import { useAtomValue } from 'jotai'
 import { compact, isEqual, maxBy } from 'lodash-es'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { isLargeTablet } from '@/utils/tablet'
@@ -21,6 +22,8 @@ export interface TopicItemProps {
 export default memo(TopicItem, isEqual)
 
 function TopicItem({ topic, hideAvatar }: TopicItemProps) {
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   const { data: isReaded } = k.topic.detail.useInfiniteQuery({
     variables: { id: topic.id },
     select: data => {
@@ -32,7 +35,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
 
   return (
     <DebouncedPressable
-      style={tw`px-4 py-3 flex-row bg-background`}
+      style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
       onPress={() => {
         if (isLargeTablet() && getCurrentRouteName() === 'TopicDetail') {
           navigation.replace('TopicDetail', topic)
@@ -62,7 +65,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
       <View style={tw`flex-1`}>
         <View style={tw`flex-row gap-2`}>
           <Text
-            style={tw`text-foreground ${getFontSize(5)} flex-shrink`}
+            style={tw`text-[${colors.foreground}] ${fontSize.medium} flex-shrink`}
             numberOfLines={1}
             onPress={() => {
               navigation.push('MemberDetail', {
@@ -90,7 +93,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
           )}
 
           {topic.pin_to_top && (
-            <StyledButton size="mini" type="danger" pressable={false}>
+            <StyledButton size="mini" color="rgb(255,77,79)" type="tag" ghost>
               置顶
             </StyledButton>
           )}
@@ -98,8 +101,10 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
 
         <Text
           style={tw.style(
-            `${getFontSize(5)} pt-1 font-medium`,
-            isReaded ? `text-default` : `text-foreground`
+            `${fontSize.medium} pt-1 font-medium`,
+            isReaded
+              ? `text-[${colors.default}]`
+              : `text-[${colors.foreground}]`
           )}
         >
           {topic.title}
@@ -108,25 +113,34 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
         <Separator style={tw`mt-1`}>
           {compact([
             !!topic.votes && (
-              <Text key="votes" style={tw`text-default ${getFontSize(6)}`}>
+              <Text
+                key="votes"
+                style={tw`text-[${colors.default}] ${fontSize.small}`}
+              >
                 {`${topic.votes} 赞同`}
               </Text>
             ),
             !!topic.reply_count && (
-              <Text key="replies" style={tw`text-default ${getFontSize(6)}`}>
+              <Text
+                key="replies"
+                style={tw`text-[${colors.default}] ${fontSize.small}`}
+              >
                 {`${topic.reply_count} 回复`}
               </Text>
             ),
-            <Text key="last_touched" style={tw`text-default ${getFontSize(6)}`}>
+            <Text
+              key="last_touched"
+              style={tw`text-[${colors.default}] ${fontSize.small}`}
+            >
               {topic.last_touched}
             </Text>,
             !!topic.last_reply_by && (
               <Text
                 key="last_reply_by"
-                style={tw`text-foreground ${getFontSize(6)} flex-1`}
+                style={tw`text-[${colors.foreground}] ${fontSize.small} flex-1`}
                 numberOfLines={1}
               >
-                <Text style={tw`text-default ${getFontSize(6)}`}>
+                <Text style={tw`text-[${colors.default}] ${fontSize.small}`}>
                   最后回复于
                 </Text>
                 {topic.last_reply_by}

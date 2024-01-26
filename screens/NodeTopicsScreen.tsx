@@ -1,5 +1,6 @@
 import { AntDesign } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { darken, lighten } from 'color2k'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { find, last, uniqBy } from 'lodash-es'
@@ -24,8 +25,9 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { formatColor, getUI, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -35,13 +37,21 @@ import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
-const TOP_BAR_BG_CLS = `bg-[rgb(51,51,68)]`
+function getTopBarBgCls() {
+  const { colors } = getUI()
+  if (colors.base100 === 'rgba(255,255,255,1)') return `bg-[rgb(51,51,68)]`
+  return `bg-[${formatColor(
+    store.get(colorSchemeAtom) === 'light'
+      ? darken(colors.base300, 0.6)
+      : lighten(colors.base300, 0.2)
+  )}]`
+}
 
 export default withQuerySuspense(NodeTopicsScreen, {
   LoadingComponent: () => (
-    <View style={tw`flex-1 bg-background`}>
+    <View style={tw`flex-1 bg-[${getUI().colors.base100}]`}>
       <NavBar
-        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-20')}
+        style={tw.style(getTopBarBgCls(), 'border-b-0 z-20')}
         tintColor="#fff"
         statusBarStyle="light"
       />
@@ -52,7 +62,7 @@ export default withQuerySuspense(NodeTopicsScreen, {
   fallbackRender: props => (
     <View style={tw`flex-1`}>
       <NavBar
-        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-20')}
+        style={tw.style(getTopBarBgCls(), 'border-b-0 z-20')}
         tintColor="#fff"
         statusBarStyle="light"
       />
@@ -92,12 +102,14 @@ function NodeTopicsScreen() {
 
   const scrollY = useRef(new Animated.Value(0)).current
 
+  const { fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <NavBar
         statusBarStyle="light"
         tintColor="#fff"
-        style={tw.style(TOP_BAR_BG_CLS, 'border-b-0 z-10')}
+        style={tw.style(getTopBarBgCls(), 'border-b-0 z-10')}
       >
         <Animated.View
           style={tw.style(`flex-row items-center flex-1`, {
@@ -117,11 +129,11 @@ function NodeTopicsScreen() {
           })}
         >
           <View style={tw`flex-1`}>
-            <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
+            <Text style={tw`text-white ${fontSize.large} font-semibold`}>
               {node?.title}
             </Text>
 
-            <Text style={tw`text-[#e7e9ea] ${getFontSize(6)}`}>
+            <Text style={tw`text-[#e7e9ea] ${fontSize.small}`}>
               主题总数{node?.topics}
             </Text>
           </View>
@@ -201,13 +213,15 @@ function NodeInfo({
     select: nodes => find(nodes, { name: params.name }),
   })
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View>
       <View
-        style={tw`${TOP_BAR_BG_CLS} absolute -top-[999px] bottom-3 inset-x-0 -z-10`}
+        style={tw`${getTopBarBgCls()} absolute -top-[999px] bottom-3 inset-x-0 -z-10`}
       />
 
-      <View style={tw`${TOP_BAR_BG_CLS} px-4 py-3 flex-row z-10`}>
+      <View style={tw`${getTopBarBgCls()} px-4 py-3 flex-row z-10`}>
         <StyledImage
           style={tw`w-12 h-12 mr-3 rounded`}
           source={node?.avatar_large}
@@ -215,7 +229,7 @@ function NodeInfo({
 
         <View style={tw`flex-1`}>
           <View style={tw`flex-row items-center justify-between`}>
-            <Text style={tw`text-white ${getFontSize(4)} font-semibold`}>
+            <Text style={tw`text-white ${fontSize.large} font-semibold`}>
               {node?.title}
             </Text>
 
@@ -234,12 +248,12 @@ function NodeInfo({
           <View style={tw`mt-1 flex-row justify-between`}>
             {node?.header ? (
               <Html
-                baseStyle={tw`text-[#e7e9ea] ${getFontSize(6)}`}
-                tagsStyles={{ a: tw`text-[#03C8FF] no-underline` }}
+                baseStyle={tw`text-[#e7e9ea] ${fontSize.small}`}
+                tagsStyles={{ a: tw`text-[${colors.primary}] no-underline` }}
                 source={{ html: node?.header }}
               />
             ) : (
-              <Text style={tw`text-[#e7e9ea] ${getFontSize(6)}`}>
+              <Text style={tw`text-[#e7e9ea] ${fontSize.small}`}>
                 主题总数{node?.topics}
               </Text>
             )}
@@ -266,6 +280,8 @@ function LikeNode({
   type: 'button' | 'icon'
 }) {
   const { mutateAsync, isPending } = k.node.like.useMutation()
+
+  const { fontSize } = useAtomValue(uiAtom)
 
   async function likeNode() {
     if (!isSignined()) {
@@ -311,7 +327,7 @@ function LikeNode({
     <View style={tw.style(`flex-row items-center`)}>
       <Text
         style={tw.style(
-          `${getFontSize(6)} px-1.5`,
+          `${fontSize.small} px-1.5`,
           liked ? `text-[rgb(250,219,20)]` : `text-[#e7e9ea]`
         )}
       >

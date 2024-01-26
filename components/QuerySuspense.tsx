@@ -1,5 +1,6 @@
 import { QueryErrorResetBoundary } from '@tanstack/react-query'
 import { AxiosError } from 'axios'
+import { useAtomValue } from 'jotai'
 import { isObjectLike, isString } from 'lodash-es'
 import type { ComponentType, FC, ReactNode } from 'react'
 import { Fragment, Suspense } from 'react'
@@ -7,7 +8,7 @@ import type { ErrorBoundaryProps, FallbackProps } from 'react-error-boundary'
 import { ErrorBoundary } from 'react-error-boundary'
 import { Text, View } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
@@ -24,25 +25,30 @@ export function FallbackComponent({
       ? error.message
       : null
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`p-8`}>
       {message ? (
         <Fragment>
           <Text
-            style={tw`text-[31px] leading-9 font-extrabold text-foreground`}
+            style={tw`text-[31px] leading-9 font-extrabold text-[${colors.foreground}]`}
             selectable
           >
             {(error as AxiosError).code
               ? (error as AxiosError).code || error.name
               : error.name || '出现错误了'}
           </Text>
-          <Text style={tw`${getFontSize(5)} text-default mt-2`} selectable>
+          <Text
+            style={tw`${fontSize.medium} text-[${colors.default}] mt-2`}
+            selectable
+          >
             {error.message}
           </Text>
         </Fragment>
       ) : (
         <Text
-          style={tw`text-[31px] leading-9 font-extrabold text-foreground`}
+          style={tw`text-[31px] leading-9 font-extrabold text-[${colors.foreground}]`}
           selectable
         >
           出现错误了

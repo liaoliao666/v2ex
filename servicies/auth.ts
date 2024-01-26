@@ -5,14 +5,14 @@ import { router } from 'react-query-kit'
 import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { store } from '@/jotai/store'
 import { getCookie } from '@/utils/cookie'
-import { request } from '@/utils/request'
+import { BizError, request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 import { sleep } from '@/utils/sleep'
 import { getBaseURL } from '@/utils/url'
 
 import { isLogined } from './helper'
 
-export const auth = router(`auth`, {
+export const authRouter = router(`auth`, {
   signout: router.mutation({
     mutationFn: async ({ once }: { once: string }) => {
       const { data } = await request.get(`/signout?once=${once}`, {
@@ -68,7 +68,7 @@ export const auth = router(`auth`, {
     }> => {
       if (await store.get(deletedNamesAtom)?.includes(username)) {
         await sleep(1000)
-        return Promise.reject(new Error('该帐号已注销'))
+        return Promise.reject(new BizError('该帐号已注销'))
       }
 
       const { data } = await request.post('/signin', paramsSerializer(args), {
@@ -98,7 +98,7 @@ export const auth = router(`auth`, {
       }
 
       return Promise.reject(
-        new Error(
+        new BizError(
           $('#captcha-image').attr('src')
             ? '登录失败'
             : '由于当前 IP 在短时间内的登录尝试次数太多，目前暂时不能继续尝试。'

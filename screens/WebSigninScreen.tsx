@@ -1,5 +1,6 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { load } from 'cheerio'
+import { useAtomValue } from 'jotai'
 import { useRef, useState } from 'react'
 import { Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
@@ -7,6 +8,7 @@ import WebView from 'react-native-webview'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import StyledBlurView from '@/components/StyledBlurView'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
 import { queryClient } from '@/utils/query'
@@ -33,6 +35,8 @@ export default function WebSigninScreen() {
   }
 
   const navbarHeight = useNavBarHeight()
+
+  const { colors } = useAtomValue(uiAtom)
 
   return (
     <View style={tw`flex-1`}>
@@ -107,7 +111,7 @@ export default function WebSigninScreen() {
         <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar
           title="网页登录"
-          style={tw`border-b border-solid border-divider`}
+          style={tw`border-b border-solid border-[${colors.divider}]`}
         />
       </View>
     </View>

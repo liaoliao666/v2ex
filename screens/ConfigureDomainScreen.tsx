@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { ScrollView, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
@@ -12,7 +12,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { baseUrlAtom, v2exURL } from '@/jotai/baseUrlAtom'
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 import { isValidURL } from '@/utils/url'
@@ -46,6 +46,8 @@ function ConfigureDomainScreen() {
     },
   })
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <ScrollView
@@ -54,7 +56,7 @@ function ConfigureDomainScreen() {
         }}
       >
         <View style={tw`w-3/4 mx-auto mt-8`}>
-          <Text style={tw`${getFontSize(5)} text-foreground mb-4`}>
+          <Text style={tw`${fontSize.medium} text-[${colors.foreground}] mb-4`}>
             如果你因为一些原因无法访问v2ex的域名，你可以选择配置调用 API
             的域名，支持协议+ip+端口。
           </Text>
@@ -90,7 +92,7 @@ function ConfigureDomainScreen() {
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar
-          style={tw`border-b border-solid border-divider`}
+          style={tw`border-b border-solid border-[${colors.divider}]`}
           title="域名配置"
           right={
             <StyledButton

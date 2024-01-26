@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useForm } from 'react-hook-form'
 import { ScrollView, Text, View } from 'react-native'
 import Toast from 'react-native-toast-message'
@@ -11,8 +11,8 @@ import { withQuerySuspense } from '@/components/QuerySuspense'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
@@ -36,6 +36,8 @@ function ImgurConfigScreen() {
     },
   })
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <ScrollView
@@ -44,16 +46,16 @@ function ImgurConfigScreen() {
         }}
       >
         <View style={tw`w-3/4 mx-auto mt-8`}>
-          <Text style={tw`${getFontSize(5)} text-foreground`}>
+          <Text style={tw`${fontSize.medium} text-[${colors.foreground}]`}>
             由于图片上传依赖 Imgur 的服务，请输入你的 Imgur 账户的
             clientId，如果你还没有 Imgur 账户，你需要按照下面两步去创建一个
             Imgur 应用
           </Text>
 
-          <Text style={tw`text-default mt-2 ${getFontSize(5)}`}>
+          <Text style={tw`text-[${colors.default}] mt-2 ${fontSize.medium}`}>
             1.{' '}
             <Text
-              style={tw`text-primary`}
+              style={tw`text-[${colors.primary}]`}
               onPress={() => {
                 navigation.navigate('Webview', {
                   url: `https://imgur.com/register`,
@@ -63,10 +65,12 @@ function ImgurConfigScreen() {
               创建 Imgur 账户
             </Text>
           </Text>
-          <Text style={tw`text-default mt-1 mb-2 ${getFontSize(5)}`}>
+          <Text
+            style={tw`text-[${colors.default}] mt-1 mb-2 ${fontSize.medium}`}
+          >
             2.{' '}
             <Text
-              style={tw`text-primary`}
+              style={tw`text-[${colors.primary}]`}
               onPress={() => {
                 navigation.navigate('Webview', {
                   url: `https://api.imgur.com/#registerapp`,
@@ -111,7 +115,7 @@ function ImgurConfigScreen() {
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
         <NavBar
-          style={tw`border-b border-solid border-divider`}
+          style={tw`border-b border-solid border-[${colors.divider}]`}
           title="图片上传"
           right={
             <StyledButton

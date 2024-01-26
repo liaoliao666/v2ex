@@ -12,6 +12,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledTextInput from '@/components/StyledTextInput'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Sov2exArgs } from '@/servicies/other'
 import tw from '@/utils/tw'
@@ -32,8 +33,10 @@ function SearchOptionsScreen() {
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
-    <View style={tw`bg-background flex-1`} key={colorScheme}>
+    <View style={tw`bg-[${colors.base100}] flex-1`} key={colorScheme}>
       <NavBar title="搜索条件" hideSafeTop />
       <View style={tw`flex-1 p-4`}>
         <View

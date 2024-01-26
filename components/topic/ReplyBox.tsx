@@ -1,3 +1,4 @@
+import { useAtomValue } from 'jotai'
 import { pick } from 'lodash-es'
 import { Fragment, useRef } from 'react'
 import {
@@ -9,7 +10,7 @@ import {
 } from 'react-native'
 import Toast from 'react-native-toast-message'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
@@ -102,21 +103,25 @@ const ReplyBox = ({
 
   const inputRef = useRef<TextInput>(null)
 
-  const replyResult = k.topic.reply.useMutation()
+  const replyMutation = k.topic.reply.useMutation()
 
-  const appendTopicResult = k.topic.append.useMutation()
+  const appendTopicMutation = k.topic.append.useMutation()
 
-  const { isPending, mutateAsync } = isAppend ? appendTopicResult : replyResult
+  const { isPending, mutateAsync } = isAppend
+    ? appendTopicMutation
+    : replyMutation
 
   const selectionRef = useRef<{
     start: number
     end: number
   }>()
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   return (
     <Fragment>
       <Pressable
-        style={tw`bg-overlay absolute inset-0 z-20`}
+        style={tw`bg-[${colors.foreground}] bg-opacity-10 absolute inset-0 z-20`}
         onPress={onCancel}
       />
 
@@ -125,17 +130,17 @@ const ReplyBox = ({
         style={tw`z-30`}
       >
         <View
-          style={tw`px-4 bg-background flex-row items-center rounded-t-[32px] overflow-hidden`}
+          style={tw`px-4 bg-[${colors.base100}] flex-row items-center rounded-t-[32px] overflow-hidden`}
         >
           <TextInput
             ref={inputRef}
-            placeholderTextColor={tw.color(`text-default`)}
+            placeholderTextColor={colors.default}
             style={tw.style(
               {
-                ...pick(tw.style(getFontSize(5)), ['fontSize']),
+                ...pick(tw.style(fontSize.medium), ['fontSize']),
                 paddingVertical: 0,
               },
-              `text-foreground flex-1 py-2 px-3 h-32 pt-4 rounded-lg`
+              `text-[${colors.foreground}] flex-1 py-2 px-3 h-32 pt-4 rounded-lg`
             )}
             textAlignVertical={'top'}
             multiline
@@ -186,12 +191,12 @@ const ReplyBox = ({
             onSelectionChange={ev => {
               selectionRef.current = ev.nativeEvent.selection
             }}
-            selectionColor={tw.color(`text-primary`)}
+            selectionColor={colors.primary}
             autoCapitalize="none"
           />
         </View>
 
-        <View style={tw`py-2 px-4 flex-row bg-background`}>
+        <View style={tw`py-2 px-4 flex-row bg-[${colors.base100}]`}>
           <View style={tw`flex-row gap-2 mr-auto`}>
             <StyledButton
               shape="rounded"

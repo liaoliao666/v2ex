@@ -1,7 +1,8 @@
+import { useAtomValue } from 'jotai'
 import { Children, Fragment } from 'react'
 import { Text, View, ViewStyle } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 export type SeparatorProps = {
@@ -10,13 +11,19 @@ export type SeparatorProps = {
 }
 
 export function DotSeparator() {
+  const { colors, fontSize } = useAtomValue(uiAtom)
   return (
-    <Text style={tw`w-4 text-default text-center ${getFontSize(5)}`}>·</Text>
+    <Text
+      style={tw`w-4 text-[${colors.default}] text-center ${fontSize.medium}`}
+    >
+      ·
+    </Text>
   )
 }
 
 export function LineSeparator() {
-  return <View style={tw`border-t border-solid border-divider`} />
+  const { colors } = useAtomValue(uiAtom)
+  return <View style={tw`border-t border-solid border-[${colors.divider}]`} />
 }
 
 export default function Separator({ children, style }: SeparatorProps) {

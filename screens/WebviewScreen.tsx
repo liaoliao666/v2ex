@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { useAtomValue } from 'jotai'
 import { useEffect, useRef, useState } from 'react'
 import { BackHandler, Platform, View } from 'react-native'
 import WebView from 'react-native-webview'
@@ -7,6 +8,7 @@ import IconButton from '@/components/IconButton'
 import LoadingIndicator from '@/components/LoadingIndicator'
 import NavBar from '@/components/NavBar'
 import StyledButton from '@/components/StyledButton'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
@@ -58,10 +60,12 @@ export default function WebviewScreen() {
     }
   }, []) // initialize only once
 
+  const { colors } = useAtomValue(uiAtom)
+
   return (
     <View style={tw`flex-1`}>
       <NavBar
-        style={tw`border-b border-solid border-divider`}
+        style={tw`border-b border-solid border-[${colors.divider}]`}
         title={isLoading ? '跳转中...' : title || 'Browse'}
         left={
           <IconButton
@@ -70,8 +74,8 @@ export default function WebviewScreen() {
             }}
             name="close"
             size={24}
-            color={tw.color(`text-foreground`)}
-            activeColor={tw.color(`text-foreground`)}
+            color={colors.foreground}
+            activeColor={colors.foreground}
           />
         }
         right={
@@ -114,7 +118,9 @@ export default function WebviewScreen() {
           setTitle(nativeEvent.data)
         }}
         renderLoading={() => (
-          <LoadingIndicator style={tw`absolute w-full h-full bg-background`} />
+          <LoadingIndicator
+            style={tw`absolute w-full h-full bg-[${colors.base100}]`}
+          />
         )}
       />
     </View>

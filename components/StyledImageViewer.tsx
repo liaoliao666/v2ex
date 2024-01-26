@@ -1,12 +1,13 @@
 import { Ionicons } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import * as Sharing from 'expo-sharing'
+import { useAtomValue } from 'jotai'
 import { ComponentProps } from 'react'
 import { Modal, Text, View } from 'react-native'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 import IconButton from './IconButton'
@@ -23,6 +24,8 @@ export default function StyledImageViewer({
   ...props
 }: StyledImageViewerProps) {
   const safeAreaInsets = useSafeAreaInsets()
+
+  const { fontSize } = useAtomValue(uiAtom)
 
   return (
     <Modal transparent visible={visible} onRequestClose={onClose}>
@@ -56,7 +59,7 @@ export default function StyledImageViewer({
           <View
             style={tw`pt-[${safeAreaInsets.top}px] px-4 z-10 absolute top-0 inset-x-0 flex-row justify-center`}
           >
-            <Text style={tw`text-white ${getFontSize(4)}`}>
+            <Text style={tw`text-white ${fontSize.large}`}>
               {currentIndex + ' / ' + allSize}
             </Text>
           </View>

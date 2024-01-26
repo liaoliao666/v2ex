@@ -1,18 +1,18 @@
 import { load } from 'cheerio'
 import { Image } from 'expo-image'
-import { useSetAtom } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { compact, findIndex, isString } from 'lodash-es'
-import { memo, useMemo, useRef } from 'react'
-import { Alert, LayoutRectangle, Image as RNImage, View } from 'react-native'
+import { memo, useMemo } from 'react'
+import { Alert, Image as RNImage } from 'react-native'
 import RenderHtml, {
   RenderHTMLProps,
   defaultSystemFonts,
 } from 'react-native-render-html'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { hasSize } from '@/utils/hasSize'
 import tw from '@/utils/tw'
@@ -69,7 +69,7 @@ function Html({
 
   const screenWidth = useScreenWidth()
 
-  const htmlLayoutRef = useRef<LayoutRectangle | undefined>()
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <HtmlContext.Provider
@@ -119,7 +119,6 @@ function Html({
           onSelectText: () => {
             navigation.navigate('SelectableText', {
               html,
-              htmlLayout: htmlLayoutRef.current,
             })
           },
           paddingX,
@@ -128,46 +127,36 @@ function Html({
         [imageUrls, setImageViewer, paddingX, inModalScreen, html, selectOnly]
       )}
     >
-      <View
-        onLayout={ev => {
-          htmlLayoutRef.current = ev.nativeEvent.layout
+      <RenderHtml
+        systemFonts={systemFonts}
+        baseStyle={tw`text-[${colors.foreground}] ${fontSize.medium}`}
+        tagsStyles={{
+          h1: tw`${fontSize.xxlarge} pb-1.5 border-b border-solid border-[${colors.divider}]`,
+          h2: tw`${fontSize.xlarge} pb-1.5 border-b border-solid border-[${colors.divider}]`,
+          h3: tw`${fontSize.large}`,
+          h4: tw`${fontSize.large}`,
+          h5: tw`${fontSize.medium}`,
+          h6: tw`${fontSize.small}`,
+          p: tw`${fontSize.medium}`,
+          a: tw`text-[${colors.primary}] no-underline`,
+          li: tw`text-justify`,
+          hr: {
+            backgroundColor: colors.divider,
+          },
+          em: tw`italic`,
+          ...mergedProps.tagsStyles,
         }}
-      >
-        <RenderHtml
-          systemFonts={systemFonts}
-          baseStyle={tw`text-foreground ${getFontSize(5)}`}
-          tagsStyles={{
-            h1: tw`${getFontSize(
-              3
-            )} pb-1.5 border-b border-solid border-divider`,
-            h2: tw`${getFontSize(
-              4
-            )} pb-1.5 border-b border-solid border-divider`,
-            h3: tw`${getFontSize(4)}`,
-            h4: tw`${getFontSize(4)}`,
-            h5: tw`${getFontSize(5)}`,
-            h6: tw`${getFontSize(6)}`,
-            p: tw`${getFontSize(5)}`,
-            a: tw`text-primary no-underline`,
-            li: tw`text-justify`,
-            hr: {
-              backgroundColor: tw.color(`border-divider`),
-            },
-            em: tw`italic`,
-            ...mergedProps.tagsStyles,
-          }}
-          contentWidth={screenWidth - paddingX}
-          {...mergedProps}
-          renderers={{
-            pre: CodeRenderer,
-            img: ImageRenderer,
-            iframe: IFrameRenderer,
-            input: InputRenderer,
-            _TEXT_: TextRenderer,
-            ...mergedProps.renderers,
-          }}
-        />
-      </View>
+        contentWidth={screenWidth - paddingX}
+        {...mergedProps}
+        renderers={{
+          pre: CodeRenderer,
+          img: ImageRenderer,
+          iframe: IFrameRenderer,
+          input: InputRenderer,
+          _TEXT_: TextRenderer,
+          ...mergedProps.renderers,
+        }}
+      />
     </HtmlContext.Provider>
   )
 }

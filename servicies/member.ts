@@ -15,11 +15,11 @@ import {
   parseMemberReplies,
   parseTopicItems,
 } from './helper'
-import { node } from './node'
-import { topic } from './topic'
+import { nodeRouter } from './node'
+import { topicRouter } from './topic'
 import { Member, PageData, Topic } from './types'
 
-export const member = router(`member`, {
+export const memberRouter = router(`member`, {
   byUsername: router.query({
     fetcher: async (
       { username }: { username: string },
@@ -167,8 +167,8 @@ export const member = router(`member`, {
       const pageSize = 10
       const chunkIds = ids.slice(pageParam - 1, pageParam * 10)
       const cacheMemberMap = queryClient
-        .getQueriesData<inferData<typeof member.byUsername>>({
-          queryKey: member.byUsername.getKey(),
+        .getQueriesData<inferData<typeof memberRouter.byUsername>>({
+          queryKey: memberRouter.byUsername.getKey(),
         })
         .reduce((acc, [, item]) => {
           if (item?.id) {
@@ -185,7 +185,7 @@ export const member = router(`member`, {
             chunkIds.map(async id => {
               if (cacheMemberMap[id]) return cacheMemberMap[id]
               return await queryClient
-                .ensureQueryData(member.byId.getFetchOptions({ id }))
+                .ensureQueryData(memberRouter.byId.getFetchOptions({ id }))
                 .catch(() => null)
             })
           )
@@ -213,8 +213,8 @@ export const member = router(`member`, {
       })
 
       queryClient
-        .getQueriesData<inferData<typeof node.topics>>({
-          queryKey: node.topics.getKey(),
+        .getQueriesData<inferData<typeof nodeRouter.topics>>({
+          queryKey: nodeRouter.topics.getKey(),
         })
         .forEach(([, data]) => {
           data?.pages?.forEach(p => {
@@ -223,14 +223,16 @@ export const member = router(`member`, {
             })
           })
         })
-      queryClient.getQueryData(topic.recent.getKey())?.pages?.forEach(p => {
-        p.list.forEach(item => {
-          cacheTopicMap[item.id] = item
-        })
-      })
       queryClient
-        .getQueriesData<inferData<typeof topic.tab>>({
-          queryKey: topic.tab.getKey(),
+        .getQueryData(topicRouter.recent.getKey())
+        ?.pages?.forEach(p => {
+          p.list.forEach(item => {
+            cacheTopicMap[item.id] = item
+          })
+        })
+      queryClient
+        .getQueriesData<inferData<typeof topicRouter.tab>>({
+          queryKey: topicRouter.tab.getKey(),
         })
         .forEach(([, data]) => {
           data?.forEach(item => {
@@ -238,8 +240,8 @@ export const member = router(`member`, {
           })
         })
       queryClient
-        .getQueriesData<inferData<typeof topic.detail>>({
-          queryKey: topic.detail.getKey(),
+        .getQueriesData<inferData<typeof topicRouter.detail>>({
+          queryKey: topicRouter.detail.getKey(),
         })
         .forEach(([, data]) => {
           const item = last(data?.pages)
@@ -256,7 +258,7 @@ export const member = router(`member`, {
             chunkIds.map(async id => {
               if (cacheTopicMap[id]) return cacheTopicMap[id]
               return await queryClient
-                .ensureQueryData(topic.byId.getFetchOptions({ id }))
+                .ensureQueryData(topicRouter.byId.getFetchOptions({ id }))
                 .catch(() => null)
             })
           )

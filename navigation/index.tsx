@@ -21,8 +21,10 @@ import { Platform } from 'react-native'
 import PageLayout from '@/components/PageLayout'
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
 import ConfigureDomainScreen from '@/screens/ConfigureDomainScreen'
+import CustomizeThemeScreen from '@/screens/CustomizeThemeScreen'
 import GItHubMDScreen from '@/screens/GItHubMDScreen'
 import HomeScreen from '@/screens/HomeScreen'
 import HotestTopicsScreen from '@/screens/HotestTopicsScreen'
@@ -53,21 +55,21 @@ import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import { sleep } from '@/utils/sleep'
 import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
-import tw from '@/utils/tw'
 
 import linking from './LinkingConfiguration'
 import { navigationRef } from './navigationRef'
 
 export default function Navigation() {
   const colorScheme = useAtomValue(colorSchemeAtom)
+  const { colors } = useAtomValue(uiAtom)
 
   const theme = useMemo(() => {
-    const colors = {
-      primary: tw.color(`text-primary`)!,
-      text: tw.color(`text-foreground`)!,
-      border: tw.color(`border-divider`)!,
-      card: tw.color(`bg-background`)!,
-      background: tw.color(`bg-background`)!,
+    const themeColors = {
+      primary: colors.primary,
+      text: colors.foreground,
+      border: colors.divider,
+      card: colors.base100,
+      background: colors.base100,
     }
 
     return colorScheme === 'dark'
@@ -75,17 +77,17 @@ export default function Navigation() {
           ...DarkTheme,
           colors: {
             ...DefaultTheme.colors,
-            ...colors,
+            ...themeColors,
           },
         }
       : {
           ...DefaultTheme,
           colors: {
             ...DefaultTheme.colors,
-            ...colors,
+            ...themeColors,
           },
         }
-  }, [colorScheme])
+  }, [colors, colorScheme])
 
   return (
     <NavigationContainer
@@ -263,6 +265,14 @@ function StackNavigator() {
       <Stack.Screen name="HotestTopics" component={HotestTopicsScreen} />
 
       <Stack.Screen name="ConfigureDomain" component={ConfigureDomainScreen} />
+
+      <Stack.Screen
+        name="CustomizeTheme"
+        component={CustomizeThemeScreen}
+        options={{
+          fullScreenGestureEnabled: false,
+        }}
+      />
     </Stack.Navigator>
   )
 }

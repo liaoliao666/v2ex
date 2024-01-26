@@ -1,7 +1,8 @@
+import { useAtomValue } from 'jotai'
 import { isEmpty } from 'lodash-es'
 import { Text, View, ViewStyle } from 'react-native'
 
-import { getFontSize } from '@/jotai/fontSacleAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 import StyledImage from './StyledImage'
@@ -23,12 +24,16 @@ export default function Money({
     { uri: `/static/img/bronze@2x.png`, value: bronze },
   ].filter(o => !!o.value)
 
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
   if (isEmpty(moneyOptions)) return null
   return (
     <View style={tw.style(`flex-row gap-1`, style)}>
       {moneyOptions.map(o => (
         <View style={tw`flex-row items-center`} key={o.uri}>
-          <Text style={tw`text-default ${getFontSize(6)}`}>{o.value}</Text>
+          <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
+            {o.value}
+          </Text>
           <StyledImage style={tw`w-4 h-4 ml-0.5`} source={o.uri} />
         </View>
       ))}

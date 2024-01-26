@@ -66,7 +66,7 @@ function compareVersion(version1: string, version2: string) {
   return checkPlugin(newVersion1, newVersion2)
 }
 
-export const other = router(`other`, {
+export const otherRouter = router(`other`, {
   sov2ex: router.infiniteQuery({
     fetcher: async (
       params: z.infer<typeof Sov2exArgs>,

@@ -15,7 +15,7 @@ import {
 } from './helper'
 import { PageData, Topic } from './types'
 
-export const topic = router(`topic`, {
+export const topicRouter = router(`topic`, {
   preview: router.query<
     string,
     {

@@ -1,26 +1,22 @@
+import { useAtomValue } from 'jotai'
 import { ReactNode } from 'react'
 import { Text, View } from 'react-native'
-import {
-  Fade,
-  Placeholder,
-  PlaceholderLine,
-  PlaceholderMedia,
-} from 'rn-placeholder'
+import { Placeholder, PlaceholderLine, PlaceholderMedia } from 'rn-placeholder'
 
 import StyledImage from '@/components/StyledImage'
-import { getFontSize } from '@/jotai/fontSacleAtom'
-import { store } from '@/jotai/store'
-import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
 import { Topic } from '@/servicies'
 import tw from '@/utils/tw'
 
 import NavBar from '../NavBar'
+import StyledFade from './StyledFade'
 
 function AvatarPlaceholder() {
+  const { colors } = useAtomValue(uiAtom)
   return (
     <PlaceholderMedia
       style={tw`w-12 h-12 rounded-full mr-3`}
-      color={tw.color('bg-loading')}
+      color={colors.base300}
     />
   )
 }
@@ -34,9 +30,10 @@ export default function TopicDetailPlaceholder({
   isError?: boolean
   topic: Partial<Topic>
 }) {
+  const { colors, fontSize } = useAtomValue(uiAtom)
   return (
-    <View style={tw`flex-1 bg-background`}>
-      <NavBar />
+    <View style={tw`flex-1 bg-[${colors.base100}]`}>
+      <NavBar title="帖子" />
       {!!topic.member && (
         <View>
           <View style={tw`flex-row items-center pt-3 px-4`}>
@@ -44,20 +41,22 @@ export default function TopicDetailPlaceholder({
               <StyledImage
                 style={tw.style(
                   `w-12 h-12 rounded-full`,
-                  !topic.member.avatar && `bg-loading`
+                  !topic.member.avatar && `bg-[${colors.base300}]`
                 )}
                 source={topic.member?.avatar}
               />
             </View>
 
             <View style={tw`flex-1`}>
-              <Text style={tw`text-foreground ${getFontSize(4)} font-semibold`}>
+              <Text
+                style={tw`text-[${colors.foreground}] ${fontSize.large} font-semibold`}
+              >
                 {topic.member?.username}
               </Text>
 
               <Text
                 key="reply_count"
-                style={tw`text-default ${getFontSize(5)} flex-1 min-h-[24px]`}
+                style={tw`text-[${colors.default}] ${fontSize.medium} flex-1 min-h-[24px]`}
                 numberOfLines={1}
               >
                 {`${topic.reply_count} 回复`}
@@ -65,9 +64,7 @@ export default function TopicDetailPlaceholder({
             </View>
           </View>
           <Text
-            style={tw`text-foreground border-b border-divider border-solid ${getFontSize(
-              3
-            )} font-medium pt-2 px-4`}
+            style={tw`text-[${colors.foreground}] border-b border-[${colors.divider}] border-solid ${fontSize.xxlarge} font-medium pt-2 px-4`}
           >
             {topic.title}
           </Text>
@@ -77,27 +74,25 @@ export default function TopicDetailPlaceholder({
       {isError ? (
         children
       ) : (
-        <Placeholder
-          Animation={store.get(colorSchemeAtom) === 'light' ? Fade : undefined}
-        >
+        <Placeholder Animation={StyledFade}>
           {!topic?.member && (
             <Placeholder style={tw`pt-3 px-4`} Left={AvatarPlaceholder}>
               <PlaceholderLine
                 style={tw`mt-2`}
                 width={30}
-                color={tw.color('bg-loading')}
+                color={colors.base300}
               />
-              <PlaceholderLine width={40} color={tw.color('bg-loading')} />
+              <PlaceholderLine width={40} color={colors.base300} />
             </Placeholder>
           )}
 
           <Placeholder
-            style={tw`pt-2 px-4 border-b border-divider border-solid`}
+            style={tw`pt-2 px-4 border-b border-[${colors.divider}] border-solid`}
           >
-            <PlaceholderLine color={tw.color('bg-loading')} />
-            <PlaceholderLine color={tw.color('bg-loading')} />
-            <PlaceholderLine color={tw.color('bg-loading')} />
-            <PlaceholderLine width={30} color={tw.color('bg-loading')} />
+            <PlaceholderLine color={colors.base300} />
+            <PlaceholderLine color={colors.base300} />
+            <PlaceholderLine color={colors.base300} />
+            <PlaceholderLine width={30} color={colors.base300} />
           </Placeholder>
 
           {children}

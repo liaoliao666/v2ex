@@ -75,3 +75,6 @@ web-build/
 dist/
 
 # @end expo-cli
+
+# local env files
+.env*.local
