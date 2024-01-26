@@ -3,7 +3,7 @@ import { Image } from 'expo-image'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { compact, findIndex, isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
-import { Alert, Image as RNImage } from 'react-native'
+import { Alert, Platform, Image as RNImage } from 'react-native'
 import RenderHtml, {
   RenderHTMLProps,
   defaultSystemFonts,
@@ -109,7 +109,10 @@ function Html({
 
                     return {
                       ...(hasSize(size) && size),
-                      url: localURI || item.url,
+                      url:
+                        Platform.OS === 'ios'
+                          ? localURI || resolvedURI
+                          : resolvedURI,
                     }
                   })
                 )

@@ -358,7 +358,7 @@ const fontSizeLevelMap = [
 export const fontScaleAtom = atomWithAsyncStorage('fontScaleLevel', 2)
 
 export function formatColor(color: string) {
-  return toRgba(color).replaceAll(' ', '')
+  return toRgba(color).replace(/\s/g, '')
 }
 
 function convertColors(input: ThemeColors) {
