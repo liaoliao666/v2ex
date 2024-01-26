@@ -64,7 +64,9 @@ export default function StyledImageViewer({
             </Text>
           </View>
         )}
-        renderImage={imageProps => <Image {...imageProps} />}
+        renderImage={imageProps => {
+          return <Image {...imageProps} />
+        }}
         saveToLocalByLongPress={false}
         {...props}
       />

@@ -28,7 +28,6 @@ export const supportsBlurviewColors = [
   themeColorsMap.acid.base100,
   themeColorsMap.garden.base100,
   themeColorsMap.cupcake.base100,
-  themeColorsMap.nord.base100,
 ]
 
 export default function StyledBlurView(props: BlurViewProps) {
@@ -42,7 +41,7 @@ export default function StyledBlurView(props: BlurViewProps) {
     return (
       <BlurView
         {...props}
-        tint={colorScheme === 'light' ? 'default' : 'dark'}
+        tint={colorScheme}
         style={tw.style(
           `bg-[${formatColor(transparentize(colors.base100, 0.35))}]`,
           props.style as any
