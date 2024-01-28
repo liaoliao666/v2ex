@@ -164,22 +164,25 @@ export default function RelatedRepliesScreen() {
           overdrag={false}
           renderTabBar={props => (
             <View
-              style={tw`border-b border-[${colors.divider}] border-solid px-2`}
+              style={tw`border-b border-[${colors.divider}] border-solid px-4 h-[${TAB_BAR_HEIGHT}px]`}
             >
               <TabBar
                 {...props}
                 scrollEnabled
-                style={tw`bg-[${colors.base100}] flex-row shadow-none`}
-                tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[40px] ml-[30px] bg-[${colors.foreground}] h-1 rounded-full`}
-                indicatorContainerStyle={tw`border-0`}
-                renderTabBarItem={({ route }) => {
+                style={tw`flex-row flex-1 shadow-none bg-transparent`}
+                tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
+                indicatorContainerStyle={tw`border-b-0`}
+                gap={16}
+                renderTabBarItem={tabBarItemProps => {
+                  const { route } = tabBarItemProps
                   const active = currentRoute.key === route.key
 
                   return (
                     <TouchableOpacity
+                      {...tabBarItemProps}
                       key={route.key}
-                      style={tw`w-[100px] flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
+                      style={tw`w-auto flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                       activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
                         setIndex(findIndex(routes, { key: route.key }))
@@ -191,12 +194,11 @@ export default function RelatedRepliesScreen() {
                       />
                       <Text
                         style={tw.style(
-                          `ml-2 ${fontSize.medium} flex-shrink`,
+                          `ml-2 ${fontSize.medium}`,
                           active
                             ? tw`text-[${colors.foreground}] font-semibold`
                             : tw`text-[${colors.default}] font-medium`
                         )}
-                        numberOfLines={1}
                       >
                         {route.title}
                       </Text>

@@ -119,41 +119,47 @@ function RankScreen() {
 
             <NavBar title="社区排行" style={tw`border-b-0`} />
 
-            <TabBar
-              {...props}
-              scrollEnabled
-              style={tw`flex-row shadow-none border-b border-[${colors.divider}] border-solid bg-transparent`}
-              tabStyle={tw`w-[80px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[20px] bg-[${colors.foreground}] h-1 rounded-full`}
-              indicatorContainerStyle={tw`border-b-0`}
-              renderTabBarItem={({ route }) => {
-                const active = routes[index].key === route.key
+            <View
+              style={tw`px-4 border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px]`}
+            >
+              <TabBar
+                {...props}
+                scrollEnabled
+                style={tw`flex-row flex-1 shadow-none bg-transparent`}
+                tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
+                indicatorContainerStyle={tw`border-b-0`}
+                gap={24}
+                renderTabBarItem={tabBarItemProps => {
+                  const { route } = tabBarItemProps
+                  const active = routes[index].key === route.key
 
-                return (
-                  <TouchableOpacity
-                    key={route.key}
-                    style={tw`w-[80px] flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
-                    activeOpacity={active ? 1 : 0.5}
-                    onPress={() => {
-                      setIndex(findIndex(routes, { key: route.key }))
-                    }}
-                  >
-                    <Text
-                      style={tw.style(
-                        fontSize.medium,
-                        `ml-2 flex-shrink`,
-                        active
-                          ? tw`text-[${colors.foreground}] font-medium`
-                          : tw`text-[${colors.default}]`
-                      )}
-                      numberOfLines={1}
+                  return (
+                    <TouchableOpacity
+                      {...tabBarItemProps}
+                      key={route.key}
+                      style={tw`w-auto flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
+                      activeOpacity={active ? 1 : 0.5}
+                      onPress={() => {
+                        setIndex(findIndex(routes, { key: route.key }))
+                      }}
                     >
-                      {route.title}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              }}
-            />
+                      <Text
+                        style={tw.style(
+                          fontSize.medium,
+                          active
+                            ? tw`text-[${colors.foreground}] font-medium`
+                            : tw`text-[${colors.default}]`
+                        )}
+                        numberOfLines={1}
+                      >
+                        {route.title}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                }}
+              />
+            </View>
           </View>
         )}
       />

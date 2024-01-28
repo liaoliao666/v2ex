@@ -193,22 +193,25 @@ function HomeScreen() {
             <TopNavBar />
 
             <View
-              style={tw`flex-row items-center border-b border-[${colors.divider}] border-solid`}
+              style={tw`flex-row items-center border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px] pl-4`}
             >
               <TabBar
                 {...props}
                 scrollEnabled
                 style={tw`flex-row flex-1 shadow-none bg-transparent`}
-                tabStyle={tw`w-[60px] h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`w-[30px] ml-[15px] bg-[${colors.foreground}] h-1 rounded-full`}
+                tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
                 indicatorContainerStyle={tw`border-b-0`}
-                renderTabBarItem={({ route }) => {
+                gap={16}
+                renderTabBarItem={tabBarItemProps => {
+                  const { route } = tabBarItemProps
                   const active = tabs[index].key === route.key
 
                   return (
                     <TouchableOpacity
+                      {...tabBarItemProps}
                       key={route.key}
-                      style={tw`w-[60px] items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
+                      style={tw`w-auto items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                       activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
                         if (active) {
@@ -229,10 +232,6 @@ function HomeScreen() {
                             ? tw`text-[${colors.foreground}] font-medium`
                             : tw`text-[${colors.default}]`
                         )}
-                        numberOfLines={1}
-                        ellipsizeMode={
-                          route.title.length > 4 ? 'middle' : undefined
-                        }
                       >
                         {route.title}
                       </Text>

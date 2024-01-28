@@ -130,47 +130,54 @@ function MyFollowingScreen() {
 
             <NavBar title="特别关注" style={tw`border-b-0`} />
 
-            <TabBar
-              {...props}
-              scrollEnabled
-              style={tw`flex-row shadow-none border-b border-[${colors.divider}] border-solid bg-transparent`}
-              tabStyle={tw`w-[100px] h-[${TAB_BAR_HEIGHT}px]`}
-              indicatorStyle={tw`w-[40px] ml-[30px] bg-[${colors.foreground}] h-1 rounded-full`}
-              indicatorContainerStyle={tw`border-b-0`}
-              renderTabBarItem={({ route }) => {
-                const active = routes[index].key === route.key
+            <View
+              style={tw`px-4 border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px]`}
+            >
+              <TabBar
+                {...props}
+                scrollEnabled
+                style={tw`flex-row flex-1 shadow-none bg-transparent`}
+                tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
+                indicatorContainerStyle={tw`border-b-0`}
+                gap={16}
+                renderTabBarItem={tabBarItemProps => {
+                  const { route } = tabBarItemProps
+                  const active = routes[index].key === route.key
 
-                return (
-                  <TouchableOpacity
-                    key={route.key}
-                    style={tw`w-[100px] flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
-                    activeOpacity={active ? 1 : 0.5}
-                    onPress={() => {
-                      setIndex(findIndex(routes, { key: route.key }))
-                    }}
-                  >
-                    {route.avatar && (
-                      <StyledImage
-                        style={tw`w-5 h-5 rounded-full`}
-                        source={route.avatar}
-                      />
-                    )}
-                    <Text
-                      style={tw.style(
-                        fontSize.medium,
-                        `ml-2 flex-shrink`,
-                        active
-                          ? tw`text-[${colors.foreground}] font-semibold`
-                          : tw`text-[${colors.default}] font-medium`
-                      )}
-                      numberOfLines={1}
+                  return (
+                    <TouchableOpacity
+                      {...tabBarItemProps}
+                      key={route.key}
+                      style={tw`w-auto flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
+                      activeOpacity={active ? 1 : 0.5}
+                      onPress={() => {
+                        setIndex(findIndex(routes, { key: route.key }))
+                      }}
                     >
-                      {route.title}
-                    </Text>
-                  </TouchableOpacity>
-                )
-              }}
-            />
+                      {route.avatar && (
+                        <StyledImage
+                          style={tw`w-5 h-5 mr-2 rounded-full`}
+                          source={route.avatar}
+                        />
+                      )}
+                      <Text
+                        style={tw.style(
+                          fontSize.medium,
+                          `flex-shrink`,
+                          active
+                            ? tw`text-[${colors.foreground}] font-semibold`
+                            : tw`text-[${colors.default}] font-medium`
+                        )}
+                        numberOfLines={1}
+                      >
+                        {route.title}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                }}
+              />
+            </View>
           </View>
         )}
       />
