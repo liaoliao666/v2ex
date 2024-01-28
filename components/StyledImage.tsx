@@ -284,7 +284,7 @@ function StyledImage({ source, ...props }: StyledImageProps) {
 
   if (isString(resolvedURI) && isSvgURL(resolvedURI)) {
     return (
-      <ErrorBoundary fallback={null}>
+      <ErrorBoundary fallbackRender={() => null}>
         <Suspense fallback={imageLoadingRender(props)}>
           <Svg uri={resolvedURI} {...(props as any)} />
         </Suspense>
