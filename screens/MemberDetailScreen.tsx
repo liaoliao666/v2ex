@@ -283,7 +283,7 @@ function MemberDetailScreen() {
               </View>
 
               <View
-                style={tw`px-4 border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px]`}
+                style={tw`px-4 border-b border-[${colors.divider}] bg-[${colors.base100}] border-solid h-[${TAB_BAR_HEIGHT}px]`}
               >
                 <TabBar
                   {...props}
