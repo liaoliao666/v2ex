@@ -90,18 +90,18 @@ export default function Navigation() {
         }
   }, [colors, colorScheme])
 
-  const [ready, setReady] = useState(false)
+  const [readyAndroid, setReadyAndroid] = useState(false)
 
   // https://github.com/liaoliao666/v2ex/issues/92
   useLayoutEffect(() => {
-    if (Platform.OS === 'android' && ready) {
+    if (Platform.OS === 'android' && readyAndroid) {
       NavigationBar.setBackgroundColorAsync(colors.base100)
       NavigationBar.setBorderColorAsync(colors.divider)
       NavigationBar.setButtonStyleAsync(
         colorScheme === 'dark' ? 'light' : 'dark'
       )
     }
-  }, [colors.base100, colors.divider, colorScheme, ready])
+  }, [colors.base100, colors.divider, colorScheme, readyAndroid])
 
   return (
     <NavigationContainer
@@ -110,7 +110,9 @@ export default function Navigation() {
       theme={theme}
       onReady={() => {
         sleep(300).then(() => {
-          setReady(true)
+          if (Platform.OS === 'android') {
+            setReadyAndroid(true)
+          }
           SplashScreen.hideAsync()
         })
       }}
