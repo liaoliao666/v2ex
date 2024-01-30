@@ -216,12 +216,10 @@ function NodeInfo({
   const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
-    <View>
-      <View
-        style={tw`${getTopBarBgCls()} absolute -top-[999px] bottom-3 inset-x-0 -z-10`}
-      />
+    <View style={tw.style(getTopBarBgCls())}>
+      <View style={tw`absolute -top-[999px] bottom-3 inset-x-0 -z-10`} />
 
-      <View style={tw`${getTopBarBgCls()} px-4 py-3 flex-row z-10`}>
+      <View style={tw`px-4 py-3 flex-row z-10`}>
         <StyledImage
           style={tw`w-12 h-12 mr-3 rounded`}
           source={node?.avatar_large}

@@ -94,9 +94,9 @@ export default function Navigation() {
 
   // https://github.com/liaoliao666/v2ex/issues/92
   useLayoutEffect(() => {
-    if (Platform.OS === 'android' && readyAndroid) {
+    if (readyAndroid) {
       NavigationBar.setBackgroundColorAsync(colors.base100)
-      NavigationBar.setBorderColorAsync(colors.divider)
+      NavigationBar.setBorderColorAsync(`transparent`)
       NavigationBar.setButtonStyleAsync(
         colorScheme === 'dark' ? 'light' : 'dark'
       )
