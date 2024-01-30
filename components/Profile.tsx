@@ -245,7 +245,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
                 style={tw`flex-row items-center`}
               >
                 <Text
-                  style={tw`text-[${colors.default}] mr-1 ${fontSize.medium} leading-none`}
+                  style={tw`text-[${colors.default}] mr-1 ${fontSize.medium}`}
                 >
                   个人主页
                 </Text>
@@ -308,9 +308,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             style={tw`w-16 h-16 mb-2 rounded-full bg-[${colors.base300}]`}
           />
           <View style={tw`flex-row items-center ml-2`}>
-            <Text
-              style={tw`${fontSize.xxxlarge} leading-none text-[${colors.foreground}]`}
-            >
+            <Text style={tw`${fontSize.xxxlarge} text-[${colors.foreground}]`}>
               点我登录
             </Text>
             <SimpleLineIcons

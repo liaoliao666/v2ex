@@ -1,11 +1,13 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 import { QueryClientProvider } from '@tanstack/react-query'
+// import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
+import * as NavigationBar from 'expo-navigation-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
 import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
-import { LogBox } from 'react-native'
+import { LogBox, Platform } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useDeviceContext } from 'twrnc'
@@ -25,11 +27,15 @@ import { sov2exArgsAtom } from './jotai/sov2exArgsAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
 import { topicDraftAtom } from './jotai/topicDraftAtom'
-import { colorsAtom, fontScaleAtom, themeNameAtom } from './jotai/uiAtom'
+import {
+  colorsAtom,
+  fontScaleAtom,
+  themeNameAtom,
+  uiAtom,
+} from './jotai/uiAtom'
 import Navigation from './navigation'
 import { k } from './servicies'
 import './utils/dayjsPlugins'
-// import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
 import { queryClient } from './utils/query'
 import tw from './utils/tw'
 
@@ -66,11 +72,12 @@ export default function App() {
 }
 
 function AppInitializer({ children }: { children: ReactNode }) {
-  const [colorScheme, profile, enabledAutoCheckin] = useAtomValue(
+  const [colorScheme, profile, enabledAutoCheckin, { colors }] = useAtomValue(
     waitForAll([
       colorSchemeAtom,
       profileAtom,
       enabledAutoCheckinAtom,
+      uiAtom,
       enabledMsgPushAtom,
       fontScaleAtom,
       enabledParseContentAtom,
@@ -90,10 +97,16 @@ function AppInitializer({ children }: { children: ReactNode }) {
 
   k.node.all.useQuery()
 
+  // https://github.com/liaoliao666/v2ex/issues/92
   useMemo(() => {
-    tw.setColorScheme(colorScheme)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    if (Platform.OS === 'android') {
+      NavigationBar.setBackgroundColorAsync(colors.base100)
+      NavigationBar.setBorderColorAsync(colors.divider)
+      NavigationBar.setButtonStyleAsync(
+        colorScheme === 'dark' ? 'light' : 'dark'
+      )
+    }
+  }, [colors.base100, colors.divider, colorScheme])
 
   useDeviceContext(tw, { withDeviceColorScheme: false })
 
