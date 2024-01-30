@@ -13,9 +13,10 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack'
+import * as NavigationBar from 'expo-navigation-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
-import { useMemo } from 'react'
+import { useLayoutEffect, useMemo, useState } from 'react'
 import { Platform } from 'react-native'
 
 import PageLayout from '@/components/PageLayout'
@@ -89,12 +90,30 @@ export default function Navigation() {
         }
   }, [colors, colorScheme])
 
+  const [ready, setReady] = useState(false)
+
+  // https://github.com/liaoliao666/v2ex/issues/92
+  useLayoutEffect(() => {
+    if (Platform.OS === 'android' && ready) {
+      NavigationBar.setBackgroundColorAsync(colors.base100)
+      NavigationBar.setBorderColorAsync(colors.divider)
+      NavigationBar.setButtonStyleAsync(
+        colorScheme === 'dark' ? 'light' : 'dark'
+      )
+    }
+  }, [colors.base100, colors.divider, colorScheme, ready])
+
   return (
     <NavigationContainer
       ref={navigationRef}
       linking={linking}
       theme={theme}
-      onReady={() => sleep(300).then(SplashScreen.hideAsync)}
+      onReady={() => {
+        sleep(300).then(() => {
+          setReady(true)
+          SplashScreen.hideAsync()
+        })
+      }}
     >
       <PageLayout>
         <StackNavigator />
