@@ -5,6 +5,7 @@ module.exports = function androiManifestPlugin(config) {
   return withAndroidManifest(config, async config => {
     let androidManifest = config.modResults.manifest
 
+    // https://github.com/liaoliao666/v2ex/issues/11
     androidManifest.queries.push({
       intent: [
         {
@@ -40,6 +41,9 @@ module.exports = function androiManifestPlugin(config) {
         ],
       })),
     })
+
+    // https://stackoverflow.com/questions/73901548/how-can-i-add-edit-android-manifest-meta-data-in-expo-managed
+    androidManifest.application[0].$['android:extractNativeLibs'] = 'true'
 
     return config
   })

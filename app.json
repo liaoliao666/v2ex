@@ -39,6 +39,18 @@
     },
     "runtimeVersion": {
       "policy": "sdkVersion"
-    }
+    },
+    "plugins": [
+      // https://github.com/expo/expo/issues/21036
+      [
+        "expo-navigation-bar",
+        {
+          "position": "absolute",
+          "backgroundColor": "#000000",
+          "buttonStyle": "light"
+        }
+      ],
+      ["./android-manifest.plugin"]
+    ]
   }
 }
