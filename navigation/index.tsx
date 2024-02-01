@@ -101,20 +101,20 @@ export default function Navigation() {
         colorScheme === 'dark' ? 'light' : 'dark'
       )
     }
-  }, [colors.base100, colors.divider, colorScheme, readyAndroid])
+  }, [colors.base100, colorScheme, readyAndroid])
 
   return (
     <NavigationContainer
       ref={navigationRef}
       linking={linking}
       theme={theme}
-      onReady={() => {
-        sleep(300).then(() => {
-          if (Platform.OS === 'android') {
-            setReadyAndroid(true)
-          }
-          SplashScreen.hideAsync()
-        })
+      onReady={async () => {
+        await sleep(300)
+        await SplashScreen.hideAsync()
+
+        if (Platform.OS === 'android') {
+          setReadyAndroid(true)
+        }
       }}
     >
       <PageLayout>

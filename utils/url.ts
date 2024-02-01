@@ -18,6 +18,12 @@ export function resolveURL(url: string) {
   if (url.startsWith('about://')) return url.replace('about://', getBaseURL())
   if (url.startsWith('https://v2ex.com'))
     return url.replace('https://v2ex.com', getBaseURL())
+  if (url.startsWith('http://www.v2ex.com'))
+    return url.replace('http://www.v2ex.com', getBaseURL())
+  if (url.startsWith('https://www.v2ex.com'))
+    return url.replace('https://www.v2ex.com', getBaseURL())
+  if (url.startsWith('www.v2ex.com'))
+    return url.replace('www.v2ex.com', getBaseURL())
   if (url.startsWith('/')) return `${getBaseURL()}${url}`
   return url
 }
