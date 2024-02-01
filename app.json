@@ -50,7 +50,42 @@
           "buttonStyle": "light"
         }
       ],
-      ["./android-manifest.plugin"]
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            // https://www.reddit.com/r/expo/comments/1abfxrq/sdk50_unusually_large_apk_size/
+            "useLegacyPackaging": true,
+            "enableProguardInReleaseBuilds": true,
+            "enableShrinkResourcesInReleaseBuilds": true,
+            "packagingOptions": {
+              "exclude": ["lib/x86/**"]
+            },
+            "manifestQueries": {
+              // https://github.com/liaoliao666/v2ex/issues/11
+              "intent": [
+                {
+                  "action": "VIEW",
+                  "data": { "scheme": "http" }
+                },
+                {
+                  "action": "VIEW",
+                  "data": { "scheme": "https" }
+                },
+                {
+                  "action": "VIEW",
+                  "data": { "scheme": "geo" }
+                },
+                {
+                  "action": "VIEW",
+                  "data": { "scheme": "google.navigation" }
+                }
+              ],
+              "package": ["com.liaoliao666.v2ex"]
+            }
+          }
+        }
+      ]
     ]
   }
 }

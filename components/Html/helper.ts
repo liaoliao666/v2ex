@@ -72,8 +72,6 @@ export function getDefaultProps({
             return
           }
 
-          console.log(href)
-
           const resolvedURL = resolveURL(href)
           const baseURL = getBaseURL()
 

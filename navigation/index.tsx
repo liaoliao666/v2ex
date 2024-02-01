@@ -13,10 +13,9 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack'
-import * as NavigationBar from 'expo-navigation-bar'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
-import { useLayoutEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Platform } from 'react-native'
 
 import PageLayout from '@/components/PageLayout'
@@ -56,6 +55,7 @@ import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import { sleep } from '@/utils/sleep'
 import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
+import { useNavigationBar } from '@/utils/useNavigationBar'
 
 import linking from './LinkingConfiguration'
 import { navigationRef } from './navigationRef'
@@ -91,17 +91,7 @@ export default function Navigation() {
   }, [colors, colorScheme])
 
   const [readyAndroid, setReadyAndroid] = useState(false)
-
-  // https://github.com/liaoliao666/v2ex/issues/92
-  useLayoutEffect(() => {
-    if (readyAndroid) {
-      NavigationBar.setBackgroundColorAsync(colors.base100)
-      NavigationBar.setBorderColorAsync(`transparent`)
-      NavigationBar.setButtonStyleAsync(
-        colorScheme === 'dark' ? 'light' : 'dark'
-      )
-    }
-  }, [colors.base100, colorScheme, readyAndroid])
+  useNavigationBar(readyAndroid)
 
   return (
     <NavigationContainer
