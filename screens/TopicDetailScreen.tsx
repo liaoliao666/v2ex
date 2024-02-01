@@ -33,6 +33,7 @@ import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox'
 import ReplyItem from '@/components/topic/ReplyItem'
 import TopicInfo, {
   LikeTopic,
+  MoreButton,
   ThankTopic,
   VoteButton,
 } from '@/components/topic/TopicInfo'
@@ -161,12 +162,7 @@ function TopicDetailScreen() {
         }}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
-          <TopicInfo
-            topic={topic}
-            onAppend={() => {
-              setReplyInfo({ topicId: topic.id, isAppend: true })
-            }}
-          >
+          <TopicInfo topic={topic}>
             <View
               style={tw.style(
                 `flex-row items-center pt-3 mt-2 border-t border-solid border-[${colors.divider}]`
@@ -391,7 +387,16 @@ function TopicDetailScreen() {
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
 
-        <NavBar>
+        <NavBar
+          right={
+            <MoreButton
+              topic={topic}
+              onAppend={() => {
+                setReplyInfo({ topicId: topic.id, isAppend: true })
+              }}
+            />
+          }
+        >
           <Animated.Text
             numberOfLines={1}
             style={tw.style(

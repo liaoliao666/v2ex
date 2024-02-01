@@ -22,27 +22,27 @@ import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
-import { navigation } from '@/navigation/navigationRef'
+import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
+import { isLargeTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { getBaseURL } from '@/utils/url'
 
 import Html from '../Html'
 import IconButton from '../IconButton'
 import Separator from '../Separator'
+import StyledButton from '../StyledButton'
 import StyledImage from '../StyledImage'
 
 export default function TopicInfo({
   topic,
-  onAppend,
   children,
 }: {
   topic: Topic
-  onAppend: () => void
   children: ReactElement
 }) {
   const [isParsing, setIsParsing] = useState(
@@ -121,7 +121,18 @@ export default function TopicInfo({
           </Separator>
         </View>
 
-        <MoreButton topic={topic} onAppend={onAppend} />
+        <StyledButton
+          type="tag"
+          onPress={() => {
+            if (isLargeTablet() && getCurrentRouteName() === 'NodeTopics') {
+              navigation.replace('NodeTopics', { name: topic.node?.name! })
+            } else {
+              navigation.push('NodeTopics', { name: topic.node?.name! })
+            }
+          }}
+        >
+          {topic.node?.title}
+        </StyledButton>
       </View>
 
       <Text
@@ -420,7 +431,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
   )
 }
 
-function MoreButton({
+export function MoreButton({
   topic,
   onAppend,
 }: {
