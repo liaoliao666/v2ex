@@ -217,7 +217,9 @@ function NodeInfo({
 
   return (
     <View style={tw.style(getTopBarBgCls())}>
-      <View style={tw`absolute -top-[999px] bottom-3 inset-x-0 -z-10`} />
+      <View
+        style={tw`${getTopBarBgCls()} absolute -top-[999px] bottom-3 inset-x-0 -z-10`}
+      />
 
       <View style={tw`px-4 py-3 flex-row z-10`}>
         <StyledImage

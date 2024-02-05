@@ -136,24 +136,25 @@ function SearchOptionsScreen() {
               )}
             />
 
-            {sort === 'created' && (
-              <FormControl
-                style={tw`flex-1 ml-2`}
-                control={control}
-                name="order"
-                label="发帖时间"
-                render={({ field: { onChange, value } }) => (
-                  <RadioButtonGroup
-                    options={[
-                      { label: '降序', value: '0' },
-                      { label: '升序', value: '1' },
-                    ]}
-                    value={value}
-                    onChange={onChange}
-                  />
-                )}
-              />
-            )}
+            <View style={tw`flex-1 ml-2`}>
+              {sort === 'created' && (
+                <FormControl
+                  control={control}
+                  name="order"
+                  label="发帖时间"
+                  render={({ field: { onChange, value } }) => (
+                    <RadioButtonGroup
+                      options={[
+                        { label: '降序', value: '0' },
+                        { label: '升序', value: '1' },
+                      ]}
+                      value={value}
+                      onChange={onChange}
+                    />
+                  )}
+                />
+              )}
+            </View>
           </View>
         </View>
 

@@ -814,7 +814,7 @@ function MemberDetailSkeleton({ children }: { children: ReactNode }) {
           style={tw`p-0.5 bg-[${colors.base100}] rounded-full`}
         >
           <View
-            style={tw`w-[81.25px] h-[81.25px] rounded-full bg-[${colors.base300}]`}
+            style={tw`w-[81.25px] h-[81.25px] rounded-full bg-[${colors.neutral}]`}
           />
         </View>
       </View>

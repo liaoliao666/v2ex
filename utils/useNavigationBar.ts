@@ -16,8 +16,6 @@ export function useNavigationBar(readyAndroid: boolean) {
   useLayoutEffect(() => {
     if (!readyAndroid) return
 
-    const isChange = async () =>
-      colors.base100 !== (await NavigationBar.getBackgroundColorAsync())
     const change = () => {
       NavigationBar.setBackgroundColorAsync(colors.base100)
       NavigationBar.setBorderColorAsync(`transparent`)
@@ -27,16 +25,16 @@ export function useNavigationBar(readyAndroid: boolean) {
     }
     change()
 
-    const l1 = AppState.addEventListener('change', async () => {
-      if (await isChange()) {
+    const handleChange = async () => {
+      const changed =
+        colors.base100 !== (await NavigationBar.getBackgroundColorAsync())
+      if (changed) {
         sleep(100).then(change)
       }
-    })
-    const l2 = AppState.addEventListener('focus', async () => {
-      if (await isChange()) {
-        sleep(100).then(change)
-      }
-    })
+    }
+
+    const l1 = AppState.addEventListener('change', handleChange)
+    const l2 = AppState.addEventListener('focus', handleChange)
 
     return () => {
       l1.remove()

@@ -79,7 +79,7 @@ function BaseImage({
       }
       onError?.(err)
     },
-    placeholder: genPlaceholder(colors.base300),
+    placeholder: genPlaceholder(colors.neutral),
     placeholderContentFit: 'cover',
     style: tw.style(
       // Compute image size if style has no size
@@ -116,7 +116,7 @@ function imageLoadingRender({
     <View
       style={tw.style(
         !hasSize(style) && computeImageDispalySize(containerWidth),
-        `bg-[${getUI().colors.base300}]`,
+        `bg-[${getUI().colors.neutral}]`,
         style
       )}
     />

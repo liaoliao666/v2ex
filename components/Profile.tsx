@@ -291,7 +291,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
             }
           }}
         >
-          <View style={tw`w-8 h-8 rounded-full bg-[${colors.base300}]`} />
+          <View style={tw`w-8 h-8 rounded-full bg-[${colors.neutral}]`} />
         </TouchableOpacity>
       ) : (
         <TouchableOpacity
@@ -305,7 +305,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
           }}
         >
           <View
-            style={tw`w-16 h-16 mb-2 rounded-full bg-[${colors.base300}]`}
+            style={tw`w-16 h-16 mb-2 rounded-full bg-[${colors.neutral}]`}
           />
           <View style={tw`flex-row items-center ml-2`}>
             <Text style={tw`${fontSize.xxxlarge} text-[${colors.foreground}]`}>

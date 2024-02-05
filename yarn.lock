@@ -2165,6 +2165,11 @@
   dependencies:
     invariant "^2.2.4"
 
+"@react-native-segmented-control/segmented-control@^2.5.0":
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/@react-native-segmented-control/segmented-control/-/segmented-control-2.5.0.tgz#3a27a391b9ab9247d97038f8ad917f22ec93bb88"
+  integrity sha512-16tX2PPdeH1pQK/oVjNloU3ZKAKjg2NkllissESG6Xb7Cc7gOBuKDEqQgmpfb/9Wb/gGzF+7lhNbOnFjFJmyvA==
+
 "@react-native/assets-registry@0.73.1", "@react-native/assets-registry@~0.73.1":
   version "0.73.1"
   resolved "https://registry.yarnpkg.com/@react-native/assets-registry/-/assets-registry-0.73.1.tgz#e2a6b73b16c183a270f338dc69c36039b3946e85"
@@ -7519,10 +7524,10 @@ react-native@0.73.2:
     ws "^6.2.2"
     yargs "^17.6.2"
 
-react-query-kit@^3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-3.0.0.tgz#010293d17dcd7b8e40de6d734c4c7a176c93b66a"
-  integrity sha512-pZpcORS3d1P8By+CBH1vbBjNGzJ4a2zkaWKysVtHWkpc/s/RHFgNUzGW5tKW8u4HSPqUaoKTQtUSz4WaKu1Zzg==
+react-query-kit@^3.1.1:
+  version "3.1.1"
+  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-3.1.1.tgz#2eb47112615ec2aa63d4dfb0a4863f36ec68090f"
+  integrity sha512-5WemA4dJ8nPTs+gazNe9j0nqEZIqOsPBU5AoWtarh3WPF83BZ+TIoQueEMxsUvUzZI/Nnn2uQ5wA6HYsLX1iSg==
 
 react-refresh@0.14.0, react-refresh@^0.14.0:
   version "0.14.0"

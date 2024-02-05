@@ -130,7 +130,7 @@ export default function LoginScreen() {
                 style={tw`aspect-4 mb-2 w-full`}
               >
                 <StyledImage
-                  style={tw`w-full h-full rounded-lg bg-[${colors.base300}]`}
+                  style={tw`w-full h-full rounded-lg bg-[${colors.neutral}]`}
                   source={{
                     uri: signinInfoQuery.data?.captcha,
                     headers: signinInfoQuery.data?.cookie

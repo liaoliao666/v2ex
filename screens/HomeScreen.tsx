@@ -476,7 +476,7 @@ function TopNavBar() {
               </Badge>
             ) : (
               <View
-                style={tw`w-8 h-8 items-center justify-center rounded-full bg-[${colors.base300}]`}
+                style={tw`w-8 h-8 items-center justify-center rounded-full bg-[${colors.neutral}]`}
               />
             )}
           </Pressable>
