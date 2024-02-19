@@ -134,7 +134,6 @@ function WriteTopicScreen() {
       reset()
     } else {
       store.set(topicDraftAtom, RESET)
-      console.log(store.get(topicDraftAtom))
       reset(store.get(topicDraftAtom))
     }
   }

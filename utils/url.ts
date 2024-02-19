@@ -20,7 +20,7 @@ export function resolveURL(url: string) {
   if (url.startsWith('about://')) return url.replace('about://', getBaseURL())
   if (
     supportPaths.some(path =>
-      new RegExp(`^(https?:\/\/)?(\w+\.)?v2ex\.com/${path}/`).test(url)
+      new RegExp(`^(https?:\\/\\/)?(\\w+\\.)?v2ex\\.com\/${path}\/`).test(url)
     )
   ) {
     return url.replace(
@@ -33,7 +33,6 @@ export function resolveURL(url: string) {
 }
 
 const svgURLS = ['img.shields.io', 'badgen.net', 'img.badgesize.io']
-
 export function isSvgURL(url: string) {
   return url.includes('.svg') || svgURLS.some(svgURL => url.includes(svgURL))
 }
