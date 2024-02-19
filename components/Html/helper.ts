@@ -83,6 +83,8 @@ export function getDefaultProps({
             const [, routeName, arg] =
               resolvedURL.slice(baseURL.length).match(/\/(\w+)\/(\w+)/) || []
 
+            console.log(`arg:`, arg)
+
             switch (routeName) {
               case 't':
                 navigation.push('TopicDetail', {

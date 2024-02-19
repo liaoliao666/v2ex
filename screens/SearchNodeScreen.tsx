@@ -49,21 +49,18 @@ export default function SearchNodeScreen() {
     ),
   })
 
-  const handlePressNodeItem = useCallback((node: Node) => {
-    navigation.goBack()
-    params.onPressNodeItem(node)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
   const renderNodeItem: ListRenderItem<Node> = useCallback(
     ({ item }) => (
       <NodeItem
         key={`${item.title}_${item.name}`}
         node={item}
-        onPressNodeItem={handlePressNodeItem}
+        onPress={() => {
+          navigation.goBack()
+          params.onPressNodeItem(item)
+        }}
       />
     ),
-    [handlePressNodeItem]
+    [params]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)

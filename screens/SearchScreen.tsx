@@ -76,19 +76,17 @@ export default function SearchScreen() {
     ),
   })
 
-  const handleClickNode = useCallback((node: Node) => {
-    navigation.navigate('NodeTopics', { name: node.name })
-  }, [])
-
   const renderNodeItem: ListRenderItem<Node> = useCallback(
     ({ item }) => (
       <NodeItem
         key={`${item.title}_${item.name}`}
         node={item}
-        onPressNodeItem={handleClickNode}
+        onPress={() => {
+          navigation.navigate('NodeTopics', { name: item.name })
+        }}
       />
     ),
-    [handleClickNode]
+    []
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)

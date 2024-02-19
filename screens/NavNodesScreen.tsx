@@ -64,12 +64,12 @@ function NavNodesScreen() {
           onPress={() => {
             navigation.navigate('NodeTopics', { name: node.name })
           }}
-          style={tw`w-1/3 py-1 items-center h-[${ITEM_HEIGHT}px]`}
+          style={tw`w-1/3 py-1 items-center justify-around h-[${ITEM_HEIGHT}px]`}
         >
           <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
 
           <Text
-            style={tw`${fontSize.small} mt-auto text-[${colors.foreground}] text-center`}
+            style={tw`${fontSize.small} text-[${colors.foreground}] text-center`}
             numberOfLines={1}
           >
             {node.title}

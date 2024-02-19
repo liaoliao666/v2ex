@@ -11,6 +11,7 @@ import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 import IconButton from './IconButton'
+import { NAV_BAR_HEIGHT } from './NavBar'
 
 export interface StyledImageViewerProps
   extends Omit<ComponentProps<typeof ImageViewer>, 'onCancel'> {
@@ -34,7 +35,7 @@ export default function StyledImageViewer({
         onCancel={onClose}
         renderHeader={currentIndex => (
           <View
-            style={tw`pt-[${safeAreaInsets.top}px] px-4 z-20 absolute top-0 inset-x-0 flex-row justify-between`}
+            style={tw`h-[${NAV_BAR_HEIGHT}px] w-full px-4 z-20 absolute top-[${safeAreaInsets.top}px] inset-x-0 flex-row justify-between items-center`}
           >
             <IconButton
               size={24}
@@ -57,7 +58,7 @@ export default function StyledImageViewer({
         )}
         renderIndicator={(currentIndex, allSize) => (
           <View
-            style={tw`pt-[${safeAreaInsets.top}px] px-4 z-10 absolute top-0 inset-x-0 flex-row justify-center`}
+            style={tw`px-4 z-10 absolute h-[${NAV_BAR_HEIGHT}px] top-[${safeAreaInsets.top}px] inset-x-0 flex-row items-center justify-center`}
           >
             <Text style={tw`text-white ${fontSize.large}`}>
               {currentIndex + ' / ' + allSize}

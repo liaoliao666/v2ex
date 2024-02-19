@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
+import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import {
@@ -283,13 +284,7 @@ function TopicDetailScreen() {
             <StyledActivityIndicator style={tw`py-4`} />
           ) : null
         }
-        ListEmptyComponent={
-          <View style={tw.style(`items-center py-32`)}>
-            <Text style={tw`text-[${colors.default}] ${fontSize.small}`}>
-              目前还没有回复
-            </Text>
-          </View>
-        }
+        ListEmptyComponent={<Empty description="目前还没有回复" />}
       />
 
       {replyInfo ? (

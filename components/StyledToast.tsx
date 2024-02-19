@@ -1,3 +1,6 @@
+import { Octicons } from '@expo/vector-icons'
+import { getScale } from 'color2k'
+import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast, {
   BaseToast,
@@ -7,7 +10,9 @@ import Toast, {
   ToastConfigParams,
 } from 'react-native-toast-message'
 
-import { getUI } from '@/jotai/uiAtom'
+import { store } from '@/jotai/store'
+import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { formatColor, getUI } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
 const toastConfig: ToastConfig = {
@@ -18,14 +23,33 @@ const toastConfig: ToastConfig = {
 
 function getToastProps(props: ToastConfigParams<any>) {
   const { fontSize, colors } = getUI()
+  const color = props.type === 'error' ? 'rgb(255,77,79)' : colors.primary
+  const iconName =
+    props.type === 'success'
+      ? 'check-circle-fill'
+      : props.type === 'error'
+      ? 'x-circle-fill'
+      : 'info'
+  const bgColor = formatColor(
+    getScale(
+      color,
+      store.get(colorSchemeAtom) === 'dark' ? 'black' : 'white'
+    )(0.8)
+  )
+
   return {
     ...props,
-    contentContainerStyle: tw`overflow-hidden dark:bg-[#262626]`,
+    style: tw`rounded-lg border-[${color}] bg-[${bgColor}] border border-solid border-l border-l-[${color}]`,
+    contentContainerStyle: tw`overflow-hidden pl-0`,
     text1Style: tw.style(
-      `${fontSize.medium} text-[${colors.foreground}]`,
-      !props.text2 && `font-normal`
+      `${fontSize.medium} font-semibold text-[${colors.foreground}]`
     ),
-    text2Style: tw`${fontSize.small}`,
+    text2Style: tw`${fontSize.small} text-[${colors.default}]`,
+    renderLeadingIcon: () => (
+      <View style={tw`px-4 justify-center`}>
+        <Octicons name={iconName} size={24} color={color} />
+      </View>
+    ),
   }
 }
 

@@ -3,7 +3,7 @@ import { AntDesign, MaterialIcons } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { compact } from 'lodash-es'
-import { Fragment, ReactElement, useState } from 'react'
+import { Fragment, ReactNode, useState } from 'react'
 import {
   Platform,
   Pressable,
@@ -43,7 +43,7 @@ export default function TopicInfo({
 }: {
   topic: Topic
   onAppend: () => void
-  children: ReactElement
+  children: ReactNode
 }) {
   const [isParsing, setIsParsing] = useState(
     store.get(enabledParseContentAtom)!

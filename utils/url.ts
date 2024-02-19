@@ -13,18 +13,22 @@ export function getURLSearchParams(url?: string): Record<string, string> {
   return params
 }
 
+const supportPaths = ['t', 'member', 'go']
 export function resolveURL(url: string) {
   if (url.startsWith('//')) return `https:${url}`
-  if (url.startsWith('about://')) return url.replace('about://', getBaseURL())
-  if (url.startsWith('https://v2ex.com'))
-    return url.replace('https://v2ex.com', getBaseURL())
-  if (url.startsWith('http://www.v2ex.com'))
-    return url.replace('http://www.v2ex.com', getBaseURL())
-  if (url.startsWith('https://www.v2ex.com'))
-    return url.replace('https://www.v2ex.com', getBaseURL())
-  if (url.startsWith('www.v2ex.com'))
-    return url.replace('www.v2ex.com', getBaseURL())
   if (url.startsWith('/')) return `${getBaseURL()}${url}`
+  if (url.startsWith('about://')) return url.replace('about://', getBaseURL())
+  if (
+    supportPaths.some(path =>
+      new RegExp(`^(https?:\/\/)?(\w+\.)?v2ex\.com/${path}/`).test(url)
+    )
+  ) {
+    return url.replace(
+      url.match(/^(https?:\/\/)?(\w+\.)?v2ex\.com/)![0],
+      getBaseURL()
+    )
+  }
+
   return url
 }
 

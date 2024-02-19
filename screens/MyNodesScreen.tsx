@@ -58,12 +58,12 @@ function MyNodesScreen() {
           onPress={() => {
             navigation.navigate('NodeTopics', { name: node.name })
           }}
-          style={tw`w-1/4 py-1 items-center h-[${ITEM_HEIGHT}px]`}
+          style={tw`w-1/4 py-1 items-center justify-around h-[${ITEM_HEIGHT}px]`}
         >
           <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
 
           <Text
-            style={tw`${fontSize.small} mt-auto text-[${colors.foreground}] text-center`}
+            style={tw`${fontSize.small} text-[${colors.foreground}] text-center`}
             numberOfLines={1}
           >
             {node.title}
@@ -82,7 +82,7 @@ function MyNodesScreen() {
     <View style={tw`flex-1`}>
       <FlatList
         key={colorScheme}
-        contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
+        contentContainerStyle={tw`pb-4 pt-[${navbarHeight + 16}px]`}
         renderItem={renderItem}
         data={myNodes}
         numColumns={4}

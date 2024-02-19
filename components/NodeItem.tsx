@@ -12,20 +12,12 @@ import StyledImage from './StyledImage'
 
 export default memo(NodeItem)
 
-function NodeItem({
-  node,
-  onPressNodeItem,
-}: {
-  node: Node
-  onPressNodeItem: (node: Node) => void
-}) {
+function NodeItem({ node, onPress }: { node: Node; onPress?: () => void }) {
   const { colors, fontSize } = useAtomValue(uiAtom)
   return (
     <TouchableOpacity
       style={tw`h-[${NAV_BAR_HEIGHT}px] px-4 flex-row items-center`}
-      onPress={() => {
-        onPressNodeItem(node)
-      }}
+      onPress={onPress}
     >
       <StyledImage style={tw`w-5 h-5`} source={node.avatar_large} />
       <Text style={tw`${fontSize.medium} text-[${colors.foreground}] ml-2`}>
@@ -34,5 +26,3 @@ function NodeItem({
     </TouchableOpacity>
   )
 }
-
-NodeItem.height = NAV_BAR_HEIGHT
