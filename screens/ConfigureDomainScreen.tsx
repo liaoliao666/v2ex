@@ -58,7 +58,16 @@ function ConfigureDomainScreen() {
         <View style={tw`w-3/4 mx-auto mt-8`}>
           <Text style={tw`${fontSize.medium} text-[${colors.foreground}] mb-4`}>
             如果你因为一些原因无法访问v2ex的域名，你可以选择配置调用 API
-            的域名，支持协议+ip+端口。
+            的域名，或
+            <Text
+              style={tw`text-[${colors.primary}]`}
+              onPress={() => {
+                navigation.navigate('TopicDetail', { id: 18591 })
+              }}
+            >
+              手动选择离你最近的 V2EX 服务器
+            </Text>
+            ，支持协议+ip+端口。
           </Text>
 
           <FormControl

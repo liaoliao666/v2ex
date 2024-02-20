@@ -10,7 +10,7 @@ import Toast from 'react-native-toast-message'
 import { navigation } from '@/navigation/navigationRef'
 import { BASE64_PREFIX } from '@/servicies/helper'
 import tw from '@/utils/tw'
-import { getBaseURL, resolveURL } from '@/utils/url'
+import { resolveURL } from '@/utils/url'
 
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
@@ -71,38 +71,38 @@ export function getDefaultProps({
             )
             return
           }
-
           const resolvedURL = resolveURL(href)
-          const baseURL = getBaseURL()
 
-          if (resolvedURL.startsWith(baseURL)) {
+          for (const path of ['t', 'member', 'go']) {
+            const matched = resolvedURL.match(
+              new RegExp(
+                `^(?:https?:\\/\\/)?(?:\\w+\\.)?v2ex\\.com\/${path}\/(\\w+)`
+              )
+            )
+            if (!matched) continue
             if (inModalScreen) {
               navigation.goBack()
             }
+            const arg = matched[1]
 
-            const [, routeName, arg] =
-              resolvedURL.slice(baseURL.length).match(/\/(\w+)\/(\w+)/) || []
-
-            switch (routeName) {
+            switch (path) {
               case 't':
                 navigation.push('TopicDetail', {
                   id: parseInt(arg, 10),
                 })
-                break
+                return
               case 'member':
                 navigation.push('MemberDetail', { username: arg })
-                break
+                return
               case 'go':
                 navigation.push('NodeTopics', {
                   name: arg,
                 })
-                break
-              default:
-                navigation.navigate('Webview', { url: resolvedURL })
+                return
             }
-          } else {
-            navigation.navigate('Webview', { url: resolvedURL })
           }
+
+          navigation.navigate('Webview', { url: resolvedURL })
         },
       },
     },
