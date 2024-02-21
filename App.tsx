@@ -5,7 +5,7 @@ import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
-import { ReactElement, ReactNode, Suspense } from 'react'
+import { ReactElement, ReactNode, Suspense, useMemo } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
@@ -66,7 +66,7 @@ export default function App() {
 }
 
 function AppInitializer({ children }: { children: ReactNode }) {
-  const [profile, enabledAutoCheckin] = useAtomValue(
+  const [profile, enabledAutoCheckin, colorScheme] = useAtomValue(
     waitForAll([
       profileAtom,
       enabledAutoCheckinAtom,
@@ -83,6 +83,11 @@ function AppInitializer({ children }: { children: ReactNode }) {
       themeNameAtom,
     ])
   )
+
+  useMemo(() => {
+    tw.setColorScheme(colorScheme)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   k.member.checkin.useQuery({
     enabled: !!profile && enabledAutoCheckin,
