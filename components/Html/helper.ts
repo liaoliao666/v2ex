@@ -7,10 +7,12 @@ import {
 } from 'react-native-render-html'
 import Toast from 'react-native-toast-message'
 
+import { enabledWebviewAtom } from '@/jotai/enabledWebviewAtom'
+import { store } from '@/jotai/store'
 import { navigation } from '@/navigation/navigationRef'
 import { BASE64_PREFIX } from '@/servicies/helper'
 import tw from '@/utils/tw'
-import { resolveURL } from '@/utils/url'
+import { openURL, resolveURL } from '@/utils/url'
 
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
@@ -102,7 +104,11 @@ export function getDefaultProps({
             }
           }
 
-          navigation.navigate('Webview', { url: resolvedURL })
+          if (await store.get(enabledWebviewAtom)) {
+            navigation.navigate('Webview', { url: resolvedURL })
+          } else {
+            openURL(resolvedURL)
+          }
         },
       },
     },

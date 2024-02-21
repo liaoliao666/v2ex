@@ -3,6 +3,7 @@ import {
   Ionicons,
   MaterialCommunityIcons,
   MaterialIcons,
+  Octicons,
 } from '@expo/vector-icons'
 import { Image } from 'expo-image'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -25,6 +26,7 @@ import { deletedNamesAtom } from '@/jotai/deletedNamesAtom'
 import { enabledAutoCheckinAtom } from '@/jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from '@/jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
+import { enabledWebviewAtom } from '@/jotai/enabledWebviewAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
@@ -61,6 +63,8 @@ function SettingScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const [theme, setTheme] = useAtom(themeAtom)
+
+  const [enabledWebview, setEnabledWebview] = useAtom(enabledWebviewAtom)
 
   const isSignined = !!profile?.once
 
@@ -157,6 +161,29 @@ function SettingScreen() {
                       '关闭后将不会自动解析回复中的Base64和图片URL、![]()、<img />'
                     )
                   setEnabledParseContent(!enabledParseContent)
+                } catch (error) {
+                  // empty
+                }
+              }}
+            />
+          }
+          pressable={false}
+        />
+
+        <ListItem
+          label="内置浏览器"
+          icon={<Octicons name="browser" size={24} color={colors.foreground} />}
+          action={
+            <StyledSwitch
+              value={enabledWebview}
+              onValueChange={async () => {
+                try {
+                  if (enabledWebview)
+                    await confirm(
+                      '内置浏览器',
+                      '关闭后打开链接时将使用外部浏览器'
+                    )
+                  setEnabledWebview(!enabledWebview)
                 } catch (error) {
                   // empty
                 }
