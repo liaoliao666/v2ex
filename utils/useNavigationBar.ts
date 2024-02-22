@@ -17,8 +17,10 @@ export function useNavigationBar(readyAndroid: boolean) {
     if (!readyAndroid) return
 
     const change = () => {
-      NavigationBar.setBackgroundColorAsync(colors.base100)
+      // https://github.com/facebook/react-native/issues/38152#issuecomment-1649452526
+      NavigationBar.setPositionAsync('relative')
       NavigationBar.setBorderColorAsync(`transparent`)
+      NavigationBar.setBackgroundColorAsync(colors.base100)
       NavigationBar.setButtonStyleAsync(
         colorScheme === 'dark' ? 'light' : 'dark'
       )
