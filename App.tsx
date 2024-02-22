@@ -19,6 +19,7 @@ import { deviceTypeAtom } from './jotai/deviceTypeAtom'
 import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from './jotai/enabledParseContent'
+import { enabledWebviewAtom } from './jotai/enabledWebviewAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { imgurConfigAtom } from './jotai/imgurConfigAtom'
 import { profileAtom } from './jotai/profileAtom'
@@ -81,6 +82,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       baseUrlAtom,
       colorsAtom,
       themeNameAtom,
+      enabledWebviewAtom,
     ])
   )
 

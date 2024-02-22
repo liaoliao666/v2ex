@@ -104,7 +104,7 @@ export function getDefaultProps({
             }
           }
 
-          if (await store.get(enabledWebviewAtom)) {
+          if (store.get(enabledWebviewAtom)) {
             navigation.navigate('Webview', { url: resolvedURL })
           } else {
             openURL(resolvedURL)
