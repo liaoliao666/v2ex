@@ -73,6 +73,11 @@ export function getDefaultProps({
             )
             return
           }
+
+          if (inModalScreen) {
+            navigation.goBack()
+          }
+
           const resolvedURL = resolveURL(href)
 
           for (const path of ['t', 'member', 'go']) {
@@ -82,9 +87,6 @@ export function getDefaultProps({
               )
             )
             if (!matched) continue
-            if (inModalScreen) {
-              navigation.goBack()
-            }
             const arg = matched[1]
 
             switch (path) {

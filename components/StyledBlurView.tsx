@@ -26,7 +26,6 @@ export const supportsBlurviewColors = [
   themeColorsMap.lemonade.base100,
   themeColorsMap.autumn.base100,
   themeColorsMap.acid.base100,
-  themeColorsMap.garden.base100,
   themeColorsMap.cupcake.base100,
 ]
 
