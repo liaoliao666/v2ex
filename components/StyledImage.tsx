@@ -1,3 +1,4 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { load } from 'cheerio'
 import { toRgba } from 'color2k'
 import { Image, ImageBackground, ImageProps } from 'expo-image'
@@ -14,7 +15,7 @@ import {
 } from 'lodash-es'
 import { Suspense } from 'react'
 import { ErrorBoundary } from 'react-error-boundary'
-import { View, ViewStyle } from 'react-native'
+import { TouchableOpacity, View, ViewStyle } from 'react-native'
 import { Text } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 import { suspend } from 'suspend-react'
@@ -28,12 +29,14 @@ import useUpdate from '@/utils/useUpdate'
 
 export interface StyledImageProps extends ImageProps {
   containerWidth?: number
-  isGif?: boolean
+  showGifIcon?: boolean
 }
 
-type Size = { width: number; height: number }
+type UriInfo = { width: number; height: number } | 'error' | 'refetching'
 
-export const uriToSize = new Map<string | undefined, Size | 'error'>()
+export const uriInfo = new Map<string | undefined, UriInfo>()
+const MAX_IMAGE_HEIGHT = 510
+const BROKEN_IMAGE_SIZE = 24
 
 const genPlaceholder = memoize((color: string) => {
   const [r, g, b, a = 1] = toRgba(color)
@@ -52,12 +55,12 @@ function BaseImage({
   onLoad,
   onError,
   containerWidth,
-  isGif,
+  showGifIcon,
   ...props
 }: StyledImageProps) {
   const { colors } = useAtomValue(uiAtom)
   const uri = isObject(source) && !isArray(source) ? source.uri : undefined
-  const size = uriToSize.get(uri)
+  const size = uriInfo.get(uri)
   const update = useUpdate()
   const imageProps: ImageProps = {
     ...props,
@@ -65,7 +68,7 @@ function BaseImage({
     onLoad: ev => {
       const newSize: any = pick(ev.source, ['width', 'height'])
       if (!isEqual(size, newSize)) {
-        uriToSize.set(uri, newSize)
+        uriInfo.set(uri, newSize)
         if (!hasSize(style)) update()
       }
       onLoad?.(ev)
@@ -74,7 +77,7 @@ function BaseImage({
       // TODO: This is a trick
       // maybe fixed in next expo-image version
       if (!hasSize(size)) {
-        uriToSize.set(uri, 'error')
+        uriInfo.set(uri, 'error')
         if (!hasSize(style)) update()
       }
       onError?.(err)
@@ -88,7 +91,30 @@ function BaseImage({
     ),
   }
 
-  if (isGif) {
+  if (size === 'error')
+    return (
+      <TouchableOpacity
+        onPress={() => {
+          uriInfo.set(uri, 'refetching')
+          update()
+        }}
+        style={hasSize(style) && [style, tw`items-center justify-center`]}
+      >
+        <MaterialCommunityIcons
+          name="image-off-outline"
+          size={
+            hasSize(style) &&
+            isFinite(style.width) &&
+            style.width < BROKEN_IMAGE_SIZE
+              ? style.width
+              : BROKEN_IMAGE_SIZE
+          }
+          color={colors.default}
+        />
+      </TouchableOpacity>
+    )
+
+  if (showGifIcon) {
     return (
       <ImageBackground {...imageProps}>
         <View
@@ -202,14 +228,14 @@ const Gif = (props: StyledImageProps) => {
     ? props.source
     : (props.source as any).uri
   const { uri, size } = suspend(comporessImage, [sourceURI!])
-  if (!uriToSize.has(uri) && hasSize(size)) {
-    uriToSize.set(uri, size)
+  if (!uriInfo.has(uri) && hasSize(size)) {
+    uriInfo.set(uri, size)
   }
 
   return (
     <StyledImage
       {...props}
-      isGif={sourceURI !== uri}
+      showGifIcon={sourceURI !== uri}
       source={{
         ...(isObject(props.source) && !isArray(props.source) && props.source),
         uri,
@@ -220,15 +246,12 @@ const Gif = (props: StyledImageProps) => {
 
 function computeImageDispalySize(
   containerWidth?: number,
-  size?: Size | 'error'
+  size?: UriInfo
 ): ViewStyle {
-  const MAX_IMAGE_HEIGHT = 510
-
-  // Hide image if error
-  if (size === 'error') {
+  if (size === 'refetching' || size === 'error') {
     return {
-      width: 0,
-      height: 0,
+      width: BROKEN_IMAGE_SIZE,
+      height: BROKEN_IMAGE_SIZE,
     }
   }
 

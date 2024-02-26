@@ -19,7 +19,7 @@ import tw from '@/utils/tw'
 import { resolveURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
 
-import { uriToSize } from '../StyledImage'
+import { uriInfo } from '../StyledImage'
 import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
 import IFrameRenderer from './IFrameRenderer'
@@ -95,9 +95,9 @@ function Html({
                 await Promise.all(
                   imageUrls.map(async item => {
                     const resolvedURI = resolveURL(item.url)
-                    const size = uriToSize.get(resolvedURI)
+                    const size = uriInfo.get(resolvedURI)
 
-                    if (size === 'error') return false
+                    if (size === 'error' || size === 'refetching') return false
 
                     let localURI = await Image.getCachePathAsync(resolvedURI)
 
