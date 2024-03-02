@@ -91,14 +91,14 @@ function BaseImage({
     ),
   }
 
-  if (size === 'error' && !!uri)
+  if (size === 'error')
     return (
       <TouchableOpacity
         onPress={() => {
           uriInfo.set(uri, 'refetching')
           update()
         }}
-        style={hasSize(style) && [style, tw`items-center justify-center`]}
+        style={[style, hasSize(style) && tw`items-center justify-center`]}
       >
         <MaterialCommunityIcons
           name="image-off-outline"
