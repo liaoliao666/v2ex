@@ -23,6 +23,7 @@ import { enabledWebviewAtom } from './jotai/enabledWebviewAtom'
 import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { imgurConfigAtom } from './jotai/imgurConfigAtom'
 import { profileAtom } from './jotai/profileAtom'
+import { searchHistoryAtom } from './jotai/searchHistoryAtom'
 import { sov2exArgsAtom } from './jotai/sov2exArgsAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
@@ -83,6 +84,7 @@ function AppInitializer({ children }: { children: ReactNode }) {
       colorsAtom,
       themeNameAtom,
       enabledWebviewAtom,
+      searchHistoryAtom,
     ])
   )
 

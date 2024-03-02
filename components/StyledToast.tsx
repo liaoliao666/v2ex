@@ -23,7 +23,7 @@ const toastConfig: ToastConfig = {
 
 function getToastProps(props: ToastConfigParams<any>) {
   const { fontSize, colors } = getUI()
-  const color = props.type === 'error' ? 'rgb(255,77,79)' : colors.primary
+  const color = props.type === 'error' ? colors.danger : colors.primary
   const iconName =
     props.type === 'success'
       ? 'check-circle-fill'

@@ -1,7 +1,7 @@
 import { useAtom, useAtomValue } from 'jotai'
 import { compact, isString, last, pick, uniqBy, upperCase } from 'lodash-es'
-import { memo, useCallback, useMemo, useState } from 'react'
-import { FlatList, ListRenderItem, Text, View } from 'react-native'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
+import { FlatList, ListRenderItem, Text, TextInput, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
@@ -64,6 +64,8 @@ export default function RecentTopicScreen() {
 
   const { colors } = useAtomValue(uiAtom)
 
+  const inputRef = useRef<TextInput>(null)
+
   return (
     <View style={tw`flex-1`}>
       <FlatList
@@ -75,6 +77,9 @@ export default function RecentTopicScreen() {
         renderItem={renderItem}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         ListEmptyComponent={<Empty description="目前还没有最近浏览主题" />}
+        onScrollBeginDrag={() => {
+          inputRef.current?.blur()
+        }}
       />
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>
@@ -104,6 +109,7 @@ export default function RecentTopicScreen() {
           }
         >
           <SearchBar
+            ref={inputRef}
             style={tw`flex-1`}
             value={searchText}
             placeholder="搜索最近浏览主题"

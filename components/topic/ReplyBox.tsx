@@ -95,10 +95,13 @@ const ReplyBox = ({
   function setContent(text: string) {
     cacheContent[getTextKey()] = text
     update()
+    inputRef.current?.setNativeProps({
+      text: text,
+    })
   }
 
   function getContent() {
-    return cacheContent[getTextKey()]
+    return cacheContent[getTextKey()] || ''
   }
 
   const inputRef = useRef<TextInput>(null)
@@ -147,7 +150,12 @@ const ReplyBox = ({
             numberOfLines={3}
             placeholder={isAppend ? '发送你的附言' : '发送你的评论'}
             onChangeText={function handleAtName(text) {
-              if (text.match(/(@|＠)$/)) {
+              const isDeleting = text.length < getContent().length
+
+              if (
+                !isDeleting &&
+                text.match(text.length === 1 ? /(@|＠)$/ : /\s(@|＠)$/)
+              ) {
                 navigation.navigate('SearchReplyMember', {
                   topicId,
                   onAtNames(atNames) {
@@ -165,18 +173,15 @@ const ReplyBox = ({
                 return
               }
 
-              const isDeleting = text.length < getContent().length
-              const lastAtName = getContent().match(/((@|＠)\w+)$/)?.[1]
+              const lastAtName = getContent().match(/(\s(@|＠)\w+)$/)?.[1]
+              const firstAtName = getContent().match(/((@|＠)\w+)$/)?.[1]
 
-              if (isDeleting && lastAtName) {
-                const prunedText = text.slice(
-                  0,
-                  text.length - lastAtName.length + 1
-                )
-                setContent(prunedText)
-                inputRef.current?.setNativeProps({
-                  text: prunedText,
-                })
+              if (isDeleting && (lastAtName || firstAtName === getContent())) {
+                if (lastAtName) {
+                  setContent(text.slice(0, text.length - lastAtName.length + 1))
+                } else {
+                  setContent('')
+                }
               } else {
                 setContent(text)
               }
@@ -210,9 +215,6 @@ const ReplyBox = ({
 
                 if (replacedText) {
                   setContent(replacedText)
-                  inputRef.current?.setNativeProps({
-                    text: replacedText,
-                  })
                 }
               }}
             >
@@ -224,14 +226,7 @@ const ReplyBox = ({
               size="small"
               type="primary"
               onUploaded={url => {
-                const newContent = getContent()
-                  ? `${getContent()}\n${url}`
-                  : url
-
-                setContent(newContent)
-                inputRef.current?.setNativeProps({
-                  text: newContent,
-                })
+                setContent(getContent() ? `${getContent()}\n${url}` : url)
               }}
             />
           </View>

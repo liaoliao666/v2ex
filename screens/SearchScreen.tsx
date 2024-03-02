@@ -1,6 +1,8 @@
+import { Ionicons } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import dayjs from 'dayjs'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
+import { RESET } from 'jotai/utils'
 import {
   compact,
   isEmpty,
@@ -10,12 +12,14 @@ import {
   uniqBy,
   upperCase,
 } from 'lodash-es'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { memo } from 'react'
 import {
   FlatList,
   ListRenderItem,
+  SectionList,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native'
@@ -37,25 +41,23 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import { searchHistoryAtom } from '@/jotai/searchHistoryAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Member, Node, Sov2exResult, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
+import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default function SearchScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'Search'>>()
-
   const [searchText, setSearchText] = useState(params?.query || '')
-
   const trimedSearchText = searchText.trim()
-
   const [isSearchNode, setIsSearchNode] = useState(!params?.query)
-
-  const { data: matchNodes } = k.node.all.useQuery({
+  const { data: matchNodes = [] } = k.node.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => {
         if (!isSearchNode) return []
@@ -75,80 +77,193 @@ export default function SearchScreen() {
       [isSearchNode, trimedSearchText]
     ),
   })
+  const colorScheme = useAtomValue(colorSchemeAtom)
+  const sov2exArgs = useAtomValue(sov2exArgsAtom)
+  const { colors, fontSize } = useAtomValue(uiAtom)
+  const [searchHistory, setSearchHistory] = useAtom(searchHistoryAtom)
+  const handleSubmit = useCallback(
+    (text: string) => {
+      const trimedText = text.trim()
+      setIsSearchNode(!trimedText)
+      setSearchText(trimedText)
 
-  const renderNodeItem: ListRenderItem<Node> = useCallback(
-    ({ item }) => (
-      <NodeItem
-        key={`${item.title}_${item.name}`}
-        node={item}
-        onPress={() => {
-          navigation.navigate('NodeTopics', { name: item.name })
-        }}
-      />
-    ),
-    []
+      if (trimedText) {
+        setSearchHistory(prev => [
+          trimedText,
+          ...(prev.includes(trimedText)
+            ? prev.filter(o => o !== trimedText)
+            : prev.slice(0, 9)),
+        ])
+      }
+    },
+    [setSearchHistory]
+  )
+  const renderItem: ListRenderItem<Node | string> = useCallback(
+    ({ item }) => {
+      if (isString(item)) {
+        const size = tw.style(fontSize.medium).fontSize as number
+
+        return (
+          <TouchableOpacity
+            style={tw`h-[${NAV_BAR_HEIGHT}px] px-4 flex-row items-center`}
+            onPress={() => {
+              handleSubmit(item)
+            }}
+          >
+            <Ionicons name="search" size={size + 5} color={colors.foreground} />
+            <Text
+              style={tw`${fontSize.medium} text-[${colors.foreground}] ml-2 flex-1`}
+            >
+              {item}
+            </Text>
+
+            <TouchableOpacity
+              onPress={() => {
+                setSearchHistory(prev => prev.filter(o => o !== item))
+              }}
+            >
+              <Ionicons
+                name="close-sharp"
+                size={size + 3}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+          </TouchableOpacity>
+        )
+      }
+
+      return (
+        <NodeItem
+          node={item}
+          onPress={() => {
+            navigation.navigate('NodeTopics', { name: item.name })
+          }}
+        />
+      )
+    },
+    [
+      colors.foreground,
+      colors.primary,
+      fontSize.medium,
+      handleSubmit,
+      setSearchHistory,
+    ]
   )
 
-  const colorScheme = useAtomValue(colorSchemeAtom)
-
   const navbarHeight = useNavBarHeight()
-
-  const sov2exArgs = useAtomValue(sov2exArgsAtom)
-
   const isGoogleSearch = sov2exArgs.source === 'google'
+  const inputRef = useRef<TextInput>(null)
+  const onlyNodes = isEmpty(searchHistory) || !!trimedSearchText
+  const sections = useMemo(() => {
+    if (onlyNodes)
+      return [
+        {
+          title: 'Node',
+          data: matchNodes,
+        },
+      ]
 
-  const { colors, fontSize } = useAtomValue(uiAtom)
+    return [
+      {
+        title: 'History',
+        data: searchHistory,
+      },
+      {
+        title: 'Node',
+        data: matchNodes,
+      },
+    ]
+  }, [searchHistory, matchNodes, onlyNodes])
 
   return (
     <View style={tw`flex-1 bg-[${colors.base100}]`}>
       {isSearchNode ? (
-        <FlatList
+        <SectionList
           key={colorScheme}
+          initialNumToRender={20}
+          keyExtractor={item =>
+            isString(item) ? `Node_${item}` : `${item.title}_${item.name}`
+          }
           contentContainerStyle={{
             paddingTop: navbarHeight,
           }}
           ListHeaderComponent={
-            <View>
-              {!!trimedSearchText && (
-                <TouchableOpacity
-                  style={tw`px-4 py-2.5`}
-                  onPress={() => {
-                    setIsSearchNode(!trimedSearchText)
-                  }}
+            trimedSearchText ? (
+              <TouchableOpacity
+                style={tw`px-4 h-[${NAV_BAR_HEIGHT}px] flex-row items-center`}
+                onPress={() => {
+                  handleSubmit(trimedSearchText)
+                }}
+              >
+                <Text
+                  style={tw`text-[${colors.foreground}] ${fontSize.medium}`}
                 >
-                  <Text
-                    style={tw`text-[${colors.foreground}] ${fontSize.medium}`}
-                  >
-                    {isGoogleSearch ? 'Google' : 'SOV2EX'}:{' '}
-                    <Text style={tw`text-[${colors.foreground}]`}>
-                      “{trimedSearchText}”
-                    </Text>
+                  {isGoogleSearch ? 'Google' : 'SOV2EX'}:{' '}
+                  <Text style={tw`text-[${colors.foreground}]`}>
+                    “{trimedSearchText}”
                   </Text>
-                </TouchableOpacity>
-              )}
-              {!isEmpty(matchNodes) && (
+                </Text>
+              </TouchableOpacity>
+            ) : undefined
+          }
+          ListFooterComponent={<SafeAreaView edges={['bottom']} />}
+          sections={sections}
+          renderItem={renderItem}
+          renderSectionHeader={({ section: { title } }) => {
+            if (title === 'History') {
+              return (
                 <View
                   style={tw.style(
-                    `px-4 pt-2.5 pb-2`,
+                    `px-4 h-[${NAV_BAR_HEIGHT}px] flex-row items-center justify-between`
+                  )}
+                >
+                  <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
+                    搜索历史
+                  </Text>
+
+                  <TouchableOpacity
+                    onPress={async () => {
+                      try {
+                        await confirm('确认清除搜索历史吗')
+                        setSearchHistory(RESET)
+                      } catch (error) {
+                        // empty
+                      }
+                    }}
+                  >
+                    <Text
+                      style={tw`text-[${colors.primary}] ${fontSize.medium}`}
+                    >
+                      清除全部
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )
+            } else {
+              return !isEmpty(matchNodes) ? (
+                <View
+                  style={tw.style(
+                    `px-4 h-[${NAV_BAR_HEIGHT}px] flex-row items-center`,
                     !!trimedSearchText &&
+                      onlyNodes &&
                       `border-[${colors.divider}] border-t border-solid`
                   )}
                 >
                   <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
-                    节点
+                    全部节点
                   </Text>
                 </View>
-              )}
-            </View>
-          }
-          ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-          data={matchNodes}
-          renderItem={renderNodeItem}
+              ) : null
+            }
+          }}
           getItemLayout={(_, index) => ({
             length: NAV_BAR_HEIGHT,
             offset: index * NAV_BAR_HEIGHT,
             index,
           })}
+          onScrollBeginDrag={() => {
+            inputRef.current?.blur()
+          }}
         />
       ) : (
         <QuerySuspense
@@ -171,6 +286,9 @@ export default function SearchScreen() {
               key={colorScheme}
               query={trimedSearchText}
               navbarHeight={navbarHeight}
+              onScrollBeginDrag={() => {
+                inputRef.current?.blur()
+              }}
             />
           )}
         </QuerySuspense>
@@ -197,6 +315,7 @@ export default function SearchScreen() {
           )}
         >
           <SearchBar
+            ref={inputRef}
             style={tw`flex-1`}
             value={searchText}
             onChangeText={text => {
@@ -206,7 +325,7 @@ export default function SearchScreen() {
               }
             }}
             onSubmitEditing={() => {
-              setIsSearchNode(!searchText)
+              handleSubmit(searchText)
             }}
             autoFocus
           />
@@ -219,9 +338,11 @@ export default function SearchScreen() {
 function SoV2exList({
   navbarHeight,
   query,
+  onScrollBeginDrag,
 }: {
   navbarHeight: number
   query: string
+  onScrollBeginDrag: () => void
 }) {
   const sov2exArgs = useAtomValue(sov2exArgsAtom)
 
@@ -268,6 +389,7 @@ function SoV2exList({
   return (
     <FlatList
       data={flatedData}
+      onScrollBeginDrag={onScrollBeginDrag}
       ListHeaderComponent={
         !isEmpty(flatedData) ? (
           <View style={tw`px-4 py-2.5`}>

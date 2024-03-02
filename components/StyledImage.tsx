@@ -91,7 +91,7 @@ function BaseImage({
     ),
   }
 
-  if (size === 'error')
+  if (size === 'error' && !!uri)
     return (
       <TouchableOpacity
         onPress={() => {

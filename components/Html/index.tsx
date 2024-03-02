@@ -14,7 +14,6 @@ import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { hasSize } from '@/utils/hasSize'
 import tw from '@/utils/tw'
 import { resolveURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
@@ -99,20 +98,21 @@ function Html({
 
                     if (size === 'error' || size === 'refetching') return false
 
-                    let localURI = await Image.getCachePathAsync(resolvedURI)
+                    let localUrl: string | null
 
-                    if (localURI) {
-                      localURI = RNImage.resolveAssetSource({
-                        uri: localURI,
-                      }).uri
+                    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+                      localUrl = await Image.getCachePathAsync(resolvedURI)
+
+                      if (localUrl) {
+                        localUrl = RNImage.resolveAssetSource({
+                          uri: localUrl,
+                        }).uri
+                      }
                     }
 
                     return {
-                      ...(hasSize(size) && size),
-                      url:
-                        Platform.OS === 'ios'
-                          ? localURI || resolvedURI
-                          : resolvedURI,
+                      ...size,
+                      url: localUrl! || resolvedURI,
                     }
                   })
                 )

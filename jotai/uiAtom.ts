@@ -14,7 +14,7 @@ export const defaultColors = {
     light: 'rgba(255,255,255,1)',
     dark: 'rgba(255,255,255,1)',
   },
-  danger: {
+  heart: {
     light: `rgb(249,24,128)`,
     dark: `rgb(249,24,128)`,
   },
@@ -45,6 +45,10 @@ export const defaultColors = {
   neutral: {
     light: 'rgb(185,202,211)',
     dark: 'rgb(62,65,68)',
+  },
+  danger: {
+    light: `rgb(255,77,79)`,
+    dark: `rgb(255,77,79)`,
   },
 }
 

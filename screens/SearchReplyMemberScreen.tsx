@@ -1,11 +1,12 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { uniqBy, upperCase } from 'lodash-es'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native'
@@ -75,6 +76,8 @@ export default function SearchReplyMemberScreen() {
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
+  const inputRef = useRef<TextInput>(null)
+
   return (
     <View style={tw`bg-[${colors.base100}] flex-1`}>
       <NavBar
@@ -106,12 +109,12 @@ export default function SearchReplyMemberScreen() {
         }
       >
         <SearchBar
+          ref={inputRef}
           style={tw`flex-1`}
           value={searchText}
           onChangeText={text => {
             setSearchText(text.trim())
           }}
-          autoFocus
           placeholder="搜索用户或回复"
         />
       </NavBar>
@@ -123,6 +126,9 @@ export default function SearchReplyMemberScreen() {
         renderItem={renderNodeItem}
         ListEmptyComponent={<Empty description="暂无搜索结果" />}
         ItemSeparatorComponent={LineSeparator}
+        onScrollBeginDrag={() => {
+          inputRef.current?.blur()
+        }}
       />
     </View>
   )
@@ -141,7 +147,15 @@ const AtReplyItem = memo(
     const { colors, fontSize } = useAtomValue(uiAtom)
 
     return (
-      <View style={tw`px-4 py-3 flex-row`}>
+      <TouchableOpacity
+        style={tw`px-4 py-3 flex-row`}
+        onPress={() => {
+          onChange({
+            reply,
+            checked: !checked,
+          })
+        }}
+      >
         <StyledImage
           style={tw`w-5 h-5 rounded-full`}
           source={reply.member.avatar}
@@ -173,14 +187,9 @@ const AtReplyItem = memo(
           size={20}
           fillColor={tw`text-[${colors.primary}]`.color as string}
           unfillColor={tw`dark:text-[#0f1419] text-white`.color as string}
-          onPress={() => {
-            onChange({
-              reply,
-              checked: !checked,
-            })
-          }}
+          disableBuiltInState
         />
-      </View>
+      </TouchableOpacity>
     )
   }
 )

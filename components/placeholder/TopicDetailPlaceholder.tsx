@@ -38,13 +38,18 @@ export default function TopicDetailPlaceholder({
         <View>
           <View style={tw`flex-row items-center pt-3 px-4`}>
             <View style={tw`mr-3`}>
-              <StyledImage
-                style={tw.style(
-                  `w-12 h-12 rounded-full`,
-                  !topic.member.avatar && `bg-[${colors.base300}]`
-                )}
-                source={topic.member?.avatar}
-              />
+              {topic.member.avatar ? (
+                <StyledImage
+                  style={tw.style(`w-12 h-12 rounded-full`)}
+                  source={topic.member?.avatar}
+                />
+              ) : (
+                <View
+                  style={tw.style(
+                    `w-12 h-12 rounded-full bg-[${colors.base300}]`
+                  )}
+                />
+              )}
             </View>
 
             <View style={tw`flex-1`}>

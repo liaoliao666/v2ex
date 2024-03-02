@@ -93,7 +93,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
           )}
 
           {topic.pin_to_top && (
-            <StyledButton size="mini" color="rgb(255,77,79)" type="tag" ghost>
+            <StyledButton size="mini" color={colors.danger} type="tag" ghost>
               置顶
             </StyledButton>
           )}

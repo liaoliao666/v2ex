@@ -1,11 +1,12 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { isString, upperCase } from 'lodash-es'
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native'
@@ -67,6 +68,8 @@ export default function SearchNodeScreen() {
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
+  const inputRef = useRef<TextInput>(null)
+
   return (
     <View style={tw`bg-[${colors.base100}] flex-1`}>
       <NavBar
@@ -86,6 +89,7 @@ export default function SearchNodeScreen() {
         }
       >
         <SearchBar
+          ref={inputRef}
           style={tw`flex-1`}
           value={searchText}
           onChangeText={text => {
@@ -107,6 +111,9 @@ export default function SearchNodeScreen() {
           offset: index * NAV_BAR_HEIGHT,
           index,
         })}
+        onScrollBeginDrag={() => {
+          inputRef.current?.blur()
+        }}
       />
     </View>
   )

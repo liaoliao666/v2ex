@@ -309,8 +309,8 @@ function ThankReply({
             size={16}
             active={reply.thanked}
             name={reply.thanked ? 'heart' : 'heart-outline'}
-            color={reply.thanks ? colors.danger : colors.default}
-            activeColor={colors.danger}
+            color={reply.thanks ? colors.heart : colors.default}
+            activeColor={colors.heart}
             pressed={disabled ? false : pressed}
           />
 
@@ -318,7 +318,7 @@ function ThankReply({
             style={tw.style(
               `${fontSize.small} pl-0.5`,
               reply.thanks
-                ? `text-[${colors.danger}]`
+                ? `text-[${colors.heart}]`
                 : `text-[${colors.default}]`
             )}
           >
