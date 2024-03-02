@@ -91,6 +91,8 @@ function BaseImage({
     ),
   }
 
+  if (!uri) return <View style={style} {...props} />
+
   if (size === 'error')
     return (
       <TouchableOpacity
