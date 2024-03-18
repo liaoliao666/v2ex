@@ -200,9 +200,7 @@ export default function CustomizeThemeScreen() {
         {renderSubtitle('字体')}
 
         <View style={tw`p-4 flex-row items-center`}>
-          <Text style={tw`text-[${colors.foreground}] ${fontSize.small}`}>
-            Aa
-          </Text>
+          <Text style={tw`text-[${colors.foreground}] text-[13px]`}>Aa</Text>
           <View style={tw`flex-1 px-5`}>
             <Slider
               value={fontScale} // set the current slider's value
@@ -230,9 +228,7 @@ export default function CustomizeThemeScreen() {
               CustomMark={undefined} // Provide your own component to render the marks. The type is a component: ({ value: number; active: boolean }) => JSX.Element ; value indicates the value represented by the mark, while active indicates wether a thumb is currently standing on the mark
             />
           </View>
-          <Text style={tw`text-[${colors.foreground}] ${fontSize.xlarge}`}>
-            Aa
-          </Text>
+          <Text style={tw`text-[${colors.foreground}] text-[19px]`}>Aa</Text>
         </View>
 
         {renderSubtitle('浅色')}

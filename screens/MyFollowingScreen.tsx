@@ -29,6 +29,7 @@ import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { Topic, k } from '@/servicies'
+import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -186,16 +187,15 @@ function MyFollowingScreen() {
 }
 
 function MyFollowing({ headerHeight }: { headerHeight: number }) {
-  const {
-    data,
-    refetch,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    isFetching,
-  } = k.my.following.useSuspenseInfiniteQuery()
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
+    k.my.following.useSuspenseInfiniteQuery()
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+    queryClient.prefetchInfiniteQuery({
+      ...k.my.following.getFetchOptions(),
+      pages: 1,
+    })
+  )
 
   const renderItem: ListRenderItem<Topic> = useCallback(
     ({ item }) => <TopicItem key={item.id} topic={item} />,
@@ -251,18 +251,17 @@ function MemberTopics({
   username: string
   headerHeight: number
 }) {
-  const {
-    data,
-    refetch,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    isFetching,
-  } = k.member.topics.useSuspenseInfiniteQuery({
-    variables: { username },
-  })
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
+    k.member.topics.useSuspenseInfiniteQuery({
+      variables: { username },
+    })
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+    queryClient.prefetchInfiniteQuery({
+      ...k.member.topics.getFetchOptions({ username }),
+      pages: 1,
+    })
+  )
 
   const renderItem: ListRenderItem<Topic> = useCallback(
     ({ item }) => <TopicItem key={item.id} topic={item} hideAvatar />,

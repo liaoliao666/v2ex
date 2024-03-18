@@ -398,7 +398,7 @@ export function parseRank($: CheerioAPI) {
 
 type Replacer = Parameters<(typeof String)['prototype']['replace']>[1]
 
-const regex_common_imgurl = /\/.+\.(jpeg|jpg|gif|png|svg)$/
+const regex_common_imgurl = /\/.+\.(jpeg|jpg|gif|png|svg|webp)$/
 function is_common_img_url(url: string) {
   // 常见的图片URL
   return url.match(regex_common_imgurl) != null

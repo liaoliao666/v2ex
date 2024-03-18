@@ -204,7 +204,6 @@ function HotestTopics({
     >
       <FlatList
         data={data}
-        automaticallyAdjustsScrollIndicatorInsets={false}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}

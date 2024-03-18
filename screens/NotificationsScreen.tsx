@@ -52,33 +52,34 @@ export default withQuerySuspense(NotificationsScreen, {
 })
 
 function NotificationsScreen() {
-  const {
-    data,
-    refetch,
-    hasNextPage,
-    fetchNextPage,
-    isFetchingNextPage,
-    isFetching,
-  } = k.notification.list.useSuspenseInfiniteQuery()
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
+    k.notification.list.useSuspenseInfiniteQuery()
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+    queryClient.prefetchInfiniteQuery({
+      ...k.notification.list.getFetchOptions(),
+      pages: 1,
+    })
+  )
 
   const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
 
   const profile = useAtomValue(profileAtom)
 
-  const handleReply = useCallback((notice: Notice) => {
-    setReplyInfo({
-      topicId: notice.topic.id,
-      username: notice.member.username,
-    })
-  }, [])
-
   const renderItem: ListRenderItem<Notice> = useCallback(
     ({ item }) => (
-      <NoticeItem key={item.id} notice={item} onReply={handleReply} />
+      <NoticeItem
+        key={item.id}
+        notice={item}
+        onReply={() => {
+          setReplyInfo({
+            topicId: item.topic.id,
+            username: item.member.username,
+          })
+        }}
+      />
     ),
-    [handleReply]
+    []
   )
 
   const flatedData = useMemo(
@@ -149,13 +150,7 @@ function NotificationsScreen() {
 }
 
 const NoticeItem = memo(
-  ({
-    notice,
-    onReply,
-  }: {
-    notice: Notice
-    onReply: (notice: Notice) => void
-  }) => {
+  ({ notice, onReply }: { notice: Notice; onReply: () => void }) => {
     const { colors, fontSize } = useAtomValue(uiAtom)
 
     return (
@@ -215,7 +210,7 @@ const NoticeItem = memo(
                   activeColor={colors.primary}
                   size={15}
                   icon={<Feather name="message-circle" />}
-                  onPress={() => onReply(notice)}
+                  onPress={onReply}
                 />
               )}
 

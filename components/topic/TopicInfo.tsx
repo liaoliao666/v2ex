@@ -45,9 +45,7 @@ export default function TopicInfo({
   onAppend: () => void
   children: ReactNode
 }) {
-  const [isParsing, setIsParsing] = useState(
-    store.get(enabledParseContentAtom)!
-  )
+  const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
 
   const hasParsedText =
     !!topic.parsed_content || topic.supplements?.some(o => !!o.parsed_content)
@@ -86,13 +84,13 @@ export default function TopicInfo({
               </Text>,
               hasParsedText && (
                 <Text
-                  key={'isParsing'}
+                  key={'isParsed'}
                   style={tw`text-[${colors.default}] ${fontSize.small} mr-2`}
                   onPress={() => {
-                    setIsParsing(!isParsing)
+                    setIsParsed(!isParsed)
                   }}
                 >
-                  {isParsing ? `显示原始内容` : `隐藏原始内容`}
+                  {isParsed ? `显示原始内容` : `隐藏原始内容`}
                 </Text>
               ),
             ])}
@@ -136,7 +134,7 @@ export default function TopicInfo({
           <Html
             source={{
               html:
-                isParsing && topic.parsed_content
+                isParsed && topic.parsed_content
                   ? topic.parsed_content
                   : topic.content,
             }}
@@ -173,7 +171,7 @@ export default function TopicInfo({
                 <Html
                   source={{
                     html:
-                      isParsing && supplement.parsed_content
+                      isParsed && supplement.parsed_content
                         ? supplement.parsed_content
                         : supplement.content,
                   }}

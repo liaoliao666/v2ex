@@ -151,7 +151,7 @@ const RecentTopicItem = memo(
 
         <View style={tw`flex-1`}>
           <Text
-            style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold`}
+            style={tw`text-[${colors.foreground}] ${fontSize.medium} font-semibold mr-auto`}
             numberOfLines={1}
             onPress={() => {
               navigation.push('MemberDetail', {

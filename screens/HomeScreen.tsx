@@ -1,5 +1,6 @@
 import { Feather } from '@expo/vector-icons'
 import { DrawerActions } from '@react-navigation/native'
+import { InfiniteData } from '@tanstack/react-query'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import {
@@ -94,16 +95,16 @@ export default withQuerySuspense(HomeScreen, {
 
 function HomeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
-
   const fontScale = useAtomValue(fontScaleAtom)
-
   const tabs = useAtomValue(homeTabsAtom)
+  const [index, setIndex] = useAtom(homeTabIndexAtom)
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   const layout = useWindowDimensions()
 
-  const [index, setIndex] = useAtom(homeTabIndexAtom)
-
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+
+  const [refs] = useState<Record<string, RefObject<FlatList>>>({})
 
   function handleInexChange(i: number, forceFetch = false) {
     const activeTab = tabs[i]
@@ -111,7 +112,7 @@ function HomeScreen() {
     const activeQueryKey: any =
       activeTab.type === 'node'
         ? k.node.topics.getKey({ name: activeTabKey })
-        : activeTab.key === RECENT_TAB_KEY
+        : activeTabKey === RECENT_TAB_KEY
         ? k.topic.recent.getKey()
         : k.topic.tab.getKey({ tab: activeTabKey })
     const query = queryClient.getQueryCache().find({
@@ -121,7 +122,17 @@ function HomeScreen() {
     if (query?.state.error) {
       errorResetMap[activeTabKey]?.()
     } else if (query?.getObserversCount() && (forceFetch || query?.isStale())) {
-      if (activeTab.type === 'node' || activeTab.key === RECENT_TAB_KEY) {
+      if (activeTab.type === 'node' || activeTabKey === RECENT_TAB_KEY) {
+        const pages =
+          (queryClient.getQueryData(activeQueryKey) as InfiniteData<any, any>)
+            ?.pages?.length || 0
+
+        if (forceFetch || pages > 1) {
+          refs[activeTabKey]?.current?.scrollToOffset({
+            offset: 0,
+          })
+        }
+
         queryClient.prefetchInfiniteQuery({
           ...(activeTab.type === 'node'
             ? k.node.topics.getFetchOptions({ name: activeTabKey })
@@ -129,6 +140,12 @@ function HomeScreen() {
           pages: 1,
         })
       } else {
+        if (forceFetch) {
+          refs[activeTabKey]?.current?.scrollToOffset({
+            offset: 0,
+          })
+        }
+
         queryClient.prefetchQuery(
           k.topic.tab.getFetchOptions({ tab: activeTabKey })
         )
@@ -137,10 +154,6 @@ function HomeScreen() {
 
     setIndex(i)
   }
-
-  const [refs] = useState<Record<string, RefObject<FlatList>>>({})
-
-  const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <View style={tw`flex-1 bg-[${colors.base100}]`}>
@@ -214,11 +227,6 @@ function HomeScreen() {
                       style={tw`w-auto items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                       activeOpacity={active ? 1 : 0.5}
                       onPress={() => {
-                        if (active) {
-                          refs[route.key]?.current?.scrollToOffset({
-                            offset: 0,
-                          })
-                        }
                         handleInexChange(
                           findIndex(tabs, { key: route.key }),
                           active
@@ -265,18 +273,17 @@ function HomeScreen() {
 
 const RecentTopics = memo(
   forwardRef<FlatList, { headerHeight: number }>(({ headerHeight }, ref) => {
-    const {
-      data,
-      refetch,
-      hasNextPage,
-      fetchNextPage,
-      isFetchingNextPage,
-      isFetching,
-    } = k.topic.recent.useSuspenseInfiniteQuery({
-      refetchOnWindowFocus: () => isRefetchOnWindowFocus(RECENT_TAB_KEY),
-    })
+    const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
+      k.topic.recent.useSuspenseInfiniteQuery({
+        refetchOnWindowFocus: () => isRefetchOnWindowFocus(RECENT_TAB_KEY),
+      })
 
-    const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+    const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+      queryClient.prefetchInfiniteQuery({
+        ...k.topic.recent.getFetchOptions(),
+        pages: 1,
+      })
+    )
 
     const renderItem: ListRenderItem<Topic> = useCallback(
       ({ item }) => <TopicItem key={item.id} topic={item} />,
@@ -385,19 +392,18 @@ const NodeTopics = memo(
       headerHeight: number
     }
   >(({ nodeName, headerHeight }, ref) => {
-    const {
-      data,
-      refetch,
-      hasNextPage,
-      fetchNextPage,
-      isFetchingNextPage,
-      isFetching,
-    } = k.node.topics.useSuspenseInfiniteQuery({
-      variables: { name: nodeName },
-      refetchOnWindowFocus: () => isRefetchOnWindowFocus(nodeName),
-    })
+    const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
+      k.node.topics.useSuspenseInfiniteQuery({
+        variables: { name: nodeName },
+        refetchOnWindowFocus: () => isRefetchOnWindowFocus(nodeName),
+      })
 
-    const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+    const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+      queryClient.prefetchInfiniteQuery({
+        ...k.node.topics.getFetchOptions({ name: nodeName }),
+        pages: 1,
+      })
+    )
 
     const renderItem: ListRenderItem<Topic> = useCallback(
       ({ item }) => <TopicItem key={item.id} topic={item} />,

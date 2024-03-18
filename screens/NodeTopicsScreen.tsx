@@ -75,7 +75,7 @@ export default withQuerySuspense(NodeTopicsScreen, {
 function NodeTopicsScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'NodeTopics'>>()
 
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
     k.node.topics.useSuspenseInfiniteQuery({
       variables: { name: params.name },
     })
@@ -84,7 +84,12 @@ function NodeTopicsScreen() {
     select: nodes => find(nodes, { name: params.name }),
   })
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+    queryClient.prefetchInfiniteQuery({
+      ...k.node.topics.getFetchOptions({ name: params.name }),
+      pages: 1,
+    })
+  )
 
   const lastPage = last(data.pages)!
 

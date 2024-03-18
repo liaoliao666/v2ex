@@ -54,9 +54,7 @@ function ReplyItem({
   inModalScreen?: boolean
   onLayout?: ViewProps['onLayout']
 }) {
-  const [isParsing, setIsParsing] = useState(
-    store.get(enabledParseContentAtom)!
-  )
+  const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
@@ -145,13 +143,13 @@ function ReplyItem({
 
               reply.parsed_content && (
                 <Text
-                  key={'isParsing'}
+                  key={'isParsed'}
                   style={tw`text-[${colors.default}] ${fontSize.small}`}
                   onPress={() => {
-                    setIsParsing(!isParsing)
+                    setIsParsed(!isParsed)
                   }}
                 >
-                  {isParsing ? `显示原始回复` : `隐藏原始回复`}
+                  {isParsed ? `显示原始回复` : `隐藏原始回复`}
                 </Text>
               ),
             ])}
@@ -161,7 +159,7 @@ function ReplyItem({
             <Html
               source={{
                 html:
-                  isParsing && reply.parsed_content
+                  isParsed && reply.parsed_content
                     ? reply.parsed_content
                     : reply.content,
               }}
@@ -341,7 +339,7 @@ function MoreButton({
 }) {
   const { showActionSheetWithOptions } = useActionSheet()
 
-  const ignoreReplyResult = k.reply.ignore.useMutation()
+  const ignoreReplyMutation = k.reply.ignore.useMutation()
 
   const { colors } = useAtomValue(uiAtom)
 
@@ -392,12 +390,12 @@ function MoreButton({
                   return
                 }
 
-                if (ignoreReplyResult.isPending) return
+                if (ignoreReplyMutation.isPending) return
 
                 await confirm('确定隐藏该回复么?')
 
                 try {
-                  await ignoreReplyResult.mutateAsync({
+                  await ignoreReplyMutation.mutateAsync({
                     id: reply.id,
                     once: once!,
                   })

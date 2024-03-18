@@ -1,11 +1,14 @@
+import { hashKey } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
 import { compact, isEqual, maxBy } from 'lodash-es'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
+import { inferData } from 'react-query-kit'
 
 import { uiAtom } from '@/jotai/uiAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
+import { useIsMatchedQuery } from '@/utils/query'
 import { isLargeTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 
@@ -22,16 +25,15 @@ export interface TopicItemProps {
 export default memo(TopicItem, isEqual)
 
 function TopicItem({ topic, hideAvatar }: TopicItemProps) {
-  const { colors, fontSize } = useAtomValue(uiAtom)
-
-  const { data: isReaded } = k.topic.detail.useInfiniteQuery({
-    variables: { id: topic.id },
-    select: data => {
-      const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
+  const isReaded = useIsMatchedQuery(query => {
+    if (query.queryHash === hashKey(k.topic.detail.getKey({ id: topic.id }))) {
+      const data = query.state.data as inferData<typeof k.topic.detail>
+      const replyCount = maxBy(data?.pages, 'reply_count')?.reply_count || 0
       return replyCount >= topic.reply_count
-    },
-    enabled: false,
+    }
+    return false
   })
+  const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <DebouncedPressable

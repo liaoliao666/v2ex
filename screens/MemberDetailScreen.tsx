@@ -489,12 +489,17 @@ const MemberTopics = forwardRef<
 >(({ contentContainerStyle, onScroll, onScrollEnd }, ref) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
     k.member.topics.useSuspenseInfiniteQuery({
       variables: { username: params.username },
     })
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+    queryClient.prefetchInfiniteQuery({
+      ...k.member.topics.getFetchOptions({ username: params.username }),
+      pages: 1,
+    })
+  )
 
   const renderItem: ListRenderItem<Topic> = useCallback(
     ({ item }) => <TopicItem key={item.id} topic={item} hideAvatar />,
@@ -555,12 +560,17 @@ const MemberReplies = forwardRef<
 >(({ contentContainerStyle, onScroll, onScrollEnd }, ref) => {
   const { params } = useRoute<RouteProp<RootStackParamList, 'MemberDetail'>>()
 
-  const { data, refetch, hasNextPage, fetchNextPage, isFetchingNextPage } =
+  const { data, hasNextPage, fetchNextPage, isFetchingNextPage } =
     k.member.replies.useSuspenseInfiniteQuery({
       variables: { username: params.username },
     })
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+    queryClient.prefetchInfiniteQuery({
+      ...k.member.replies.getFetchOptions({ username: params.username }),
+      pages: 1,
+    })
+  )
 
   const flatedData = useMemo(
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),

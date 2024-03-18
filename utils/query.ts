@@ -1,7 +1,13 @@
 import NetInfo from '@react-native-community/netinfo'
-import { QueryClient, focusManager, onlineManager } from '@tanstack/react-query'
-import { isArray, isObjectLike } from 'lodash-es'
-import { useMemo } from 'react'
+import {
+  Query,
+  QueryClient,
+  focusManager,
+  notifyManager,
+  onlineManager,
+} from '@tanstack/react-query'
+import { first, isArray, isObjectLike } from 'lodash-es'
+import { useCallback, useMemo, useSyncExternalStore } from 'react'
 import { AppState, Platform } from 'react-native'
 import { InfiniteQueryHook, Middleware, getKey } from 'react-query-kit'
 
@@ -31,6 +37,22 @@ if (Platform.OS !== 'web') {
   })
 }
 
+export const useIsMatchedQuery = (predicate: (query: Query) => boolean) => {
+  const queryCache = queryClient.getQueryCache()
+  const getSnapshot = () =>
+    !!queryClient.getQueryCache().findAll({ predicate }).length
+
+  return useSyncExternalStore(
+    useCallback(
+      onStoreChange =>
+        queryCache.subscribe(notifyManager.batchCalls(onStoreChange)),
+      [queryCache]
+    ),
+    getSnapshot,
+    getSnapshot
+  )
+}
+
 export const removeUnnecessaryPages: Middleware<
   InfiniteQueryHook<any, any, any, any>
 > = useNext => options => {
@@ -53,8 +75,8 @@ export const removeUnnecessaryPages: Middleware<
       ) {
         // only keep one page before mount
         query.setData({
-          pages: [data.pages[0]],
-          pageParams: [data.pageParams[0]],
+          pages: [first(data.pages)],
+          pageParams: [first(data.pageParams)],
         })
       }
     }

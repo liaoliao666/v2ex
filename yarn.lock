@@ -7485,20 +7485,20 @@ react-native-tab-view@^3.5.2:
   dependencies:
     use-latest-callback "^0.1.5"
 
-react-native-toast-message@^2.1.6:
-  version "2.1.6"
-  resolved "https://registry.yarnpkg.com/react-native-toast-message/-/react-native-toast-message-2.1.6.tgz#322827c66901fa22cb3db614c7383cc717f5bbe2"
-  integrity sha512-VctXuq20vmRa9AE13acaNZhrLcS3FaBS2zEevS3+vhBsnVZYG0FIlWIis9tVnpnNxUb3ART+BWtwQjzSttXTng==
+react-native-toast-message@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-toast-message/-/react-native-toast-message-2.2.0.tgz#c53a4746b15616858a7d61c4386b92cbe9fbf911"
+  integrity sha512-AFti8VzUk6JvyGAlLm9/BknTNDXrrhqnUk7ak/pM7uCTxDPveAu2ekszU0on6vnUPFnG04H/QfYE2IlETqeaWw==
 
-react-native-webview@13.6.4:
-  version "13.6.4"
-  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-13.6.4.tgz#6ef66db9dd78b2a2ae1b4fe79e1e3597aa29186e"
-  integrity sha512-AdgmaMBHPcyERTvng9eSGgHX6AleyUlSusWAxngSOSdiYGgHW81T6C5A8j/ImJAF9oZg0bQDxp43Hu56tzENZQ==
+react-native-webview@^13.8.1:
+  version "13.8.1"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-13.8.1.tgz#d0058c063e38241476049aaab2e5cc9f254d5480"
+  integrity sha512-7Jqm1WzWJrOWraBAXQfKtr/Uo5Jw/IJHzC40jYLwgV/eVGmLJ9BpGKw6QVw7wpRkjmTZ2Typ4B1aHJLJJQFslA==
   dependencies:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
-react-native-youtube-iframe@^2.2.2:
+react-native-youtube-iframe@^2.3.0:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/react-native-youtube-iframe/-/react-native-youtube-iframe-2.3.0.tgz#40ca8e55db929b91bfa8e8d30e411658cbc304c5"
   integrity sha512-M+z63xwXVtS4dX3k8PbtHUUcWN+gRZt6J1EtPE7Y60BMOB979KjpkdrHqeR96or9pNR2W8K5tQhIkMXW2jwo7Q==
@@ -7549,10 +7549,10 @@ react-native@0.73.4:
     ws "^6.2.2"
     yargs "^17.6.2"
 
-react-query-kit@^3.1.2:
-  version "3.1.2"
-  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-3.1.2.tgz#15e927b73851000bb873877f78db6ecc7d3cb48f"
-  integrity sha512-8f7YioN71sKIqcHn9lc3WV8eHM5L4hjyzJT3+RQEu7sfr/h9FD9rtsoe2PLIop4b+WJ4QqjZCBLERxfJfO/XjA==
+react-query-kit@^3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/react-query-kit/-/react-query-kit-3.2.0.tgz#6b5e3f037c1aa839bd2d5d587a07b12d0a7a2d93"
+  integrity sha512-4EKF/XPt50rurdH0hPBjPinsFsPmsC6nvoMDCsyUjxJq+pdN+B8jiZ57aqshL6yhWhuPZrEpWOVKXhCFYEoG8Q==
 
 react-refresh@0.14.0, react-refresh@^0.14.0:
   version "0.14.0"
@@ -8571,10 +8571,10 @@ tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-twrnc@^3.6.4:
-  version "3.6.4"
-  resolved "https://registry.yarnpkg.com/twrnc/-/twrnc-3.6.4.tgz#95252421f460986289926d5ec6ae78d8c3f34dd3"
-  integrity sha512-4yw0TS65X6OelJFmc4aCRS8JWI4fIK26Z9nSUOIVMpv7Z/GeAc9BXSnZ7SkD95uOkgmz/gLDS7a4BK6GHOl5Xg==
+twrnc@^4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/twrnc/-/twrnc-4.1.0.tgz#63c969cfa5f10abe9a5f9d0fcfd8dc89689e0056"
+  integrity sha512-tyB0d+MC82pjCF62hAZ4AHfYd13A80Va3VqxB6PcPcz9Xys6Mlf/iKaAmxsNm9v3X9K/0Aqv2vgnSRCbi2Ws5A==
   dependencies:
     tailwindcss ">=2.0.0"
 

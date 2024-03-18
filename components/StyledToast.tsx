@@ -42,7 +42,8 @@ function getToastProps(props: ToastConfigParams<any>) {
     style: tw`rounded-lg border-[${color}] bg-[${bgColor}] border border-solid border-l border-l-[${color}]`,
     contentContainerStyle: tw`overflow-hidden pl-0`,
     text1Style: tw.style(
-      `${fontSize.medium} font-semibold text-[${colors.foreground}]`
+      `${fontSize.medium} text-[${colors.foreground}]`,
+      props.text2 ? `font-semibold` : `font-normal`
     ),
     text2Style: tw`${fontSize.small} text-[${colors.default}]`,
     renderLeadingIcon: () => (

@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { hashKey } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useAtom, useAtomValue } from 'jotai'
 import { RESET } from 'jotai/utils'
@@ -25,6 +26,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
+import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -49,6 +51,7 @@ import { navigation } from '@/navigation/navigationRef'
 import { Member, Node, Sov2exResult, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { confirm } from '@/utils/confirm'
+import { useIsMatchedQuery } from '@/utils/query'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -182,7 +185,9 @@ export default function SearchScreen() {
           key={colorScheme}
           initialNumToRender={20}
           keyExtractor={item =>
-            isString(item) ? `Node_${item}` : `${item.title}_${item.name}`
+            isString(item)
+              ? `History_${item}`
+              : `Node_${item.title}_${item.name}`
           }
           contentContainerStyle={{
             paddingTop: navbarHeight,
@@ -250,7 +255,7 @@ export default function SearchScreen() {
                   )}
                 >
                   <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
-                    全部节点
+                    {trimedSearchText ? '节点' : '全部节点'}
                   </Text>
                 </View>
               ) : null
@@ -453,13 +458,15 @@ const HitItem = memo(
       content: string
     }
   }) => {
-    const { data: isReaded } = k.topic.detail.useInfiniteQuery({
-      variables: { id: topic.id },
-      select: data => {
-        const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
+    const isReaded = useIsMatchedQuery(query => {
+      if (
+        query.queryHash === hashKey(k.topic.detail.getKey({ id: topic.id }))
+      ) {
+        const data = query.state.data as inferData<typeof k.topic.detail>
+        const replyCount = maxBy(data?.pages, 'reply_count')?.reply_count || 0
         return replyCount >= topic.reply_count
-      },
-      enabled: false,
+      }
+      return false
     })
     const { colors, fontSize } = useAtomValue(uiAtom)
 

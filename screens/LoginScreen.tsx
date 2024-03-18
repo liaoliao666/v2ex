@@ -38,7 +38,6 @@ const SigninArgs = z.object({
 
 export default function LoginScreen() {
   const signinInfoQuery = k.auth.signinInfo.useQuery()
-
   const signinMutation = k.auth.signin.useMutation()
 
   const { control, getValues, handleSubmit } = useForm<
@@ -241,7 +240,7 @@ export default function LoginScreen() {
           )}
         />
 
-        {(Platform.OS === 'android' || dayjs().isAfter('2024-03-03 12:00')) && (
+        {(Platform.OS === 'android' || dayjs().isAfter('2024-03-19 12:00')) && (
           <TouchableOpacity
             style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
             onPress={() => {
