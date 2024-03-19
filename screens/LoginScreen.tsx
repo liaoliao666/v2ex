@@ -93,6 +93,7 @@ export default function LoginScreen() {
               value={value?.toString()}
               placeholder="用户名或电子邮件地址"
               keyboardType="email-address"
+              autoComplete="username"
             />
           )}
         />
@@ -110,6 +111,7 @@ export default function LoginScreen() {
               textContentType="password"
               secureTextEntry
               placeholder="请输入密码"
+              autoComplete="password"
             />
           )}
         />
@@ -198,12 +200,18 @@ export default function LoginScreen() {
           control={control}
           name="agreeTerms"
           render={({ field: { value, onChange } }) => (
-            <View style={tw`flex-row items-center mt-4`}>
+            <TouchableOpacity
+              style={tw`flex-row items-center mt-4`}
+              onPress={() => {
+                onChange(!value)
+              }}
+            >
               <BouncyCheckbox
-                isChecked={value}
                 onPress={() => {
                   onChange(!value)
                 }}
+                isChecked={value}
+                disableBuiltInState
                 size={16}
                 fillColor={tw`text-[${colors.primary}]`.color as string}
                 unfillColor={tw`dark:text-[#0f1419] text-white`.color as string}
@@ -236,11 +244,11 @@ export default function LoginScreen() {
                   《隐私政策》
                 </Text>
               </Text>
-            </View>
+            </TouchableOpacity>
           )}
         />
 
-        {(Platform.OS === 'android' || dayjs().isAfter('2024-03-19 12:00')) && (
+        {(Platform.OS === 'android' || dayjs().isAfter('2024-03-20 12:00')) && (
           <TouchableOpacity
             style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
             onPress={() => {

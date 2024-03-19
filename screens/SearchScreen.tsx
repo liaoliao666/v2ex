@@ -1,6 +1,5 @@
 import { Ionicons } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { hashKey } from '@tanstack/react-query'
 import dayjs from 'dayjs'
 import { useAtom, useAtomValue } from 'jotai'
 import { RESET } from 'jotai/utils'
@@ -9,6 +8,7 @@ import {
   isEmpty,
   isEqual,
   isString,
+  isUndefined,
   maxBy,
   uniqBy,
   upperCase,
@@ -26,7 +26,6 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import WebView from 'react-native-webview'
-import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -51,8 +50,8 @@ import { navigation } from '@/navigation/navigationRef'
 import { Member, Node, Sov2exResult, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { confirm } from '@/utils/confirm'
-import { useIsMatchedQuery } from '@/utils/query'
 import tw from '@/utils/tw'
+import { useQueryData } from '@/utils/useQueryData'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default function SearchScreen() {
@@ -458,16 +457,14 @@ const HitItem = memo(
       content: string
     }
   }) => {
-    const isReaded = useIsMatchedQuery(query => {
-      if (
-        query.queryHash === hashKey(k.topic.detail.getKey({ id: topic.id }))
-      ) {
-        const data = query.state.data as inferData<typeof k.topic.detail>
-        const replyCount = maxBy(data?.pages, 'reply_count')?.reply_count || 0
+    const isReaded = useQueryData(
+      k.topic.detail.getKey({ id: topic.id }),
+      data => {
+        if (isUndefined(data)) return false
+        const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
         return replyCount >= topic.reply_count
       }
-      return false
-    })
+    )
     const { colors, fontSize } = useAtomValue(uiAtom)
 
     return (

@@ -5,14 +5,22 @@ import { store } from './store'
 import { colorSchemeAtom } from './themeAtom'
 import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
+const DEFAULT_LIGHT_BG_COLOR = `rgba(255,255,255,1)`
+const DEFAULT_DARK_BG_COLOR = `#262626`
+export const isDefaultBgColor = (color: string) =>
+  color ===
+  (store.get(colorSchemeAtom) === 'light'
+    ? DEFAULT_LIGHT_BG_COLOR
+    : DEFAULT_DARK_BG_COLOR)
+
 export const defaultColors = {
   primary: {
     light: `rgb(29,155,240)`,
     dark: `rgb(29,155,240)`,
   },
   primaryContent: {
-    light: 'rgba(255,255,255,1)',
-    dark: 'rgba(255,255,255,1)',
+    light: `rgba(255,255,255,1)`,
+    dark: `rgba(255,255,255,1)`,
   },
   heart: {
     light: `rgb(249,24,128)`,
@@ -27,8 +35,8 @@ export const defaultColors = {
     dark: `rgb(128,128,128)`,
   },
   base100: {
-    light: 'rgba(255,255,255,1)',
-    dark: '#262626',
+    light: DEFAULT_LIGHT_BG_COLOR,
+    dark: DEFAULT_DARK_BG_COLOR,
   },
   base200: {
     light: 'rgb(239,243,244)',
@@ -94,7 +102,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'bumblebee',
     colorScheme: 'light',
     primary: 'rgba(255,217,0,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     primaryContent: 'rgba(76,69,40,1)',
     neutral: 'rgba(6,0,35,1)',
   },
@@ -103,7 +111,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'cmyk',
     colorScheme: 'light',
     primary: 'rgba(69,174,238,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     neutral: 'rgba(26,26,26,1)',
   },
   corporate: {
@@ -111,7 +119,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'corporate',
     colorScheme: 'light',
     primary: 'rgba(77,110,255,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     foreground: 'rgba(24,26,42,1)',
     neutral: 'rgba(24,26,42,1)',
   },
@@ -159,7 +167,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'emerald',
     colorScheme: 'light',
     primary: 'rgba(102,204,138,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     foreground: 'rgba(51,60,77,1)',
     primaryContent: 'rgba(34,61,48,1)',
     neutral: 'rgba(51,60,77,1)',
@@ -169,7 +177,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'fantasy',
     colorScheme: 'light',
     primary: 'rgba(109,0,118,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     foreground: 'rgba(31,41,55,1)',
     neutral: 'rgba(31,41,55,1)',
   },
@@ -189,7 +197,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     primary: 'rgba(254,0,117,1)',
     base100: 'rgba(233,231,231,1)',
     foreground: 'rgba(16,15,15,1)',
-    primaryContent: 'rgba(255,255,255,1)',
+    primaryContent: `rgba(255,255,255,1)`,
     neutral: 'rgba(41,30,0,1)',
   },
   halloween: {
@@ -206,7 +214,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'light',
     colorScheme: 'light',
     primary: 'rgba(74,0,255,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     base200: 'rgba(242,242,242,1)',
     base300: 'rgba(229,230,230,1)',
     foreground: 'rgba(31,41,55,1)',
@@ -217,18 +225,18 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'lofi',
     colorScheme: 'light',
     primary: 'rgba(13,13,13,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     base200: 'rgba(242,242,242,1)',
     base300: 'rgba(230,229,229,1)',
     foreground: 'rgba(0,0,0,1)',
-    primaryContent: 'rgba(255,255,255,1)',
+    primaryContent: `rgba(255,255,255,1)`,
     neutral: 'rgba(0,0,0,1)',
   },
   luxury: {
     label: '奢侈',
     name: 'luxury',
     colorScheme: 'dark',
-    primary: 'rgba(255,255,255,1)',
+    primary: DEFAULT_LIGHT_BG_COLOR,
     base100: 'rgba(9,9,11,1)',
     base200: 'rgba(23,22,24,1)',
     base300: 'rgba(46,45,47,1)',
@@ -240,7 +248,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'pastel',
     colorScheme: 'light',
     primary: 'rgba(209,193,215,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     base200: 'rgba(249,250,251,1)',
     base300: 'rgba(209,213,219,1)',
     neutral: 'rgba(112,172,199,1)',
@@ -280,7 +288,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'wireframe',
     colorScheme: 'light',
     primary: 'rgba(184,184,184,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     base200: 'rgba(238,238,238,1)',
     base300: 'rgba(221,221,221,1)',
     neutral: 'rgba(235,235,235,1)',
@@ -339,7 +347,7 @@ export const themeColorsMap: Record<string, ThemeColors> = {
     name: 'winter',
     colorScheme: 'light',
     primary: 'rgba(0,105,255,1)',
-    base100: 'rgba(255,255,255,1)',
+    base100: DEFAULT_LIGHT_BG_COLOR,
     base200: 'rgba(242,247,255,1)',
     base300: 'rgba(227,233,244,1)',
     foreground: 'rgba(57,78,106,1)',

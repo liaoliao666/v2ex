@@ -1,16 +1,14 @@
-import { hashKey } from '@tanstack/react-query'
 import { useAtomValue } from 'jotai'
-import { compact, isEqual, maxBy } from 'lodash-es'
+import { compact, isEqual, isUndefined, maxBy } from 'lodash-es'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
-import { inferData } from 'react-query-kit'
 
 import { uiAtom } from '@/jotai/uiAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
-import { useIsMatchedQuery } from '@/utils/query'
 import { isLargeTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
+import { useQueryData } from '@/utils/useQueryData'
 
 import DebouncedPressable from '../DebouncedPressable'
 import Separator from '../Separator'
@@ -22,17 +20,17 @@ export interface TopicItemProps {
   hideAvatar?: boolean
 }
 
-export default memo(TopicItem, isEqual)
+export default memo(TopicItem, (prev, next) => isEqual(prev.topic, next.topic))
 
 function TopicItem({ topic, hideAvatar }: TopicItemProps) {
-  const isReaded = useIsMatchedQuery(query => {
-    if (query.queryHash === hashKey(k.topic.detail.getKey({ id: topic.id }))) {
-      const data = query.state.data as inferData<typeof k.topic.detail>
-      const replyCount = maxBy(data?.pages, 'reply_count')?.reply_count || 0
+  const isReaded = useQueryData(
+    k.topic.detail.getKey({ id: topic.id }),
+    data => {
+      if (isUndefined(data)) return false
+      const replyCount = maxBy(data.pages, 'reply_count')?.reply_count || 0
       return replyCount >= topic.reply_count
     }
-    return false
-  })
+  )
   const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (

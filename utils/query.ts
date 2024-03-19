@@ -1,13 +1,12 @@
 import NetInfo from '@react-native-community/netinfo'
 import {
-  Query,
   QueryClient,
   focusManager,
-  notifyManager,
+  hashKey,
   onlineManager,
 } from '@tanstack/react-query'
 import { first, isArray, isObjectLike } from 'lodash-es'
-import { useCallback, useMemo, useSyncExternalStore } from 'react'
+import { useMemo } from 'react'
 import { AppState, Platform } from 'react-native'
 import { InfiniteQueryHook, Middleware, getKey } from 'react-query-kit'
 
@@ -37,30 +36,14 @@ if (Platform.OS !== 'web') {
   })
 }
 
-export const useIsMatchedQuery = (predicate: (query: Query) => boolean) => {
-  const queryCache = queryClient.getQueryCache()
-  const getSnapshot = () =>
-    !!queryClient.getQueryCache().findAll({ predicate }).length
-
-  return useSyncExternalStore(
-    useCallback(
-      onStoreChange =>
-        queryCache.subscribe(notifyManager.batchCalls(onStoreChange)),
-      [queryCache]
-    ),
-    getSnapshot,
-    getSnapshot
-  )
-}
-
 export const removeUnnecessaryPages: Middleware<
   InfiniteQueryHook<any, any, any, any>
 > = useNext => options => {
   useMemo(() => {
     if (options.enabled !== false && !!options.getNextPageParam) {
-      const query = queryClient.getQueryCache().find({
-        queryKey: getKey(options.queryKey, options.variables),
-      })
+      const query = queryClient
+        .getQueryCache()
+        .get(hashKey(getKey(options.queryKey, options.variables)))
 
       if (!query) return
 

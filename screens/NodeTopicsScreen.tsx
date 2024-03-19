@@ -27,7 +27,7 @@ import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { formatColor, getUI, uiAtom } from '@/jotai/uiAtom'
+import { formatColor, getUI, isDefaultBgColor, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -39,7 +39,7 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 function getTopBarBgCls() {
   const { colors } = getUI()
-  if (colors.base100 === 'rgba(255,255,255,1)') return `bg-[rgb(51,51,68)]`
+  if (isDefaultBgColor(colors.base100)) return `bg-[rgb(51,51,68)]`
   return `bg-[${formatColor(
     store.get(colorSchemeAtom) === 'light'
       ? darken(colors.base300, 0.6)

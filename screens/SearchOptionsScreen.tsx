@@ -193,6 +193,7 @@ function SearchOptionsScreen() {
                 gte: '',
                 lte: '',
                 source: 'sov2ex',
+                node: '',
               })
             }}
           >

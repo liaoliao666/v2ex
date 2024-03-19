@@ -51,7 +51,7 @@ import TopicItem from '@/components/topic/TopicItem'
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { formatColor, getUI, uiAtom } from '@/jotai/uiAtom'
+import { formatColor, getUI, isDefaultBgColor, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Member, Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
@@ -65,12 +65,12 @@ const TAB_BAR_HEIGHT = 53
 const TAB_VIEW_MARGIN_TOP = -2
 
 function getTopBarBgCls() {
-  if (getUI().colors.base100 === 'rgba(255,255,255,1)')
-    return `bg-[rgb(51,51,68)]`
+  const { colors } = getUI()
+  if (isDefaultBgColor(colors.base100)) return `bg-[rgb(51,51,68)]`
   return `bg-[${formatColor(
     store.get(colorSchemeAtom) === 'light'
-      ? darken(getUI().colors.base300, 0.6)
-      : lighten(getUI().colors.base300, 0.2)
+      ? darken(colors.base300, 0.6)
+      : lighten(colors.base300, 0.2)
   )}]`
 }
 

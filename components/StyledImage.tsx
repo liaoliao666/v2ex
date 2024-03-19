@@ -86,7 +86,7 @@ function BaseImage({
     placeholderContentFit: 'cover',
     style: tw.style(
       // Compute image size if style has no size
-      !hasSize(style) && computeImageDispalySize(containerWidth, size),
+      !hasSize(style) && computeOptimalDispalySize(containerWidth, size),
       style as ViewStyle
     ),
   }
@@ -143,7 +143,7 @@ function imageLoadingRender({
   return (
     <View
       style={tw.style(
-        !hasSize(style) && computeImageDispalySize(containerWidth),
+        !hasSize(style) && computeOptimalDispalySize(containerWidth),
         `bg-[${getUI().colors.neutral}]`,
         style
       )}
@@ -185,7 +185,7 @@ const Svg = ({
   ...props
 }: UriProps & { containerWidth?: number }) => {
   const { xml, size } = suspend(getSvgInfo, [uri!])
-  const svgStyle = computeImageDispalySize(containerWidth, size)
+  const svgStyle = computeOptimalDispalySize(containerWidth, size)
 
   return (
     <SvgXml
@@ -246,7 +246,7 @@ const Gif = (props: StyledImageProps) => {
   )
 }
 
-function computeImageDispalySize(
+function computeOptimalDispalySize(
   containerWidth?: number,
   size?: UriInfo
 ): ViewStyle {
@@ -282,6 +282,13 @@ function computeImageDispalySize(
       aspectRatio,
       width: `100%`,
     }
+  }
+
+  if (
+    size.width < Math.min(MAX_IMAGE_HEIGHT, containerWidth) &&
+    size.height < MAX_IMAGE_HEIGHT
+  ) {
+    return size
   }
 
   const actualWidth = Math.min(aspectRatio * MAX_IMAGE_HEIGHT, containerWidth)

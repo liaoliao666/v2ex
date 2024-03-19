@@ -11,7 +11,7 @@ import RenderHTML, {
 } from 'react-native-render-html'
 
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { uiAtom } from '@/jotai/uiAtom'
+import { isDefaultBgColor, uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 import { useScreenWidth } from '@/utils/useScreenWidth'
 
@@ -64,12 +64,25 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         return copy
       }, [context, tnode])}
     >
-      <View style={tw.style(style, `bg-[#fafafa] dark:bg-[#282c34] rounded`)}>
+      <View
+        style={tw.style(
+          style,
+          `rounded`,
+          isDefaultBgColor(colors.base100)
+            ? `bg-[#fafafa] dark:bg-[#282c34]`
+            : `bg-[${colors.base200}] bg-opacity-50 dark:bg-opacity-100`
+        )}
+      >
         <WrapView horizontal nestedScrollEnabled>
           <RenderHTML
             {...getDefaultProps({ inModalScreen })}
             contentWidth={screenWidth - paddingX}
-            baseStyle={tw`text-[#383a42] dark:text-[#abb2bf] px-3 ${fontSize.medium}`}
+            baseStyle={tw.style(
+              `px-3 ${fontSize.medium}`,
+              isDefaultBgColor(colors.base100)
+                ? `text-[#383a42] dark:text-[#abb2bf]`
+                : `text-[${colors.foreground}]`
+            )}
             tagsStyles={{
               pre: tw`mt-2 mb-0`,
               a: tw`text-[${colors.primary}] no-underline`,
