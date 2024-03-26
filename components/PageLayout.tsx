@@ -21,7 +21,7 @@ export default function PageLayout({ children }: { children: ReactNode }) {
           <Profile onlyIcon />
         </View>
 
-        {(isLargeTablet || (Platform.OS === 'android' && isTablet)) && (
+        {(isLargeTablet || Platform.OS === 'android') && (
           <View
             style={tw.style(
               // https://github.com/liaoliao666/v2ex/issues/69

@@ -1,35 +1,36 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons'
-import { load } from 'cheerio'
-import { toRgba } from 'color2k'
-import { Image, ImageBackground, ImageProps } from 'expo-image'
-import * as ImageManipulator from 'expo-image-manipulator'
+import { parseToRgba } from 'color2k'
+import { Image, ImageBackground, ImageProps, ImageSource } from 'expo-image'
 import { useAtomValue } from 'jotai'
 import {
   isArray,
   isEqual,
   isObject,
-  isPlainObject,
   isString,
   memoize,
   pick,
+  uniqueId,
 } from 'lodash-es'
-import { Suspense } from 'react'
-import { ErrorBoundary } from 'react-error-boundary'
-import { TouchableOpacity, View, ViewStyle } from 'react-native'
+import { memo, useEffect, useState } from 'react'
+import {
+  Pressable,
+  StyleProp,
+  TouchableOpacity,
+  View,
+  ViewStyle,
+} from 'react-native'
 import { Text } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
-import { suspend } from 'suspend-react'
 
-import { getUI, uiAtom } from '@/jotai/uiAtom'
+import { uiAtom } from '@/jotai/uiAtom'
+import { k } from '@/servicies'
 import { hasSize } from '@/utils/hasSize'
-import { request } from '@/utils/request'
 import tw from '@/utils/tw'
 import { genBMPUri, isGifURL, isSvgURL, resolveURL } from '@/utils/url'
 import useUpdate from '@/utils/useUpdate'
 
 export interface StyledImageProps extends ImageProps {
   containerWidth?: number
-  showGifIcon?: boolean
 }
 
 type UriInfo = { width: number; height: number } | 'error' | 'refetching'
@@ -39,14 +40,8 @@ const MAX_IMAGE_HEIGHT = 510
 const BROKEN_IMAGE_SIZE = 24
 
 const genPlaceholder = memoize((color: string) => {
-  const [r, g, b, a = 1] = toRgba(color)
-    .replace(/^(rgb|rgba)\(/, '')
-    .replace(/\)$/, '')
-    .replace(/\s/g, '')
-    .split(',')
-    .map(Number)
-  const rgba = [b, g, r, parseInt(String(a * 255), 10)]
-  return genBMPUri(1, rgba)
+  const [r, g, b, a = 1] = parseToRgba(color)
+  return genBMPUri(1, [b, g, r, parseInt(String(a * 255), 10)])
 })
 
 function BaseImage({
@@ -55,18 +50,32 @@ function BaseImage({
   onLoad,
   onError,
   containerWidth,
-  showGifIcon,
   ...props
 }: StyledImageProps) {
   const { colors } = useAtomValue(uiAtom)
-  const uri = isObject(source) && !isArray(source) ? source.uri : undefined
+  const uri = (source as ImageSource).uri
   const size = uriInfo.get(uri)
   const update = useUpdate()
+
+  if (!uri) return <View style={style} {...props} />
+
+  if (size === 'error') {
+    return (
+      <BreakingImage
+        onPress={() => {
+          uriInfo.set(uri, 'refetching')
+          update()
+        }}
+        style={style}
+      />
+    )
+  }
+
   const imageProps: ImageProps = {
     ...props,
     source,
     onLoad: ev => {
-      const newSize: any = pick(ev.source, ['width', 'height'])
+      const newSize = pick(ev.source, ['width', 'height'])
       if (!isEqual(size, newSize)) {
         uriInfo.set(uri, newSize)
         if (!hasSize(style)) update()
@@ -75,10 +84,10 @@ function BaseImage({
     },
     onError: err => {
       // TODO: This is a trick
-      // maybe fixed in next expo-image version
+      // Maybe fixed in next expo-image version
       if (!hasSize(size)) {
         uriInfo.set(uri, 'error')
-        if (!hasSize(style)) update()
+        update()
       }
       onError?.(err)
     },
@@ -91,41 +100,10 @@ function BaseImage({
     ),
   }
 
-  if (!uri) return <View style={style} {...props} />
-
-  if (size === 'error')
-    return (
-      <TouchableOpacity
-        onPress={() => {
-          uriInfo.set(uri, 'refetching')
-          update()
-        }}
-        style={[style, hasSize(style) && tw`items-center justify-center`]}
-      >
-        <MaterialCommunityIcons
-          name="image-off-outline"
-          size={
-            hasSize(style) &&
-            isFinite(style.width) &&
-            style.width < BROKEN_IMAGE_SIZE
-              ? style.width
-              : BROKEN_IMAGE_SIZE
-          }
-          color={colors.default}
-        />
-      </TouchableOpacity>
-    )
-
-  if (showGifIcon) {
+  if (!hasSize(style) && isGifURL(uri)) {
     return (
       <ImageBackground {...imageProps}>
-        <View
-          style={tw`absolute left-1 top-1 rounded p-0.5 bg-black bg-opacity-50`}
-        >
-          <View style={tw`border-white border rounded px-1 py-0.5`}>
-            <Text style={tw`text-white font-bold text-[10px]`}>GIF</Text>
-          </View>
-        </View>
+        {!props.autoplay && size !== 'refetching' && <GifIcon />}
       </ImageBackground>
     )
   }
@@ -133,49 +111,83 @@ function BaseImage({
   return <Image {...imageProps} />
 }
 
-function imageLoadingRender({
-  style,
-  containerWidth,
-}: {
-  containerWidth?: number
-  style?: any
-}) {
+function GifIcon() {
   return (
     <View
-      style={tw.style(
-        !hasSize(style) && computeOptimalDispalySize(containerWidth),
-        `bg-[${getUI().colors.neutral}]`,
-        style
-      )}
-    />
+      style={tw`absolute left-1 top-1 rounded p-0.5 bg-black bg-opacity-50`}
+    >
+      <View style={tw`border-white border rounded px-1 py-0.5`}>
+        <Text style={tw`text-white font-bold text-[10px]`}>GIF</Text>
+      </View>
+    </View>
   )
 }
 
-async function getSvgInfo(url: string) {
-  const { data: xml } = await request.get<string>(url!)
-  const $ = load(xml)
-  const $svg = $('svg')
+function BreakingImage({
+  onPress,
+  style,
+}: {
+  onPress: () => void
+  style: StyleProp<ViewStyle>
+}) {
+  const { colors } = useAtomValue(uiAtom)
 
-  let width: number
-  let height: number
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={[style, hasSize(style) && tw`items-center justify-center`]}
+    >
+      <MaterialCommunityIcons
+        name="image-off-outline"
+        size={
+          hasSize(style) &&
+          isFinite(style.width) &&
+          style.width < BROKEN_IMAGE_SIZE
+            ? style.width
+            : BROKEN_IMAGE_SIZE
+        }
+        color={colors.default}
+      />
+    </TouchableOpacity>
+  )
+}
 
-  if ($svg.attr('width') && $svg.attr('height')) {
-    width = parseFloat($svg.attr('width') as string)
-    height = parseFloat($svg.attr('height') as string)
-  } else {
-    const viewBox = $svg.attr('viewBox') || ''
-    ;[, , width, height] = viewBox
-      .split(viewBox.includes(',') ? ',' : ' ')
-      .map(parseFloat)
+const uniqueGIfId = () => uniqueId(`Gif_`)
+const gifListeners = new Set<() => void>()
+
+let activeGifId = ''
+export const setGifId = (nextGifId: string) => {
+  if (activeGifId !== nextGifId) {
+    activeGifId = nextGifId
+    gifListeners.forEach(l => l())
   }
+}
 
-  return {
-    xml,
-    size: {
-      width,
-      height,
-    },
-  }
+const Gif = (props: StyledImageProps) => {
+  const [gifId] = useState(uniqueGIfId)
+  const [autoplay, setAutoplay] = useState(false)
+
+  useEffect(() => {
+    const listener = () => {
+      setAutoplay(gifId === activeGifId)
+    }
+
+    gifListeners.add(listener)
+    return () => {
+      gifListeners.delete(listener)
+    }
+  }, [gifId])
+
+  return (
+    <Pressable
+      onPress={() => {
+        setGifId(gifId)
+      }}
+      disabled={autoplay}
+    >
+      <BaseImage {...props} autoplay={autoplay} />
+    </Pressable>
+  )
 }
 
 const Svg = ({
@@ -184,64 +196,43 @@ const Svg = ({
   containerWidth,
   ...props
 }: UriProps & { containerWidth?: number }) => {
-  const { xml, size } = suspend(getSvgInfo, [uri!])
-  const svgStyle = computeOptimalDispalySize(containerWidth, size)
+  const { colors } = useAtomValue(uiAtom)
+
+  const svgQuery = k.other.svg.useQuery({
+    variables: uri!,
+  })
+
+  if (svgQuery.isPending) {
+    return (
+      <View
+        style={tw.style(
+          !hasSize(style) &&
+            computeOptimalDispalySize(
+              containerWidth,
+              svgQuery.errorUpdateCount ? 'refetching' : undefined
+            ),
+          `bg-[${colors.neutral}]`,
+          style as any
+        )}
+      />
+    )
+  }
+
+  if (!svgQuery.data) {
+    return <BreakingImage style={style} onPress={svgQuery.refetch} />
+  }
+
+  const { xml, size } = svgQuery.data
 
   return (
     <SvgXml
       {...props}
       xml={xml}
-      style={
-        (isArray(style)
-          ? [svgStyle, ...style]
-          : {
-              ...svgStyle,
-              ...(isPlainObject(style) && (style as any)),
-            }) as any
-      }
+      style={tw.style(
+        computeOptimalDispalySize(containerWidth, size),
+        style as any
+      )}
       width="100%"
-    />
-  )
-}
-
-async function comporessImage(uri: string) {
-  try {
-    await Image.prefetch(uri)
-    const localURI = await Image.getCachePathAsync(uri)
-    const staticImage = await ImageManipulator.manipulateAsync(
-      localURI || uri,
-      [],
-      {
-        compress: 1,
-        format: ImageManipulator.SaveFormat.JPEG,
-      }
-    )
-    return {
-      uri: staticImage.uri,
-      size: pick(staticImage, ['width', 'height']),
-    }
-  } catch (error) {
-    return { uri }
-  }
-}
-
-const Gif = (props: StyledImageProps) => {
-  const sourceURI = isString(props.source)
-    ? props.source
-    : (props.source as any).uri
-  const { uri, size } = suspend(comporessImage, [sourceURI!])
-  if (!uriInfo.has(uri) && hasSize(size)) {
-    uriInfo.set(uri, size)
-  }
-
-  return (
-    <StyledImage
-      {...props}
-      showGifIcon={sourceURI !== uri}
-      source={{
-        ...(isObject(props.source) && !isArray(props.source) && props.source),
-        uri,
-      }}
     />
   )
 }
@@ -258,25 +249,25 @@ function computeOptimalDispalySize(
   }
 
   // Display placeholder size if image size is not available
-  if (!hasSize(size)) {
+  if (!size) {
     return {
       aspectRatio: 1,
       width: containerWidth
-        ? Math.min(containerWidth, MAX_IMAGE_HEIGHT)
+        ? Math.min(MAX_IMAGE_HEIGHT, containerWidth)
         : `100%`,
     }
   }
 
-  const isMiniImage = size.width < 100 && size.height < 100
+  const { width, height } = size
 
   // Display mini image
-  if (isMiniImage) {
+  if (width <= 200 && height <= 200) {
     return size
   }
 
-  // Display image with max height
-  const aspectRatio = size.width / size.height
+  const aspectRatio = width / height
 
+  // Display auto fit image
   if (!containerWidth) {
     return {
       aspectRatio,
@@ -284,26 +275,25 @@ function computeOptimalDispalySize(
     }
   }
 
+  // Display small image
   if (
-    size.width < Math.min(MAX_IMAGE_HEIGHT, containerWidth) &&
-    size.height < MAX_IMAGE_HEIGHT
+    width <= Math.min(MAX_IMAGE_HEIGHT, containerWidth) &&
+    height <= MAX_IMAGE_HEIGHT
   ) {
     return size
   }
 
+  // Display optimal size
   const actualWidth = Math.min(aspectRatio * MAX_IMAGE_HEIGHT, containerWidth)
-
-  if (actualWidth === containerWidth) {
-    return {
-      aspectRatio,
-      width: `100%`,
-    }
-  }
-
-  return {
-    width: actualWidth,
-    height: actualWidth / aspectRatio,
-  }
+  return actualWidth === containerWidth
+    ? {
+        aspectRatio,
+        width: `100%`,
+      }
+    : {
+        width: actualWidth,
+        height: actualWidth / aspectRatio,
+      }
 }
 
 function StyledImage({ source, ...props }: StyledImageProps) {
@@ -315,26 +305,23 @@ function StyledImage({ source, ...props }: StyledImageProps) {
   const resolvedURI = URI ? resolveURL(URI) : undefined
 
   if (isString(resolvedURI) && isSvgURL(resolvedURI)) {
-    return (
-      <ErrorBoundary fallbackRender={() => null}>
-        <Suspense fallback={imageLoadingRender(props)}>
-          <Svg uri={resolvedURI} {...(props as any)} />
-        </Suspense>
-      </ErrorBoundary>
-    )
+    return <Svg uri={resolvedURI} {...(props as any)} />
   }
 
-  if (isString(resolvedURI) && isGifURL(resolvedURI) && !hasSize(props.style)) {
+  if (
+    isString(resolvedURI) &&
+    isGifURL(resolvedURI) &&
+    !hasSize(props.style) &&
+    !props.autoplay
+  ) {
     return (
-      <Suspense fallback={imageLoadingRender(props)}>
-        <Gif
-          {...props}
-          source={{
-            ...(isObject(source) && !isArray(source) && source),
-            uri: resolvedURI,
-          }}
-        />
-      </Suspense>
+      <Gif
+        {...props}
+        source={{
+          ...(isObject(source) && !isArray(source) && source),
+          uri: resolvedURI,
+        }}
+      />
     )
   }
 
@@ -349,4 +336,4 @@ function StyledImage({ source, ...props }: StyledImageProps) {
   )
 }
 
-export default StyledImage
+export default memo(StyledImage)

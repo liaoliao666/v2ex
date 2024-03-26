@@ -1,17 +1,19 @@
+import { hashKey } from '@tanstack/react-query'
 import axios from 'axios'
+import { load } from 'cheerio'
 import dayjs from 'dayjs'
 import Constants from 'expo-constants'
 import * as FileSystem from 'expo-file-system'
 import * as ImagePicker from 'expo-image-picker'
 import { Platform } from 'react-native'
-import { router } from 'react-query-kit'
+import { getKey, router } from 'react-query-kit'
 import showdown from 'showdown'
 import SparkMD5 from 'spark-md5'
 import { z } from 'zod'
 
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
-import { removeUnnecessaryPages } from '@/utils/query'
+import { queryClient, removeUnnecessaryPages } from '@/utils/query'
 import { request } from '@/utils/request'
 import { stripString, stripStringToNumber } from '@/utils/zodHelper'
 
@@ -181,5 +183,47 @@ export const otherRouter = router(`other`, {
 
       return data.link as string
     },
+  }),
+
+  svg: router.query({
+    fetcher: async (uri: string) => {
+      const { data: xml } = await request.get<string>(uri!)
+      const $ = load(xml)
+      const $svg = $('svg')
+
+      let width: number
+      let height: number
+
+      if ($svg.attr('width') && $svg.attr('height')) {
+        width = parseFloat($svg.attr('width') as string)
+        height = parseFloat($svg.attr('height') as string)
+      } else {
+        const viewBox = $svg.attr('viewBox') || ''
+        ;[, , width, height] = viewBox
+          .split(viewBox.includes(',') ? ',' : ' ')
+          .map(parseFloat)
+      }
+
+      return {
+        xml,
+        size: {
+          width,
+          height,
+        },
+      }
+    },
+    gcTime: 60 * 60 * 1000,
+    staleTime: 60 * 60 * 1000,
+    use: [
+      useNext => options =>
+        useNext({
+          ...options,
+          enabled:
+            options.enabled ??
+            !queryClient
+              .getQueryCache()
+              .get(hashKey(getKey(options.queryKey, options.variables))),
+        }),
+    ],
   }),
 })

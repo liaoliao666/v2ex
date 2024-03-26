@@ -248,15 +248,11 @@ export default function LoginScreen() {
           )}
         />
 
-        {(Platform.OS === 'android' || dayjs().isAfter('2024-03-20 12:00')) && (
+        {(Platform.OS === 'android' || dayjs().isAfter('2024-03-26 12:00')) && (
           <TouchableOpacity
             style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
             onPress={() => {
-              if (!signinInfoQuery.data?.once) return
-              navigation.navigate('WebSignin', {
-                once: signinInfoQuery.data.once,
-                onTwoStepOnce: setTwoStepOnce,
-              })
+              navigation.navigate('WebSignin')
             }}
           >
             <Text style={tw`${fontSize.medium} text-[${colors.default}] ml-2`}>
