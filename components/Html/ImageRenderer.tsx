@@ -44,6 +44,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
         source={url}
         containerWidth={containerWidth}
         priority="low"
+        autoplay={false}
       />
     </Pressable>
   )

@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { Image } from 'expo-image'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { compact, findIndex, isString } from 'lodash-es'
+import { compact, findIndex, isString, pick } from 'lodash-es'
 import { memo, useMemo } from 'react'
 import { Alert, Platform, Image as RNImage } from 'react-native'
 import RenderHtml, {
@@ -15,10 +15,10 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
-import { resolveURL } from '@/utils/url'
+import { isSvgURL, resolveURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
 
-import { uriInfo } from '../StyledImage'
+import { imageResults } from '../StyledImage'
 import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
 import IFrameRenderer from './IFrameRenderer'
@@ -94,9 +94,14 @@ function Html({
                 await Promise.all(
                   imageUrls.map(async item => {
                     const resolvedURI = resolveURL(item.url)
-                    const size = uriInfo.get(resolvedURI)
+                    const imageResult = imageResults.get(resolvedURI)
 
-                    if (size === 'error' || size === 'refetching') return false
+                    if (
+                      imageResult === 'error' ||
+                      imageResult === 'refetching' ||
+                      isSvgURL(resolvedURI)
+                    )
+                      return false
 
                     let localUrl: string | null
 
@@ -111,7 +116,7 @@ function Html({
                     }
 
                     return {
-                      ...size,
+                      ...pick(imageResult, ['width', 'height']),
                       url: localUrl! || resolvedURI,
                     }
                   })

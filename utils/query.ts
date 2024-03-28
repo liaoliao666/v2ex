@@ -8,7 +8,12 @@ import {
 import { first, isArray, isObjectLike } from 'lodash-es'
 import { useMemo } from 'react'
 import { AppState, Platform } from 'react-native'
-import { InfiniteQueryHook, Middleware, getKey } from 'react-query-kit'
+import {
+  InfiniteQueryHook,
+  Middleware,
+  QueryHook,
+  getKey,
+} from 'react-query-kit'
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -43,7 +48,11 @@ export const removeUnnecessaryPages: Middleware<
     if (options.enabled !== false && !!options.getNextPageParam) {
       const query = queryClient
         .getQueryCache()
-        .get(hashKey(getKey(options.queryKey, options.variables)))
+        .get(
+          (options.queryKeyHashFn ?? hashKey)(
+            getKey(options.queryKey, options.variables)
+          )
+        )
 
       if (!query) return
 
@@ -69,3 +78,19 @@ export const removeUnnecessaryPages: Middleware<
 
   return useNext(options)
 }
+
+export const disabledIfFetched: Middleware<QueryHook<any, any, any>> =
+  useNext => options => {
+    return useNext({
+      ...options,
+      enabled:
+        options.enabled ??
+        !queryClient
+          .getQueryCache()
+          .get(
+            (options.queryKeyHashFn ?? hashKey)(
+              getKey(options.queryKey, options.variables)
+            )
+          ),
+    })
+  }

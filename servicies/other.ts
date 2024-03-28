@@ -1,4 +1,3 @@
-import { hashKey } from '@tanstack/react-query'
 import axios from 'axios'
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
@@ -6,14 +5,14 @@ import Constants from 'expo-constants'
 import * as FileSystem from 'expo-file-system'
 import * as ImagePicker from 'expo-image-picker'
 import { Platform } from 'react-native'
-import { getKey, router } from 'react-query-kit'
+import { router } from 'react-query-kit'
 import showdown from 'showdown'
 import SparkMD5 from 'spark-md5'
 import { z } from 'zod'
 
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'
 import { store } from '@/jotai/store'
-import { queryClient, removeUnnecessaryPages } from '@/utils/query'
+import { disabledIfFetched, removeUnnecessaryPages } from '@/utils/query'
 import { request } from '@/utils/request'
 import { stripString, stripStringToNumber } from '@/utils/zodHelper'
 
@@ -185,7 +184,7 @@ export const otherRouter = router(`other`, {
     },
   }),
 
-  svg: router.query({
+  svgXml: router.query({
     fetcher: async (uri: string) => {
       const { data: xml } = await request.get<string>(uri!)
       const $ = load(xml)
@@ -206,24 +205,13 @@ export const otherRouter = router(`other`, {
 
       return {
         xml,
-        size: {
-          width,
-          height,
-        },
+        width,
+        height,
       }
     },
     gcTime: 60 * 60 * 1000,
     staleTime: 60 * 60 * 1000,
-    use: [
-      useNext => options =>
-        useNext({
-          ...options,
-          enabled:
-            options.enabled ??
-            !queryClient
-              .getQueryCache()
-              .get(hashKey(getKey(options.queryKey, options.variables))),
-        }),
-    ],
+    retry: 0,
+    use: [disabledIfFetched],
   }),
 })

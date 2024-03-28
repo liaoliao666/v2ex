@@ -23,8 +23,10 @@ export function AsyncStoragePersist({ children }: { children: ReactNode }) {
     let changed = false
     let running = false
 
-    const unsubscribe = queryClient.getQueryCache().subscribe(() => {
-      changed = true
+    const unsubscribe = queryClient.getQueryCache().subscribe(({ type }) => {
+      if (!type.startsWith(`observer`)) {
+        changed = true
+      }
     })
 
     const timer = setInterval(async () => {
