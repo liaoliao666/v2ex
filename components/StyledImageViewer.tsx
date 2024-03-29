@@ -12,7 +12,6 @@ import tw from '@/utils/tw'
 
 import IconButton from './IconButton'
 import { NAV_BAR_HEIGHT } from './NavBar'
-import { setAnimatingImage } from './StyledImage'
 
 export interface StyledImageViewerProps
   extends Omit<ComponentProps<typeof ImageViewer>, 'onCancel'> {
@@ -22,21 +21,17 @@ export interface StyledImageViewerProps
 
 export default function StyledImageViewer({
   visible,
+  onClose,
   ...props
 }: StyledImageViewerProps) {
   const safeAreaInsets = useSafeAreaInsets()
   const { fontSize } = useAtomValue(uiAtom)
 
-  const handleClose = () => {
-    setAnimatingImage('')
-    props.onClose?.()
-  }
-
   return (
-    <Modal transparent visible={visible} onRequestClose={handleClose}>
+    <Modal transparent visible={visible} onRequestClose={onClose}>
       <ImageViewer
         enableSwipeDown
-        onCancel={handleClose}
+        onCancel={onClose}
         renderHeader={currentIndex => (
           <View
             style={tw`h-[${NAV_BAR_HEIGHT}px] w-full px-4 z-20 absolute top-[${safeAreaInsets.top}px] inset-x-0 flex-row justify-between items-center`}
@@ -46,7 +41,7 @@ export default function StyledImageViewer({
               color="#fff"
               activeColor="#fff"
               icon={<Ionicons name="close-sharp" />}
-              onPress={handleClose}
+              onPress={onClose}
             />
 
             <IconButton
@@ -69,9 +64,9 @@ export default function StyledImageViewer({
             </Text>
           </View>
         )}
-        renderImage={imageProps => {
-          return <Image {...imageProps} allowDownscaling={false} />
-        }}
+        renderImage={imageProps => (
+          <Image {...imageProps} allowDownscaling={false} />
+        )}
         saveToLocalByLongPress={false}
         {...props}
       />

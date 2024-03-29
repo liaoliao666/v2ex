@@ -147,7 +147,6 @@ function Html({
           h6: tw`${fontSize.small}`,
           p: tw`${fontSize.medium}`,
           a: tw`text-[${colors.primary}] no-underline`,
-          li: tw`text-justify`,
           hr: {
             backgroundColor: colors.divider,
           },
