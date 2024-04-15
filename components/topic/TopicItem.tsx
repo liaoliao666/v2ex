@@ -6,7 +6,7 @@ import { Text, View } from 'react-native'
 import { uiAtom } from '@/jotai/uiAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
-import { isLargeTablet } from '@/utils/tablet'
+import { isTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { useQueryData } from '@/utils/useQueryData'
 
@@ -37,7 +37,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
     <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
       onPress={() => {
-        if (isLargeTablet() && getCurrentRouteName() === 'TopicDetail') {
+        if (isTablet() && getCurrentRouteName() === 'TopicDetail') {
           navigation.replace('TopicDetail', topic)
         } else {
           navigation.push('TopicDetail', topic)
@@ -81,7 +81,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
               size="mini"
               type="tag"
               onPress={() => {
-                if (isLargeTablet() && getCurrentRouteName() === 'NodeTopics') {
+                if (isTablet() && getCurrentRouteName() === 'NodeTopics') {
                   navigation.replace('NodeTopics', { name: topic.node?.name! })
                 } else {
                   navigation.push('NodeTopics', { name: topic.node?.name! })

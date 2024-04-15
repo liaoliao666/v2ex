@@ -17,7 +17,6 @@ import Badge from '@/components/Badge'
 import ListItem from '@/components/ListItem'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
 import { withQuerySuspense } from '@/components/QuerySuspense'
-import RadioButtonGroup from '@/components/RadioButtonGroup'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
@@ -29,7 +28,6 @@ import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { enabledWebviewAtom } from '@/jotai/enabledWebviewAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
-import { colorSchemeAtom, themeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { k } from '@/servicies'
@@ -37,7 +35,6 @@ import { confirm } from '@/utils/confirm'
 import { clearCookie } from '@/utils/cookie'
 import { queryClient } from '@/utils/query'
 import { sleep } from '@/utils/sleep'
-import { useIsTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { openURL } from '@/utils/url'
 
@@ -57,12 +54,6 @@ function SettingScreen() {
   const [enabledParseContent, setEnabledParseContent] = useAtom(
     enabledParseContentAtom
   )
-
-  const isTablet = useIsTablet()
-
-  const colorScheme = useAtomValue(colorSchemeAtom)
-
-  const [theme, setTheme] = useAtom(themeAtom)
 
   const [enabledWebview, setEnabledWebview] = useAtom(enabledWebviewAtom)
 
@@ -192,31 +183,6 @@ function SettingScreen() {
           }
           pressable={false}
         />
-
-        {isTablet && (
-          <ListItem
-            label="外观"
-            icon={
-              <Feather
-                color={colors.foreground}
-                size={24}
-                name={colorScheme === 'light' ? 'sun' : 'moon'}
-              />
-            }
-            action={
-              <RadioButtonGroup
-                options={[
-                  { label: '浅色', value: 'light' },
-                  { label: '深色', value: 'dark' },
-                  { label: '系统', value: 'system' },
-                ]}
-                value={theme}
-                onChange={setTheme}
-              />
-            }
-            pressable={false}
-          />
-        )}
 
         <ListItem
           label="主题设置"

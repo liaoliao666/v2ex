@@ -8,6 +8,7 @@ import {
   DarkTheme,
   DefaultTheme,
   NavigationContainer,
+  Theme,
 } from '@react-navigation/native'
 import {
   NativeStackNavigationOptions,
@@ -15,10 +16,9 @@ import {
 } from '@react-navigation/native-stack'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
-import { useMemo, useState } from 'react'
-import { Platform } from 'react-native'
+import { ReactNode, useMemo, useState } from 'react'
+import { Platform, View } from 'react-native'
 
-import PageLayout from '@/components/PageLayout'
 import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
@@ -54,7 +54,8 @@ import WebviewScreen from '@/screens/WebviewScreen'
 import WriteTopicScreen from '@/screens/WriteTopicScreen'
 import { RootStackParamList } from '@/types'
 import { sleep } from '@/utils/sleep'
-import { useIsLargeTablet, useIsTablet } from '@/utils/tablet'
+import { useTablet } from '@/utils/tablet'
+import tw from '@/utils/tw'
 import { useNavigationBar } from '@/utils/useNavigationBar'
 
 import linking from './LinkingConfiguration'
@@ -94,23 +95,23 @@ export default function Navigation() {
   useNavigationBar(readyAndroid)
 
   return (
-    <NavigationContainer
-      ref={navigationRef}
-      linking={linking}
-      theme={theme}
-      onReady={async () => {
-        await sleep(300)
-        await SplashScreen.hideAsync()
+    <TabletLayout theme={theme}>
+      <NavigationContainer
+        ref={navigationRef}
+        linking={linking}
+        theme={theme}
+        onReady={async () => {
+          await sleep(300)
+          await SplashScreen.hideAsync()
 
-        if (Platform.OS === 'android') {
-          setReadyAndroid(true)
-        }
-      }}
-    >
-      <PageLayout>
+          if (Platform.OS === 'android') {
+            setReadyAndroid(true)
+          }
+        }}
+      >
         <StackNavigator />
-      </PageLayout>
-    </NavigationContainer>
+      </NavigationContainer>
+    </TabletLayout>
   )
 }
 
@@ -128,14 +129,8 @@ const androidSlideFromBottomOptions: NativeStackNavigationOptions =
       }
     : {}
 
-function RootScreen() {
-  const isLargeTablet = useIsLargeTablet()
-  return isLargeTablet ? <NotFoundScreen /> : <DrawerNavigator />
-}
-
 function StackNavigator() {
-  const isTablet = useIsTablet()
-  const isLargeTablet = useIsLargeTablet()
+  const { isTablet } = useTablet()
 
   return (
     <Stack.Navigator
@@ -154,7 +149,7 @@ function StackNavigator() {
     >
       <Stack.Screen
         name="Root"
-        component={RootScreen}
+        component={isTablet ? NotFoundScreen : DrawerNavigator}
         options={{
           animation: 'none',
         }}
@@ -201,7 +196,7 @@ function StackNavigator() {
       <Stack.Screen
         name="Search"
         options={
-          isLargeTablet
+          isTablet
             ? undefined
             : {
                 animation: 'none',
@@ -291,15 +286,68 @@ function StackNavigator() {
 const Drawer = createDrawerNavigator()
 
 function DrawerNavigator() {
+  const { isTablet, navbarWidth } = useTablet()
   return (
     <Drawer.Navigator
       initialRouteName="Home"
       drawerContent={() => <Profile />}
       screenOptions={{
         headerShown: false,
+        drawerStyle: isTablet ? { width: navbarWidth } : undefined,
       }}
     >
       <Drawer.Screen name="Home" component={HomeScreen} />
     </Drawer.Navigator>
   )
+}
+
+const TabletStack = createNativeStackNavigator<{
+  TabletRoot: undefined
+}>()
+
+function TabletLayout({
+  children,
+  theme,
+}: {
+  children: ReactNode
+  theme: Theme
+}) {
+  const { isTablet, navbarWidth } = useTablet()
+  const { colors } = useAtomValue(uiAtom)
+
+  if (isTablet) {
+    return (
+      <View style={tw`flex-1 flex-row bg-[${colors.base100}] justify-center`}>
+        <View
+          style={tw.style(
+            `bg-[${colors.base100}] border-solid border-r border-[${colors.divider}] w-[${navbarWidth}px]`
+          )}
+        >
+          <NavigationContainer theme={theme}>
+            <TabletStack.Navigator
+              initialRouteName={'TabletRoot'}
+              screenOptions={{
+                headerShown: false,
+                fullScreenGestureEnabled: true,
+              }}
+            >
+              <TabletStack.Screen
+                name="TabletRoot"
+                component={DrawerNavigator}
+                options={{
+                  animation: 'none',
+                }}
+              />
+            </TabletStack.Navigator>
+          </NavigationContainer>
+        </View>
+
+        <View style={tw.style(`flex-1 bg-[${colors.base100}]`)}>
+          {children}
+        </View>
+      </View>
+    )
+  }
+
+  return children
 }

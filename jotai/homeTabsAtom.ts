@@ -8,8 +8,10 @@ export type HomeTab = {
   type: 'tab' | 'node'
 }
 
+export const RECENT_TAB_KEY = 'recent'
+
 export const allTabs: HomeTab[] = [
-  { title: '最近', key: 'recent' },
+  { title: '最近', key: RECENT_TAB_KEY },
   { title: '最热', key: 'hot' },
   { title: '技术', key: 'tech' },
   { title: '创意', key: 'creative' },

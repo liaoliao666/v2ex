@@ -22,13 +22,12 @@ import tw from '@/utils/tw'
 import Badge from './Badge'
 import IconButton from './IconButton'
 import ListItem, { ListItemProps } from './ListItem'
-import { NAV_BAR_HEIGHT } from './NavBar'
 import { withQuerySuspense } from './QuerySuspense'
 import RadioButtonGroup from './RadioButtonGroup'
 
 export default withQuerySuspense(memo(Profile))
 
-function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
+function Profile() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const fontScale = useAtomValue(fontScaleAtom)
@@ -116,7 +115,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
         navigation.navigate('Notifications')
       },
     },
-    !onlyIcon && {
+    {
       label: '外观',
       value: 'color_scheme',
       icon: (
@@ -210,89 +209,58 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
   return (
     <SafeAreaView
       edges={['top']}
-      style={tw.style(`flex-1 bg-[${colors.base100}]`, onlyIcon && `px-2`)}
-      key={onlyIcon ? 'profile' : fontScale}
+      style={tw.style(`flex-1 bg-[${colors.base100}]`)}
+      key={fontScale}
     >
       {isLogin ? (
-        onlyIcon ? (
-          <TouchableOpacity
-            style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
-            onPress={() => {
-              navigation.navigate('MemberDetail', {
-                username: profile?.username!,
-              })
-            }}
-          >
+        <View style={tw`p-4`}>
+          <View style={tw`flex-row justify-between items-center`}>
             <StyledImage
-              style={tw`w-8 h-8 rounded-full`}
+              style={tw`w-10 h-10 rounded-full`}
               source={profile?.avatar}
             />
-          </TouchableOpacity>
-        ) : (
-          <View style={tw`p-4`}>
-            <View style={tw`flex-row justify-between items-center`}>
-              <StyledImage
-                style={tw`w-10 h-10 rounded-full`}
-                source={profile?.avatar}
-              />
 
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('MemberDetail', {
-                    username: profile?.username!,
-                  })
-                }}
-                style={tw`flex-row items-center`}
-              >
-                <Text
-                  style={tw`text-[${colors.default}] mr-1 ${fontSize.medium}`}
-                >
-                  个人主页
-                </Text>
-                <SimpleLineIcons
-                  name="arrow-right"
-                  color={colors.default}
-                  size={10}
-                />
-              </TouchableOpacity>
-            </View>
-
-            <View style={tw`pt-2 flex-row items-center`}>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('MemberDetail', {
+                  username: profile?.username!,
+                })
+              }}
+              style={tw`flex-row items-center`}
+            >
               <Text
-                style={tw`text-[${colors.foreground}] ${fontSize.xxlarge} font-bold flex-shrink mr-2`}
-                numberOfLines={1}
+                style={tw`text-[${colors.default}] mr-1 ${fontSize.medium}`}
               >
-                {profile?.username}
+                个人主页
               </Text>
-
-              <Money
-                style={tw`mt-1`}
-                {...pick(profile, ['gold', 'silver', 'bronze'])}
+              <SimpleLineIcons
+                name="arrow-right"
+                color={colors.default}
+                size={10}
               />
-            </View>
-
-            {!!profile?.motto && (
-              <Text
-                style={tw`text-[${colors.default}] ${fontSize.medium} mt-2`}
-              >
-                {profile?.motto}
-              </Text>
-            )}
+            </TouchableOpacity>
           </View>
-        )
-      ) : onlyIcon ? (
-        <TouchableOpacity
-          style={tw`mx-auto h-[${NAV_BAR_HEIGHT}px] justify-center items-center`}
-          onPress={async () => {
-            try {
-              await clearCookie()
-            } finally {
-              navigation.navigate('Login')
-            }
-          }}
-        >
-          <View style={tw`w-8 h-8 rounded-full bg-[${colors.neutral}]`} />
-        </TouchableOpacity>
+
+          <View style={tw`pt-2 flex-row items-center`}>
+            <Text
+              style={tw`text-[${colors.foreground}] ${fontSize.xxlarge} font-bold flex-shrink mr-2`}
+              numberOfLines={1}
+            >
+              {profile?.username}
+            </Text>
+
+            <Money
+              style={tw`mt-1`}
+              {...pick(profile, ['gold', 'silver', 'bronze'])}
+            />
+          </View>
+
+          {!!profile?.motto && (
+            <Text style={tw`text-[${colors.default}] ${fontSize.medium} mt-2`}>
+              {profile?.motto}
+            </Text>
+          )}
+        </View>
       ) : (
         <TouchableOpacity
           style={tw`px-4 py-8 flex-row items-center`}
@@ -322,10 +290,7 @@ function Profile({ onlyIcon }: { onlyIcon?: boolean }) {
 
       <ScrollView>
         {listOptions.map(item => (
-          <ListItem
-            key={item.value}
-            {...omit(item, onlyIcon ? ['value', 'label'] : ['value'])}
-          />
+          <ListItem key={item.value} {...omit(item, ['value'])} />
         ))}
 
         <SafeAreaView edges={['bottom']} />

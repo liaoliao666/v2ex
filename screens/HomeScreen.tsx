@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons'
-import { DrawerActions } from '@react-navigation/native'
+import { DrawerActions, useNavigation } from '@react-navigation/native'
 import { InfiniteData } from '@tanstack/react-query'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
@@ -43,7 +43,11 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
-import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
+import {
+  RECENT_TAB_KEY,
+  homeTabIndexAtom,
+  homeTabsAtom,
+} from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -52,12 +56,11 @@ import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
-import { isLargeTablet, useIsTablet } from '@/utils/tablet'
+import { isTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 const TAB_BAR_HEIGHT = 40
-const RECENT_TAB_KEY = 'recent'
 const errorResetMap: Record<string, () => void> = {}
 
 function TabPlaceholder({
@@ -458,35 +461,33 @@ const NodeTopics = memo(
 function TopNavBar() {
   const profile = useAtomValue(profileAtom)
 
-  const isTablet = useIsTablet()
-
   const { colors } = useAtomValue(uiAtom)
+
+  const nav = useNavigation()
 
   return (
     <NavBar
       style={tw`border-b-0`}
       left={
-        !isTablet && (
-          <Pressable
-            onPress={() => {
-              navigation.dispatch(DrawerActions.openDrawer)
-            }}
-          >
-            {profile ? (
-              <Badge content={profile.my_notification}>
-                <StyledImage
-                  priority="high"
-                  style={tw`w-8 h-8 rounded-full`}
-                  source={profile.avatar}
-                />
-              </Badge>
-            ) : (
-              <View
-                style={tw`w-8 h-8 items-center justify-center rounded-full bg-[${colors.neutral}]`}
+        <Pressable
+          onPress={() => {
+            nav.dispatch(DrawerActions.openDrawer)
+          }}
+        >
+          {profile ? (
+            <Badge content={profile.my_notification}>
+              <StyledImage
+                priority="high"
+                style={tw`w-8 h-8 rounded-full`}
+                source={profile.avatar}
               />
-            )}
-          </Pressable>
-        )
+            </Badge>
+          ) : (
+            <View
+              style={tw`w-8 h-8 items-center justify-center rounded-full bg-[${colors.neutral}]`}
+            />
+          )}
+        </Pressable>
       }
       right={
         <IconButton
@@ -524,5 +525,5 @@ function PreventLeftSwiping({ headerHeight }: { headerHeight: number }) {
 function isRefetchOnWindowFocus(key: string) {
   const isActive =
     findIndex(store.get(homeTabsAtom), { key }) === store.get(homeTabIndexAtom)
-  return isActive && (getCurrentRouteName() === 'Home' || isLargeTablet())
+  return isActive && (getCurrentRouteName() === 'Home' || isTablet())
 }
