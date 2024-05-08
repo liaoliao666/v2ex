@@ -20,7 +20,7 @@ export const useTablet = () => {
   useAtomValue(deviceTypeAtom)
   const { width } = useWindowDimensions()
   return {
-    navbarWidth: isTablet() ? Math.min(Math.floor((3 / 7) * width), 480) : 0,
+    navbarWidth: isTablet() ? Math.min(Math.floor((3 / 7) * width), 460) : 0,
     isTablet: isTablet(),
   }
 }

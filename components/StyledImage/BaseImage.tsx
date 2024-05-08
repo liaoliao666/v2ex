@@ -82,6 +82,8 @@ export function BaseImage({
 
   if (props.autoplay === false) {
     const isAnimating = isAnimatingImage(uri)
+    const isMiniImage =
+      isObject(result) && result.width < 50 && result.height < 50
 
     return (
       <ImageBackground
@@ -89,7 +91,7 @@ export function BaseImage({
         autoplay={isAnimating}
         allowDownscaling={props.allowDownscaling ?? !isAnimating}
       >
-        {isObject(result) && !!result?.isAnimated && (
+        {isObject(result) && !isMiniImage && !!result?.isAnimated && (
           <AnimatedImageOverlay
             isAnimating={isAnimating}
             update={update}
