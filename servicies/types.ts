@@ -126,6 +126,21 @@ export interface Topic {
   appendable?: boolean
 }
 
+export interface Xna {
+  node?: {
+    name: string
+    title: string
+  }
+  member?: Member
+  created?: string
+  last_reply_by?: string
+  last_touched?: string
+  title: string
+  content: string
+  id: string
+  pin_to_top?: boolean
+}
+
 export interface Notice {
   prev_action_text: string
   next_action_text: string

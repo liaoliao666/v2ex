@@ -9,6 +9,7 @@ import { Topic } from '@/servicies'
 import tw from '@/utils/tw'
 
 import NavBar from '../NavBar'
+import StyledButton from '../StyledButton'
 import StyledFade from './StyledFade'
 
 function AvatarPlaceholder() {
@@ -53,11 +54,20 @@ export default function TopicDetailPlaceholder({
             </View>
 
             <View style={tw`flex-1`}>
-              <Text
-                style={tw`text-[${colors.foreground}] ${fontSize.large} font-semibold`}
-              >
-                {topic.member?.username}
-              </Text>
+              <View style={tw`flex flex-row gap-2`}>
+                <Text
+                  key={'username'}
+                  style={tw`text-[${colors.foreground}] ${fontSize.xlarge} font-semibold flex-shrink`}
+                  numberOfLines={1}
+                >
+                  {topic.member?.username}
+                </Text>
+                {!!topic.node?.title && (
+                  <StyledButton size="mini" type="tag">
+                    {topic.node?.title}
+                  </StyledButton>
+                )}
+              </View>
 
               <Text
                 key="reply_count"

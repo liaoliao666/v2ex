@@ -41,7 +41,12 @@ export function BaseImage({
     ...props,
     source,
     onLoad: ev => {
-      const nextImageResult = pick(ev.source, ['width', 'height', 'isAnimated'])
+      const nextImageResult = pick(ev.source, [
+        'width',
+        'height',
+        'isAnimated',
+        'mediaType',
+      ])
       if (!isEqual(result, nextImageResult)) {
         imageResults.set(uri, nextImageResult)
         if (!hasPassedSize) update()
@@ -91,13 +96,16 @@ export function BaseImage({
         autoplay={isAnimating}
         allowDownscaling={props.allowDownscaling ?? !isAnimating}
       >
-        {isObject(result) && !isMiniImage && !!result?.isAnimated && (
-          <AnimatedImageOverlay
-            isAnimating={isAnimating}
-            update={update}
-            uri={uri}
-          />
-        )}
+        {isObject(result) &&
+          !isMiniImage &&
+          !!result?.isAnimated &&
+          result?.mediaType === 'image/gif' && (
+            <AnimatedImageOverlay
+              isAnimating={isAnimating}
+              update={update}
+              uri={uri}
+            />
+          )}
       </ImageBackground>
     )
   }

@@ -34,6 +34,7 @@ import { getBaseURL } from '@/utils/url'
 import Html from '../Html'
 import IconButton from '../IconButton'
 import Separator from '../Separator'
+import StyledButton from '../StyledButton'
 import StyledImage from '../StyledImage'
 
 export default function TopicInfo({
@@ -75,13 +76,25 @@ export default function TopicInfo({
         <View style={tw`flex-1`}>
           <Separator style={tw`flex-nowrap`}>
             {compact([
-              <Text
-                key={'username'}
-                style={tw`text-[${colors.foreground}] ${fontSize.xlarge} font-semibold flex-shrink`}
-                numberOfLines={1}
-              >
-                {topic.member?.username}
-              </Text>,
+              <View key={'username'} style={tw`flex flex-row gap-2`}>
+                <Text
+                  style={tw`text-[${colors.foreground}] ${fontSize.xlarge} font-semibold flex-shrink`}
+                  numberOfLines={1}
+                >
+                  {topic.member?.username}
+                </Text>
+                {!!topic.node?.title && (
+                  <StyledButton
+                    size="mini"
+                    type="tag"
+                    onPress={() => {
+                      navigation.push('NodeTopics', { name: topic.node?.name! })
+                    }}
+                  >
+                    {topic.node?.title}
+                  </StyledButton>
+                )}
+              </View>,
               hasParsedText && (
                 <Text
                   key={'isParsed'}

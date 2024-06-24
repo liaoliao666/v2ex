@@ -9,12 +9,12 @@ import useLatest from '@/utils/useLatest'
 
 let animatingImage = ''
 
-const animatedImageListeners = new Set<() => void>()
+const animatedListeners = new Set<() => void>()
 export const isAnimatingImage = (uri: string) => uri === animatingImage
 const setAnimatingImage = (nextAnimatedImage: string) => {
   if (!isAnimatingImage(nextAnimatedImage)) {
     animatingImage = nextAnimatedImage
-    animatedImageListeners.forEach(l => l())
+    animatedListeners.forEach(l => l())
   }
 }
 
@@ -42,11 +42,11 @@ export default function AnimatedImageOverlay({
       }
     }
 
-    animatedImageListeners.add(listener)
+    animatedListeners.add(listener)
     return () => {
-      animatedImageListeners.delete(listener)
+      animatedListeners.delete(listener)
 
-      if (!animatedImageListeners.size) {
+      if (!animatedListeners.size) {
         animatingImage = ''
       }
     }

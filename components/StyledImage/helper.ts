@@ -1,7 +1,12 @@
 import { ViewStyle } from 'react-native'
 
 type ImageResult =
-  | { width: number; height: number; isAnimated?: boolean }
+  | {
+      width: number
+      height: number
+      isAnimated?: boolean
+      mediaType: string | null
+    }
   | 'error'
   | 'refetching'
 

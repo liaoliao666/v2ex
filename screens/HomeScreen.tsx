@@ -43,8 +43,10 @@ import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
 import TopicItem from '@/components/topic/TopicItem'
+import XnaItem from '@/components/topic/XnaItem'
 import {
   RECENT_TAB_KEY,
+  XNA_KEY,
   homeTabIndexAtom,
   homeTabsAtom,
 } from '@/jotai/homeTabsAtom'
@@ -53,7 +55,7 @@ import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { fontScaleAtom, uiAtom } from '@/jotai/uiAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
-import { Topic, k } from '@/servicies'
+import { Topic, Xna, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
 import { isTablet } from '@/utils/tablet'
@@ -115,8 +117,10 @@ function HomeScreen() {
     const activeQueryKey: any =
       activeTab.type === 'node'
         ? k.node.topics.getKey({ name: activeTabKey })
-        : activeTabKey === RECENT_TAB_KEY
+        : activeTab.type === 'recent'
         ? k.topic.recent.getKey()
+        : activeTab.type === 'xna'
+        ? k.topic.xna.getKey()
         : k.topic.tab.getKey({ tab: activeTabKey })
     const query = queryClient.getQueryCache().find({
       queryKey: activeQueryKey,
@@ -125,7 +129,11 @@ function HomeScreen() {
     if (query?.state.error) {
       errorResetMap[activeTabKey]?.()
     } else if (query?.getObserversCount() && (forceFetch || query?.isStale())) {
-      if (activeTab.type === 'node' || activeTabKey === RECENT_TAB_KEY) {
+      if (
+        activeTab.type === 'node' ||
+        activeTab.type === 'recent' ||
+        activeTab.type === 'xna'
+      ) {
         const pages =
           (queryClient.getQueryData(activeQueryKey) as InfiniteData<any, any>)
             ?.pages?.length || 0
@@ -139,6 +147,8 @@ function HomeScreen() {
         queryClient.prefetchInfiniteQuery({
           ...(activeTab.type === 'node'
             ? k.node.topics.getFetchOptions({ name: activeTabKey })
+            : activeTab.type === 'xna'
+            ? (k.topic.xna.getFetchOptions() as any)
             : k.topic.recent.getFetchOptions()),
           pages: 1,
         })
@@ -181,10 +191,18 @@ function HomeScreen() {
             )
           }
 
-          if (route.key === RECENT_TAB_KEY) {
+          if (route.type === RECENT_TAB_KEY) {
             return (
               <TabPlaceholder tab={RECENT_TAB_KEY}>
                 <RecentTopics ref={ref} headerHeight={headerHeight} />
+              </TabPlaceholder>
+            )
+          }
+
+          if (route.type === XNA_KEY) {
+            return (
+              <TabPlaceholder tab={XNA_KEY}>
+                <Xnas ref={ref} headerHeight={headerHeight} />
               </TabPlaceholder>
             )
           }
@@ -437,6 +455,70 @@ const NodeTopics = memo(
             paddingTop: headerHeight,
           }}
           ListEmptyComponent={<Empty description="无法访问该节点" />}
+          ItemSeparatorComponent={LineSeparator}
+          renderItem={renderItem}
+          onEndReached={() => {
+            if (hasNextPage) {
+              fetchNextPage()
+            }
+          }}
+          onEndReachedThreshold={0.3}
+          ListFooterComponent={
+            <SafeAreaView edges={['bottom']}>
+              {isFetchingNextPage ? (
+                <StyledActivityIndicator style={tw`py-4`} />
+              ) : null}
+            </SafeAreaView>
+          }
+        />
+      </RefetchingIndicator>
+    )
+  })
+)
+
+const Xnas = memo(
+  forwardRef<FlatList, { headerHeight: number }>(({ headerHeight }, ref) => {
+    const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
+      k.topic.xna.useSuspenseInfiniteQuery({
+        refetchOnWindowFocus: () => isRefetchOnWindowFocus(XNA_KEY),
+      })
+
+    const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
+      queryClient.prefetchInfiniteQuery({
+        ...k.topic.recent.getFetchOptions(),
+        pages: 1,
+      })
+    )
+
+    const renderItem: ListRenderItem<Xna> = useCallback(
+      ({ item }) => <XnaItem key={item.id} xna={item} />,
+      []
+    )
+
+    const flatedData = useMemo(
+      () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
+      [data.pages]
+    )
+
+    return (
+      <RefetchingIndicator
+        isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
+        progressViewOffset={headerHeight}
+      >
+        <FlatList
+          ref={ref}
+          data={flatedData}
+          automaticallyAdjustsScrollIndicatorInsets={false}
+          refreshControl={
+            <StyledRefreshControl
+              refreshing={isRefetchingByUser}
+              onRefresh={refetchByUser}
+              progressViewOffset={headerHeight}
+            />
+          }
+          contentContainerStyle={{
+            paddingTop: headerHeight,
+          }}
           ItemSeparatorComponent={LineSeparator}
           renderItem={renderItem}
           onEndReached={() => {

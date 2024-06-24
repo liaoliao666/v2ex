@@ -8,7 +8,7 @@ import { RecentTopic } from '@/jotai/recentTopicsAtom'
 import { store } from '@/jotai/store'
 import { getURLSearchParams } from '@/utils/url'
 
-import { Member, Node, Profile, Reply, Topic } from './types'
+import { Member, Node, Profile, Reply, Topic, Xna } from './types'
 
 export function getNextPageParam(data: { page: number; last_page: number }) {
   return data.last_page > data.page ? data.page + 1 : undefined
@@ -79,6 +79,33 @@ export function parseBalance(
     silver: number
     bronze: number
   }
+}
+
+export function parseXnaItems($: CheerioAPI): Xna[] {
+  return $('.xna-entry.cell')
+    .map((i, item) => {
+      const $xnaItem = $(item)
+      const $xnaInfo = $xnaItem.find('.xna-entry-avatar-container')
+      const $avatar = $xnaInfo.find('a > img')
+      const $xna = $xnaItem.find('.xna-entry-title a')
+      const $node = $xnaItem.find('.node')
+
+      return {
+        node: {
+          name: $($node).attr('href'),
+          title: $node.text(),
+        },
+        last_touched: $xnaItem.find('.xna-entry-date').text().trim(),
+        id: $xna.attr('href'),
+        title: $xna.text(),
+        member: {
+          username: $avatar.attr('alt'),
+          avatar: $avatar.attr('data-src') || $avatar.attr('src'),
+        },
+      } as Xna
+    })
+    .get()
+    .filter(Boolean)
 }
 
 export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {

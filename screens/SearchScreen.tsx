@@ -56,7 +56,9 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 export default function SearchScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'Search'>>()
-  const [searchText, setSearchText] = useState(params?.query || '')
+  const [searchText, setSearchText] = useState(
+    params?.query && decodeURIComponent ? decodeURIComponent(params.query) : ''
+  )
   const trimedSearchText = searchText.trim()
   const [isSearchNode, setIsSearchNode] = useState(!params?.query)
   const { data: matchNodes = [] } = k.node.all.useQuery({

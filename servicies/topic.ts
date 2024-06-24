@@ -12,8 +12,9 @@ import {
   parseLastPage,
   parseTopic,
   parseTopicItems,
+  parseXnaItems,
 } from './helper'
-import { PageData, Topic } from './types'
+import { PageData, Topic, Xna } from './types'
 
 export const topicRouter = router(`topic`, {
   preview: router.query<
@@ -55,6 +56,28 @@ export const topicRouter = router(`topic`, {
     },
     structuralSharing: false,
     staleTime: 10 * 1000,
+  }),
+
+  xna: router.infiniteQuery<PageData<Xna>>({
+    fetcher: async (_, { pageParam, signal }) => {
+      const { data } = await request.get(`/xna?p=${pageParam}`, {
+        responseType: 'text',
+        signal,
+      })
+
+      const $ = load(data)
+
+      return {
+        page: pageParam,
+        last_page: parseLastPage($),
+        list: parseXnaItems($),
+      }
+    },
+    initialPageParam: 1,
+    getNextPageParam,
+    staleTime: 10 * 1000,
+    structuralSharing: false,
+    use: [removeUnnecessaryPages],
   }),
 
   hotest: router.query<Topic[], { tab: string }>({
