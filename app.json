@@ -20,7 +20,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.7.5.4",
+      "buildNumber": "1.7.5.5",
+      "entitlements": {
+        "aps-environment": "development"
+      },
       "privacyManifests": {
         "NSPrivacyAccessedAPITypes": [
           {
