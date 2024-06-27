@@ -50,7 +50,8 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#000000"
       },
-      "package": "com.liaoliao666.v2ex"
+      "package": "com.liaoliao666.v2ex",
+      "versionCode": 1
     },
     "web": {
       "favicon": "./assets/favicon.png"
