@@ -1,1 +1,0 @@
-V2Fun is a native client of V2EX with night mode support.

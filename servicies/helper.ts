@@ -126,7 +126,7 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
   return $(selector)
     .map((i, table) => {
       const $this = $(table)
-      const $topicItem = $this.find('table > tbody > tr:first-child')
+      const $topicItem = $this.find('table tr:first-child')
       const $topicInfo = $topicItem.find('.topic_info')
       const $avatar = $topicItem.find('td:first-child').find('a > img')
       const topic = parseTopicByATag($topicItem.find('.item_title a'))
