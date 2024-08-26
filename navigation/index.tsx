@@ -242,7 +242,7 @@ function StackNavigator() {
       <Stack.Screen
         options={
           isTablet
-            ? undefined
+            ? { fullScreenGestureEnabled: false }
             : {
                 presentation: 'fullScreenModal',
                 ...androidSlideFromBottomOptions,

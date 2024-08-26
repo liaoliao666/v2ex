@@ -2,7 +2,7 @@
   "expo": {
     "name": "V2Fun",
     "slug": "v2ex",
-    "version": "1.7.5",
+    "version": "1.7.6",
     "scheme": "v2fun",
     "jsEngine": "jsc",
     "icon": "./assets/icon.png",
@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.7.5.5",
+      "buildNumber": "1.7.6.1",
       "entitlements": {
         "aps-environment": "development"
       },
