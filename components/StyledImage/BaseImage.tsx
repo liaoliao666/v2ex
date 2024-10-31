@@ -95,7 +95,7 @@ export function BaseImage({
         {...imageProps}
         autoplay={isAnimating}
         allowDownscaling={props.allowDownscaling ?? !isAnimating}
-        contentFit="none"
+        // contentFit="none"
       >
         {isObject(result) &&
           !isMiniImage &&

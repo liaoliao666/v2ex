@@ -3,7 +3,7 @@ import dayjs from 'dayjs'
 import { isArray, isEqual, isString, noop, pick } from 'lodash-es'
 import { router } from 'react-query-kit'
 
-import { removeUnnecessaryPages } from '@/utils/query'
+import { queryClient, removeUnnecessaryPages } from '@/utils/query'
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
@@ -14,6 +14,7 @@ import {
   parseTopicItems,
   parseXnaItems,
 } from './helper'
+import { nodeRouter } from './node'
 import { PageData, Topic, Xna } from './types'
 
 export const topicRouter = router(`topic`, {
@@ -80,17 +81,36 @@ export const topicRouter = router(`topic`, {
     use: [removeUnnecessaryPages],
   }),
 
-  hotest: router.query<Topic[], { tab: string }>({
-    fetcher: async ({ tab }, { signal }) => {
-      const { data } = await request.get(
-        `https://v2hot.pipecraft.net/hot/${tab}`,
-        {
-          responseType: 'text',
-          signal,
-        }
+  hotest: router.query<Topic[], { date: string }>({
+    fetcher: async ({ date }, { signal }) => {
+      const { data } = await request.get<
+        { node: string; title: string; url: string; user: string }[]
+      >(`https://v2exday.com/api.php?date=${date}`, {
+        signal,
+      })
+      if (!isArray(data)) {
+        throw new Error('查询失败')
+      }
+
+      const nodes = await queryClient.ensureQueryData(
+        nodeRouter.all.getFetchOptions()
       )
-      const $ = load(data)
-      return parseTopicItems($, '#Main .box .cell.item')
+      const nodeMap = Object.fromEntries(nodes.map(item => [item.title, item]))
+
+      return data.map(item => {
+        const [_, id, replies] =
+          item.url?.match(/t\/(\d+)(?:.+reply(\d+))?/)?.map(Number) || []
+
+        return {
+          id,
+          reply_count: replies || 0,
+          title: item.title,
+          member: {
+            username: item.user,
+          },
+          node: nodeMap[item.node],
+        } as unknown as Topic
+      })
     },
     structuralSharing: false,
     staleTime: 10 * 1000,
