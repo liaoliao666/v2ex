@@ -20,9 +20,12 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.7.7.1",
+      "buildNumber": "1.7.7.3",
       "entitlements": {
         "aps-environment": "development"
+      },
+      "infoPlist": {
+        "LSMinimumSystemVersion": "13.0.0"
       },
       "privacyManifests": {
         "NSPrivacyAccessedAPITypes": [
@@ -76,11 +79,11 @@
       [
         "expo-build-properties",
         {
-          "ios": {
-            "newArchEnabled": true
-          },
+          // "ios": {
+          //   "newArchEnabled": true
+          // },
           "android": {
-            "newArchEnabled": true,
+            // "newArchEnabled": true,
             // https://www.reddit.com/r/expo/comments/1abfxrq/sdk50_unusually_large_apk_size/
             "useLegacyPackaging": true,
             "enableProguardInReleaseBuilds": true,
