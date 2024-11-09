@@ -133,7 +133,6 @@ export interface Xna {
   }
   member?: Member
   created?: string
-  last_reply_by?: string
   last_touched?: string
   title: string
   content: string

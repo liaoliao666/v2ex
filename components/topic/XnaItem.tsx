@@ -22,7 +22,7 @@ export interface XnaItemProps {
 
 export default memo(XnaItem, (prev, next) => isEqual(prev.xna, next.xna))
 
-const readedXnaMap = new Map<string, boolean>()
+const readedXnas = new Set<string>()
 
 function XnaItem({ xna, hideAvatar }: XnaItemProps) {
   const update = useUpdate()
@@ -32,13 +32,9 @@ function XnaItem({ xna, hideAvatar }: XnaItemProps) {
     <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
       onPress={() => {
-        readedXnaMap.set(xna.id, true)
+        readedXnas.add(xna.id)
         update()
-        if (isTablet() && getCurrentRouteName() === 'Webview') {
-          navigation.replace('Webview', { url: xna.id })
-        } else {
-          navigation.push('Webview', { url: xna.id })
-        }
+        navigation.push('Webview', { url: xna.id })
       }}
     >
       {!hideAvatar && (
@@ -78,11 +74,7 @@ function XnaItem({ xna, hideAvatar }: XnaItemProps) {
               size="mini"
               type="tag"
               onPress={() => {
-                if (isTablet() && getCurrentRouteName() === 'Webview') {
-                  navigation.replace('Webview', { url: xna.node?.name! })
-                } else {
-                  navigation.push('Webview', { url: xna.node?.name! })
-                }
+                navigation.push('Webview', { url: xna.node?.name! })
               }}
             >
               {xna.node?.title}
@@ -99,7 +91,7 @@ function XnaItem({ xna, hideAvatar }: XnaItemProps) {
         <Text
           style={tw.style(
             `${fontSize.medium} pt-1 font-medium`,
-            readedXnaMap.has(xna.id)
+            readedXnas.has(xna.id)
               ? `text-[${colors.default}]`
               : `text-[${colors.foreground}]`
           )}
@@ -108,26 +100,12 @@ function XnaItem({ xna, hideAvatar }: XnaItemProps) {
         </Text>
 
         <Separator style={tw`mt-1`}>
-          {compact([
-            <Text
-              key="last_touched"
-              style={tw`text-[${colors.default}] ${fontSize.small}`}
-            >
-              {xna.last_touched}
-            </Text>,
-            !!xna.last_reply_by && (
-              <Text
-                key="last_reply_by"
-                style={tw`text-[${colors.foreground}] ${fontSize.small} flex-1`}
-                numberOfLines={1}
-              >
-                <Text style={tw`text-[${colors.default}] ${fontSize.small}`}>
-                  最后回复于
-                </Text>
-                {xna.last_reply_by}
-              </Text>
-            ),
-          ])}
+          <Text
+            key="last_touched"
+            style={tw`text-[${colors.default}] ${fontSize.small}`}
+          >
+            {xna.last_touched}
+          </Text>
         </Separator>
       </View>
     </DebouncedPressable>
