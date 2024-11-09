@@ -40,21 +40,30 @@ export const myRouter = router(`my`, {
       })
       const $ = load(data)
 
+      let following: Member[] = []
+
+      $('#Rightbar .box').each((i, elem) => {
+        let $box = $(elem)
+        if ($box.find('.cell:first-child').text().includes('我关注的人')) {
+          following = $box
+            .find('a > img')
+            .map((i, img) => {
+              const $avatar = $(img)
+              return {
+                username: $avatar.attr('alt'),
+                avatar: $avatar.attr('src'),
+              } as Member
+            })
+            .get()
+          return false
+        }
+      })
+
       return {
         page: pageParam,
         last_page: parseLastPage($),
         list: parseTopicItems($, '#Main .box .cell.item'),
-        following: $('#Rightbar .box')
-          .eq(1)
-          .find('a > img')
-          .map((i, img) => {
-            const $avatar = $(img)
-            return {
-              username: $avatar.attr('alt'),
-              avatar: $avatar.attr('src'),
-            } as Member
-          })
-          .get(),
+        following,
       }
     },
     initialPageParam: 1,

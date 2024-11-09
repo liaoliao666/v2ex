@@ -3,7 +3,11 @@ import dayjs from 'dayjs'
 import { isArray, isEqual, isString, noop, pick } from 'lodash-es'
 import { router } from 'react-query-kit'
 
-import { queryClient, removeUnnecessaryPages } from '@/utils/query'
+import {
+  disabledIfFetched,
+  queryClient,
+  removeUnnecessaryPages,
+} from '@/utils/query'
 import { request } from '@/utils/request'
 import { paramsSerializer } from '@/utils/request/paramsSerializer'
 
@@ -114,6 +118,7 @@ export const topicRouter = router(`topic`, {
     },
     structuralSharing: false,
     staleTime: 10 * 1000,
+    use: [disabledIfFetched],
   }),
 
   recent: router.infiniteQuery<PageData<Topic>>({

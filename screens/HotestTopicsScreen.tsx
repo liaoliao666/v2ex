@@ -89,13 +89,13 @@ function HotestTopicsScreen() {
           title="历史最热"
           style={tw`border-b-0`}
           right={
-            <View style={tw`flex-row items-center gap-2`}>
+            <View style={tw`flex-row items-center`}>
               {dayjs(date).isBefore('2018-08-06') ? (
                 <AntDesign
                   name="caretleft"
                   size={iconSize}
                   color={colors.foreground}
-                  style={tw`opacity-50`}
+                  style={tw`opacity-50 p-2`}
                 />
               ) : (
                 <TouchableOpacity
@@ -104,6 +104,7 @@ function HotestTopicsScreen() {
                   }}
                 >
                   <AntDesign
+                    style={tw`p-2`}
                     name="caretleft"
                     size={iconSize}
                     color={colors.foreground}
@@ -129,7 +130,7 @@ function HotestTopicsScreen() {
                   name="caretright"
                   size={iconSize}
                   color={colors.foreground}
-                  style={tw`opacity-50`}
+                  style={tw`opacity-50 p-2 -mr-2`}
                 />
               ) : (
                 <TouchableOpacity
@@ -138,6 +139,7 @@ function HotestTopicsScreen() {
                   }}
                 >
                   <AntDesign
+                    style={tw`p-2 -mr-2`}
                     name="caretright"
                     size={iconSize}
                     color={colors.foreground}
