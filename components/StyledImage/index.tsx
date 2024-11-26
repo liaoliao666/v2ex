@@ -1,3 +1,4 @@
+import { ImageSource } from 'expo-image'
 import { isArray, isObject, isString } from 'lodash-es'
 import { memo } from 'react'
 
@@ -13,7 +14,7 @@ export { StyledImageProps, imageResults }
 function StyledImage({ source, ...props }: StyledImageProps) {
   const URI = isString(source)
     ? source
-    : isObject(source) && !isArray(source) && isString(source.uri)
+    : isImageSource(source)
     ? source.uri
     : undefined
   const resolvedURI = URI ? resolveURL(URI) : undefined
@@ -31,6 +32,10 @@ function StyledImage({ source, ...props }: StyledImageProps) {
       }}
     />
   )
+}
+
+function isImageSource(source: any): source is ImageSource {
+  return isObject(source) && !isArray(source) && isString((source as any).uri)
 }
 
 export default memo(StyledImage)

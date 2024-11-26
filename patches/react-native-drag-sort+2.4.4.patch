@@ -1,0 +1,20 @@
+diff --git a/node_modules/react-native-drag-sort/AnySizeDragSortableView.js b/node_modules/react-native-drag-sort/AnySizeDragSortableView.js
+index 9450cbc..077e11f 100644
+--- a/node_modules/react-native-drag-sort/AnySizeDragSortableView.js
++++ b/node_modules/react-native-drag-sort/AnySizeDragSortableView.js
+@@ -1,6 +1,6 @@
+ import React from 'react';
+ import {
+-  NativeModules,
++  UIManager,
+   StyleSheet,
+   ScrollView,
+   View,
+@@ -10,7 +10,6 @@ import {
+ } from 'react-native';
+ const PropTypes = require('prop-types')
+ const ANIM_DURATION = 300
+-const { UIManager } = NativeModules;
+ 
+ if (Platform.OS === 'android') {
+   if (UIManager.setLayoutAnimationEnabledExperimental) {

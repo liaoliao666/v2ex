@@ -11,18 +11,12 @@ let animatingImage = ''
 
 const animatedListeners = new Set<() => void>()
 export const isAnimatingImage = (uri: string) => uri === animatingImage
-const setAnimatingImage = (nextAnimatedImage: string) => {
+export const setAnimatingImage = (nextAnimatedImage: string) => {
   if (!isAnimatingImage(nextAnimatedImage)) {
     animatingImage = nextAnimatedImage
     animatedListeners.forEach(l => l())
   }
 }
-
-store.sub(imageViewerAtom, () => {
-  if (store.get(imageViewerAtom)?.visible) {
-    setAnimatingImage('')
-  }
-})
 
 export default function AnimatedImageOverlay({
   update,

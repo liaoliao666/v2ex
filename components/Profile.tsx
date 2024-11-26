@@ -8,7 +8,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { compact, omit, pick } from 'lodash-es'
 import { memo } from 'react'
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import Money from '@/components/Money'
 import StyledImage from '@/components/StyledImage'
@@ -39,6 +39,8 @@ function Profile() {
   const isLogin = !!profile?.once
 
   const { colors, fontSize } = useAtomValue(uiAtom)
+
+  const safeAreaInsets = useSafeAreaInsets()
 
   const listOptions = compact([
     isLogin && {
@@ -207,9 +209,10 @@ function Profile() {
   ]) as (ListItemProps & { value: string })[]
 
   return (
-    <SafeAreaView
-      edges={['top']}
-      style={tw.style(`flex-1 bg-[${colors.base100}]`)}
+    <View
+      style={tw.style(
+        `pt-[${safeAreaInsets.top}px] flex-1 bg-[${colors.base100}]`
+      )}
       key={fontScale}
     >
       {isLogin ? (
@@ -295,6 +298,6 @@ function Profile() {
 
         <SafeAreaView edges={['bottom']} />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   )
 }

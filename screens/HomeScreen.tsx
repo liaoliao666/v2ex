@@ -22,7 +22,7 @@ import {
   View,
   useWindowDimensions,
 } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
 import Badge from '@/components/Badge'
@@ -91,11 +91,14 @@ function TabPlaceholder({
 }
 
 export default withQuerySuspense(HomeScreen, {
-  fallbackRender: props => (
-    <SafeAreaView edges={['top']}>
-      <FallbackComponent {...props} />
-    </SafeAreaView>
-  ),
+  FallbackComponent: props => {
+    const safeAreaInsets = useSafeAreaInsets()
+    return (
+      <View style={{ paddingTop: safeAreaInsets.top }}>
+        <FallbackComponent {...props} />
+      </View>
+    )
+  },
 })
 
 function HomeScreen() {

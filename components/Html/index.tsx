@@ -87,6 +87,7 @@ function Html({
               return
             }
 
+            console.log('index', findIndex(imageUrls, { url }))
             setImageViewer({
               index: findIndex(imageUrls, { url }),
               visible: true,
@@ -103,21 +104,12 @@ function Html({
                     )
                       return false
 
-                    let localUrl: string | null
-
-                    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-                      localUrl = await Image.getCachePathAsync(resolvedURI)
-
-                      if (localUrl) {
-                        localUrl = RNImage.resolveAssetSource({
-                          uri: localUrl,
-                        }).uri
-                      }
-                    }
+                    // let localUrl: string | null
+                    // localUrl = await Image.getCachePathAsync(resolvedURI)
 
                     return {
                       ...pick(imageResult, ['width', 'height']),
-                      url: localUrl! || resolvedURI,
+                      url: resolvedURI,
                     }
                   })
                 )

@@ -4,7 +4,7 @@ import { findIndex, isEmpty, some } from 'lodash-es'
 import { useMemo, useState } from 'react'
 import { Pressable, Text, View } from 'react-native'
 import { DragSortableView } from 'react-native-drag-sort'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
 import {
   HomeTab,
@@ -31,6 +31,7 @@ export default function SortTabsScreen() {
   const [tabIndex, setTabIndex] = useAtom(homeTabIndexAtom)
   const [isEdit, setIsEdit] = useState(false)
   const { colors, fontSize } = useAtomValue(uiAtom)
+  const safeAreaInsets = useSafeAreaInsets()
 
   const renderItem = ({
     item,
@@ -93,7 +94,9 @@ export default function SortTabsScreen() {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={tw`flex-1 bg-[${colors.base100}]`}>
+    <View
+      style={tw`flex-1 pt-[${safeAreaInsets.top}px] bg-[${colors.base100}]`}
+    >
       <View style={tw`pl-4 pt-4 flex-row items-center justify-between`}>
         <Text
           style={tw`text-[${colors.foreground}] ${fontSize.large} font-medium`}
@@ -271,6 +274,6 @@ export default function SortTabsScreen() {
           )
         })}
       </View>
-    </SafeAreaView>
+    </View>
   )
 }

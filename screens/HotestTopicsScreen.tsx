@@ -50,7 +50,7 @@ export default withQuerySuspense(HotestTopicsScreen, {
 
 const MemoHotestTopics = withQuerySuspense(memo(HotestTopics), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+    const headerHeight = useNavBarHeight()
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -58,7 +58,7 @@ const MemoHotestTopics = withQuerySuspense(memo(HotestTopics), {
     )
   },
   LoadingComponent: () => {
-    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+    const headerHeight = useNavBarHeight()
     return (
       <View style={{ paddingTop: headerHeight }}>
         <TopicPlaceholder hideAvatar />

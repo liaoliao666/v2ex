@@ -1,8 +1,16 @@
 import { parseToRgba } from 'color2k'
 import { Image, ImageBackground, ImageProps, ImageSource } from 'expo-image'
+import * as Sharing from 'expo-sharing'
 import { useAtomValue } from 'jotai'
 import { isEqual, isObject, memoize, pick } from 'lodash-es'
-import { View, ViewStyle } from 'react-native'
+import {
+  StyleProp,
+  View,
+  ViewProps,
+  ViewStyle,
+  useWindowDimensions,
+} from 'react-native'
+import ImageModal from 'react-native-image-modal'
 
 import { uiAtom } from '@/jotai/uiAtom'
 import { hasSize } from '@/utils/hasSize'
@@ -10,7 +18,10 @@ import tw from '@/utils/tw'
 import { genBMPUri } from '@/utils/url'
 import useUpdate from '@/utils/useUpdate'
 
-import AnimatedImageOverlay, { isAnimatingImage } from './AnimatedImageOverlay'
+import AnimatedImageOverlay, {
+  isAnimatingImage,
+  setAnimatingImage,
+} from './AnimatedImageOverlay'
 import BrokenImage from './BrokenImage'
 import { imageResults } from './helper'
 import { computeOptimalDispalySize } from './helper'
@@ -19,10 +30,10 @@ export interface BaseImageProps extends ImageProps {
   containerWidth?: number
 }
 
-const genPlaceholder = memoize((color: string) => {
-  const [r, g, b, a = 1] = parseToRgba(color)
-  return genBMPUri(1, [b, g, r, parseInt(String(a * 255), 10)])
-})
+// const genPlaceholder = memoize((color: string) => {
+//   const [r, g, b, a = 1] = parseToRgba(color)
+//   return genBMPUri(1, [b, g, r, parseInt(String(a * 255), 10)])
+// })
 
 export function BaseImage({
   style,
@@ -62,16 +73,16 @@ export function BaseImage({
       }
       onError?.(err)
     },
-    placeholder: genPlaceholder(colors.neutral),
-    placeholderContentFit: 'cover',
+    // placeholderContentFit: 'cover',
     style: tw.style(
       // Compute image size if style has no size
       !hasPassedSize && computeOptimalDispalySize(containerWidth, result),
       style as ViewStyle
     ),
   }
+  const layout = useWindowDimensions()
 
-  if (!uri) return <View style={style} {...props} />
+  if (!uri) return <View style={style as StyleProp<ViewStyle>} {...props} />
 
   if (result === 'error') {
     return (
@@ -80,7 +91,7 @@ export function BaseImage({
           imageResults.set(uri, 'refetching')
           update()
         }}
-        style={style}
+        style={style as StyleProp<ViewStyle>}
       />
     )
   }
@@ -89,25 +100,44 @@ export function BaseImage({
     const isAnimating = isAnimatingImage(uri)
     const isMiniImage =
       isObject(result) && result.width < 50 && result.height < 50
+    const disabled = !result || result === 'refetching' || isMiniImage
 
     return (
-      <ImageBackground
-        {...imageProps}
-        autoplay={isAnimating}
-        allowDownscaling={props.allowDownscaling ?? !isAnimating}
-        // contentFit="none"
-      >
-        {isObject(result) &&
-          !isMiniImage &&
-          !!result?.isAnimated &&
-          result?.mediaType === 'image/gif' && (
-            <AnimatedImageOverlay
-              isAnimating={isAnimating}
-              update={update}
-              uri={uri}
-            />
-          )}
-      </ImageBackground>
+      <ImageModal
+        disabled={disabled}
+        imageBackgroundColor={!isObject(result) ? colors.neutral : undefined}
+        style={imageProps.style}
+        source={source}
+        isTranslucent
+        hideCloseButton
+        onClose={() => {
+          setAnimatingImage('')
+        }}
+        onLongPress={() => {
+          if (!disabled) {
+            Sharing.shareAsync(uri)
+          }
+        }}
+        renderImageComponent={({ source, resizeMode, style, isModalOpen }) => (
+          <ImageBackground
+            {...(imageProps as ViewProps)}
+            autoplay={isAnimating}
+            style={style as StyleProp<ViewStyle>}
+            source={source}
+            allowDownscaling={!isModalOpen}
+            resizeMode={resizeMode}
+            // contentFit="none"
+          >
+            {isObject(result) && !isMiniImage && !!result?.isAnimated && (
+              <AnimatedImageOverlay
+                isAnimating={isAnimating}
+                update={update}
+                uri={uri}
+              />
+            )}
+          </ImageBackground>
+        )}
+      />
     )
   }
 

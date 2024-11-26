@@ -7,6 +7,7 @@
     "jsEngine": "jsc",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
@@ -79,11 +80,7 @@
       [
         "expo-build-properties",
         {
-          // "ios": {
-          //   "newArchEnabled": true
-          // },
           "android": {
-            // "newArchEnabled": true,
             // https://www.reddit.com/r/expo/comments/1abfxrq/sdk50_unusually_large_apk_size/
             "useLegacyPackaging": true,
             "enableProguardInReleaseBuilds": true,

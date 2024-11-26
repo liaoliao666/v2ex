@@ -33,20 +33,13 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     )
 
   return (
-    <Pressable
-      onPress={ev => {
-        ev.stopPropagation()
-        if (url) onPreview(url)
-      }}
-    >
-      <StyledImage
-        style={style as any}
-        source={url}
-        containerWidth={containerWidth}
-        priority="low"
-        autoplay={false}
-      />
-    </Pressable>
+    <StyledImage
+      style={style as any}
+      source={url}
+      containerWidth={containerWidth}
+      priority="low"
+      autoplay={false}
+    />
   )
 }
 

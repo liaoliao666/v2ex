@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai'
+import { isInteger } from 'lodash-es'
 import { ReactNode } from 'react'
 import { Text, View } from 'react-native'
 import { Placeholder, PlaceholderLine, PlaceholderMedia } from 'rn-placeholder'
@@ -69,13 +70,18 @@ export default function TopicDetailPlaceholder({
                 )}
               </View>
 
-              <Text
-                key="reply_count"
+              {/* <Text
                 style={tw`text-[${colors.default}] ${fontSize.medium} flex-1 min-h-[24px]`}
                 numberOfLines={1}
               >
-                {`${topic.reply_count} 回复`}
-              </Text>
+                {``}
+              </Text> */}
+
+              <PlaceholderLine
+                style={tw`h-4 mt-2`}
+                width={40}
+                color={colors.base300}
+              />
             </View>
           </View>
           <Text
