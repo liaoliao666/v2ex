@@ -64,8 +64,13 @@ export function computeOptimalDispalySize(
 
   // Display optimal size
   const actualWidth = Math.min(aspectRatio * MAX_IMAGE_HEIGHT, containerWidth)
-  return {
-    width: actualWidth,
-    height: actualWidth / aspectRatio,
-  }
+  return actualWidth === containerWidth
+    ? {
+        aspectRatio,
+        width: `100%`,
+      }
+    : {
+        width: actualWidth,
+        height: actualWidth / aspectRatio,
+      }
 }

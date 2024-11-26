@@ -11,7 +11,7 @@ import StyledImage from '../StyledImage'
 import { HtmlContext } from './HtmlContext'
 
 const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
-  const { onPreview, paddingX } = useContext(HtmlContext)
+  const { paddingX } = useContext(HtmlContext)
 
   const url = useMemo(() => {
     const $ = load(tnode.domNode as unknown as string)

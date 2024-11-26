@@ -2,8 +2,6 @@ import { useEffect } from 'react'
 import { Pressable, View } from 'react-native'
 import { Text } from 'react-native'
 
-import { imageViewerAtom } from '@/jotai/imageViewerAtom'
-import { store } from '@/jotai/store'
 import tw from '@/utils/tw'
 import useLatest from '@/utils/useLatest'
 

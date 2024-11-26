@@ -1,24 +1,17 @@
 import { load } from 'cheerio'
-import { Image } from 'expo-image'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { compact, findIndex, isString, pick } from 'lodash-es'
+import { useAtomValue } from 'jotai'
+import { isString } from 'lodash-es'
 import { memo, useMemo } from 'react'
-import { Alert, Platform, Image as RNImage } from 'react-native'
 import RenderHtml, {
   RenderHTMLProps,
   defaultSystemFonts,
 } from 'react-native-render-html'
 
-import { imageViewerAtom } from '@/jotai/imageViewerAtom'
-import { store } from '@/jotai/store'
-import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
-import { isSvgURL, resolveURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
 
-import { imageResults } from '../StyledImage'
 import CodeRenderer from './CodeRenderer'
 import { HtmlContext } from './HtmlContext'
 import IFrameRenderer from './IFrameRenderer'
@@ -53,8 +46,6 @@ function Html({
 
   const html = (renderHTMLProps.source as any)?.html
 
-  const setImageViewer = useSetAtom(imageViewerAtom)
-
   const imageUrls = useMemo(() => {
     if (!isString(html)) return []
     const $ = load(html)
@@ -74,48 +65,6 @@ function Html({
     <HtmlContext.Provider
       value={useMemo(
         () => ({
-          onPreview: async url => {
-            if (inModalScreen) {
-              Alert.alert(
-                '评论回复内暂不支持查看图片',
-                '',
-                [{ text: '确定' }],
-                {
-                  userInterfaceStyle: store.get(colorSchemeAtom),
-                }
-              )
-              return
-            }
-
-            console.log('index', findIndex(imageUrls, { url }))
-            setImageViewer({
-              index: findIndex(imageUrls, { url }),
-              visible: true,
-              imageUrls: compact(
-                await Promise.all(
-                  imageUrls.map(async item => {
-                    const resolvedURI = resolveURL(item.url)
-                    const imageResult = imageResults.get(resolvedURI)
-
-                    if (
-                      imageResult === 'error' ||
-                      imageResult === 'refetching' ||
-                      isSvgURL(resolvedURI)
-                    )
-                      return false
-
-                    // let localUrl: string | null
-                    // localUrl = await Image.getCachePathAsync(resolvedURI)
-
-                    return {
-                      ...pick(imageResult, ['width', 'height']),
-                      url: resolvedURI,
-                    }
-                  })
-                )
-              ),
-            })
-          },
           onSelectText: () => {
             navigation.navigate('SelectableText', {
               html,
@@ -124,7 +73,7 @@ function Html({
           paddingX,
           selectOnly,
         }),
-        [imageUrls, setImageViewer, paddingX, inModalScreen, html, selectOnly]
+        [imageUrls, paddingX, inModalScreen, html, selectOnly]
       )}
     >
       <RenderHtml
