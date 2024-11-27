@@ -1,0 +1,17 @@
+diff --git a/node_modules/react-native-image-zoom-viewer/.DS_Store b/node_modules/react-native-image-zoom-viewer/.DS_Store
+new file mode 100644
+index 0000000..3649ac7
+Binary files /dev/null and b/node_modules/react-native-image-zoom-viewer/.DS_Store differ
+diff --git a/node_modules/react-native-image-zoom-viewer/built/image-viewer.component.js b/node_modules/react-native-image-zoom-viewer/built/image-viewer.component.js
+index 3ca5e2b..445aada 100644
+--- a/node_modules/react-native-image-zoom-viewer/built/image-viewer.component.js
++++ b/node_modules/react-native-image-zoom-viewer/built/image-viewer.component.js
+@@ -554,7 +554,7 @@ var ImageViewer = /** @class */ (function (_super) {
+         {this.getMenu()}
+       </react_native_1.View>);
+         return (<react_native_1.View onLayout={this.handleLayout} style={__assign({ flex: 1, overflow: 'hidden' }, this.props.style)}>
+-        {childs}
++        {this.hasLayout && childs}
+       </react_native_1.View>);
+     };
+     ImageViewer.defaultProps = new image_viewer_type_1.Props();

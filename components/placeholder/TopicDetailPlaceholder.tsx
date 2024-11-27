@@ -1,5 +1,4 @@
 import { useAtomValue } from 'jotai'
-import { isInteger } from 'lodash-es'
 import { ReactNode } from 'react'
 import { Text, View } from 'react-native'
 import { Placeholder, PlaceholderLine, PlaceholderMedia } from 'rn-placeholder'
@@ -33,6 +32,28 @@ export default function TopicDetailPlaceholder({
   topic: Partial<Topic>
 }) {
   const { colors, fontSize } = useAtomValue(uiAtom)
+  const fontXxLarge = tw.style(fontSize.xlarge) as {
+    fontSize: number
+    lineHeight: number
+  }
+  const fontXLarge = tw.style(fontSize.xlarge) as {
+    fontSize: number
+    lineHeight: number
+  }
+  const fontMedium = tw.style(fontSize.medium) as {
+    fontSize: number
+    lineHeight: number
+  }
+  const xxLargeLineStyle = tw`h-[${fontXxLarge.fontSize}px] my-[${Math.floor(
+    (fontXxLarge.lineHeight - fontXxLarge.fontSize) / 2
+  )}px]`
+  const xLargeLineStyle = tw`h-[${fontXLarge.fontSize}px] my-[${Math.floor(
+    (fontXLarge.lineHeight - fontXLarge.fontSize) / 2
+  )}px]`
+  const mediumLineStyle = tw`h-[${fontMedium.fontSize}px] my-[${Math.floor(
+    (fontMedium.lineHeight - fontMedium.fontSize) / 2
+  )}px]`
+
   return (
     <View style={tw`flex-1 bg-[${colors.base100}]`}>
       <NavBar title="帖子" />
@@ -70,22 +91,15 @@ export default function TopicDetailPlaceholder({
                 )}
               </View>
 
-              {/* <Text
-                style={tw`text-[${colors.default}] ${fontSize.medium} flex-1 min-h-[24px]`}
-                numberOfLines={1}
-              >
-                {``}
-              </Text> */}
-
               <PlaceholderLine
-                style={tw`h-4 mt-2`}
-                width={40}
+                style={mediumLineStyle}
+                width={50}
                 color={colors.base300}
               />
             </View>
           </View>
           <Text
-            style={tw`text-[${colors.foreground}] border-b border-[${colors.divider}] border-solid ${fontSize.xxlarge} font-medium pt-2 px-4`}
+            style={tw`text-[${colors.foreground}] ${fontSize.xxlarge} font-medium pt-2 pb-3 px-4`}
           >
             {topic.title}
           </Text>
@@ -99,21 +113,38 @@ export default function TopicDetailPlaceholder({
           {!topic?.member && (
             <Placeholder style={tw`pt-3 px-4`} Left={AvatarPlaceholder}>
               <PlaceholderLine
-                style={tw`mt-2`}
+                style={tw.style(`mt-2`, xLargeLineStyle)}
                 width={30}
                 color={colors.base300}
               />
-              <PlaceholderLine width={40} color={colors.base300} />
+              <PlaceholderLine
+                width={40}
+                color={colors.base300}
+                style={mediumLineStyle}
+              />
             </Placeholder>
           )}
 
           <Placeholder
-            style={tw`pt-2 px-4 border-b border-[${colors.divider}] border-solid`}
+            style={tw`pb-3 px-4 border-b border-[${colors.divider}] border-solid`}
           >
-            <PlaceholderLine color={colors.base300} />
-            <PlaceholderLine color={colors.base300} />
-            <PlaceholderLine color={colors.base300} />
-            <PlaceholderLine width={30} color={colors.base300} />
+            {!topic.member && (
+              <View style={tw`pt-2 pb-3`}>
+                <PlaceholderLine
+                  width={50}
+                  color={colors.base300}
+                  style={xxLargeLineStyle}
+                />
+              </View>
+            )}
+            <PlaceholderLine color={colors.base300} style={mediumLineStyle} />
+            <PlaceholderLine color={colors.base300} style={mediumLineStyle} />
+            <PlaceholderLine color={colors.base300} style={mediumLineStyle} />
+            <PlaceholderLine
+              width={30}
+              color={colors.base300}
+              style={mediumLineStyle}
+            />
           </Placeholder>
 
           {children}

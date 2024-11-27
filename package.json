@@ -55,7 +55,7 @@
     "react-native-bouncy-checkbox": "^3.0.7",
     "react-native-drag-sort": "^2.4.4",
     "react-native-gesture-handler": "~2.20.2",
-    "react-native-image-modal": "^3.0.13",
+    "react-native-image-zoom-viewer": "^3.0.1",
     "react-native-modal-datetime-picker": "^18.0.0",
     "react-native-pager-view": "6.5.1",
     "react-native-reanimated": "~3.16.1",

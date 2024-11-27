@@ -11,7 +11,7 @@ import StyledImage from '../StyledImage'
 import { HtmlContext } from './HtmlContext'
 
 const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
-  const { paddingX } = useContext(HtmlContext)
+  const { onPreview, paddingX } = useContext(HtmlContext)
 
   const url = useMemo(() => {
     const $ = load(tnode.domNode as unknown as string)
@@ -33,13 +33,20 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     )
 
   return (
-    <StyledImage
-      style={style as any}
-      source={url}
-      containerWidth={containerWidth}
-      priority="low"
-      autoplay={false}
-    />
+    <Pressable
+      onPress={ev => {
+        ev.stopPropagation()
+        if (url) onPreview(url)
+      }}
+    >
+      <StyledImage
+        style={style as any}
+        source={url}
+        containerWidth={containerWidth}
+        priority="low"
+        autoplay={false}
+      />
+    </Pressable>
   )
 }
 

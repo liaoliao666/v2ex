@@ -5,15 +5,14 @@ import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
-import { noop } from 'lodash-es'
 import { ReactElement, ReactNode, Suspense } from 'react'
 import { LogBox } from 'react-native'
-import { Platform, UIManager } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useDeviceContext } from 'twrnc'
 
 import { AsyncStoragePersist } from './components/AsyncStoragePersist'
+import StyledImageViewer from './components/StyledImageViewer'
 import StyledToast from './components/StyledToast'
 import { baseUrlAtom } from './jotai/baseUrlAtom'
 import { deviceTypeAtom } from './jotai/deviceTypeAtom'
@@ -21,6 +20,7 @@ import { enabledAutoCheckinAtom } from './jotai/enabledAutoCheckinAtom'
 import { enabledMsgPushAtom } from './jotai/enabledMsgPushAtom'
 import { enabledParseContentAtom } from './jotai/enabledParseContent'
 import { enabledWebviewAtom } from './jotai/enabledWebviewAtom'
+import { imageViewerAtom } from './jotai/imageViewerAtom'
 import { imgurConfigAtom } from './jotai/imgurConfigAtom'
 import { profileAtom } from './jotai/profileAtom'
 import { searchHistoryAtom } from './jotai/searchHistoryAtom'
@@ -34,8 +34,6 @@ import { k } from './servicies'
 import './utils/dayjsPlugins'
 import { queryClient } from './utils/query'
 import tw from './utils/tw'
-
-console.log('setLayoutAnimationEnabledExperimental', UIManager)
 
 SplashScreen.preventAutoHideAsync()
 
@@ -57,6 +55,7 @@ export default function App() {
                 <AppInitializer>
                   <Navigation />
                   <StatusBar />
+                  <GlobalImageViewer />
                   <StyledToast />
                 </AppInitializer>
               </AsyncStoragePersist>
@@ -100,4 +99,16 @@ function AppInitializer({ children }: { children: ReactNode }) {
   })
 
   return children as ReactElement
+}
+
+function GlobalImageViewer() {
+  const [imageViewer, setImageViewer] = useAtom(imageViewerAtom)
+  return (
+    <StyledImageViewer
+      {...imageViewer}
+      onClose={() =>
+        setImageViewer({ visible: false, index: 0, imageUrls: [] })
+      }
+    />
+  )
 }

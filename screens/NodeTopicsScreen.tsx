@@ -165,7 +165,7 @@ function NodeTopicsScreen() {
             refreshing={isRefetchingByUser}
             onRefresh={refetchByUser}
             style={tw.style(`z-10`)}
-            tintColor={Platform.OS === 'ios' ? '#fff' : undefined}
+            tintColor={Platform.OS === 'ios' ? '#ffffff' : undefined}
           />
         }
         ListEmptyComponent={
@@ -223,7 +223,7 @@ function NodeInfo({
   return (
     <View style={tw.style(getTopBarBgCls())}>
       <View
-        style={tw`${getTopBarBgCls()} absolute -top-[999px] bottom-3 inset-x-0 -z-10`}
+        style={tw`${getTopBarBgCls()} absolute -top-[999px] bottom-3 inset-x-0`}
       />
 
       <View style={tw`px-4 py-3 flex-row z-10`}>

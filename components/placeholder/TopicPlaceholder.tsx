@@ -18,21 +18,32 @@ function AvatarPlaceholder() {
 }
 
 export function TopicItemPlaceholder({ hideAvatar }: { hideAvatar?: boolean }) {
-  const { colors } = useAtomValue(uiAtom)
+  const { colors, fontSize } = useAtomValue(uiAtom)
+  const fontMedium = tw.style(fontSize.medium) as {
+    fontSize: number
+    lineHeight: number
+  }
+  const mediumLineStyle = tw`h-[${fontMedium.fontSize}px] my-[${Math.floor(
+    (fontMedium.lineHeight - fontMedium.fontSize) / 2
+  )}px]`
+
   return (
     <Placeholder
       style={tw`px-4 py-3 flex-row bg-[${colors.base100}] border-b border-solid border-[${colors.divider}]`}
       Left={hideAvatar ? undefined : AvatarPlaceholder}
     >
-      <View style={tw`gap-2`}>
+      <View>
         <PlaceholderLine
           width={40}
-          noMargin
-          style={tw`mt-1`}
+          color={colors.base300}
+          style={mediumLineStyle}
+        />
+        <PlaceholderLine style={mediumLineStyle} color={colors.base300} />
+        <PlaceholderLine
+          width={80}
+          style={mediumLineStyle}
           color={colors.base300}
         />
-        <PlaceholderLine noMargin color={colors.base300} />
-        <PlaceholderLine width={80} noMargin color={colors.base300} />
       </View>
     </Placeholder>
   )
