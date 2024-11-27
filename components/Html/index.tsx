@@ -87,41 +87,43 @@ function Html({
               return
             }
 
+            const urls = compact(
+              await Promise.all(
+                imageUrls.map(async item => {
+                  const resolvedURI = resolveURL(item.url)
+                  const imageResult = imageResults.get(resolvedURI)
+
+                  if (
+                    imageResult === 'error' ||
+                    imageResult === 'refetching' ||
+                    isSvgURL(resolvedURI)
+                  )
+                    return false
+
+                  let localUrl: string | null
+
+                  if (Platform.OS === 'ios' || Platform.OS === 'macos') {
+                    localUrl = await Image.getCachePathAsync(resolvedURI)
+
+                    if (localUrl) {
+                      localUrl = RNImage.resolveAssetSource({
+                        uri: localUrl,
+                      }).uri
+                    }
+                  }
+
+                  return {
+                    ...pick(imageResult, ['width', 'height']),
+                    url: localUrl! || resolvedURI,
+                  }
+                })
+              )
+            )
+
             setImageViewer({
               index: findIndex(imageUrls, { url }),
               visible: true,
-              imageUrls: compact(
-                await Promise.all(
-                  imageUrls.map(async item => {
-                    const resolvedURI = resolveURL(item.url)
-                    const imageResult = imageResults.get(resolvedURI)
-
-                    if (
-                      imageResult === 'error' ||
-                      imageResult === 'refetching' ||
-                      isSvgURL(resolvedURI)
-                    )
-                      return false
-
-                    let localUrl: string | null
-
-                    if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-                      localUrl = await Image.getCachePathAsync(resolvedURI)
-
-                      if (localUrl) {
-                        localUrl = RNImage.resolveAssetSource({
-                          uri: localUrl,
-                        }).uri
-                      }
-                    }
-
-                    return {
-                      ...pick(imageResult, ['width', 'height']),
-                      url: localUrl! || resolvedURI,
-                    }
-                  })
-                )
-              ),
+              imageUrls: urls,
             })
           },
           onSelectText: () => {

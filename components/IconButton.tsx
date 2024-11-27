@@ -13,6 +13,8 @@ export interface IconButtonProps {
   size?: number
   name?: React.ComponentProps<typeof MaterialCommunityIcons>['name']
   onPress?: PressableProps['onPress']
+  onPressIn?: PressableProps['onPressIn']
+  onPressOut?: PressableProps['onPressOut']
   active?: boolean
   icon?: ReactNode
   pressed?: boolean
@@ -23,7 +25,12 @@ export default function IconButton(props: IconButtonProps) {
   return typeof props.pressed === 'boolean' ? (
     <IconButtonImpl {...props} />
   ) : (
-    <Pressable onPress={props.onPress} style={tw`flex-row items-center`}>
+    <Pressable
+      onPress={props.onPress}
+      onPressIn={props.onPressIn}
+      onPressOut={props.onPressOut}
+      style={tw`flex-row items-center`}
+    >
       {({ pressed }) => <IconButtonImpl {...props} pressed={pressed} />}
     </Pressable>
   )

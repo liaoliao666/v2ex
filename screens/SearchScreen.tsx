@@ -607,7 +607,7 @@ function GoogleSearch({
       }}
       javaScriptEnabled={true}
       domStorageEnabled={true}
-      decelerationRate="normal"
+      decelerationRate={0.998}
       sharedCookiesEnabled={true}
       startInLoadingState={true}
       scalesPageToFit={true}

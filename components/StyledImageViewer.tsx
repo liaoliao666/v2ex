@@ -3,7 +3,7 @@ import { Image } from 'expo-image'
 import * as Sharing from 'expo-sharing'
 import { useAtomValue } from 'jotai'
 import { ComponentProps } from 'react'
-import { Modal, Text, View } from 'react-native'
+import { Dimensions, Modal, Platform, Text, View } from 'react-native'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -28,8 +28,27 @@ export default function StyledImageViewer({
   const { fontSize } = useAtomValue(uiAtom)
 
   return (
-    <Modal transparent visible={visible} onRequestClose={onClose}>
+    <Modal
+      hardwareAccelerated
+      statusBarTranslucent={true}
+      transparent
+      visible={visible}
+      onRequestClose={onClose}
+    >
       <ImageViewer
+        style={
+          Platform.OS === 'android'
+            ? {
+                width: Dimensions.get('screen').width,
+                height: Dimensions.get('screen').height,
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+              }
+            : undefined
+        }
         enableSwipeDown
         onCancel={onClose}
         renderHeader={currentIndex => (
@@ -41,7 +60,9 @@ export default function StyledImageViewer({
               color="#fff"
               activeColor="#fff"
               icon={<Ionicons name="close-sharp" />}
-              onPress={onClose}
+              {...{
+                [Platform.OS === 'android' ? 'onPressIn' : 'onPress']: onClose,
+              }}
             />
 
             <IconButton
@@ -49,8 +70,10 @@ export default function StyledImageViewer({
               color="#fff"
               activeColor="#fff"
               name="share-outline"
-              onPress={() => {
-                Sharing.shareAsync(props.imageUrls[currentIndex!].url)
+              {...{
+                [Platform.OS === 'android' ? 'onPressIn' : 'onPress']: () => {
+                  Sharing.shareAsync(props.imageUrls[currentIndex!].url)
+                },
               }}
             />
           </View>

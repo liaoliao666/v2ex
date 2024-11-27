@@ -108,7 +108,7 @@ export default function WebviewScreen() {
         source={{ uri: params.url }}
         javaScriptEnabled={true}
         domStorageEnabled={true}
-        decelerationRate="normal"
+        decelerationRate={0.998}
         sharedCookiesEnabled={true}
         startInLoadingState={true}
         scalesPageToFit={true}
