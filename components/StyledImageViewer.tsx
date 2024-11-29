@@ -49,6 +49,7 @@ export default function StyledImageViewer({
               }
             : undefined
         }
+        useNativeDriver
         enableSwipeDown
         onCancel={onClose}
         renderHeader={currentIndex => (

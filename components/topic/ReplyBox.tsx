@@ -95,9 +95,6 @@ const ReplyBox = ({
   function setContent(text: string) {
     cacheContent[getTextKey()] = text
     update()
-    inputRef.current?.setNativeProps({
-      text: text,
-    })
   }
 
   function getContent() {
@@ -149,6 +146,7 @@ const ReplyBox = ({
             multiline
             numberOfLines={3}
             placeholder={isAppend ? '发送你的附言' : '发送你的评论'}
+            value={getContent()}
             onChangeText={function handleAtName(text) {
               const isDeleting = text.length < getContent().length
 
@@ -189,9 +187,6 @@ const ReplyBox = ({
             autoFocus={true}
             onFocus={() => {
               initContent()
-              inputRef.current?.setNativeProps({
-                text: getContent(),
-              })
             }}
             onSelectionChange={ev => {
               selectionRef.current = ev.nativeEvent.selection

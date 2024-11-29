@@ -6,7 +6,7 @@ import { compact, isString } from 'lodash-es'
 import { Fragment, useEffect, useRef, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Pressable, Text, View, useWindowDimensions } from 'react-native'
-import { ScrollView, TextInput } from 'react-native'
+import { ScrollView } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { z } from 'zod'
@@ -122,8 +122,6 @@ function WriteTopicScreen() {
     !!prevTopic.content
   )
 
-  const inputRef = useRef<TextInput>(null)
-
   const selectionRef = useRef<{
     start: number
     end: number
@@ -223,7 +221,6 @@ function WriteTopicScreen() {
               render={({ field: { value, onChange, onBlur } }) => (
                 <View style={tw`bg-[${colors.base200}] pb-2`}>
                   <StyledTextInput
-                    ref={inputRef}
                     placeholder="标题如果能够表达完整内容，则正文可以为空"
                     onChangeText={text => {
                       store.set(topicDraftAtom, getValues())
@@ -247,12 +244,8 @@ function WriteTopicScreen() {
                           getValues('content'),
                           selectionRef.current
                         )
-
                         if (replacedText) {
                           setValue('content', replacedText)
-                          inputRef.current?.setNativeProps({
-                            text: replacedText,
-                          })
                         }
                       }}
                     >
@@ -267,9 +260,6 @@ function WriteTopicScreen() {
                           : url
 
                         setValue('content', newContent)
-                        inputRef.current?.setNativeProps({
-                          text: newContent,
-                        })
                       }}
                     />
                   </View>

@@ -81,12 +81,7 @@ const SearchBar = forwardRef<
             }}
             style={tw`h-4 w-4 items-center justify-center rounded-full mr-3 bg-[${colors.primary}]`}
           >
-            <Ionicons
-              name="close-sharp"
-              size={14}
-              color={'#fff'}
-              style={tw`ml-0.5`}
-            />
+            <Ionicons name="close-sharp" size={14} color={'#fff'} />
           </TouchableOpacity>
         )}
       </Pressable>

@@ -49,7 +49,7 @@ export default function Svg({
       xml={svgQuery.data.xml}
       style={tw.style(
         !hasPassedSize &&
-          computeOptimalDispalySize(containerWidth, svgQuery.data),
+          computeOptimalDispalySize(containerWidth, svgQuery.data as any),
         style as any
       )}
       width="100%"

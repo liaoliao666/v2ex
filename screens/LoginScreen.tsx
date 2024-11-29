@@ -108,10 +108,9 @@ export default function LoginScreen() {
               onBlur={onBlur}
               onChangeText={onChange}
               value={value?.toString()}
-              textContentType="password"
               secureTextEntry
               placeholder="请输入密码"
-              autoComplete="password"
+              autoComplete="current-password"
             />
           )}
         />
