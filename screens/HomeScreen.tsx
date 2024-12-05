@@ -1,5 +1,5 @@
 import { Feather } from '@expo/vector-icons'
-import { DrawerActions, useNavigation } from '@react-navigation/native'
+import { getDefaultSidebarWidth } from '@react-navigation/elements'
 import { InfiniteData } from '@tanstack/react-query'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
@@ -16,12 +16,14 @@ import {
 import {
   FlatList,
   ListRenderItem,
+  Platform,
   Pressable,
   Text,
   TouchableOpacity,
   View,
   useWindowDimensions,
 } from 'react-native'
+import { Drawer } from 'react-native-drawer-layout'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
@@ -29,6 +31,7 @@ import Badge from '@/components/Badge'
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
+import Profile from '@/components/Profile'
 import {
   FallbackComponent,
   QuerySuspense,
@@ -58,7 +61,7 @@ import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, Xna, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
-import { isTablet } from '@/utils/tablet'
+import { isTablet, useTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
@@ -102,12 +105,13 @@ export default withQuerySuspense(HomeScreen, {
 })
 
 function HomeScreen() {
+  const [openDrawer, setOpenDrawer] = useState(false)
   const colorScheme = useAtomValue(colorSchemeAtom)
   const fontScale = useAtomValue(fontScaleAtom)
   const tabs = useAtomValue(homeTabsAtom)
   const [index, setIndex] = useAtom(homeTabIndexAtom)
   const { colors, fontSize } = useAtomValue(uiAtom)
-
+  const tablet = useTablet()
   const layout = useWindowDimensions()
 
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
@@ -172,126 +176,143 @@ function HomeScreen() {
   }
 
   return (
-    <View style={tw`flex-1 bg-[${colors.base100}]`}>
-      <TabView
-        key={`${colorScheme}_${fontScale}`}
-        navigationState={{ index, routes: tabs }}
-        lazy
-        lazyPreloadDistance={1}
-        renderScene={({ route }) => {
-          const ref =
-            refs[route.key] || (refs[route.key] = createRef<FlatList>())
+    <Drawer
+      open={openDrawer}
+      onOpen={() => setOpenDrawer(true)}
+      onClose={() => setOpenDrawer(false)}
+      renderDrawerContent={() => <Profile />}
+      drawerStyle={
+        tablet.isTablet
+          ? { width: tablet.navbarWidth }
+          : { width: getDefaultSidebarWidth(layout) }
+      }
+      drawerType={Platform.select({ ios: 'slide', default: 'front' })}
+    >
+      <View style={tw`flex-1 bg-[${colors.base100}]`}>
+        <TabView
+          key={`${colorScheme}_${fontScale}`}
+          navigationState={{ index, routes: tabs }}
+          lazy
+          lazyPreloadDistance={1}
+          renderScene={({ route }) => {
+            if (Math.abs(index - tabs.indexOf(route)) > 1) {
+              return <View />
+            }
 
-          if (route.type === 'node') {
+            const ref =
+              refs[route.key] || (refs[route.key] = createRef<FlatList>())
+
+            if (route.type === 'node') {
+              return (
+                <TabPlaceholder tab={route.key}>
+                  <NodeTopics
+                    ref={ref}
+                    headerHeight={headerHeight}
+                    nodeName={route.key}
+                  />
+                </TabPlaceholder>
+              )
+            }
+
+            if (route.type === RECENT_TAB_KEY) {
+              return (
+                <TabPlaceholder tab={RECENT_TAB_KEY}>
+                  <RecentTopics ref={ref} headerHeight={headerHeight} />
+                </TabPlaceholder>
+              )
+            }
+
+            if (route.type === XNA_KEY) {
+              return (
+                <TabPlaceholder tab={XNA_KEY}>
+                  <Xnas ref={ref} headerHeight={headerHeight} />
+                </TabPlaceholder>
+              )
+            }
+
             return (
               <TabPlaceholder tab={route.key}>
-                <NodeTopics
+                <TabTopics
                   ref={ref}
                   headerHeight={headerHeight}
-                  nodeName={route.key}
+                  tab={route.key}
                 />
               </TabPlaceholder>
             )
-          }
+          }}
+          onIndexChange={handleInexChange}
+          initialLayout={{ width: layout.width }}
+          tabBarPosition="bottom"
+          renderTabBar={props => (
+            <View style={tw`absolute top-0 inset-x-0 z-10`}>
+              <StyledBlurView style={tw`absolute inset-0`} />
 
-          if (route.type === RECENT_TAB_KEY) {
-            return (
-              <TabPlaceholder tab={RECENT_TAB_KEY}>
-                <RecentTopics ref={ref} headerHeight={headerHeight} />
-              </TabPlaceholder>
-            )
-          }
+              <TopNavBar onOpenDrawer={() => setOpenDrawer(true)} />
 
-          if (route.type === XNA_KEY) {
-            return (
-              <TabPlaceholder tab={XNA_KEY}>
-                <Xnas ref={ref} headerHeight={headerHeight} />
-              </TabPlaceholder>
-            )
-          }
-
-          return (
-            <TabPlaceholder tab={route.key}>
-              <TabTopics
-                ref={ref}
-                headerHeight={headerHeight}
-                tab={route.key}
-              />
-            </TabPlaceholder>
-          )
-        }}
-        onIndexChange={handleInexChange}
-        initialLayout={{ width: layout.width }}
-        tabBarPosition="bottom"
-        renderTabBar={props => (
-          <View style={tw`absolute top-0 inset-x-0 z-10`}>
-            <StyledBlurView style={tw`absolute inset-0`} />
-
-            <TopNavBar />
-
-            <View
-              style={tw`flex-row items-center border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px] pl-4`}
-            >
-              <TabBar
-                {...props}
-                scrollEnabled
-                style={tw`flex-row flex-1 shadow-none bg-transparent`}
-                tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
-                indicatorContainerStyle={tw`border-b-0`}
-                gap={16}
-                renderTabBarItem={tabBarItemProps => {
-                  const { route } = tabBarItemProps
-                  const active = tabs[index].key === route.key
-
-                  return (
-                    <TouchableOpacity
-                      {...tabBarItemProps}
-                      key={route.key}
-                      style={tw`w-auto items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
-                      activeOpacity={active ? 1 : 0.5}
-                      onPress={() => {
-                        handleInexChange(
-                          findIndex(tabs, { key: route.key }),
-                          active
-                        )
-                      }}
-                    >
-                      <Text
-                        style={tw.style(
-                          fontSize.medium,
-                          active
-                            ? tw`text-[${colors.foreground}] font-medium`
-                            : tw`text-[${colors.default}]`
-                        )}
-                      >
-                        {route.title}
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                }}
-              />
-
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('SortTabs')
-                }}
-                style={tw`h-full flex-row items-center justify-center z-50`}
+              <View
+                style={tw`flex-row items-center border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px] pl-4`}
               >
-                <Feather
-                  name="menu"
-                  size={17}
-                  color={colors.default}
-                  style={tw`pr-4 pl-2`}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )}
-      />
+                <TabBar
+                  {...props}
+                  scrollEnabled
+                  style={tw`flex-row flex-1 shadow-none bg-transparent`}
+                  tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
+                  indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
+                  indicatorContainerStyle={tw`border-b-0`}
+                  gap={16}
+                  renderTabBarItem={tabBarItemProps => {
+                    const { route } = tabBarItemProps
+                    const active = tabs[index].key === route.key
 
-      <PreventLeftSwiping headerHeight={headerHeight} />
-    </View>
+                    return (
+                      <TouchableOpacity
+                        {...tabBarItemProps}
+                        key={route.key}
+                        style={tw`w-auto items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
+                        activeOpacity={active ? 1 : 0.5}
+                        onPress={() => {
+                          handleInexChange(
+                            findIndex(tabs, { key: route.key }),
+                            active
+                          )
+                        }}
+                      >
+                        <Text
+                          style={tw.style(
+                            fontSize.medium,
+                            active
+                              ? tw`text-[${colors.foreground}] font-medium`
+                              : tw`text-[${colors.default}]`
+                          )}
+                        >
+                          {route.title}
+                        </Text>
+                      </TouchableOpacity>
+                    )
+                  }}
+                />
+
+                <TouchableOpacity
+                  onPress={() => {
+                    navigation.navigate('SortTabs')
+                  }}
+                  style={tw`h-full flex-row items-center justify-center z-50`}
+                >
+                  <Feather
+                    name="menu"
+                    size={17}
+                    color={colors.default}
+                    style={tw`pr-4 pl-2`}
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+        />
+
+        <PreventLeftSwiping headerHeight={headerHeight} />
+      </View>
+    </Drawer>
   )
 }
 
@@ -543,22 +564,17 @@ const Xnas = memo(
   })
 )
 
-function TopNavBar() {
+function TopNavBar({ onOpenDrawer }: { onOpenDrawer: () => void }) {
   const profile = useAtomValue(profileAtom)
 
   const { colors } = useAtomValue(uiAtom)
 
-  const nav = useNavigation()
-
   return (
     <NavBar
+      disableStatusBarStyle={isTablet()}
       style={tw`border-b-0`}
       left={
-        <Pressable
-          onPress={() => {
-            nav.dispatch(DrawerActions.openDrawer)
-          }}
-        >
+        <Pressable onPress={onOpenDrawer}>
           {profile ? (
             <Badge content={profile.my_notification}>
               <StyledImage
@@ -603,7 +619,7 @@ function TopNavBar() {
 
 function PreventLeftSwiping({ headerHeight }: { headerHeight: number }) {
   return (
-    <View style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-6`} />
+    <View style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-12`} />
   )
 }
 

@@ -24,6 +24,7 @@ export default function NavBar({
   left = <BackButton tintColor={tintColor} />,
   right,
   hideSafeTop,
+  disableStatusBarStyle = false,
 }: {
   children?: ReactNode
   style?: ViewStyle
@@ -33,8 +34,12 @@ export default function NavBar({
   left?: ReactNode
   right?: ReactNode
   hideSafeTop?: boolean
+  disableStatusBarStyle?: boolean
 }) {
-  useStatusBarStyle(statusBarStyle)
+  if (!disableStatusBarStyle) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    useStatusBarStyle(statusBarStyle)
+  }
 
   const safeTop = useNavBarSafeTop(hideSafeTop)
   const { colors, fontSize } = useAtomValue(uiAtom)

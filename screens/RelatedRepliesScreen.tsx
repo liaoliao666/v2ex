@@ -156,9 +156,15 @@ export default function RelatedRepliesScreen() {
           navigationState={{ index, routes }}
           lazy
           lazyPreloadDistance={1}
-          renderScene={({ route }) => (
-            <Replies replies={isSmartMode ? route.relatedData : route.data} />
-          )}
+          renderScene={({ route }) => {
+            if (Math.abs(index - routes.indexOf(route)) > 1) {
+              return <View />
+            }
+
+            return (
+              <Replies replies={isSmartMode ? route.relatedData : route.data} />
+            )
+          }}
           onIndexChange={setIndex}
           initialLayout={{ width: layout.width }}
           overdrag={false}

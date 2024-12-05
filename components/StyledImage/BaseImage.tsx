@@ -2,6 +2,7 @@ import { parseToRgba } from 'color2k'
 import { Image, ImageBackground, ImageProps, ImageSource } from 'expo-image'
 import { useAtomValue } from 'jotai'
 import { isEqual, isObject, memoize, pick } from 'lodash-es'
+import { useCallback, useEffect } from 'react'
 import { View, ViewStyle } from 'react-native'
 
 import { uiAtom } from '@/jotai/uiAtom'
@@ -23,6 +24,8 @@ const genPlaceholder = memoize((color: string) => {
   const [r, g, b, a = 1] = parseToRgba(color)
   return genBMPUri(1, [b, g, r, parseInt(String(a * 255), 10)])
 })
+
+const failedImages = new Set<() => void>()
 
 export function BaseImage({
   style,
@@ -71,14 +74,32 @@ export function BaseImage({
     ),
   }
 
+  const refetch = useCallback(() => {
+    imageResults.set(uri, 'refetching')
+    update()
+  }, [update, uri])
+
+  useEffect(() => {
+    if (result === 'error' && uri) {
+      failedImages.add(refetch)
+    }
+
+    return () => {
+      failedImages.delete(refetch)
+    }
+  }, [refetch, result, uri])
+
   if (!uri) return <View style={style as any} {...props} />
 
   if (result === 'error') {
     return (
       <BrokenImage
         onPress={() => {
-          imageResults.set(uri, 'refetching')
-          update()
+          if (failedImages.size > 10) {
+            failedImages.forEach(l => l())
+          } else {
+            refetch()
+          }
         }}
         style={style as any}
       />

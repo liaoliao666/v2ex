@@ -112,8 +112,12 @@ function MyFollowingScreen() {
         navigationState={{ index, routes }}
         lazy
         lazyPreloadDistance={1}
-        renderScene={({ route }) =>
-          route.key === 'all' ? (
+        renderScene={({ route }) => {
+          if (Math.abs(index - routes.indexOf(route)) > 1) {
+            return <View />
+          }
+
+          return route.key === 'all' ? (
             <MemoMyFollowing headerHeight={headerHeight} />
           ) : (
             <MemoMemberTopics
@@ -121,7 +125,7 @@ function MyFollowingScreen() {
               username={route.key}
             />
           )
-        }
+        }}
         onIndexChange={setIndex}
         initialLayout={{ width: layout.width }}
         tabBarPosition="bottom"

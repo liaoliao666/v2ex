@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai'
 import { pick } from 'lodash-es'
-import { Fragment, useRef } from 'react'
+import { Fragment, useMemo, useRef } from 'react'
 import {
   KeyboardAvoidingView,
   Platform,
@@ -83,6 +83,11 @@ const ReplyBox = ({
       }
     }
   }
+
+  useMemo(() => {
+    initContent()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   function getTextKey() {
     return username
@@ -185,9 +190,6 @@ const ReplyBox = ({
               }
             }}
             autoFocus={true}
-            onFocus={() => {
-              initContent()
-            }}
             onSelectionChange={ev => {
               selectionRef.current = ev.nativeEvent.selection
             }}
@@ -249,7 +251,7 @@ const ReplyBox = ({
                 try {
                   onSuccess()
                   setContent('')
-                  blur()
+                  inputRef.current?.blur()
                 } catch (error) {
                   // empty
                 }

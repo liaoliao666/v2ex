@@ -3,7 +3,6 @@
  * https://reactnavigation.org/docs/getting-started
  *
  */
-import { createDrawerNavigator } from '@react-navigation/drawer'
 import {
   DarkTheme,
   DefaultTheme,
@@ -19,7 +18,6 @@ import { useAtomValue } from 'jotai'
 import { ReactNode, useMemo, useState } from 'react'
 import { Platform, View } from 'react-native'
 
-import Profile from '@/components/Profile'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import BlackListScreen from '@/screens/BlackListScreen'
@@ -149,7 +147,7 @@ function StackNavigator() {
     >
       <Stack.Screen
         name="Root"
-        component={isTablet ? NotFoundScreen : DrawerNavigator}
+        component={isTablet ? NotFoundScreen : HomeScreen}
         options={{
           animation: 'none',
         }}
@@ -283,35 +281,7 @@ function StackNavigator() {
   )
 }
 
-const Drawer = createDrawerNavigator()
-
-function DrawerNavigator() {
-  const { isTablet, navbarWidth } = useTablet()
-  return (
-    <Drawer.Navigator
-      initialRouteName="Home"
-      drawerContent={() => <Profile />}
-      screenOptions={{
-        headerShown: false,
-        drawerStyle: isTablet ? { width: navbarWidth } : undefined,
-      }}
-    >
-      <Drawer.Screen name="Home" component={HomeScreen} />
-    </Drawer.Navigator>
-  )
-}
-
-const TabletStack = createNativeStackNavigator<{
-  TabletRoot: undefined
-}>()
-
-function TabletLayout({
-  children,
-  theme,
-}: {
-  children: ReactNode
-  theme: Theme
-}) {
+function TabletLayout({ children }: { children: ReactNode; theme: Theme }) {
   const { isTablet, navbarWidth } = useTablet()
   const { colors } = useAtomValue(uiAtom)
 
@@ -323,23 +293,7 @@ function TabletLayout({
             `bg-[${colors.base100}] border-solid border-r border-[${colors.divider}] w-[${navbarWidth}px]`
           )}
         >
-          <NavigationContainer theme={theme}>
-            <TabletStack.Navigator
-              initialRouteName={'TabletRoot'}
-              screenOptions={{
-                headerShown: false,
-                fullScreenGestureEnabled: true,
-              }}
-            >
-              <TabletStack.Screen
-                name="TabletRoot"
-                component={DrawerNavigator}
-                options={{
-                  animation: 'none',
-                }}
-              />
-            </TabletStack.Navigator>
-          </NavigationContainer>
+          <HomeScreen />
         </View>
 
         <View style={tw.style(`flex-1 bg-[${colors.base100}]`)}>

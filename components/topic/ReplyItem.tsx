@@ -295,7 +295,7 @@ function ThankReply({
 
           Toast.show({
             type: 'error',
-            text1: '发送感谢失败',
+            text1: error instanceof BizError ? error.message : '发送感谢失败',
           })
         }
       }}
