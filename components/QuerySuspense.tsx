@@ -27,6 +27,10 @@ export function FallbackComponent({
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
+  if (message) {
+    ;(error as any).stack = null
+  }
+
   return (
     <View style={tw`p-8`}>
       {message ? (

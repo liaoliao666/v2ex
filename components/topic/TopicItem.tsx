@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai'
-import { compact, isEqual, isUndefined, maxBy } from 'lodash-es'
+import { compact, isUndefined, maxBy } from 'lodash-es'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
 
@@ -20,7 +20,10 @@ export interface TopicItemProps {
   hideAvatar?: boolean
 }
 
-export default memo(TopicItem, (prev, next) => isEqual(prev.topic, next.topic))
+export default memo(
+  TopicItem,
+  (prev, next) => prev.topic.last_touched === next.topic.last_touched
+)
 
 function TopicItem({ topic, hideAvatar }: TopicItemProps) {
   const isReaded = useQueryData(
@@ -45,22 +48,20 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
       }}
     >
       {!hideAvatar && (
-        <View>
-          <DebouncedPressable
-            onPress={() => {
-              navigation.push('MemberDetail', {
-                username: topic.member?.username!,
-              })
-            }}
-            style={tw`pr-3`}
-          >
-            <StyledImage
-              style={tw`w-6 h-6 rounded-full`}
-              source={topic.member?.avatar}
-              priority="high"
-            />
-          </DebouncedPressable>
-        </View>
+        <DebouncedPressable
+          onPress={() => {
+            navigation.push('MemberDetail', {
+              username: topic.member?.username!,
+            })
+          }}
+          style={tw`pr-3`}
+        >
+          <StyledImage
+            style={tw`w-6 h-6 rounded-full`}
+            source={topic.member?.avatar}
+            priority="high"
+          />
+        </DebouncedPressable>
       )}
       <View style={tw`flex-1`}>
         <View style={tw`flex-row gap-2`}>

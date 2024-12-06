@@ -79,7 +79,7 @@ export default function SearchReplyMemberScreen() {
   const inputRef = useRef<TextInput>(null)
 
   return (
-    <View style={tw`bg-[${colors.base100}] flex-1`}>
+    <SafeAreaView edges={['bottom']} style={tw`bg-[${colors.base100}] flex-1`}>
       <NavBar
         hideSafeTop
         left={null}
@@ -130,7 +130,7 @@ export default function SearchReplyMemberScreen() {
           inputRef.current?.blur()
         }}
       />
-    </View>
+    </SafeAreaView>
   )
 }
 

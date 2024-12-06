@@ -31,6 +31,7 @@ import { uiAtom } from '@/jotai/uiAtom'
 import { Topic, k } from '@/servicies'
 import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
+import usePreviousDistinct from '@/utils/usePreviousDistinct'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 const TAB_BAR_HEIGHT = 40
@@ -96,6 +97,7 @@ function MyFollowingScreen() {
   }, [following])
 
   const [index, setIndex] = useState(0)
+  const previousIndex = usePreviousDistinct(index)
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
@@ -113,7 +115,11 @@ function MyFollowingScreen() {
         lazy
         lazyPreloadDistance={1}
         renderScene={({ route }) => {
-          if (Math.abs(index - routes.indexOf(route)) > 1) {
+          const routeIndex = routes.indexOf(route)
+          if (
+            routeIndex !== previousIndex &&
+            Math.abs(index - routeIndex) > 1
+          ) {
             return <View />
           }
 

@@ -1799,14 +1799,14 @@
     use-latest-callback "^0.2.1"
     use-sync-external-store "^1.2.2"
 
-"@react-navigation/drawer@^7.0.18":
-  version "7.0.18"
-  resolved "https://registry.npmjs.org/@react-navigation/drawer/-/drawer-7.0.18.tgz#cabba045a6aeccf9d40f287e117e9929a4ab16c0"
-  integrity sha512-rLyioIeKMIiXEo8w1tlsiAEcRQEfDGstpeR+7UeoCeu63D6C7tpro0/+VP1LFjlq45vUqtEB9904+AX8F3oLdw==
+"@react-navigation/drawer@^7.0.19":
+  version "7.0.19"
+  resolved "https://registry.npmjs.org/@react-navigation/drawer/-/drawer-7.0.19.tgz#3d8f9529f6b3cfd54b05852404120b6e918374b3"
+  integrity sha512-rpUA+nxYAwBHi8TKQs8dOVQ1KyyByjNneuIb4KJ6xusCttMpUwstSJ7m3E/D2KC9BDQ8hxdfeABFvKsf2wmeug==
   dependencies:
     "@react-navigation/elements" "^2.2.4"
     color "^4.2.3"
-    react-native-drawer-layout "^4.0.3"
+    react-native-drawer-layout "^4.0.4"
     use-latest-callback "^0.2.1"
 
 "@react-navigation/elements@^2.2.4":
@@ -6684,10 +6684,10 @@ react-dom@18.3.1:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
 
-react-error-boundary@^3.1.4:
-  version "3.1.4"
-  resolved "https://registry.npmjs.org/react-error-boundary/-/react-error-boundary-3.1.4.tgz#255db92b23197108757a888b01e5b729919abde0"
-  integrity sha512-uM9uPzZJTF6wRQORmSrvOIgt4lJ9MC1sNgEOj2XGsDTRE4kmpWxg7ENK9EWNKJRMAOY9z0MuF4yIfl6gp4sotA==
+react-error-boundary@^4.1.2:
+  version "4.1.2"
+  resolved "https://registry.npmjs.org/react-error-boundary/-/react-error-boundary-4.1.2.tgz#bc750ad962edb8b135d6ae922c046051eb58f289"
+  integrity sha512-GQDxZ5Jd+Aq/qUxbCm1UtzmL/s++V7zKgE8yMktJiCQXCCFZnMZh9ng+6/Ne6PjNSXH0L9CjeOEREfRnq6Duag==
   dependencies:
     "@babel/runtime" "^7.12.5"
 
@@ -6721,10 +6721,10 @@ react-native-drag-sort@^2.4.4:
   resolved "https://registry.npmjs.org/react-native-drag-sort/-/react-native-drag-sort-2.4.4.tgz#7c7aeea8729423a920b8db5900ea3c704ee1ff29"
   integrity sha512-MixkgMzybt8tn9m850YK5VOSlicytV41mOp/b1gAE7cK94bou27ApvVJH9oCM61vY5EN6g9VT5PwLOahbYc+BQ==
 
-react-native-drawer-layout@^4.0.3:
-  version "4.0.3"
-  resolved "https://registry.npmjs.org/react-native-drawer-layout/-/react-native-drawer-layout-4.0.3.tgz#6f0b9e9327a023237a508e3bfd925dbc6d6de8b6"
-  integrity sha512-JCc3UtXQMpW9iQr7JqW2bGPt3+Dl/0z3+rDM43jbqE45kltwhyG/MmVM/ltD/ySfPkik2oVdHm5Uk82MLpo57A==
+react-native-drawer-layout@^4.0.4:
+  version "4.0.4"
+  resolved "https://registry.npmjs.org/react-native-drawer-layout/-/react-native-drawer-layout-4.0.4.tgz#b1b3f2dffd3653527def1d26f4a0cf3c98b9fb5e"
+  integrity sha512-yskKj1Kxbf5w5gInNEW4YtDkTUcMsoQ0FGH0wjQ3nHPAJ3AAVnr/QgZ1Hr4LeAQR+7vgaG058DX4/32WbwvQzA==
   dependencies:
     use-latest-callback "^0.2.1"
 

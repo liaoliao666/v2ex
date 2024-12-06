@@ -80,7 +80,7 @@ export default withQuerySuspense(MemberDetailScreen, {
       <LoadingIndicator />
     </MemberDetailSkeleton>
   ),
-  FallbackComponent: props => (
+  fallbackRender: props => (
     <MemberDetailSkeleton>
       <FallbackComponent {...props} />
     </MemberDetailSkeleton>

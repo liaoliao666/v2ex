@@ -24,6 +24,7 @@ import { uiAtom } from '@/jotai/uiAtom'
 import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import tw from '@/utils/tw'
+import usePreviousDistinct from '@/utils/usePreviousDistinct'
 
 const TAB_BAR_HEIGHT = 40
 
@@ -110,6 +111,7 @@ export default function RelatedRepliesScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const [index, setIndex] = useState(0)
+  const previousIndex = usePreviousDistinct(index)
 
   const layout = useWindowDimensions()
 
@@ -157,7 +159,11 @@ export default function RelatedRepliesScreen() {
           lazy
           lazyPreloadDistance={1}
           renderScene={({ route }) => {
-            if (Math.abs(index - routes.indexOf(route)) > 1) {
+            const routeIndex = routes.indexOf(route)
+            if (
+              routeIndex !== previousIndex &&
+              Math.abs(index - routeIndex) > 1
+            ) {
               return <View />
             }
 
