@@ -132,7 +132,7 @@ function StackNavigator() {
 
   return (
     <Stack.Navigator
-      initialRouteName={'Root'}
+      initialRouteName={'Home'}
       screenOptions={{
         headerShown: false,
         fullScreenGestureEnabled: true,
@@ -146,7 +146,7 @@ function StackNavigator() {
       }}
     >
       <Stack.Screen
-        name="Root"
+        name="Home"
         component={isTablet ? NotFoundScreen : HomeScreen}
         options={{
           animation: 'none',

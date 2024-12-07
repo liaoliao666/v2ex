@@ -111,7 +111,7 @@ export function BackButton({
         if (navigation.canGoBack()) {
           navigation.goBack()
         } else {
-          navigation.replace('Root')
+          navigation.replace('Home')
         }
       }}
       name="arrow-left"

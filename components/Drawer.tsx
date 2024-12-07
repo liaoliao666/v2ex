@@ -1,6 +1,6 @@
 import { useTheme } from '@react-navigation/native'
 import { noop } from 'lodash-es'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import { Platform, StyleSheet } from 'react-native'
 import { Drawer as RawDrawer } from 'react-native-drawer-layout'
 import { useSafeAreaFrame } from 'react-native-safe-area-context'

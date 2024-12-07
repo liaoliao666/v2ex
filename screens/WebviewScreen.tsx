@@ -52,10 +52,13 @@ export default function WebviewScreen() {
         return true
       }
 
-      BackHandler.addEventListener('hardwareBackPress', handlebackpressed)
+      const subscription = BackHandler.addEventListener(
+        'hardwareBackPress',
+        handlebackpressed
+      )
 
       return () => {
-        BackHandler.addEventListener('hardwareBackPress', handlebackpressed)
+        subscription.remove()
       }
     }
   }, []) // initialize only once
