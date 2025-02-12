@@ -48,6 +48,8 @@ import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
+import { getAtNameList } from './RelatedRepliesScreen'
+
 export default withQuerySuspense(TopicDetailScreen, {
   LoadingComponent: () => {
     const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
@@ -69,7 +71,6 @@ export default withQuerySuspense(TopicDetailScreen, {
 
 function TopicDetailScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
-
   const {
     data,
     refetch,
@@ -82,38 +83,87 @@ function TopicDetailScreen() {
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
-
   const topic = last(data?.pages)!
-
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('asc')
-
   const flatedData = useMemo(() => {
-    const result = uniqBy(
+    const rawList = uniqBy(
       data?.pages.map(page => page.replies).flat() || [],
       'id'
     )
-    if (orderBy === 'desc') result.reverse()
-    return result
+    if (orderBy === 'asc') {
+      const ascList = rawList
+      const replyMap = new Map<number, Reply>()
+      const parentMap = new Map<number, number>()
+      ascList.forEach(reply => {
+        replyMap.set(reply.id, {
+          ...reply,
+          children: [],
+          replyLevel: 0,
+        })
+      })
+      ascList.forEach(reply => {
+        const atNames = getAtNameList(reply.content)
+        atNames.forEach(atName => {
+          ascList.forEach(potentialParent => {
+            if (
+              potentialParent.member.username === atName &&
+              potentialParent.id !== reply.id
+            ) {
+              const child = replyMap.get(reply.id)!
+              const parent = replyMap.get(potentialParent.id)!
+              if (!parentMap.has(child.id)) {
+                child.replyLevel = (parent.replyLevel || 0) + 1
+                parent.children!.push(child)
+                parentMap.set(child.id, parent.id)
+              }
+            }
+          })
+        })
+      })
+      const result: Reply[] = []
+      ascList.forEach(reply => {
+        if (!parentMap.has(reply.id)) {
+          result.push(replyMap.get(reply.id)!)
+        }
+      })
+      function flattenReplies(replies: Reply[], level = 0): Reply[] {
+        return replies.flatMap(reply => {
+          const updatedReply = { ...reply, level }
+          return [
+            updatedReply,
+            ...flattenReplies(reply.children || [], level + 1),
+          ]
+        })
+      }
+      const flattenResult = flattenReplies(result)
+      return flattenResult
+    } else {
+      const resetData = rawList
+        .map(item => ({ ...item, replyLevel: 0 }))
+        .reverse()
+      return resetData
+    }
   }, [data?.pages, orderBy])
-
   const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
-
   const renderItem: ListRenderItem<Reply> = useCallback(
     ({ item }) => (
-      <ReplyItem
-        key={item.id}
-        reply={item as Reply}
-        topicId={topic.id}
-        once={topic.once}
-        hightlight={
-          params.hightlightReplyNo
-            ? params.hightlightReplyNo === item.no
-            : undefined
-        }
-        onReply={username => setReplyInfo({ topicId: topic.id, username })}
-      />
+      <View>
+        <ReplyItem
+          reply={item as Reply}
+          key={`${item.id}_${item.replyLevel}`}
+          topicId={topic.id}
+          once={topic.once}
+          hightlight={
+            params.hightlightReplyNo
+              ? params.hightlightReplyNo === item.no
+              : undefined
+          }
+          showNestedReply={orderBy === 'asc'}
+          onReply={username => setReplyInfo({ topicId: topic.id, username })}
+        />
+      </View>
     ),
-    [topic.id, topic.once, params.hightlightReplyNo]
+    [topic.id, topic.once, params.hightlightReplyNo, orderBy]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)
@@ -382,7 +432,6 @@ function TopicDetailScreen() {
           </View>
         </View>
       )}
-
       <View style={tw`absolute top-0 inset-x-0`}>
         <StyledBlurView style={tw`absolute inset-0`} />
 

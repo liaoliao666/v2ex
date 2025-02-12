@@ -94,6 +94,8 @@ export interface Reply {
   mod?: boolean
   op?: boolean
   has_related_replies?: boolean
+  replyLevel: number,
+  children: Reply[]
 }
 
 export interface Topic {
