@@ -44,6 +44,7 @@ function ReplyItem({
   related,
   inModalScreen,
   onLayout,
+  showNestedReply = true,
 }: {
   topicId: number
   once?: string
@@ -53,22 +54,29 @@ function ReplyItem({
   related?: boolean
   inModalScreen?: boolean
   onLayout?: ViewProps['onLayout']
+  showNestedReply?: boolean
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
-
   const { colors, fontSize } = useAtomValue(uiAtom)
-
   return (
     <View
       style={tw.style(
-        `px-4 py-3`,
+        `px-4`,
         hightlight ? `bg-[${colors.base200}]` : `bg-[${colors.base100}]`,
         isBoolean(related) && !related && `opacity-64`
       )}
       onLayout={onLayout}
     >
       <View style={tw`flex-row`}>
-        <View style={tw`mr-3`}>
+        {!showNestedReply
+          ? null
+          : Array.from({ length: reply.replyLevel }, (_, i) => (
+              <View
+                key={i}
+                style={tw.style(`w-0.3 bg-gray-300`, `ml-${i * 5 + 4}`)}
+              />
+            ))}
+        <View style={tw.style(`mt-3`, `ml-1`)}>
           <Pressable
             onPress={() => {
               if (inModalScreen) {
@@ -86,8 +94,7 @@ function ReplyItem({
             />
           </Pressable>
         </View>
-
-        <View style={tw`flex-1`}>
+        <View style={tw.style(`flex-1`, `py-3`, `ml-1`)}>
           <View style={tw`flex-row items-center`}>
             <View style={tw`flex-row gap-2 mr-auto`}>
               <Text
@@ -131,7 +138,6 @@ function ReplyItem({
               #{reply.no}
             </Text>
           </View>
-
           <Separator>
             {compact([
               <Text
@@ -175,7 +181,6 @@ function ReplyItem({
                   可能是无关内容
                 </Text>
               )}
-
               {!(isSelf(reply.member.username) && !reply.thanks) && (
                 <ThankReply topicId={topicId} once={once} reply={reply} />
               )}
@@ -202,40 +207,6 @@ function ReplyItem({
                   </Fragment>
                 )}
               </Pressable>
-
-              {reply.has_related_replies && !inModalScreen && (
-                <Pressable
-                  onPress={() => {
-                    navigation.navigate('RelatedReplies', {
-                      replyId: reply.id,
-                      topicId,
-                      onReply: username => {
-                        navigation.goBack()
-                        sleep(300).then(() => onReply(username))
-                      },
-                    })
-                  }}
-                  style={tw`flex-row items-center`}
-                >
-                  {({ pressed }) => (
-                    <Fragment>
-                      <IconButton
-                        pressed={pressed}
-                        color={colors.default}
-                        activeColor={colors.foreground}
-                        size={15}
-                        icon={<FontAwesome5 name="comments" />}
-                      />
-
-                      <Text
-                        style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
-                      >
-                        查看评论
-                      </Text>
-                    </Fragment>
-                  )}
-                </Pressable>
-              )}
             </View>
 
             <MoreButton once={once} reply={reply} topicId={topicId} />

@@ -46,7 +46,6 @@ export default function RelatedRepliesScreen() {
     () => uniqBy(data?.pages.map(page => page.replies).flat() || [], 'id'),
     [data?.pages]
   )
-
   const routes = useMemo(() => {
     const currentReply = find(flatedData, { id: replyId })
     if (!currentReply) return []
@@ -102,7 +101,6 @@ export default function RelatedRepliesScreen() {
         results.push(result)
       }
     })
-
     return results
   }, [flatedData, replyId])
 
@@ -284,7 +282,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
 
 // https://github.dev/sciooga/v2ex-plus
 //获取被@的用户
-function getAtNameList(replyContent: string) {
+export function getAtNameList(replyContent: string) {
   const nameList = new Set<string>()
   const pattAtName = RegExp('@<a href="/member/(.+?)">', 'g')
 
@@ -298,7 +296,7 @@ function getAtNameList(replyContent: string) {
 }
 
 //判断是否为相关的回复
-function isRelatedReply(
+export function isRelatedReply(
   replyContent: string,
   replyUserName: string,
   replyAtName: string
