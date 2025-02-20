@@ -54,9 +54,7 @@ export default function TopicInfo({
   const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
-    <View
-      style={tw`py-3 px-4 border-b border-solid border-[${colors.divider}]`}
-    >
+    <View style={tw`py-3 px-4`}>
       <View style={tw`flex-row items-center`}>
         <View style={tw`mr-3`}>
           <Pressable

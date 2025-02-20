@@ -93,8 +93,10 @@ export interface Reply {
   thanked: boolean
   mod?: boolean
   op?: boolean
+  is_first_reply?: boolean
+  is_last_reply?: boolean
   has_related_replies?: boolean
-  replyLevel: number,
+  reply_level: number
   children: Reply[]
 }
 

@@ -2,7 +2,7 @@ import { useActionSheet } from '@expo/react-native-action-sheet'
 import { Feather, FontAwesome5 } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
-import { compact, find, findIndex, isBoolean } from 'lodash-es'
+import { compact, find, findIndex, isBoolean, isEmpty } from 'lodash-es'
 import { Fragment, memo, useState } from 'react'
 import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
@@ -58,6 +58,8 @@ function ReplyItem({
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
   const { colors, fontSize } = useAtomValue(uiAtom)
+  let reply_level = reply.reply_level
+
   return (
     <View
       style={tw.style(
@@ -67,16 +69,37 @@ function ReplyItem({
       )}
       onLayout={onLayout}
     >
-      <View style={tw`flex-row`}>
-        {!showNestedReply
-          ? null
-          : Array.from({ length: reply.replyLevel }, (_, i) => (
-              <View
-                key={i}
-                style={tw.style(`w-0.3 bg-gray-300`, `ml-${i * 5 + 4}`)}
-              />
-            ))}
-        <View style={tw.style(`mt-3`, `ml-1`)}>
+      {!showNestedReply ? null : (
+        <>
+          {Array.from({ length: reply_level }, (_, i) => (
+            <View
+              key={i}
+              style={tw.style(
+                `absolute left-[${i * 24 + 32}px] top-0 bottom-0`,
+
+                `border-l border-solid border-[${colors.divider}]`
+              )}
+            />
+          ))}
+
+          {reply_level != 0 && (
+            <View
+              style={tw`border-[${colors.divider}] absolute top-0 left-[${
+                reply_level * 24 + 8
+              }px] border-0 border-b-[1px] w-3 border-l-[1px] h-3 rounded-bl-[12px]`}
+            />
+          )}
+        </>
+      )}
+
+      <View style={tw`flex-row ml-[${reply.reply_level * 24}px]`}>
+        <View style={tw.style(`ml-1`)}>
+          {(!reply.is_last_reply || !isEmpty(reply.children)) && (
+            <View
+              style={tw`border-l border-solid border-[${colors.divider}] absolute top-0 bottom-0 left-3`}
+            />
+          )}
+
           <Pressable
             onPress={() => {
               if (inModalScreen) {
@@ -94,7 +117,7 @@ function ReplyItem({
             />
           </Pressable>
         </View>
-        <View style={tw.style(`flex-1`, `py-3`, `ml-1`)}>
+        <View style={tw.style(`flex-1`, `pb-2`, `ml-1`)}>
           <View style={tw`flex-row items-center`}>
             <View style={tw`flex-row gap-2 mr-auto`}>
               <Text

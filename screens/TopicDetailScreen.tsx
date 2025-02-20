@@ -1,7 +1,7 @@
 import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { last, uniqBy } from 'lodash-es'
+import { clone, cloneDeep, isEmpty, last, uniqBy } from 'lodash-es'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
   Animated,
@@ -86,10 +86,11 @@ function TopicDetailScreen() {
   const topic = last(data?.pages)!
   const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('asc')
   const flatedData = useMemo(() => {
-    const rawList = uniqBy(
-      data?.pages.map(page => page.replies).flat() || [],
-      'id'
+    const rawList = cloneDeep(
+      uniqBy(data?.pages.map(page => page.replies).flat() || [], 'id')
     )
+    let _flatedData = []
+
     if (orderBy === 'asc') {
       const ascList = rawList
       const replyMap = new Map<number, Reply>()
@@ -98,7 +99,7 @@ function TopicDetailScreen() {
         replyMap.set(reply.id, {
           ...reply,
           children: [],
-          replyLevel: 0,
+          reply_level: 0,
         })
       })
       ascList.forEach(reply => {
@@ -109,10 +110,18 @@ function TopicDetailScreen() {
               potentialParent.member.username === atName &&
               potentialParent.id !== reply.id
             ) {
-              const child = replyMap.get(reply.id)!
+              let child = replyMap.get(reply.id)!
               const parent = replyMap.get(potentialParent.id)!
               if (!parentMap.has(child.id)) {
-                child.replyLevel = (parent.replyLevel || 0) + 1
+                child.reply_level = (parent.reply_level || 0) + 1
+                if (isEmpty(parent.children)) {
+                  child.is_first_reply = true
+                } else {
+                  parent.children[parent.children.length - 1].is_last_reply =
+                    false
+                }
+                child.is_last_reply = true
+
                 parent.children!.push(child)
                 parentMap.set(child.id, parent.id)
               }
@@ -135,14 +144,17 @@ function TopicDetailScreen() {
           ]
         })
       }
-      const flattenResult = flattenReplies(result)
-      return flattenResult
+
+      _flatedData = flattenReplies(result)
     } else {
-      const resetData = rawList
-        .map(item => ({ ...item, replyLevel: 0 }))
-        .reverse()
-      return resetData
+      _flatedData = [...rawList].reverse()
     }
+
+    if (last(_flatedData)) {
+      last(_flatedData)!.is_last_reply = true
+    }
+
+    return _flatedData
   }, [data?.pages, orderBy])
   const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
   const renderItem: ListRenderItem<Reply> = useCallback(
@@ -150,7 +162,7 @@ function TopicDetailScreen() {
       <View>
         <ReplyItem
           reply={item as Reply}
-          key={`${item.id}_${item.replyLevel}`}
+          key={`${item.id}_${item.reply_level}`}
           topicId={topic.id}
           once={topic.once}
           hightlight={
@@ -198,7 +210,7 @@ function TopicDetailScreen() {
           />
         }
         renderItem={renderItem}
-        ItemSeparatorComponent={LineSeparator}
+        // ItemSeparatorComponent={LineSeparator}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           {
