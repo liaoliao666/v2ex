@@ -15,6 +15,7 @@ import {
 import {
   FlatList,
   ListRenderItem,
+  Platform,
   Pressable,
   Text,
   TouchableOpacity,
@@ -174,7 +175,7 @@ function HomeScreen() {
     setIndex(i)
   }
 
-  const swipeEdgeWidth = 52
+  const swipeEdgeWidth = Platform.OS === 'ios' ? 52 : 32
 
   return (
     <Drawer
