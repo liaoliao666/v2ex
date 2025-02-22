@@ -1059,12 +1059,37 @@
     xcode "^3.0.1"
     xml2js "0.6.0"
 
+"@expo/config-plugins@~9.0.16":
+  version "9.0.16"
+  resolved "https://registry.npmjs.org/@expo/config-plugins/-/config-plugins-9.0.16.tgz#f018d418ec24d80866ccd3f4277f7502a641cb5d"
+  integrity sha512-AnJzmFB7ztM0JZBn+Ut6BQYC2WeGDzfIhBZVOIPMQbdBqvwJ7TmFEsGTGSxdwU/VqJaJK2sWxyt1zbWkpIYCEA==
+  dependencies:
+    "@expo/config-types" "^52.0.5"
+    "@expo/json-file" "~9.0.2"
+    "@expo/plist" "^0.2.2"
+    "@expo/sdk-runtime-versions" "^1.0.0"
+    chalk "^4.1.2"
+    debug "^4.3.5"
+    getenv "^1.0.0"
+    glob "^10.4.2"
+    resolve-from "^5.0.0"
+    semver "^7.5.4"
+    slash "^3.0.0"
+    slugify "^1.6.6"
+    xcode "^3.0.1"
+    xml2js "0.6.0"
+
 "@expo/config-types@^52.0.4":
   version "52.0.4"
   resolved "https://registry.yarnpkg.com/@expo/config-types/-/config-types-52.0.4.tgz#6ff4fbbfd0d09894d8c50d15a89816cc2d9d2531"
   integrity sha512-oMGrb2o3niVCIfjnIHFrOoiDA9jGb0lc3G4RI1UiO//KjULBaQr3QTBoKDzZQwMqDV1AgYgSr9mgEcnX3LqhIg==
 
-"@expo/config@~10.0.10", "@expo/config@~10.0.9":
+"@expo/config-types@^52.0.5":
+  version "52.0.5"
+  resolved "https://registry.npmjs.org/@expo/config-types/-/config-types-52.0.5.tgz#e10a226990dd903a4e3db5992ffb3015adf13f38"
+  integrity sha512-AMDeuDLHXXqd8W+0zSjIt7f37vUd/BP8p43k68NHpyAvQO+z8mbQZm3cNQVAMySeayK2XoPigAFB1JF2NFajaA==
+
+"@expo/config@~10.0.10":
   version "10.0.10"
   resolved "https://registry.yarnpkg.com/@expo/config/-/config-10.0.10.tgz#8d0a70b3f201bf1de32d81765f34c4aae2df55a5"
   integrity sha512-wI9/iam3Irk99ADGM/FyD7YrrEibIZXR4huSZiU5zt9o3dASOKhqepiNJex4YPiktLfKhYrpSEJtwno1g0SrgA==
@@ -1534,10 +1559,10 @@
   dependencies:
     merge-options "^3.0.4"
 
-"@react-native-community/datetimepicker@^8.2.0":
-  version "8.3.0"
-  resolved "https://registry.yarnpkg.com/@react-native-community/datetimepicker/-/datetimepicker-8.3.0.tgz#d734a77ae5fdf9585ea2eba0d2b5cf47404c0a09"
-  integrity sha512-K/KgaJbLtjMpx4PaG4efrVIcSe6+DbLufeX1lwPB5YY8i3sq9dOh6WcAcMTLbaRTUpurebQTkl7puHPFm9GalA==
+"@react-native-community/datetimepicker@8.2.0":
+  version "8.2.0"
+  resolved "https://registry.npmjs.org/@react-native-community/datetimepicker/-/datetimepicker-8.2.0.tgz#f62ac4fc12bd527fbbe93934e6c1cfbb7ba570f3"
+  integrity sha512-qrUPhiBvKGuG9Y+vOqsc56RPFcHa1SU2qbAMT0hfGkoFIj3FodE0VuPVrEa8fgy7kcD5NQmkZIKgHOBLV0+hWg==
   dependencies:
     invariant "^2.2.4"
 
@@ -3962,10 +3987,10 @@ expo-device@~7.0.2:
   dependencies:
     ua-parser-js "^0.7.33"
 
-expo-eas-client@~0.13.2:
-  version "0.13.2"
-  resolved "https://registry.yarnpkg.com/expo-eas-client/-/expo-eas-client-0.13.2.tgz#791898f1c70b6244391140f4eab1b788412b11d6"
-  integrity sha512-2RAAGtkO9vseoJZuW4mhJkiNQ6+FfLrX66OTMq4Qj9mRKZV2Uq/ZquxUGIeJyYqBy4vNYeKbuPd2oJtsV9LBGQ==
+expo-eas-client@~0.13.3:
+  version "0.13.3"
+  resolved "https://registry.npmjs.org/expo-eas-client/-/expo-eas-client-0.13.3.tgz#1535a99a224e360581c6253b0a1ea767e19815b8"
+  integrity sha512-t+1F1tiDocSot8iSnrn/CjTUMvVvPV2DpafSVcticpbSzMGybEN7wcamO1t18fK7WxGXpZE9gxtd80qwv/LLqQ==
 
 expo-file-system@~18.0.11:
   version "18.0.11"
@@ -4016,12 +4041,12 @@ expo-linking@~7.0.5:
     expo-constants "~17.0.5"
     invariant "^2.2.4"
 
-expo-manifests@~0.15.6:
-  version "0.15.6"
-  resolved "https://registry.yarnpkg.com/expo-manifests/-/expo-manifests-0.15.6.tgz#7fa8b7fde6de8fd864e34a40b5ebd6fae3687d67"
-  integrity sha512-z+TFICrijMaqBvcJkVx8WzgmOsV6ZJGvaPNQKZr4DA6uqugFMtvAQVikDjIq7SEc3n7IgPk0GR4ZN3/KnnkeVA==
+expo-manifests@~0.15.7:
+  version "0.15.7"
+  resolved "https://registry.npmjs.org/expo-manifests/-/expo-manifests-0.15.7.tgz#f7ef46b62a53c29cdc849dffb2787cf4b58472b1"
+  integrity sha512-IVzLcPamzUi4Br96xw6JPHaa1vjYupUnMqYyV1Mtd9VQojS5hJsf5VcVzbAMZE/cFGzWLZ1oJa6QXxYjN39Uww==
   dependencies:
-    "@expo/config" "~10.0.9"
+    "@expo/config" "~10.0.10"
     expo-json-utils "~0.14.0"
 
 expo-modules-autolinking@2.0.8:
@@ -4080,19 +4105,19 @@ expo-updates-interface@~1.0.0:
   resolved "https://registry.yarnpkg.com/expo-updates-interface/-/expo-updates-interface-1.0.0.tgz#b98c66b800d29561c62409556948b2af3d5316e5"
   integrity sha512-93oWtvULJOj+Pp+N/lpTcFfuREX1wNeHtp7Lwn8EbzYYmdn37MvZU3TPW2tYYCZuhzmKEXnUblYcruYoDu7IrQ==
 
-expo-updates@~0.26.19:
-  version "0.26.19"
-  resolved "https://registry.yarnpkg.com/expo-updates/-/expo-updates-0.26.19.tgz#fdcafa8973d558b2160e7c58c930d7527f36397a"
-  integrity sha512-h40UrG0n1nCb2na1ffz+mNQtsnr7/BxxK+EtXJSqCaD9PIGaTGe20tasmo1oVskv3s37zfv0x93+6uTjanieQg==
+expo-updates@~0.27.1:
+  version "0.27.1"
+  resolved "https://registry.npmjs.org/expo-updates/-/expo-updates-0.27.1.tgz#e82a035c62d555a619694dbca0a1eb3c8bc7de75"
+  integrity sha512-1iCU/icvanYuJonHottHcTeYGxOAXcIOfeW0FXmELGLkliHpbXtFthmeiucIcdefgebIz3GxHk9CiTS0QrT7ZA==
   dependencies:
     "@expo/code-signing-certificates" "0.0.5"
     "@expo/config" "~10.0.10"
-    "@expo/config-plugins" "~9.0.15"
+    "@expo/config-plugins" "~9.0.16"
     "@expo/spawn-async" "^1.7.2"
     arg "4.1.0"
     chalk "^4.1.2"
-    expo-eas-client "~0.13.2"
-    expo-manifests "~0.15.6"
+    expo-eas-client "~0.13.3"
+    expo-manifests "~0.15.7"
     expo-structured-headers "~4.0.0"
     expo-updates-interface "~1.0.0"
     fast-glob "^3.3.2"
