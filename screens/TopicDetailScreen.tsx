@@ -1,44 +1,55 @@
-import { Entypo, Feather } from '@expo/vector-icons';
-import { RouteProp, useRoute } from '@react-navigation/native';
-import { useAtomValue } from 'jotai';
-import { clone, cloneDeep, isEmpty, last, uniqBy } from 'lodash-es';
-import { Fragment, useCallback, useMemo, useRef, useState } from 'react';
-import { Animated, FlatList, ListRenderItem, Pressable, Text, TouchableOpacity, View } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Toast from 'react-native-toast-message';
+import { Entypo, Feather } from '@expo/vector-icons'
+import { RouteProp, useRoute } from '@react-navigation/native'
+import { useAtomValue } from 'jotai'
+import { clone, cloneDeep, isEmpty, last, uniqBy } from 'lodash-es'
+import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
+import {
+  Animated,
+  FlatList,
+  ListRenderItem,
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import Toast from 'react-native-toast-message'
 
+import Empty from '@/components/Empty'
+import IconButton from '@/components/IconButton'
+import NavBar, { useNavBarHeight } from '@/components/NavBar'
+import {
+  FallbackComponent,
+  withQuerySuspense,
+} from '@/components/QuerySuspense'
+import RadioButtonGroup from '@/components/RadioButtonGroup'
+import { LineSeparator } from '@/components/Separator'
+import StyledActivityIndicator from '@/components/StyledActivityIndicator'
+import StyledBlurView from '@/components/StyledBlurView'
+import StyledImage from '@/components/StyledImage'
+import StyledRefreshControl from '@/components/StyledRefreshControl'
+import TopicDetailPlaceholder from '@/components/placeholder/TopicDetailPlaceholder'
+import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox'
+import ReplyItem from '@/components/topic/ReplyItem'
+import TopicInfo, {
+  LikeTopic,
+  ThankTopic,
+  VoteButton,
+} from '@/components/topic/TopicInfo'
+import { colorSchemeAtom } from '@/jotai/themeAtom'
+import { uiAtom } from '@/jotai/uiAtom'
+import { navigation } from '@/navigation/navigationRef'
+import { Reply, k } from '@/servicies'
+import { RootStackParamList } from '@/types'
+import { isSelf } from '@/utils/authentication'
+import { queryClient } from '@/utils/query'
+import { BizError } from '@/utils/request'
+import tw from '@/utils/tw'
+import useMount from '@/utils/useMount'
+import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
-
-import Empty from '@/components/Empty';
-import IconButton from '@/components/IconButton';
-import NavBar, { useNavBarHeight } from '@/components/NavBar';
-import { FallbackComponent, withQuerySuspense } from '@/components/QuerySuspense';
-import RadioButtonGroup from '@/components/RadioButtonGroup';
-import { LineSeparator } from '@/components/Separator';
-import StyledActivityIndicator from '@/components/StyledActivityIndicator';
-import StyledBlurView from '@/components/StyledBlurView';
-import StyledImage from '@/components/StyledImage';
-import StyledRefreshControl from '@/components/StyledRefreshControl';
-import TopicDetailPlaceholder from '@/components/placeholder/TopicDetailPlaceholder';
-import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder';
-import ReplyBox, { ReplyInfo } from '@/components/topic/ReplyBox';
-import ReplyItem from '@/components/topic/ReplyItem';
-import TopicInfo, { LikeTopic, ThankTopic, VoteButton } from '@/components/topic/TopicInfo';
-import { colorSchemeAtom } from '@/jotai/themeAtom';
-import { uiAtom } from '@/jotai/uiAtom';
-import { navigation } from '@/navigation/navigationRef';
-import { Reply, k } from '@/servicies';
-import { RootStackParamList } from '@/types';
-import { isSelf } from '@/utils/authentication';
-import { queryClient } from '@/utils/query';
-import { BizError } from '@/utils/request';
-import tw from '@/utils/tw';
-import { useRefreshByUser } from '@/utils/useRefreshByUser';
-
-
-
-import { getAtNameList } from './RelatedRepliesScreen';
-
+import { getAtNameList } from './RelatedRepliesScreen'
 
 export default withQuerySuspense(TopicDetailScreen, {
   LoadingComponent: () => {
@@ -70,6 +81,12 @@ function TopicDetailScreen() {
     isFetching,
   } = k.topic.detail.useSuspenseInfiniteQuery({
     variables: { id: params.id },
+  })
+
+  useMount(() => {
+    if (hasNextPage) {
+      fetchNextPage()
+    }
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
