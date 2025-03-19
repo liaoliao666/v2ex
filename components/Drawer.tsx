@@ -1,9 +1,12 @@
 import { useTheme } from '@react-navigation/native'
+import { useAtomValue } from 'jotai'
 import { noop } from 'lodash-es'
 import { createContext, useContext, useEffect, useState } from 'react'
 import { Platform, StyleSheet } from 'react-native'
 import { Drawer as RawDrawer } from 'react-native-drawer-layout'
 import { useSafeAreaFrame } from 'react-native-safe-area-context'
+
+import { uiAtom } from '@/jotai/uiAtom'
 
 const DRAWER_BORDER_RADIUS = 16
 
@@ -42,7 +45,7 @@ export default function Drawer({
   drawerStyle,
   ...props
 }: Partial<Parameters<typeof RawDrawer>[0]>) {
-  const { colors } = useTheme()
+  const { colors } = useAtomValue(uiAtom)
   const dimensions = useSafeAreaFrame()
   const state = useState(false)
   const [open, setOpen] = state
@@ -62,11 +65,11 @@ export default function Drawer({
           drawerType === 'permanent' &&
             (drawerPosition === 'left'
               ? {
-                  borderEndColor: colors.border,
+                  borderEndColor: colors.divider,
                   borderEndWidth: StyleSheet.hairlineWidth,
                 }
               : {
-                  borderStartColor: colors.border,
+                  borderStartColor: colors.divider,
                   borderStartWidth: StyleSheet.hairlineWidth,
                 }),
 
