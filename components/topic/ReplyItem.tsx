@@ -99,10 +99,11 @@ function ReplyItem({
         </>
       )}
 
-      <View style={tw`flex-row ml-[${reply.reply_level * 24}px]`}>
+      <View style={tw`flex-row ml-[${(reply.reply_level || 0) * 24}px]`}>
         <View>
           {((reply.reply_level === 0 && !reply.is_last_reply) ||
-            !isEmpty(reply.children)) && (
+            !isEmpty(reply.children) ||
+            (!showNestedReply && !reply.is_last_reply)) && (
             <View
               style={tw`border-l border-solid border-[${dividerColor}] absolute top-0 bottom-0 left-3`}
             />
