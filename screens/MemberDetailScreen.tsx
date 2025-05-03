@@ -127,13 +127,13 @@ function MemberDetailScreen() {
       title: '主题',
       key: 'MemberTopics',
       scrollY: 0,
-      ref: createRef<FlatList>(),
+      ref: createRef<FlatList>() as any,
     },
     {
       title: '回复',
       key: 'MemberReplies',
       scrollY: 0,
-      ref: createRef<FlatList>(),
+      ref: createRef<FlatList>() as any,
     },
   ])
 

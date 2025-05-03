@@ -14,6 +14,7 @@ import { getBaseURL } from '@/utils/url'
 
 export default function WebSigninScreen() {
   const [isLoading, setIsLoading] = useState(true)
+  const [timestamp] = useState(Date.now())
 
   const webViewRef = useRef<WebView>(null)
 
@@ -56,13 +57,14 @@ export default function WebSigninScreen() {
           renderLoading={() => <View />}
           onLoad={() => {
             webViewRef.current?.injectJavaScript(
-              `ReactNativeWebView.postMessage($('#menu-body > div:last > a').attr("href").includes("signout"))`
+              `ReactNativeWebView.postMessage($('#menu-body > div:last > a').attr("href").includes("signout") && !$(".header").text().includes("两步验证"))`
             )
           }}
           onMessage={async event => {
             const isSignin = event.nativeEvent.data
+            console.log(isSignin)
 
-            if (isSignin === 'true') {
+            if (isSignin === 'true' && Date.now() - timestamp > 5000) {
               goBackWithRefetch()
             }
           }}

@@ -1,5 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { Feather, FontAwesome5 } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { compact, find, findIndex, isBoolean, isEmpty } from 'lodash-es'
@@ -12,14 +12,13 @@ import { v2exURL } from '@/jotai/baseUrlAtom'
 import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { uiAtom } from '@/jotai/uiAtom'
+import { themeNameAtom, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Reply, k } from '@/servicies'
 import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
-import { sleep } from '@/utils/sleep'
 import tw from '@/utils/tw'
 
 import Html from '../Html'
@@ -57,8 +56,16 @@ function ReplyItem({
   showNestedReply?: boolean
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
+  const themeName = useAtomValue(themeNameAtom)
+  const colorScheme = useAtomValue(colorSchemeAtom)
   const { colors, fontSize } = useAtomValue(uiAtom)
   let reply_level = reply.reply_level
+  const dividerColor =
+    !themeName.light && colorScheme === 'light'
+      ? 'rgb(207,217,222)'
+      : !themeName.dark && colorScheme === 'dark'
+      ? 'rgb(51,54,57)'
+      : colors.divider
 
   return (
     <View
@@ -75,17 +82,17 @@ function ReplyItem({
             <View
               key={i}
               style={tw.style(
-                `absolute left-[${i * 24 + 32}px] top-0 bottom-0`,
+                `absolute left-[${i * 24 + 28}px] top-0 bottom-0`,
 
-                `border-l border-solid border-[${colors.divider}]`
+                `border-l border-solid border-[${dividerColor}]`
               )}
             />
           ))}
 
-          {reply_level != 0 && (
+          {reply_level !== 0 && !reply.is_merged && (
             <View
-              style={tw`border-[${colors.divider}] absolute top-0 left-[${
-                reply_level * 24 + 8
+              style={tw`border-[${dividerColor}] absolute top-0 left-[${
+                reply_level * 24 + 4
               }px] border-0 border-b-[1px] w-3 border-l-[1px] h-3 rounded-bl-[12px]`}
             />
           )}
@@ -93,10 +100,11 @@ function ReplyItem({
       )}
 
       <View style={tw`flex-row ml-[${reply.reply_level * 24}px]`}>
-        <View style={tw.style(`ml-1`)}>
-          {(!reply.is_last_reply || !isEmpty(reply.children)) && (
+        <View>
+          {((reply.reply_level === 0 && !reply.is_last_reply) ||
+            !isEmpty(reply.children)) && (
             <View
-              style={tw`border-l border-solid border-[${colors.divider}] absolute top-0 bottom-0 left-3`}
+              style={tw`border-l border-solid border-[${dividerColor}] absolute top-0 bottom-0 left-3`}
             />
           )}
 
@@ -193,7 +201,9 @@ function ReplyItem({
                     : reply.content,
               }}
               inModalScreen={inModalScreen}
-              paddingX={32 + 36}
+              paddingX={
+                32 + 24 * ((showNestedReply ? reply.reply_level : 0) + 1)
+              }
             />
           </View>
 

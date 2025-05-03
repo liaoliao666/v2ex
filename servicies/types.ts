@@ -97,6 +97,7 @@ export interface Reply {
   is_last_reply?: boolean
   has_related_replies?: boolean
   reply_level: number
+  is_merged?: boolean
   children: Reply[]
 }
 

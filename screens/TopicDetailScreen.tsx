@@ -1,7 +1,7 @@
 import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
-import { clone, cloneDeep, isEmpty, last, uniqBy } from 'lodash-es'
+import { cloneDeep, isEmpty, last, uniqBy } from 'lodash-es'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
   Animated,
@@ -23,7 +23,6 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import RadioButtonGroup from '@/components/RadioButtonGroup'
-import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
@@ -135,11 +134,7 @@ function TopicDetailScreen() {
                 child.reply_level = (parent.reply_level || 0) + 1
                 if (isEmpty(parent.children)) {
                   child.is_first_reply = true
-                } else {
-                  parent.children[parent.children.length - 1].is_last_reply =
-                    false
                 }
-                child.is_last_reply = true
 
                 parent.children!.push(child)
                 parentMap.set(child.id, parent.id)
@@ -156,12 +151,48 @@ function TopicDetailScreen() {
           result.push(replyMap.get(reply.id)!)
         }
       })
-      function flattenReplies(replies: Reply[], level = 0): Reply[] {
+      function flattenReplies(
+        replies: Reply[],
+        level = 0,
+        isRepeated = false
+      ): Reply[] {
         return replies.flatMap(reply => {
-          const updatedReply = { ...reply, level }
+          // 检查是否是重复的两人对话
+          const isRepeatedConversation = (() => {
+            if (reply.reply_level === 0) return false
+            if (!reply.children?.length) return false
+            const usernames = new Set([reply.member.username])
+            let current = reply
+            let depth = 0
+
+            while (current.children?.length === 1 && depth < 2) {
+              const next = current.children[0]
+              usernames.add(next.member.username)
+              // 如果超过两个人，不是重复对话
+              if (usernames.size > 2) return false
+              current = next
+              depth++
+            }
+
+            // 如果只有两个人且超过两级，是重复对话
+            return usernames.size === 2 && depth >= 1
+          })()
+
+          // 如果是重复对话，保持相同层级并设置is_merged
+          const nextLevel = isRepeatedConversation ? level : level + 1
+          const updatedReply = {
+            ...reply,
+            reply_level: level,
+            is_merged: isRepeated,
+          }
+
           return [
             updatedReply,
-            ...flattenReplies(reply.children || [], level + 1),
+            ...flattenReplies(
+              reply.children || [],
+              nextLevel,
+              isRepeatedConversation
+            ),
           ]
         })
       }

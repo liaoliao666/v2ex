@@ -206,7 +206,7 @@ function HomeScreen() {
           }
 
           const ref =
-            refs[route.key] || (refs[route.key] = createRef<FlatList>())
+            refs[route.key] || (refs[route.key] = createRef<FlatList>() as any)
 
           if (route.type === 'node') {
             return (

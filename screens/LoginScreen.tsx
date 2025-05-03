@@ -43,7 +43,7 @@ export default function LoginScreen() {
   const { control, getValues, handleSubmit } = useForm<
     z.infer<typeof SigninArgs>
   >({
-    resolver: zodResolver(SigninArgs),
+    resolver: zodResolver(SigninArgs) as any,
   })
 
   const [twoStepOnce, setTwoStepOnce] = useState('')
@@ -247,7 +247,7 @@ export default function LoginScreen() {
           )}
         />
 
-        {(Platform.OS === 'android' || dayjs().isAfter('2025-03-22 12:00')) && (
+        {(Platform.OS === 'android' || dayjs().isAfter('2025-05-05 12:00')) && (
           <TouchableOpacity
             style={tw`w-full mt-4 flex-row justify-center items-center h-[52px] px-8`}
             onPress={() => {
@@ -298,7 +298,7 @@ function TwoStepSignin({ once }: { once: string }) {
   const { control, getValues, handleSubmit } = useForm<
     z.infer<typeof SigninArgs>
   >({
-    resolver: zodResolver(TwoStepSigninArgs),
+    resolver: zodResolver(TwoStepSigninArgs) as any,
   })
 
   const { mutateAsync, isPending, error } = k.auth.twoStepSignin.useMutation()

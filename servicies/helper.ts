@@ -1,7 +1,6 @@
 import { Cheerio, CheerioAPI, Element, load } from 'cheerio'
 import { decode } from 'js-base64'
-import { defaultTo, unescape } from 'lodash-es'
-import { isString } from 'twrnc/dist/esm/types'
+import { defaultTo, isString, unescape } from 'lodash-es'
 
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { RecentTopic } from '@/jotai/recentTopicsAtom'
