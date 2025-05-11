@@ -582,6 +582,7 @@ function GoogleSearch({
   query: string
 }) {
   const { colors } = useAtomValue(uiAtom)
+  const latestJumpTimestamp = useRef(0)
 
   return (
     <WebView
@@ -599,7 +600,8 @@ function GoogleSearch({
         const [, id] =
           link.slice(link.indexOf('com') + 3).match(/\/\w+\/(\w+)/) || []
 
-        if (id) {
+        if (id && Date.now() - latestJumpTimestamp.current > 1000) {
+          latestJumpTimestamp.current = Date.now()
           navigation.push('TopicDetail', {
             id: parseInt(id, 10),
           })

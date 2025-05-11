@@ -154,9 +154,9 @@ function TopicDetailScreen() {
       function flattenReplies(
         replies: Reply[],
         level = 0,
-        isRepeated = false
+        is_merged = false
       ): Reply[] {
-        return replies.flatMap(reply => {
+        return replies.flatMap((reply, replyIndex) => {
           // 检查是否是重复的两人对话
           const isRepeatedConversation = (() => {
             if (reply.reply_level === 0) return false
@@ -183,7 +183,11 @@ function TopicDetailScreen() {
           const updatedReply = {
             ...reply,
             reply_level: level,
-            is_merged: isRepeated,
+            is_merged,
+            is_last_reply:
+              !isRepeatedConversation &&
+              !reply.children?.length &&
+              replyIndex === replies.length - 1,
           }
 
           return [

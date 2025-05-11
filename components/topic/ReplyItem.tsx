@@ -31,7 +31,10 @@ export default memo(
   (prev, next) =>
     prev.reply.thanked === next.reply.thanked &&
     prev.reply.created === next.reply.created &&
-    prev.once === next.once
+    prev.once === next.once &&
+    prev.reply.is_merged === next.reply.is_merged &&
+    prev.reply.children?.length === next.reply.children?.length &&
+    prev.reply.is_last_reply === next.reply.is_last_reply
 )
 
 function ReplyItem({
@@ -78,16 +81,18 @@ function ReplyItem({
     >
       {!showNestedReply ? null : (
         <>
-          {Array.from({ length: reply_level }, (_, i) => (
-            <View
-              key={i}
-              style={tw.style(
-                `absolute left-[${i * 24 + 28}px] top-0 bottom-0`,
+          {Array.from({ length: reply_level }, (_, i) => {
+            return (
+              <View
+                key={i}
+                style={tw.style(
+                  `absolute left-[${i * 24 + 28}px] top-0 bottom-0`,
 
-                `border-l border-solid border-[${dividerColor}]`
-              )}
-            />
-          ))}
+                  `border-l border-solid border-[${dividerColor}]`
+                )}
+              />
+            )
+          })}
 
           {reply_level !== 0 && !reply.is_merged && (
             <View
@@ -203,7 +208,7 @@ function ReplyItem({
               }}
               inModalScreen={inModalScreen}
               paddingX={
-                32 + 24 * ((showNestedReply ? reply.reply_level : 0) + 1)
+                32 + 28 + 24 * (showNestedReply ? reply.reply_level : 0)
               }
             />
           </View>
