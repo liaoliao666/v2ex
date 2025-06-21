@@ -1,4 +1,4 @@
-import * as Clipboard from 'expo-clipboard'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { first, isArray } from 'lodash-es'
 import {
   HTMLContentModel,
@@ -64,13 +64,12 @@ export function getDefaultProps({
         onPress: async (_, href: string) => {
           if (href.startsWith(BASE64_PREFIX)) {
             const decodedContent = href.slice(BASE64_PREFIX.length)
-            Clipboard.setStringAsync(decodedContent).then(() =>
-              Toast.show({
-                type: 'success',
-                text1: `已复制到粘贴板`,
-                text2: decodedContent,
-              })
-            )
+            Clipboard.setString(decodedContent)
+            Toast.show({
+              type: 'success',
+              text1: `已复制到粘贴板`,
+              text2: decodedContent,
+            })
             return
           }
 

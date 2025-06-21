@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import dayjs from 'dayjs'
 import { useAtom, useAtomValue } from 'jotai'

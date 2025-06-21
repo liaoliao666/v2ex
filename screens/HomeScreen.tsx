@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons'
+import Feather from 'react-native-vector-icons/Feather'
 import { InfiniteData } from '@tanstack/react-query'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
@@ -51,11 +51,12 @@ import {
   XNA_KEY,
   homeTabIndexAtom,
   homeTabsAtom,
+  HomeTab,
 } from '@/jotai/homeTabsAtom'
 import { profileAtom } from '@/jotai/profileAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { fontScaleAtom, uiAtom } from '@/jotai/uiAtom'
+import { defaultColors, fontScaleAtom, uiAtom } from '@/jotai/uiAtom'
 import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
 import { Topic, Xna, k } from '@/servicies'
 import { isSignined } from '@/utils/authentication'
@@ -104,9 +105,10 @@ export default withQuerySuspense(HomeScreen, {
   },
 })
 
-function HomeScreen() {
+ function HomeScreen() {
   const colorScheme = useAtomValue(colorSchemeAtom)
   const fontScale = useAtomValue(fontScaleAtom)
+  // const tabs = store.get(homeTabsAtom) as HomeTab[]
   const tabs = useAtomValue(homeTabsAtom)
   const [index, setIndex] = useAtom(homeTabIndexAtom)
   const previousIndex = usePreviousDistinct(index)
@@ -125,10 +127,10 @@ function HomeScreen() {
       activeTab.type === 'node'
         ? k.node.topics.getKey({ name: activeTabKey })
         : activeTab.type === 'recent'
-        ? k.topic.recent.getKey()
-        : activeTab.type === 'xna'
-        ? k.topic.xna.getKey()
-        : k.topic.tab.getKey({ tab: activeTabKey })
+          ? k.topic.recent.getKey()
+          : activeTab.type === 'xna'
+            ? k.topic.xna.getKey()
+            : k.topic.tab.getKey({ tab: activeTabKey })
     const query = queryClient.getQueryCache().find({
       queryKey: activeQueryKey,
     })
@@ -591,9 +593,8 @@ function TopNavBar() {
           {profile ? (
             <Badge content={profile.my_notification}>
               <StyledImage
-                priority="high"
                 style={tw`w-8 h-8 rounded-full`}
-                source={profile.avatar}
+                source={{ uri: profile.avatar }}
               />
             </Badge>
           ) : (

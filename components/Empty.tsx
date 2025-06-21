@@ -14,8 +14,11 @@ export default function Empty({
   description?: string
   style?: ViewStyle
 }) {
-  const { colors, fontSize } = useAtomValue(uiAtom)
+  const uiValue = useAtomValue(uiAtom)
   const colorScheme = useAtomValue(colorSchemeAtom)
+  
+  const colors = uiValue.colors
+  const fontSize = uiValue?.fontSize
 
   return (
     <View style={tw.style(`py-32 items-center`, style)}>
@@ -50,7 +53,7 @@ export default function Empty({
         </G>
       </Svg>
       <Text
-        style={tw`text-[${colors.default}] text-opacity-50 ${fontSize.medium} mt-2 px-4`}
+        style={tw`text-[${colors.default}] text-opacity-50 ${fontSize.medium || 'text-[15px] leading-[24px]'} mt-2 px-4`}
       >
         {description}
       </Text>

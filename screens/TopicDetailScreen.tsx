@@ -1,4 +1,5 @@
-import { Entypo, Feather } from '@expo/vector-icons'
+import Entypo from 'react-native-vector-icons/Entypo'
+import Feather from 'react-native-vector-icons/Feather'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { cloneDeep, isEmpty, last, uniqBy } from 'lodash-es'
@@ -245,10 +246,11 @@ function TopicDetailScreen() {
 
   const scrollY = useRef(new Animated.Value(0)).current
 
-  const { colors, fontSize } = useAtomValue(uiAtom)
+  const {  fontSize,colors } = useAtomValue(uiAtom)
+
 
   return (
-    <View style={tw`flex-1 bg-[${colors.base100}]`}>
+    <View style={tw`flex-1 bg-[${colors.base100.light}]`}>
       <Animated.FlatList
         ref={flatListRef}
         key={colorScheme}
@@ -290,7 +292,7 @@ function TopicDetailScreen() {
                 `flex-row items-center pt-3 mt-2 border-t border-solid border-[${colors.divider}]`
               )}
             >
-              <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
+              <Text style={tw`text-[${colors.foreground.light}] ${fontSize.medium}`}>
                 全部回复
               </Text>
               {(isFetching || isFetchingAllPage) && !isRefetchingByUser && (
@@ -429,8 +431,8 @@ function TopicDetailScreen() {
 
           <View style={tw`flex flex-row flex-shrink-0 ml-auto gap-4`}>
             <IconButton
-              color={colors.default}
-              activeColor={colors.foreground}
+              color={colors.default.light}
+              activeColor={colors.foreground.light}
               size={24}
               name="arrow-collapse-up"
               onPress={() => {
@@ -481,7 +483,7 @@ function TopicDetailScreen() {
             >
               <StyledImage
                 style={tw`rounded-full w-7 h-7`}
-                source={topic.member?.avatar}
+                source={{ uri: topic.member?.avatar??"" }}
               />
 
               <View

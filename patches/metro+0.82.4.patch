@@ -1,0 +1,8 @@
+"use strict";
+
+const os = require("os");
+
+module.exports = function getMaxWorkers(defaultWorkerCount) {
+  const threads = os.availableParallelism?.() ?? os.cpus().length;
+  return defaultWorkerCount || Math.max(1, Math.ceil(threads * 0.5));
+}; 

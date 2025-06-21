@@ -13,7 +13,7 @@ import {
   NativeStackNavigationOptions,
   createNativeStackNavigator,
 } from '@react-navigation/native-stack'
-import * as SplashScreen from 'expo-splash-screen'
+import * as SplashScreen from 'react-native-splash-screen'
 import { useAtomValue } from 'jotai'
 import { ReactNode, useMemo, useState } from 'react'
 import { Platform, View } from 'react-native'
@@ -290,7 +290,7 @@ function TabletLayout({ children }: { children: ReactNode; theme: Theme }) {
       <View style={tw`flex-1 flex-row bg-[${colors.base100}] justify-center`}>
         <View
           style={tw.style(
-            `bg-[${colors.base100}] border-solid border-r border-[${colors.divider}] w-[${navbarWidth}px]`
+            `flex-1 bg-[${colors.base100}] border-solid border-r border-[${colors.divider}] w-[${navbarWidth}px]`
           )}
         >
           <HomeScreen />

@@ -1,41 +1,61 @@
-import { ImageSource } from 'expo-image'
 import { isArray, isObject, isString } from 'lodash-es'
 import { memo } from 'react'
+import { StyleProp, ImageStyle, ImageURISource } from 'react-native'
 
 import { isSvgURL, resolveURL } from '@/utils/url'
 
-import { BaseImageProps as StyledImageProps } from './BaseImage'
+import { BaseImageProps } from './BaseImage'
 import { BaseImage } from './BaseImage'
-import Svg from './Svg'
+import Svg, { SvgProps } from './Svg'
 import { imageResults } from './helper'
 
-export { StyledImageProps, imageResults }
+export type StyledImageProps = Omit<BaseImageProps, 'source'> & {
+  source?: string | ImageURISource
+}
 
-function StyledImage({ source, ...props }: StyledImageProps) {
-  const URI = isString(source)
-    ? source
-    : isImageSource(source)
-    ? source.uri
-    : undefined
-  const resolvedURI = URI ? resolveURL(URI) : undefined
+export { imageResults }
 
-  if (isString(resolvedURI) && isSvgURL(resolvedURI)) {
-    return <Svg uri={resolvedURI} {...(props as any)} />
+export default memo(function StyledImage(props: StyledImageProps) {
+  const { source, style, ...rest } = props
+  
+  if (!source) return null
+
+  if (isString(source)) {
+    const uri = resolveURL(source)
+    if (isSvgURL(uri)) {
+      return <Svg uri={uri} style={style as any} />
+    }
+    return <BaseImage {...rest} source={{ uri }} style={style} />
   }
 
-  return (
-    <BaseImage
-      {...props}
-      source={{
-        ...(isObject(source) && !isArray(source) && source),
-        uri: resolvedURI,
-      }}
-    />
-  )
-}
+  if (isArray(source)) {
+    const [firstSource] = source
+    if (!firstSource) return null
 
-function isImageSource(source: any): source is ImageSource {
-  return isObject(source) && !isArray(source) && isString((source as any).uri)
-}
+    if (isString(firstSource)) {
+      const uri = resolveURL(firstSource)
+      if (isSvgURL(uri)) {
+        return <Svg uri={uri} style={style as any} />
+      }
+      return <BaseImage {...rest} source={{ uri }} style={style} />
+    }
 
-export default memo(StyledImage)
+    if (isObject(firstSource) && 'uri' in firstSource && typeof firstSource.uri === 'string') {
+      const uri = resolveURL(firstSource.uri)
+      if (isSvgURL(uri)) {
+        return <Svg uri={uri} style={style as any} />
+      }
+      return <BaseImage {...rest} source={{ uri }} style={style} />
+    }
+  }
+
+  if (isObject(source) && 'uri' in source && typeof source.uri === 'string') {
+    const uri = resolveURL(source.uri)
+    if (isSvgURL(uri)) {
+      return <Svg uri={uri} style={style as any} />
+    }
+    return <BaseImage {...rest} source={{ uri }} style={style} />
+  }
+
+  return null
+})

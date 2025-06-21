@@ -1,55 +1,97 @@
-# V2Fun
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-> V2EX 好看的第三方客户端，原生 App，支持夜间模式。
+# Getting Started
 
-## 预览
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
-![Preview](https://files.catbox.moe/q6sy9n.gif)
+## Step 1: Start Metro
 
-## 下载
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
-- [iOS App Store](https://apps.apple.com/cn/app/v2fun/id1659591551?l=en)
-- [Android Apk](https://github.com/liaoliao666/v2ex/releases/latest)
+To start the Metro dev server, run the following command from the root of your React Native project:
 
-## 本地运行
+```sh
+# Using npm
+npm start
 
-[Expo 文档](https://docs.expo.dev/)
+# OR using Yarn
+yarn start
+```
 
-## URL Scheme
+## Step 2: Build and run your app
 
-| 页面     | URL Scheme               | 例子                                 |
-| -------- | ------------------------ | ------------------------------------ |
-| 搜索     | `v2fun://search/:query?` | `v2fun://search/v2fun这款应用怎么样` |
-| 帖子详情 | `v2fun://topic/:id`      | `v2fun://topic/904226`               |
+With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
 
-## Issues
+### Android
 
-希望做出贡献？ [Good First Issue][good-first-issue]
+```sh
+# Using npm
+npm run android
 
-### 🐛 Bugs
+# OR using Yarn
+yarn android
+```
 
-请针对错误、缺少文档或意外行为提出问题。
+### iOS
 
-[**See Bugs**][bugs]
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
 
-### 💡 新功能建议
+The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
 
-请提交问题以建议新功能。 通过添加对功能请求进行投票
-一个 👍。 这有助于作者确定工作的优先级。
+```sh
+bundle install
+```
 
-[**See Feature Requests**][requests]
+Then, and every time you update your native dependencies, run:
 
-## 感谢
+```sh
+bundle exec pod install
+```
 
-- [V2HOT](https://www.v2ex.com/t/822020?utm_source=pipecraft.net) : 一个能看每天 V2EX 最热的网站，历史最热功能基于此实现，感谢 🙏
-- [SOV2EX](https://github.com/Bynil/sov2ex) : 一个便捷的 V2EX 站内搜索引擎，搜索功能基于此实现，感谢 🙏
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
 
-## LICENSE
+```sh
+# Using npm
+npm run ios
 
-MIT
+# OR using Yarn
+yarn ios
+```
 
-<!-- prettier-ignore-start -->
-[bugs]: https://github.com/liaoliao666/v2ex/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Acreated-desc+label%3Abug
-[requests]: https://github.com/liaoliao666/v2ex/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement
-[good-first-issue]: https://github.com/liaoliao666/v2ex/issues?utf8=%E2%9C%93&q=is%3Aissue+is%3Aopen+sort%3Areactions-%2B1-desc+label%3Aenhancement+label%3A%22good+first+issue%22
-<!-- prettier-ignore-end -->
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+
+This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+
+## Step 3: Modify your app
+
+Now that you have successfully run the app, let's make changes!
+
+Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+
+When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+
+- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
+- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+
+## Congratulations! :tada:
+
+You've successfully run and modified your React Native App. :partying_face:
+
+### Now what?
+
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+
+# Troubleshooting
+
+If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.

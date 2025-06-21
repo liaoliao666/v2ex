@@ -1,17 +1,16 @@
-import {
-  Feather,
-  Ionicons,
-  MaterialCommunityIcons,
-  MaterialIcons,
-  Octicons,
-} from '@expo/vector-icons'
-import { Image } from 'expo-image'
+import Ionicons from 'react-native-vector-icons/Ionicons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+import Octicons from 'react-native-vector-icons/Octicons'
+import FastImage from 'react-native-fast-image'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { RESET } from 'jotai/utils'
 import { Fragment } from 'react'
 import { Platform, ScrollView, Text, View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import Feather from 'react-native-vector-icons/Feather'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 
 import Badge from '@/components/Badge'
 import ListItem from '@/components/ListItem'
@@ -73,7 +72,7 @@ function SettingScreen() {
         <View style={tw`px-4 pt-3 pb-3 flex-row`}>
           <StyledImage
             style={tw`w-12 h-12 mr-3 rounded`}
-            source={`https://cdn.v2ex.com/navatar/c81e/728d/2_large.png?m=1497247332`}
+            source={{ uri: 'https://cdn.v2ex.com/navatar/c81e/728d/2_large.png?m=1497247332' }}
           />
 
           <View style={tw`flex-1`}>
@@ -275,8 +274,7 @@ function SettingScreen() {
             try {
               await confirm(`确认清除缓存吗？`, `该动作会导致删除所有缓存数据`)
               queryClient.removeQueries()
-              Image.clearDiskCache()
-              Image.clearMemoryCache()
+              FastImage.clearMemoryCache()
 
               Toast.show({
                 type: 'success',

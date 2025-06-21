@@ -62,8 +62,6 @@ export default function WebSigninScreen() {
           }}
           onMessage={async event => {
             const isSignin = event.nativeEvent.data
-            console.log(isSignin)
-
             if (isSignin === 'true' && Date.now() - timestamp > 5000) {
               goBackWithRefetch()
             }

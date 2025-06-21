@@ -1,4 +1,4 @@
-import { Octicons } from '@expo/vector-icons'
+import Octicons from 'react-native-vector-icons/Octicons'
 import { getScale } from 'color2k'
 import { View } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'

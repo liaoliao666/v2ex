@@ -3,7 +3,7 @@ import {
   SelectableText,
   SelectableTextProps,
 } from '@alentoma/react-native-selectable-text'
-import * as Clipboard from 'expo-clipboard'
+import Clipboard from '@react-native-clipboard/clipboard'
 import { decode } from 'js-base64'
 import { useContext } from 'react'
 import {
@@ -23,7 +23,7 @@ const handleSelection: SelectableTextProps['onSelection'] = async payload => {
   switch (eventType) {
     case `R_${menuItems[0]}`:
       try {
-        await Clipboard.setStringAsync(content)
+        Clipboard.setString(content)
         Toast.show({
           type: 'success',
           text1: `已复制到粘贴板`,
@@ -37,7 +37,7 @@ const handleSelection: SelectableTextProps['onSelection'] = async payload => {
       try {
         const result = decode(content)
         if (result) {
-          await Clipboard.setStringAsync(result)
+          Clipboard.setString(result)
           Toast.show({
             type: 'success',
             text1: `已复制到粘贴板`,

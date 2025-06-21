@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, isEmpty, some } from 'lodash-es'
 import { useMemo, useState } from 'react'

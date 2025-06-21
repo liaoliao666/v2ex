@@ -203,7 +203,7 @@ const BlockerItem = memo(({ member }: { member: Member }) => {
         >
           <StyledImage
             style={tw`w-6 h-6 rounded-full`}
-            source={member?.avatar}
+            source={{ uri: member?.avatar }}
           />
         </DebouncedPressable>
       </View>

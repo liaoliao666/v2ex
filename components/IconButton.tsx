@@ -1,4 +1,4 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
 import { ReactNode, cloneElement, isValidElement } from 'react'
 import { Pressable, PressableProps, View, ViewStyle } from 'react-native'
 
