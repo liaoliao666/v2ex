@@ -4,12 +4,12 @@
  * https://reactnavigation.org/docs/configuring-links
  */
 import { LinkingOptions } from '@react-navigation/native'
-import * as Linking from 'expo-linking'
+import { Linking } from 'react-native'
 
 import { RootStackParamList } from '../types'
 
 const linking: LinkingOptions<RootStackParamList> = {
-  prefixes: [Linking.createURL('/')],
+  prefixes: ['v2fun://'],
   config: {
     screens: {
       Search: 'search/:query?',

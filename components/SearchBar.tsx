@@ -1,4 +1,4 @@
-import { Ionicons } from '@expo/vector-icons'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useAtomValue } from 'jotai'
 import { omit } from 'lodash-es'
 import { forwardRef } from 'react'
@@ -12,6 +12,7 @@ import {
 } from 'react-native'
 
 import { uiAtom } from '@/jotai/uiAtom'
+import { colorSchemeAtom } from '@/jotai/themeAtom'
 import tw from '@/utils/tw'
 
 const SearchBar = forwardRef<

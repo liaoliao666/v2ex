@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons'
+import Feather from 'react-native-vector-icons/Feather'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'

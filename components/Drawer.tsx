@@ -1,9 +1,9 @@
-import { useTheme } from '@react-navigation/native'
-import { useAtomValue } from 'jotai'
-import { noop } from 'lodash-es'
-import { createContext, useContext, useEffect, useState } from 'react'
-import { Platform, StyleSheet } from 'react-native'
-import { Drawer as RawDrawer } from 'react-native-drawer-layout'
+import { useTheme } from '@react-navigation/native';
+import { useAtomValue } from 'jotai';
+import { noop } from 'lodash-es';
+import { createContext, useContext, useEffect, useState } from 'react';
+import { Platform, StyleSheet } from 'react-native';
+import { Drawer as RawDrawer } from 'react-native-drawer-layout';
 import { useSafeAreaFrame } from 'react-native-safe-area-context'
 
 import { uiAtom } from '@/jotai/uiAtom'

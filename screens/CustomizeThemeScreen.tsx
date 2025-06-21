@@ -48,8 +48,8 @@ export default function CustomizeThemeScreen() {
   const itemHeight = 36
   const navbarHeight = useNavBarHeight()
   const [colorScheme, setColorScheme] = useState(store.get(colorSchemeAtom)!)
-  const [themeName, setThemeName] = useState(store.get(themeNameAtom)!)
-  const [fontScale, setFontScale] = useState(store.get(fontScaleAtom)!)
+  const [themeName, setThemeName] = useState({})
+  const [fontScale, setFontScale] = useState(2)
 
   const { colors, fontSize } = useMemo(
     () => getUI(themeName, fontScale, colorScheme),

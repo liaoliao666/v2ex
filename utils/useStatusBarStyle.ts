@@ -1,27 +1,38 @@
 import { useFocusEffect } from '@react-navigation/native'
-import { StatusBarStyle, setStatusBarStyle } from 'expo-status-bar'
+import { StatusBar } from 'react-native'
 import { AppState, Keyboard } from 'react-native'
 
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 
-let currentStatusBarStyle: StatusBarStyle
+let currentStatusBarStyle: 'default' | 'light-content' | 'dark-content'
 
 function updateStatusBarStyle() {
-  const nextStatusBarStyle =
-    currentStatusBarStyle === 'auto'
-      ? store.get(colorSchemeAtom) === 'dark'
-        ? 'light'
-        : 'dark'
-      : currentStatusBarStyle
-
-  setStatusBarStyle(nextStatusBarStyle)
+  if (currentStatusBarStyle === 'default') {
+    const nextStatusBarStyle =
+      store.get(colorSchemeAtom) === 'dark'
+        ? 'light-content'
+        : 'dark-content'
+    StatusBar.setBarStyle(nextStatusBarStyle)
+  } else {
+    StatusBar.setBarStyle(currentStatusBarStyle)
+  }
 }
 
-export function useStatusBarStyle(statusBarStyle: StatusBarStyle) {
+export function useStatusBarStyle(
+  statusBarStyle: 'default' | 'light-content' | 'dark-content'
+) {
   useFocusEffect(() => {
     currentStatusBarStyle = statusBarStyle
     updateStatusBarStyle()
+
+    const l1 = AppState.addEventListener('change', updateStatusBarStyle)
+    const l2 = Keyboard.addListener('keyboardDidHide', updateStatusBarStyle)
+
+    return () => {
+      l1.remove()
+      l2.remove()
+    }
   })
 }
 

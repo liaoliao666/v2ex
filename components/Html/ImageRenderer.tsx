@@ -3,6 +3,7 @@ import { isObjectLike } from 'lodash-es'
 import { useContext, useMemo } from 'react'
 import { Pressable } from 'react-native'
 import { CustomBlockRenderer } from 'react-native-render-html'
+import FastImage from 'react-native-fast-image'
 
 import { isSvgURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
@@ -27,7 +28,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     return (
       <StyledImage
         style={style as any}
-        source={url}
+        source={{ uri: url }}
         containerWidth={containerWidth}
       />
     )
@@ -41,9 +42,9 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     >
       <StyledImage
         style={style as any}
-        source={url}
+        source={{ uri: url }}
         containerWidth={containerWidth}
-        priority="low"
+        priority={FastImage.priority.low}
         autoplay={false}
       />
     </Pressable>

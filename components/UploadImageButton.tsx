@@ -1,4 +1,4 @@
-import { Feather } from '@expo/vector-icons'
+import Feather from 'react-native-vector-icons/Feather'
 import Toast from 'react-native-toast-message'
 
 import { imgurConfigAtom } from '@/jotai/imgurConfigAtom'

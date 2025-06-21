@@ -23,6 +23,7 @@ export const themeAtom = atom(
 const forceUpdateColorSchemeAtom = atom(0)
 
 export const colorSchemeAtom = atom<'light' | 'dark'>(get => {
+  console.log(`colorSchemeAtom`)
   get(forceUpdateColorSchemeAtom)
   return getColorScheme(get(baseThemeAtom))
 })

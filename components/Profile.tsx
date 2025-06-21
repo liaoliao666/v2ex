@@ -1,9 +1,3 @@
-import {
-  Feather,
-  MaterialCommunityIcons,
-  MaterialIcons,
-  SimpleLineIcons,
-} from '@expo/vector-icons'
 import { useAtom, useAtomValue } from 'jotai'
 import { compact, omit, pick } from 'lodash-es'
 import { memo } from 'react'
@@ -24,6 +18,11 @@ import IconButton from './IconButton'
 import ListItem, { ListItemProps } from './ListItem'
 import { withQuerySuspense } from './QuerySuspense'
 import RadioButtonGroup from './RadioButtonGroup'
+import Feather from 'react-native-vector-icons/Feather'
+import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
+
 
 export default withQuerySuspense(memo(Profile))
 
@@ -220,7 +219,7 @@ function Profile() {
           <View style={tw`flex-row justify-between items-center`}>
             <StyledImage
               style={tw`w-10 h-10 rounded-full`}
-              source={profile?.avatar}
+              source={{ uri: profile?.avatar }}
             />
 
             <TouchableOpacity

@@ -1,4 +1,4 @@
-import { AntDesign } from '@expo/vector-icons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { isEqual, isUndefined, maxBy } from 'lodash-es'

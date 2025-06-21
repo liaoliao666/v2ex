@@ -1,9 +1,8 @@
-import { Ionicons } from '@expo/vector-icons'
-import { Image } from 'expo-image'
-import * as Sharing from 'expo-sharing'
+import Ionicons from 'react-native-vector-icons/Ionicons'
 import { useAtomValue } from 'jotai'
 import { ComponentProps } from 'react'
-import { Dimensions, Modal, Platform, Text, View } from 'react-native'
+import { Dimensions, Modal, Platform, Text, View, Share } from 'react-native'
+import FastImage from 'react-native-fast-image'
 import ImageViewer from 'react-native-image-zoom-viewer'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 
@@ -73,7 +72,9 @@ export default function StyledImageViewer({
               name="share-outline"
               {...{
                 [Platform.OS === 'android' ? 'onPressIn' : 'onPress']: () => {
-                  Sharing.shareAsync(props.imageUrls[currentIndex!].url)
+                  Share.share({
+                    url: props.imageUrls[currentIndex!].url,
+                  })
                 },
               }}
             />
@@ -89,7 +90,7 @@ export default function StyledImageViewer({
           </View>
         )}
         renderImage={imageProps => (
-          <Image {...imageProps} allowDownscaling={false} />
+          <FastImage {...imageProps} />
         )}
         saveToLocalByLongPress={false}
         {...props}

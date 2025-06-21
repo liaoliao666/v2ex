@@ -1,4 +1,4 @@
-import { AntDesign } from '@expo/vector-icons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { darken, lighten } from 'color2k'
 import { produce } from 'immer'
@@ -229,7 +229,7 @@ function NodeInfo({
       <View style={tw`px-4 py-3 flex-row z-10`}>
         <StyledImage
           style={tw`w-12 h-12 mr-3 rounded`}
-          source={node?.avatar_large}
+          source={{ uri: node?.avatar_large }}
         />
 
         <View style={tw`flex-1`}>

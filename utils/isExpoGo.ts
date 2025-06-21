@@ -1,5 +1,4 @@
-import Constants, { ExecutionEnvironment } from 'expo-constants'
+import { Platform } from 'react-native'
 
 // `true` when running in Expo Go.
-export const isExpoGo =
-  Constants.executionEnvironment === ExecutionEnvironment.StoreClient
+export const isExpoGo = false

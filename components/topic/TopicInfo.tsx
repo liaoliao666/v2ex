@@ -1,5 +1,6 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { AntDesign, MaterialIcons } from '@expo/vector-icons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { compact } from 'lodash-es'
@@ -21,7 +22,7 @@ import { enabledParseContentAtom } from '@/jotai/enabledParseContent'
 import { homeTabIndexAtom, homeTabsAtom } from '@/jotai/homeTabsAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
-import { uiAtom } from '@/jotai/uiAtom'
+import { defaultColors, uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import { isSelf, isSignined } from '@/utils/authentication'
@@ -66,7 +67,7 @@ export default function TopicInfo({
           >
             <StyledImage
               style={tw`w-12 h-12 rounded-full`}
-              source={topic.member?.avatar}
+              source={{ uri: topic.member?.avatar??"" }}
             />
           </Pressable>
         </View>
@@ -271,7 +272,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
 
 export function ThankTopic({ topic }: { topic: Topic }) {
   const { mutateAsync, isPending } = k.topic.thank.useMutation()
-  const { colors } = useAtomValue(uiAtom)
+  const colors = defaultColors
 
   return (
     <Pressable
@@ -315,8 +316,8 @@ export function ThankTopic({ topic }: { topic: Topic }) {
         <Fragment>
           <IconButton
             name={topic.thanked ? 'heart' : 'heart-outline'}
-            color={colors.default}
-            activeColor={colors.heart}
+            color={colors.default.light}
+            activeColor={colors.heart.light}
             active={topic.thanked}
             pressed={pressed}
             size={24}
@@ -347,7 +348,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
 
   return (
     <View
-      style={tw`p-2 flex-row items-center rounded-full bg-[${colors.primary}] bg-opacity-10`}
+      style={tw`p-2 flex-row items-center rounded-full bg-[${colors.primary.light}] bg-opacity-10`}
     >
       <TouchableOpacity
         style={tw`px-2 flex-row items-center`}
@@ -381,7 +382,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
         <MaterialIcons
           name="thumb-up-off-alt"
           size={22.5}
-          color={colors.primary}
+          color={colors.primary.light}
         />
 
         <Text style={tw.style(`ml-1 text-[${colors.primary}]`)}>
@@ -390,7 +391,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
       </TouchableOpacity>
 
       <View
-        style={tw`border-l border-[${colors.primary}] border-opacity-20 border-solid w-1 h-5`}
+        style={tw`border-l border-[${colors.primary.dark}] border-opacity-20 border-solid w-1 h-5`}
       />
 
       <TouchableOpacity
@@ -422,7 +423,7 @@ export function VoteButton({ topic }: { topic: Topic }) {
         <MaterialIcons
           name="thumb-down-off-alt"
           size={22.5}
-          color={colors.primary}
+          color={colors.primary.dark}
         />
       </TouchableOpacity>
     </View>

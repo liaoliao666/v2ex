@@ -1,76 +1,41 @@
+import { isObject } from 'lodash-es'
 import { ViewStyle } from 'react-native'
 
-type ImageResult =
-  | {
-      width: number
-      height: number
-      isAnimated?: boolean
-      mediaType: string | null
-    }
-  | 'error'
-  | 'refetching'
+export type ImageResult = {
+  width: number
+  height: number
+  isAnimated?: boolean
+}
 
-export const imageResults = new Map<string | undefined, ImageResult>()
+export type ImageResultWithStatus = ImageResult | 'error' | 'refetching'
+
+export const imageResults = new Map<string, ImageResultWithStatus>()
 
 export const MAX_IMAGE_HEIGHT = 510
 
 export const BROKEN_IMAGE_SIZE = 24
 
-export function computeOptimalDispalySize(
-  containerWidth?: number,
-  size?: ImageResult
-): ViewStyle {
-  if (size === 'refetching' || size === 'error') {
-    return {
-      width: BROKEN_IMAGE_SIZE,
-      height: BROKEN_IMAGE_SIZE,
-    }
+export const isAnimatingImage = (result: ImageResultWithStatus | undefined): boolean => {
+  return isObject(result) && 'isAnimated' in result && result.isAnimated === true
+}
+
+export const computeOptimalDispalySize = (
+  containerWidth: number | undefined,
+  result: ImageResultWithStatus | undefined
+): ViewStyle => {
+  if (!containerWidth || !isObject(result) || typeof result === 'string') {
+    return {}
   }
 
-  // Display placeholder size if image size is not available
-  if (!size) {
-    return {
-      aspectRatio: 1,
-      width: containerWidth
-        ? Math.min(MAX_IMAGE_HEIGHT, containerWidth)
-        : `100%`,
-    }
-  }
-
-  const { width, height } = size
-
-  // Display mini image
-  if (width <= 100 && height <= 100) {
-    return { width, height }
-  }
-
+  const { width, height } = result
   const aspectRatio = width / height
 
-  // Display auto fit image
-  if (!containerWidth) {
-    return {
-      aspectRatio,
-      width: `100%`,
-    }
-  }
-
-  // Display small image
-  if (
-    width <= Math.min(MAX_IMAGE_HEIGHT, containerWidth) &&
-    height <= MAX_IMAGE_HEIGHT
-  ) {
+  if (width <= containerWidth) {
     return { width, height }
   }
 
-  // Display optimal size
-  const actualWidth = Math.min(aspectRatio * MAX_IMAGE_HEIGHT, containerWidth)
-  return actualWidth === containerWidth
-    ? {
-        aspectRatio,
-        width: `100%`,
-      }
-    : {
-        width: actualWidth,
-        height: actualWidth / aspectRatio,
-      }
+  return {
+    width: containerWidth,
+    height: containerWidth / aspectRatio,
+  }
 }

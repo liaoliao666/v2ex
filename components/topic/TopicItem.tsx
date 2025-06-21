@@ -58,8 +58,7 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
         >
           <StyledImage
             style={tw`w-6 h-6 rounded-full`}
-            source={topic.member?.avatar}
-            priority="high"
+            source={{ uri: topic.member?.avatar }}
           />
         </DebouncedPressable>
       )}

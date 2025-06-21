@@ -1,23 +1,37 @@
-const { getDefaultConfig } = require('expo/metro-config');
-
-/** @type {import('expo/metro-config').MetroConfig} */
-const config = getDefaultConfig(__dirname);
-
-config.resolver.unstable_enablePackageExports = false;
-config.resolver.unstable_conditionNames = ["require"];
-
-// Add custom resolveRequest function
-config.resolver.resolveRequest = (context, moduleName, platform) => {
-if (moduleName === "axios") {
-// Specifically use 'browser' condition for axios
-return context.resolveRequest(
-{ ...context, unstable_conditionNames: ["browser"] },
-moduleName,
-platform
-);
+// Polyfill for os.availableParallelism if it doesn't exist
+const os = require('os');
+if (!os.availableParallelism) {
+  os.availableParallelism = () => os.cpus().length;
 }
-// Fallback to default resolver for other modules
-return context.resolveRequest(context, moduleName, platform);
+
+const {getDefaultConfig, mergeConfig} = require('@react-native/metro-config');
+
+/**
+ * Metro configuration
+ * https://reactnative.dev/docs/metro
+ *
+ * @type {import('@react-native/metro-config').MetroConfig}
+ */
+const config = {
+  maxWorkers: 2,  // 明确设置工作进程数
+  server: {
+    port: 8081
+  },
+  transformer: {
+    getTransformOptions: async () => ({
+      transform: {
+        experimentalImportSupport: false,
+        inlineRequires: true,
+        sourceMap: true,
+        inlineSourceMap: false,
+      },
+    }),
+  },
+  watchFolders: [__dirname],
+  resolver: {
+    nodeModulesPaths: [__dirname + '/node_modules'],
+  }
 };
 
-module.exports = config;
+// 使用自定义配置覆盖默认配置
+module.exports = mergeConfig(getDefaultConfig(__dirname), config);

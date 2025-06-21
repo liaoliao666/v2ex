@@ -1,5 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { Feather } from '@expo/vector-icons'
+import Feather from 'react-native-vector-icons/Feather'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { compact, find, findIndex, isBoolean, isEmpty } from 'lodash-es'
@@ -127,7 +127,7 @@ function ReplyItem({
           >
             <StyledImage
               style={tw`w-6 h-6 rounded-full`}
-              source={reply.member?.avatar}
+              source={{ uri: reply.member?.avatar }}
             />
           </Pressable>
         </View>

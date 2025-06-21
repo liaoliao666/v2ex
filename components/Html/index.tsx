@@ -1,9 +1,8 @@
 import { load } from 'cheerio'
-import { Image } from 'expo-image'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { compact, findIndex, isString, pick } from 'lodash-es'
 import { memo, useMemo } from 'react'
-import { Alert, Platform, Image as RNImage } from 'react-native'
+import { Alert, Platform } from 'react-native'
 import RenderHtml, {
   RenderHTMLProps,
   defaultSystemFonts,
@@ -102,15 +101,6 @@ function Html({
 
                   let localUrl: string | null
 
-                  if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-                    localUrl = await Image.getCachePathAsync(resolvedURI)
-
-                    if (localUrl) {
-                      localUrl = RNImage.resolveAssetSource({
-                        uri: localUrl,
-                      }).uri
-                    }
-                  }
 
                   return {
                     ...pick(imageResult, ['width', 'height']),

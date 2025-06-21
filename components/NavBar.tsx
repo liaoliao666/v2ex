@@ -1,4 +1,4 @@
-import { StatusBarStyle } from 'expo-status-bar'
+import { StatusBarStyle } from 'react-native'
 import { useAtomValue } from 'jotai'
 import { isArray } from 'lodash-es'
 import { ReactNode, isValidElement } from 'react'
@@ -20,7 +20,7 @@ export default function NavBar({
   style,
   title,
   tintColor = getUI().colors.foreground,
-  statusBarStyle = 'auto',
+  statusBarStyle = 'default',
   left = <BackButton tintColor={tintColor} />,
   right,
   hideSafeTop,

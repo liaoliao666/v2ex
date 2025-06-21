@@ -1,6 +1,7 @@
 import { useAtomValue } from 'jotai'
-import { View } from 'react-native'
+import { View, ViewStyle } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
+import { memo } from 'react'
 
 import { uiAtom } from '@/jotai/uiAtom'
 import { k } from '@/servicies'
@@ -9,13 +10,16 @@ import tw from '@/utils/tw'
 
 import BrokenImage from './BrokenImage'
 import { computeOptimalDispalySize } from './helper'
+import SvgUri from 'react-native-svg-uri'
 
-export default function Svg({
-  uri,
-  style,
-  containerWidth,
-  ...props
-}: UriProps & { containerWidth?: number }) {
+export type SvgProps = {
+  uri: string
+  style?: ViewStyle
+  width?: number
+  height?: number
+}
+
+export default memo(function Svg({ uri, style, width, height }: SvgProps) {
   const { colors } = useAtomValue(uiAtom)
   const hasPassedSize = hasSize(style)
 
@@ -29,7 +33,7 @@ export default function Svg({
         style={tw.style(
           !hasPassedSize &&
             computeOptimalDispalySize(
-              containerWidth,
+              width,
               svgQuery.errorUpdateCount ? 'refetching' : undefined
             ),
           `bg-[${colors.neutral}]`,
@@ -44,15 +48,12 @@ export default function Svg({
   }
 
   return (
-    <SvgXml
-      {...props}
-      xml={svgQuery.data.xml}
-      style={tw.style(
-        !hasPassedSize &&
-          computeOptimalDispalySize(containerWidth, svgQuery.data as any),
-        style as any
-      )}
-      width="100%"
-    />
+    <View style={style}>
+      <SvgUri
+        width={width}
+        height={height}
+        source={{ uri }}
+      />
+    </View>
   )
-}
+})

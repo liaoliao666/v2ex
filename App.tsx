@@ -1,15 +1,16 @@
 import { ActionSheetProvider } from '@expo/react-native-action-sheet'
 import { QueryClientProvider } from '@tanstack/react-query'
 // import { enabledNetworkInspect } from './utils/enabledNetworkInspect'
-import * as SplashScreen from 'expo-splash-screen'
-import { StatusBar } from 'expo-status-bar'
+import SplashScreen from 'react-native-splash-screen'
+import { StatusBar } from 'react-native'
 import { Provider, useAtom, useAtomValue } from 'jotai'
-import { waitForAll } from 'jotai/utils'
-import { ReactElement, ReactNode, Suspense } from 'react'
+
+import { ReactElement, ReactNode, Suspense, useEffect } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { useDeviceContext } from 'twrnc'
+import { atom } from 'jotai'
 
 import { AsyncStoragePersist } from './components/AsyncStoragePersist'
 import StyledImageViewer from './components/StyledImageViewer'
@@ -27,15 +28,16 @@ import { searchHistoryAtom } from './jotai/searchHistoryAtom'
 import { sov2exArgsAtom } from './jotai/sov2exArgsAtom'
 import { store } from './jotai/store'
 import { colorSchemeAtom } from './jotai/themeAtom'
+import { fontScaleAtom, themeNameAtom, colorsAtom } from './jotai/uiAtom'
 import { topicDraftAtom } from './jotai/topicDraftAtom'
-import { colorsAtom, fontScaleAtom, themeNameAtom } from './jotai/uiAtom'
 import Navigation from './navigation'
 import { k } from './servicies'
 import './utils/dayjsPlugins'
 import { queryClient } from './utils/query'
 import tw from './utils/tw'
+import { waitForAll } from 'jotai/utils'
 
-SplashScreen.preventAutoHideAsync()
+// SplashScreen.preventAutoHideAsync()
 
 LogBox.ignoreLogs([
   'Non-serializable values were found in the navigation state',
@@ -68,6 +70,11 @@ export default function App() {
 }
 
 function AppInitializer({ children }: { children: ReactNode }) {
+  useEffect(() => {
+    console.log(`Bundle loaded`);
+    SplashScreen.hide()
+  }, [])
+
   const [profile, enabledAutoCheckin, colorScheme] = useAtomValue(
     waitForAll([
       profileAtom,

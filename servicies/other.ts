@@ -1,9 +1,9 @@
 import axios from 'axios'
 import { load } from 'cheerio'
 import dayjs from 'dayjs'
-import Constants from 'expo-constants'
-import * as FileSystem from 'expo-file-system'
-import * as ImagePicker from 'expo-image-picker'
+import DeviceInfo from 'react-native-device-info'
+import RNFS from 'react-native-fs'
+import { launchImageLibrary } from 'react-native-image-picker'
 import { Platform } from 'react-native'
 import { router } from 'react-query-kit'
 import showdown from 'showdown'
@@ -140,16 +140,14 @@ export const otherRouter = router(`other`, {
 
       if (!clientId) return Promise.reject(new Error('请先配置你的Imgur'))
 
-      const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.All,
+      const result = await launchImageLibrary({
+        mediaTypes: launchImageLibrary.MediaTypeOptions.All,
         quality: 1,
       })
 
       if (result.canceled) return Promise.reject(new Error('已取消选择图片'))
 
-      const base64 = await FileSystem.readAsStringAsync(result.assets[0].uri, {
-        encoding: 'base64',
-      })
+      const base64 = await RNFS.readFile(result.assets[0].uri, 'base64')
       const md5 = SparkMD5.hashBinary(base64)
       const cache = store.get(imgurConfigAtom)?.uploadedFiles[md5]
 
@@ -215,3 +213,64 @@ export const otherRouter = router(`other`, {
     use: [disabledIfFetched],
   }),
 })
+
+const getDeviceInfo = async () => {
+  const deviceId = await DeviceInfo.getUniqueId()
+  const deviceName = await DeviceInfo.getDeviceName()
+  const systemVersion = DeviceInfo.getSystemVersion()
+  const appVersion = DeviceInfo.getVersion()
+  const buildNumber = DeviceInfo.getBuildNumber()
+  
+  return {
+    deviceId,
+    deviceName,
+    systemVersion,
+    appVersion,
+    buildNumber
+  }
+}
+
+const fileSystem = {
+  documentDirectory: RNFS.DocumentDirectoryPath,
+  cacheDirectory: RNFS.CachesDirectoryPath,
+  readAsStringAsync: (fileUri: string) => RNFS.readFile(fileUri, 'utf8'),
+  writeAsStringAsync: (fileUri: string, contents: string) => RNFS.writeFile(fileUri, contents, 'utf8'),
+  deleteAsync: (fileUri: string) => RNFS.unlink(fileUri),
+  getInfoAsync: async (fileUri: string) => {
+    try {
+      const stats = await RNFS.stat(fileUri)
+      return {
+        exists: true,
+        size: stats.size,
+        isDirectory: stats.isDirectory(),
+        modificationTime: stats.mtime?.getTime()
+      }
+    } catch {
+      return { exists: false }
+    }
+  }
+}
+
+const imagePicker = {
+  launchImageLibraryAsync: async (options: any) => {
+    const result = await launchImageLibrary(options)
+    if (result.didCancel) {
+      return { canceled: true }
+    }
+    if (result.errorCode) {
+      throw new Error(result.errorMessage)
+    }
+    return {
+      canceled: false,
+      assets: result.assets?.map(asset => ({
+        uri: asset.uri,
+        width: asset.width,
+        height: asset.height,
+        type: asset.type,
+        fileName: asset.fileName
+      }))
+    }
+  }
+}
+
+export { getDeviceInfo, fileSystem, imagePicker }
