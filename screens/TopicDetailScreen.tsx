@@ -55,7 +55,7 @@ export default withQuerySuspense(TopicDetailScreen, {
     const { params } = useRoute<RouteProp<RootStackParamList, 'TopicDetail'>>()
     return (
       <TopicDetailPlaceholder topic={params}>
-        <TopicPlaceholder hideAnimation />
+        <TopicPlaceholder />
       </TopicDetailPlaceholder>
     )
   },

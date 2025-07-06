@@ -1,18 +1,19 @@
 import { useAtomValue } from 'jotai'
 import { View, ViewStyle } from 'react-native'
-import { Placeholder, PlaceholderLine, PlaceholderMedia } from 'rn-placeholder'
 
 import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
 
-import StyledFade from './StyledFade'
+import { PlaceholderShape } from './PlaceholderShape'
+import { Placeholder } from './Placeholder'
+import { PlaceholderLine } from './PlaceholderLine'
 
 function AvatarPlaceholder() {
   const { colors } = useAtomValue(uiAtom)
+
   return (
-    <PlaceholderMedia
-      style={tw`w-6 h-6 rounded-full mr-3`}
-      color={colors.base300}
+    <PlaceholderShape
+      style={tw`w-6 h-6 rounded-full mr-3 bg-[${colors.base300}]`}
     />
   )
 }
@@ -52,15 +53,12 @@ export function TopicItemPlaceholder({ hideAvatar }: { hideAvatar?: boolean }) {
 export default function TopicPlaceholder({
   style,
   hideAvatar,
-  hideAnimation,
 }: {
   style?: ViewStyle
   hideAvatar?: boolean
-  hideAnimation?: boolean
 }) {
   return (
     <Placeholder
-      Animation={hideAnimation ? undefined : StyledFade}
       style={style}
     >
       {Array.from({ length: 10 }).map((_, i) => (

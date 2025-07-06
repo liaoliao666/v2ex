@@ -1,21 +1,23 @@
 import { useAtomValue } from 'jotai'
 import { ReactNode } from 'react'
 import { Text, View } from 'react-native'
-import { Placeholder, PlaceholderLine, PlaceholderMedia } from 'rn-placeholder'
 
 import StyledImage from '@/components/StyledImage'
 import { uiAtom } from '@/jotai/uiAtom'
 import { Topic } from '@/servicies'
 import tw from '@/utils/tw'
 
+import { PlaceholderShape } from './PlaceholderShape'
+import { Placeholder } from './Placeholder'
+import { PlaceholderLine } from './PlaceholderLine'
+
 import NavBar from '../NavBar'
 import StyledButton from '../StyledButton'
-import StyledFade from './StyledFade'
 
 function AvatarPlaceholder() {
   const { colors } = useAtomValue(uiAtom)
   return (
-    <PlaceholderMedia
+    <PlaceholderShape
       style={tw`w-12 h-12 rounded-full mr-3`}
       color={colors.base300}
     />
@@ -109,7 +111,7 @@ export default function TopicDetailPlaceholder({
       {isError ? (
         children
       ) : (
-        <Placeholder Animation={StyledFade}>
+        <Placeholder>
           {!topic?.member && (
             <Placeholder style={tw`pt-3 px-4`} Left={AvatarPlaceholder}>
               <PlaceholderLine

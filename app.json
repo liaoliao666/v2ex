@@ -139,6 +139,9 @@
           }
         }
       ]
-    ]
+    ],
+    "experiments": {
+      "reactCompiler": true
+    }
   }
 }
