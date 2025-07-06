@@ -61,7 +61,7 @@ export default function TopicPlaceholder({
     <Placeholder
       style={style}
     >
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 10 }).map((_, i) => (
         <TopicItemPlaceholder key={i} hideAvatar={hideAvatar} />
       ))}
     </Placeholder>
