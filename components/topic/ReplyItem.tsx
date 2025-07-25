@@ -1,5 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { Feather } from '@expo/vector-icons'
+import { Feather, FontAwesome5 } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { compact, find, findIndex, isBoolean, isEmpty } from 'lodash-es'
@@ -19,6 +19,7 @@ import { isSelf, isSignined } from '@/utils/authentication'
 import { confirm } from '@/utils/confirm'
 import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
+import { sleep } from '@/utils/sleep'
 import tw from '@/utils/tw'
 
 import Html from '../Html'
@@ -47,6 +48,7 @@ function ReplyItem({
   inModalScreen,
   onLayout,
   showNestedReply = true,
+  showLegacyUi = true,
 }: {
   topicId: number
   once?: string
@@ -57,6 +59,7 @@ function ReplyItem({
   inModalScreen?: boolean
   onLayout?: ViewProps['onLayout']
   showNestedReply?: boolean
+  showLegacyUi?: boolean
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
   const themeName = useAtomValue(themeNameAtom)
@@ -74,12 +77,13 @@ function ReplyItem({
     <View
       style={tw.style(
         `px-4`,
+        showLegacyUi && `py-3`,
         hightlight ? `bg-[${colors.base200}]` : `bg-[${colors.base100}]`,
         isBoolean(related) && !related && `opacity-64`
       )}
       onLayout={onLayout}
     >
-      {!showNestedReply ? null : (
+      {!showNestedReply || showLegacyUi ? null : (
         <>
           {Array.from({ length: reply_level }, (_, i) => {
             return (
@@ -106,9 +110,11 @@ function ReplyItem({
 
       <View style={tw`flex-row ml-[${(reply.reply_level || 0) * 24}px]`}>
         <View>
-          {((reply.reply_level === 0 && !reply.is_last_reply) ||
+          {((!showLegacyUi &&
+            reply.reply_level === 0 &&
+            !reply.is_last_reply) ||
             !isEmpty(reply.children) ||
-            (!showNestedReply && !reply.is_last_reply)) && (
+            (!showLegacyUi && !showNestedReply && !reply.is_last_reply)) && (
             <View
               style={tw`border-l border-solid border-[${dividerColor}] absolute top-0 bottom-0 left-3`}
             />
@@ -131,7 +137,7 @@ function ReplyItem({
             />
           </Pressable>
         </View>
-        <View style={tw.style(`flex-1`, `pb-2`, `ml-1`)}>
+        <View style={tw.style(`flex-1`, !showLegacyUi && `pb-2`, `ml-1`)}>
           <View style={tw`flex-row items-center`}>
             <View style={tw`flex-row gap-2 mr-auto`}>
               <Text
@@ -246,6 +252,40 @@ function ReplyItem({
                   </Fragment>
                 )}
               </Pressable>
+
+              {showLegacyUi && reply.has_related_replies && !inModalScreen && (
+                <Pressable
+                  onPress={() => {
+                    navigation.navigate('RelatedReplies', {
+                      replyId: reply.id,
+                      topicId,
+                      onReply: username => {
+                        navigation.goBack()
+                        sleep(300).then(() => onReply(username))
+                      },
+                    })
+                  }}
+                  style={tw`flex-row items-center`}
+                >
+                  {({ pressed }) => (
+                    <Fragment>
+                      <IconButton
+                        pressed={pressed}
+                        color={colors.default}
+                        activeColor={colors.foreground}
+                        size={15}
+                        icon={<FontAwesome5 name="comments" />}
+                      />
+
+                      <Text
+                        style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
+                      >
+                        查看评论
+                      </Text>
+                    </Fragment>
+                  )}
+                </Pressable>
+              )}
             </View>
 
             <MoreButton once={once} reply={reply} topicId={topicId} />

@@ -1,6 +1,6 @@
 import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { cloneDeep, isEmpty, last, uniqBy } from 'lodash-es'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
@@ -23,6 +23,7 @@ import {
   withQuerySuspense,
 } from '@/components/QuerySuspense'
 import RadioButtonGroup from '@/components/RadioButtonGroup'
+import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
@@ -36,6 +37,7 @@ import TopicInfo, {
   ThankTopic,
   VoteButton,
 } from '@/components/topic/TopicInfo'
+import { RepliesMode, repliesModeAtom } from '@/jotai/repliesMode'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
@@ -90,14 +92,15 @@ function TopicDetailScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
   const topic = last(data?.pages)!
-  const [orderBy, setOrderBy] = useState<'asc' | 'desc'>('asc')
+  const [repliesMode, setRepliesMode] = useAtom(repliesModeAtom)
+  const [orderBy, setOrderBy] = useState<RepliesMode | 'reverse'>(repliesMode)
   const flatedData = useMemo(() => {
     const rawList = cloneDeep(
       uniqBy(data?.pages.map(page => page.replies).flat() || [], 'id')
     )
     let _flatedData = []
 
-    if (orderBy === 'asc') {
+    if (orderBy === 'smart') {
       const ascList = rawList
       const replyMap = new Map<number, Reply>()
       const parentMap = new Map<number, number>()
@@ -202,8 +205,10 @@ function TopicDetailScreen() {
       }
 
       _flatedData = flattenReplies(result)
-    } else {
+    } else if (orderBy == 'reverse') {
       _flatedData = [...rawList].reverse()
+    } else {
+      _flatedData = rawList
     }
 
     if (last(_flatedData)) {
@@ -225,7 +230,8 @@ function TopicDetailScreen() {
               ? params.hightlightReplyNo === item.no
               : undefined
           }
-          showNestedReply={orderBy === 'asc'}
+          showNestedReply={orderBy === 'smart'}
+          showLegacyUi={repliesMode == 'default'}
           onReply={username => setReplyInfo({ topicId: topic.id, username })}
         />
       </View>
@@ -253,6 +259,7 @@ function TopicDetailScreen() {
         ref={flatListRef}
         key={colorScheme}
         data={flatedData}
+        ItemSeparatorComponent={repliesMode == 'default' ? LineSeparator : null}
         removeClippedSubviews={false}
         contentContainerStyle={{
           paddingTop: navbarHeight,
@@ -301,8 +308,9 @@ function TopicDetailScreen() {
                 style={tw`ml-auto`}
                 options={
                   [
-                    { label: '默认', value: 'asc' },
-                    { label: '最新', value: 'desc' },
+                    { label: '默认', value: 'default' },
+                    { label: '智能', value: 'smart' },
+                    { label: '最新', value: 'reverse' },
                   ] as {
                     label: string
                     value: typeof orderBy
@@ -310,7 +318,7 @@ function TopicDetailScreen() {
                 }
                 value={orderBy}
                 onChange={async v => {
-                  if (v === 'desc' && isFetching) {
+                  if (v === 'reverse' && isFetching) {
                     Toast.show({
                       type: 'error',
                       text1: '请等待当前请求完成后再切换',
@@ -318,9 +326,13 @@ function TopicDetailScreen() {
                     return
                   }
 
+                  if (v != 'reverse') {
+                    setRepliesMode(v)
+                  }
+
                   setOrderBy(v)
 
-                  if (v === 'desc' && hasNextPage) {
+                  if (v === 'reverse' && hasNextPage) {
                     if (topic.last_page - topic.page > 9) {
                       Toast.show({
                         type: 'error',
