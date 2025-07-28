@@ -3,7 +3,7 @@
     "name": "V2Fun",
     "slug": "v2ex",
     "owner": "v2fun",
-    "version": "1.8.5",
+    "version": "1.8.6",
     "scheme": "v2fun",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",

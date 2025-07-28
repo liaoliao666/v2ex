@@ -38,4 +38,4 @@ function isImageSource(source: any): source is ImageSource {
   return isObject(source) && !isArray(source) && isString((source as any).uri)
 }
 
-export default memo(StyledImage)
+export default StyledImage

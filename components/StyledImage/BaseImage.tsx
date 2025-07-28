@@ -11,7 +11,7 @@ import tw from '@/utils/tw'
 import { genBMPUri } from '@/utils/url'
 import useUpdate from '@/utils/useUpdate'
 
-import AnimatedImageOverlay, { isAnimatingImage } from './AnimatedImageOverlay'
+import AnimatedImageOverlay, { getAnimatingImage } from './AnimatedImageOverlay'
 import BrokenImage from './BrokenImage'
 import { imageResults } from './helper'
 import { computeOptimalDispalySize } from './helper'
@@ -107,7 +107,7 @@ export function BaseImage({
   }
 
   if (props.autoplay === false) {
-    const isAnimating = isAnimatingImage(uri)
+    const isAnimating = uri === getAnimatingImage()
     const isMiniImage =
       isObject(result) && result.width < 50 && result.height < 50
 

@@ -10,9 +10,10 @@ import useLatest from '@/utils/useLatest'
 let animatingImage = ''
 
 const animatedListeners = new Set<() => void>()
-export const isAnimatingImage = (uri: string) => uri === animatingImage
+
+export const getAnimatingImage = () => animatingImage
 const setAnimatingImage = (nextAnimatedImage: string) => {
-  if (!isAnimatingImage(nextAnimatedImage)) {
+  if (nextAnimatedImage !== getAnimatingImage()) {
     animatingImage = nextAnimatedImage
     animatedListeners.forEach(l => l())
   }
@@ -37,7 +38,8 @@ export default function AnimatedImageOverlay({
 
   useEffect(() => {
     const listener = () => {
-      if (isAnimatingImage(uri) !== isAnimatingRef.current) {
+      const isAnimating = uri === getAnimatingImage()
+      if (isAnimating !== isAnimatingRef.current) {
         update()
       }
     }
