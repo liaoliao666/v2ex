@@ -14,6 +14,8 @@ const linking: LinkingOptions<RootStackParamList> = {
     screens: {
       Search: 'search/:query?',
       TopicDetail: 'topic/:id',
+      MemberDetail: 'member/:username',
+      NodeTopics: 'node/:name',
       NotFound: '*',
     },
   },

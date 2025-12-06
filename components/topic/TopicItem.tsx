@@ -48,20 +48,22 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
       }}
     >
       {!hideAvatar && (
-        <DebouncedPressable
-          onPress={() => {
-            navigation.push('MemberDetail', {
-              username: topic.member?.username!,
-            })
-          }}
-          style={tw`pr-3`}
-        >
-          <StyledImage
-            style={tw`w-6 h-6 rounded-full`}
-            source={topic.member?.avatar}
-            priority="high"
-          />
-        </DebouncedPressable>
+        <View>
+          <DebouncedPressable
+            onPress={() => {
+              navigation.push('MemberDetail', {
+                username: topic.member?.username!,
+              })
+            }}
+            style={tw`pr-3`}
+          >
+            <StyledImage
+              style={tw`w-6 h-6 rounded-full`}
+              source={topic.member?.avatar}
+              priority="high"
+            />
+          </DebouncedPressable>
+        </View>
       )}
       <View style={tw`flex-1`}>
         <View style={tw`flex-row gap-2`}>

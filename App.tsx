@@ -5,10 +5,11 @@ import * as SplashScreen from 'expo-splash-screen'
 import { StatusBar } from 'expo-status-bar'
 import { Provider, useAtom, useAtomValue } from 'jotai'
 import { waitForAll } from 'jotai/utils'
-import { ReactElement, ReactNode, Suspense } from 'react'
+import { ReactElement, ReactNode, Suspense, useEffect } from 'react'
 import { LogBox } from 'react-native'
 import 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import SystemNavigationBar from 'react-native-system-navigation-bar'
 import { useDeviceContext } from 'twrnc'
 
 import { AsyncStoragePersist } from './components/AsyncStoragePersist'
@@ -45,6 +46,10 @@ LogBox.ignoreLogs([
 // enabledNetworkInspect()
 
 export default function App() {
+  useEffect(() => {
+    SystemNavigationBar.setNavigationColor('transparent') // use this
+  }, [])
+
   return (
     <ActionSheetProvider>
       <Provider unstable_createStore={() => store}>

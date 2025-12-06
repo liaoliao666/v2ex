@@ -20,7 +20,9 @@
 | 页面     | URL Scheme               | 例子                                 |
 | -------- | ------------------------ | ------------------------------------ |
 | 搜索     | `v2fun://search/:query?` | `v2fun://search/v2fun这款应用怎么样` |
-| 帖子详情 | `v2fun://topic/:id`      | `v2fun://topic/904226`               |
+| 帖子 | `v2fun://topic/:id`      | `v2fun://topic/904226`               |
+| 用户 | `member/:username`      | `v2fun://member/iliaoliao`               |
+| 节点 | `node/:name`      | `v2fun://node/apple`               |
 
 ## Issues
 

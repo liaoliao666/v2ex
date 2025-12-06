@@ -1,6 +1,6 @@
 import { useAtomValue } from 'jotai'
 import { ReactNode, cloneElement, isValidElement } from 'react'
-import { PressableProps, Text, ViewStyle } from 'react-native'
+import { PressableProps, Text, View, ViewStyle } from 'react-native'
 
 import { uiAtom } from '@/jotai/uiAtom'
 import tw from '@/utils/tw'
@@ -54,7 +54,7 @@ export default function ListItem({
             </Text>
           )}
 
-          {action}
+          <View>{action}</View>
         </>
       )}
     </DebouncedPressable>
