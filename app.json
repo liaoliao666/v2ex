@@ -3,7 +3,7 @@
     "name": "V2Fun",
     "slug": "v2ex",
     "owner": "v2fun",
-    "version": "1.8.7",
+    "version": "1.8.8",
     "scheme": "v2fun",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -20,7 +20,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.8.7.2",
+      "buildNumber": "1.8.8.1",
       "entitlements": {
         "aps-environment": "development"
       },
@@ -85,9 +85,7 @@
         "buttonStyle": "light"
       }
     },
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    },
+    "runtimeVersion": "1.8.7",
     "plugins": [
       [
         "expo-navigation-bar",
