@@ -111,6 +111,7 @@ function TopicDetailScreen() {
           reply_level: 0,
           is_merged: false,
           is_last_reply: false,
+          reply_ancestor_ids: [],
           reply_connectors: [],
           reply_has_nested_children: false,
         })
@@ -216,6 +217,7 @@ function TopicDetailScreen() {
         reply: Reply,
         level: number,
         connectorStack: boolean[],
+        ancestorIds: number[],
         is_merged: boolean,
         hasNextSibling: boolean,
         hasSibling: boolean
@@ -229,13 +231,13 @@ function TopicDetailScreen() {
         if (level > 0) {
           const shouldContinueConnector = hasNextSibling || hasMergedChildren
 
-          replyConnectors[0] = true
           replyConnectors[level - 1] = shouldContinueConnector
         }
 
         const updatedReply = {
           ...reply,
           reply_level: level,
+          reply_ancestor_ids: ancestorIds,
           is_merged,
           is_last_reply: !hasNextSibling,
           reply_connectors: replyConnectors,
@@ -255,6 +257,7 @@ function TopicDetailScreen() {
               child,
               childLevel,
               replyConnectors,
+              [...ancestorIds, reply.id],
               childIsMerged,
               hasNextNestedSibling,
               reply.children.length > 1
@@ -268,6 +271,7 @@ function TopicDetailScreen() {
           return flattenReply(
             reply,
             level,
+            [],
             [],
             false,
             replyIndex < replies.length - 1,
@@ -288,10 +292,37 @@ function TopicDetailScreen() {
     }
     return _flatedData
   }, [data?.pages, orderBy])
+  const [collapsedReplyIds, setCollapsedReplyIds] = useState<Set<number>>(
+    () => new Set()
+  )
+  const visibleFlatedData = useMemo(() => {
+    if (orderBy !== 'smart' || collapsedReplyIds.size === 0) {
+      return flatedData
+    }
+
+    return flatedData.filter(reply => {
+      return !reply.reply_ancestor_ids?.some(id => collapsedReplyIds.has(id))
+    })
+  }, [collapsedReplyIds, flatedData, orderBy])
+  const rootGroupEndReplyIds = useMemo(() => {
+    if (orderBy !== 'smart') {
+      return new Set<number>()
+    }
+
+    return visibleFlatedData.reduce((result, reply, index) => {
+      const nextReply = visibleFlatedData[index + 1]
+      if (!nextReply || nextReply.reply_level === 0) {
+        result.add(reply.id)
+      }
+      return result
+    }, new Set<number>())
+  }, [orderBy, visibleFlatedData])
   const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
   const renderItem: ListRenderItem<Reply> = useCallback(
     ({ item }) => (
-      <View>
+      <View
+        key={`${item.id}_${item.reply_level}_${collapsedReplyIds.has(item.id)}`}
+      >
         <ReplyItem
           reply={item as Reply}
           key={`${item.id}_${item.reply_level}`}
@@ -304,11 +335,35 @@ function TopicDetailScreen() {
           }
           showNestedReply={orderBy === 'smart'}
           showLegacyUi={orderBy !== 'smart'}
+          collapsed={collapsedReplyIds.has(item.id)}
+          isRootGroupEnd={rootGroupEndReplyIds.has(item.id)}
+          onToggleCollapse={
+            orderBy === 'smart' && item.reply_has_nested_children
+              ? () => {
+                  setCollapsedReplyIds(prev => {
+                    const next = new Set(prev)
+                    if (next.has(item.id)) {
+                      next.delete(item.id)
+                    } else {
+                      next.add(item.id)
+                    }
+                    return next
+                  })
+                }
+              : undefined
+          }
           onReply={username => setReplyInfo({ topicId: topic.id, username })}
         />
       </View>
     ),
-    [topic.id, topic.once, params.hightlightReplyNo, orderBy]
+    [
+      collapsedReplyIds,
+      rootGroupEndReplyIds,
+      topic.id,
+      topic.once,
+      params.hightlightReplyNo,
+      orderBy,
+    ]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)
@@ -330,7 +385,8 @@ function TopicDetailScreen() {
       <Animated.FlatList
         ref={flatListRef}
         key={colorScheme}
-        data={flatedData}
+        data={visibleFlatedData}
+        extraData={collapsedReplyIds}
         ItemSeparatorComponent={orderBy !== 'smart' ? LineSeparator : null}
         removeClippedSubviews={false}
         contentContainerStyle={{

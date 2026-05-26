@@ -35,6 +35,8 @@ export default memo(
     prev.once === next.once &&
     prev.showLegacyUi === next.showLegacyUi &&
     prev.showNestedReply === next.showNestedReply &&
+    prev.isRootGroupEnd === next.isRootGroupEnd &&
+    prev.collapsed === next.collapsed &&
     prev.reply.reply_level === next.reply.reply_level &&
     prev.reply.is_merged === next.reply.is_merged &&
     prev.reply.reply_connectors?.join() ===
@@ -56,6 +58,9 @@ function ReplyItem({
   onLayout,
   showNestedReply = true,
   showLegacyUi = true,
+  collapsed = false,
+  isRootGroupEnd = false,
+  onToggleCollapse,
 }: {
   topicId: number
   once?: string
@@ -67,6 +72,9 @@ function ReplyItem({
   onLayout?: ViewProps['onLayout']
   showNestedReply?: boolean
   showLegacyUi?: boolean
+  collapsed?: boolean
+  isRootGroupEnd?: boolean
+  onToggleCollapse?: () => void
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
   const themeName = useAtomValue(themeNameAtom)
@@ -80,13 +88,19 @@ function ReplyItem({
       : !themeName.dark && colorScheme === 'dark'
       ? 'rgb(51,54,57)'
       : colors.divider
+  const itemBackgroundColor = hightlight ? colors.base200 : colors.base100
+  const shouldShowRootGroupGap =
+    !showLegacyUi && showNestedReply && isRootGroupEnd
+  const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
 
   return (
     <View
       style={tw.style(
         `px-4`,
         showLegacyUi && `py-3`,
-        hightlight ? `bg-[${colors.base200}]` : `bg-[${colors.base100}]`,
+        shouldShowRootGroupGap && !collapsed && `mb-2`,
+        shouldShowCollapsedGap && `pb-2`,
+        `bg-[${itemBackgroundColor}]`,
         isBoolean(related) && !related && `opacity-64`
       )}
       onLayout={onLayout}
@@ -120,29 +134,79 @@ function ReplyItem({
 
       <View style={tw`flex-row ml-[${(reply.reply_level || 0) * 24}px]`}>
         <View>
-          {((reply.reply_has_nested_children ?? !isEmpty(reply.children)) ||
+          {((!collapsed &&
+            (reply.reply_has_nested_children ?? !isEmpty(reply.children))) ||
             (!showLegacyUi && !showNestedReply && !reply.is_last_reply)) && (
             <View
-              style={tw`border-l border-solid border-[${dividerColor}] absolute top-0 bottom-0 left-3`}
+              style={tw.style(
+                `border-l border-solid border-[${dividerColor}] absolute bottom-0 left-3`,
+                !showLegacyUi && showNestedReply ? `top-6` : `top-0`
+              )}
             />
           )}
 
-          <Pressable
-            onPress={() => {
-              if (inModalScreen) {
-                navigation.goBack()
-              } else {
-                navigation.push('MemberDetail', {
-                  username: reply.member?.username!,
-                })
-              }
-            }}
-          >
-            <StyledImage
-              style={tw`w-6 h-6 rounded-full`}
-              source={reply.member?.avatar}
-            />
-          </Pressable>
+          {!showLegacyUi &&
+            showNestedReply &&
+            reply.reply_has_nested_children &&
+            onToggleCollapse &&
+            !collapsed && (
+              <Pressable
+                onPress={onToggleCollapse}
+                hitSlop={8}
+                style={tw.style(
+                  `absolute left-[4px] z-10 bg-[${itemBackgroundColor}] rounded-full`,
+                  `bottom-[11px]`
+                )}
+              >
+                <Feather name="minus-circle" size={16} color={colors.default} />
+              </Pressable>
+            )}
+
+          {collapsed && onToggleCollapse ? (
+            <View style={tw`flex-row items-center gap-1`}>
+              <Pressable
+                onPress={onToggleCollapse}
+                hitSlop={8}
+                style={tw`w-6 h-6 items-center justify-center bg-[${itemBackgroundColor}] rounded-full z-10`}
+              >
+                <Feather name="plus-circle" size={16} color={colors.default} />
+              </Pressable>
+
+              <Pressable
+                onPress={() => {
+                  if (inModalScreen) {
+                    navigation.goBack()
+                  } else {
+                    navigation.push('MemberDetail', {
+                      username: reply.member?.username!,
+                    })
+                  }
+                }}
+              >
+                <StyledImage
+                  style={tw`w-6 h-6 rounded-full`}
+                  source={reply.member?.avatar}
+                />
+              </Pressable>
+            </View>
+          ) : (
+            <Pressable
+              onPress={() => {
+                if (inModalScreen) {
+                  navigation.goBack()
+                } else {
+                  navigation.push('MemberDetail', {
+                    username: reply.member?.username!,
+                  })
+                }
+              }}
+            >
+              <StyledImage
+                style={tw`w-6 h-6 rounded-full`}
+                source={reply.member?.avatar}
+              />
+            </Pressable>
+          )}
         </View>
         <View style={tw.style(`flex-1`, !showLegacyUi && `pb-2`, `ml-1`)}>
           <View style={tw`flex-row items-center`}>
@@ -188,115 +252,124 @@ function ReplyItem({
               #{reply.no}
             </Text>
           </View>
-          <Separator>
-            {compact([
-              <Text
-                key={'created'}
-                style={tw`text-[${colors.default}] ${fontSize.small}`}
-              >
-                {reply.created}
-              </Text>,
 
-              reply.parsed_content && (
-                <Text
-                  key={'isParsed'}
-                  style={tw`text-[${colors.default}] ${fontSize.small}`}
-                  onPress={() => {
-                    setIsParsed(!isParsed)
-                  }}
-                >
-                  {isParsed ? `显示原始回复` : `隐藏原始回复`}
-                </Text>
-              ),
-            ])}
-          </Separator>
+          {!collapsed && (
+            <>
+              <Separator>
+                {compact([
+                  <Text
+                    key={'created'}
+                    style={tw`text-[${colors.default}] ${fontSize.small}`}
+                  >
+                    {reply.created}
+                  </Text>,
 
-          <View style={tw`pt-0.5`}>
-            <Html
-              source={{
-                html:
-                  isParsed && reply.parsed_content
-                    ? reply.parsed_content
-                    : reply.content,
-              }}
-              inModalScreen={inModalScreen}
-              paddingX={
-                32 + 28 + 24 * (showNestedReply ? reply.reply_level : 0)
-              }
-            />
-          </View>
-
-          <View style={tw`flex-row items-center pt-2`}>
-            <View style={tw`flex-row gap-4 mr-auto`}>
-              {isBoolean(related) && !related && (
-                <Text style={tw`${fontSize.medium} text-[${colors.default}]`}>
-                  可能是无关内容
-                </Text>
-              )}
-              {!(isSelf(reply.member.username) && !reply.thanks) && (
-                <ThankReply topicId={topicId} once={once} reply={reply} />
-              )}
-
-              <Pressable
-                onPress={() => onReply(reply.member.username)}
-                style={tw`flex-row items-center`}
-              >
-                {({ pressed }) => (
-                  <Fragment>
-                    <IconButton
-                      pressed={pressed}
-                      color={colors.default}
-                      activeColor={colors.primary}
-                      size={15}
-                      icon={<Feather name="message-circle" />}
-                    />
-
+                  reply.parsed_content && (
                     <Text
-                      style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
+                      key={'isParsed'}
+                      style={tw`text-[${colors.default}] ${fontSize.small}`}
+                      onPress={() => {
+                        setIsParsed(!isParsed)
+                      }}
                     >
-                      回复
+                      {isParsed ? `显示原始回复` : `隐藏原始回复`}
                     </Text>
-                  </Fragment>
-                )}
-              </Pressable>
+                  ),
+                ])}
+              </Separator>
 
-              {showLegacyUi && reply.has_related_replies && !inModalScreen && (
-                <Pressable
-                  onPress={() => {
-                    navigation.navigate('RelatedReplies', {
-                      replyId: reply.id,
-                      topicId,
-                      onReply: username => {
-                        navigation.goBack()
-                        sleep(300).then(() => onReply(username))
-                      },
-                    })
+              <View style={tw`pt-0.5`}>
+                <Html
+                  source={{
+                    html:
+                      isParsed && reply.parsed_content
+                        ? reply.parsed_content
+                        : reply.content,
                   }}
-                  style={tw`flex-row items-center`}
-                >
-                  {({ pressed }) => (
-                    <Fragment>
-                      <IconButton
-                        pressed={pressed}
-                        color={colors.default}
-                        activeColor={colors.foreground}
-                        size={15}
-                        icon={<FontAwesome5 name="comments" />}
-                      />
+                  inModalScreen={inModalScreen}
+                  paddingX={
+                    32 + 28 + 24 * (showNestedReply ? reply.reply_level : 0)
+                  }
+                />
+              </View>
 
-                      <Text
-                        style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
-                      >
-                        查看评论
-                      </Text>
-                    </Fragment>
+              <View style={tw`flex-row items-center pt-2`}>
+                <View style={tw`flex-row gap-4 mr-auto`}>
+                  {isBoolean(related) && !related && (
+                    <Text
+                      style={tw`${fontSize.medium} text-[${colors.default}]`}
+                    >
+                      可能是无关内容
+                    </Text>
                   )}
-                </Pressable>
-              )}
-            </View>
+                  {!(isSelf(reply.member.username) && !reply.thanks) && (
+                    <ThankReply topicId={topicId} once={once} reply={reply} />
+                  )}
 
-            <MoreButton once={once} reply={reply} topicId={topicId} />
-          </View>
+                  <Pressable
+                    onPress={() => onReply(reply.member.username)}
+                    style={tw`flex-row items-center`}
+                  >
+                    {({ pressed }) => (
+                      <Fragment>
+                        <IconButton
+                          pressed={pressed}
+                          color={colors.default}
+                          activeColor={colors.primary}
+                          size={15}
+                          icon={<Feather name="message-circle" />}
+                        />
+
+                        <Text
+                          style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
+                        >
+                          回复
+                        </Text>
+                      </Fragment>
+                    )}
+                  </Pressable>
+
+                  {showLegacyUi &&
+                    reply.has_related_replies &&
+                    !inModalScreen && (
+                      <Pressable
+                        onPress={() => {
+                          navigation.navigate('RelatedReplies', {
+                            replyId: reply.id,
+                            topicId,
+                            onReply: username => {
+                              navigation.goBack()
+                              sleep(300).then(() => onReply(username))
+                            },
+                          })
+                        }}
+                        style={tw`flex-row items-center`}
+                      >
+                        {({ pressed }) => (
+                          <Fragment>
+                            <IconButton
+                              pressed={pressed}
+                              color={colors.default}
+                              activeColor={colors.foreground}
+                              size={15}
+                              icon={<FontAwesome5 name="comments" />}
+                            />
+
+                            <Text
+                              style={tw`pl-1 ${fontSize.small} text-[${colors.default}]`}
+                            >
+                              查看评论
+                            </Text>
+                          </Fragment>
+                        )}
+                      </Pressable>
+                    )}
+                </View>
+
+                <MoreButton once={once} reply={reply} topicId={topicId} />
+              </View>
+            </>
+          )}
         </View>
       </View>
     </View>

@@ -99,6 +99,7 @@ export interface Reply {
   reply_level: number
   is_merged?: boolean
   reply_connectors?: boolean[]
+  reply_ancestor_ids?: number[]
   reply_has_nested_children?: boolean
   children: Reply[]
 }
