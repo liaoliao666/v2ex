@@ -1,7 +1,7 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtomValue } from 'jotai'
 import { isString, upperCase } from 'lodash-es'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -27,41 +27,61 @@ export default function SearchNodeScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'SearchNode'>>()
 
   const [searchText, setSearchText] = useState('')
+  const [selectedNodeNames, setSelectedNodeNames] = useState(
+    () => new Set(params.selectedNodeNames || [])
+  )
 
-  const { data: matchNodes } = k.node.all.useQuery({
-    select: useCallback(
-      (nodes: Node[]) => {
-        return searchText
-          ? nodes.filter(node =>
-              [
-                node.title,
-                node.title_alternative,
-                node.name,
-                ...(node.aliases || []),
-              ].some(
-                text =>
-                  isString(text) &&
-                  upperCase(text).includes(upperCase(searchText))
-              )
-            )
-          : nodes
-      },
-      [searchText]
-    ),
-  })
+  const { data: allNodes = [] } = k.node.all.useQuery()
+
+  const matchNodes = useMemo(() => {
+    return searchText
+      ? allNodes.filter(node =>
+          [
+            node.title,
+            node.title_alternative,
+            node.name,
+            ...(node.aliases || []),
+          ].some(
+            text =>
+              isString(text) && upperCase(text).includes(upperCase(searchText))
+          )
+        )
+      : allNodes
+  }, [allNodes, searchText])
+
+  const selectedNodes = useMemo(
+    () => allNodes.filter(node => selectedNodeNames.has(node.name)),
+    [allNodes, selectedNodeNames]
+  )
+
+  const multiple = !!params.multiple
 
   const renderNodeItem: ListRenderItem<Node> = useCallback(
     ({ item }) => (
       <NodeItem
         key={`${item.title}_${item.name}`}
         node={item}
+        selected={multiple && selectedNodeNames.has(item.name)}
         onPress={() => {
-          navigation.goBack()
-          params.onPressNodeItem(item)
+          if (!multiple) {
+            navigation.goBack()
+            params.onPressNodeItem?.(item)
+            return
+          }
+
+          setSelectedNodeNames(prev => {
+            const next = new Set(prev)
+            if (next.has(item.name)) {
+              next.delete(item.name)
+            } else {
+              next.add(item.name)
+            }
+            return next
+          })
         }}
       />
     ),
-    [params]
+    [multiple, params, selectedNodeNames]
   )
 
   const colorScheme = useAtomValue(colorSchemeAtom)
@@ -75,15 +95,24 @@ export default function SearchNodeScreen() {
       <NavBar
         style={tw`border-[${colors.divider}] border-solid border-b`}
         hideSafeTop
-        left={null}
+        left={multiple ? undefined : null}
         right={
           <TouchableOpacity
             onPress={() => {
-              navigation.goBack()
+              if (multiple) {
+                navigation.goBack()
+                params.onSelectNodes?.(selectedNodes)
+              } else {
+                navigation.goBack()
+              }
             }}
           >
             <Text style={tw`text-[${colors.primary}] ${fontSize.medium}`}>
-              取消
+              {multiple
+                ? `完成${
+                    selectedNodes.length ? `(${selectedNodes.length})` : ''
+                  }`
+                : '取消'}
             </Text>
           </TouchableOpacity>
         }

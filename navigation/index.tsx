@@ -46,6 +46,7 @@ import SearchScreen from '@/screens/SearchScreen'
 import SelectableTextScreen from '@/screens/SelectableTextScreen'
 import SettingScreen from '@/screens/SettingScreen'
 import SortTabsScreen from '@/screens/SortTabsScreen'
+import TopicBlockSettingsScreen from '@/screens/TopicBlockSettingsScreen'
 import TopicDetailScreen from '@/screens/TopicDetailScreen'
 import WebSigninScreen from '@/screens/WebSigninScreen'
 import WebviewScreen from '@/screens/WebviewScreen'
@@ -276,6 +277,11 @@ function StackNavigator() {
         options={{
           fullScreenGestureEnabled: false,
         }}
+      />
+
+      <Stack.Screen
+        name="TopicBlockSettings"
+        component={TopicBlockSettingsScreen}
       />
     </Stack.Navigator>
   )

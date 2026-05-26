@@ -1,5 +1,5 @@
 import { useActionSheet } from '@expo/react-native-action-sheet'
-import { AntDesign, MaterialIcons } from '@expo/vector-icons'
+import { AntDesign, MaterialIcons, Octicons } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { compact } from 'lodash-es'
@@ -246,7 +246,7 @@ export function LikeTopic({ topic }: { topic: Topic }) {
             color={colors.default}
             activeColor="rgb(250,219,20)"
             active={topic.liked}
-            icon={<AntDesign name={topic.liked ? 'star' : 'staro'} />}
+            icon={<Octicons name={topic.liked ? 'star-fill' : 'star'} />}
             pressed={pressed}
             size={24}
           />

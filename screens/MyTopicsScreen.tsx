@@ -15,11 +15,13 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import BlockedTopicsNotice from '@/components/topic/BlockedTopicsNotice'
 import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 export default withQuerySuspense(MyTopicsScreen, {
   LoadingComponent: () => (
@@ -57,6 +59,7 @@ function MyTopicsScreen() {
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
     [data.pages]
   )
+  const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
@@ -70,7 +73,7 @@ function MyTopicsScreen() {
       >
         <FlatList
           key={colorScheme}
-          data={flatedData}
+          data={visibleTopics}
           refreshControl={
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
@@ -82,6 +85,12 @@ function MyTopicsScreen() {
             paddingTop: navbarHeight,
           }}
           ItemSeparatorComponent={LineSeparator}
+          ListHeaderComponent={
+            <BlockedTopicsNotice
+              blockedTopics={blockedTopics}
+              sourceTitle="主题收藏"
+            />
+          }
           renderItem={renderItem}
           onEndReached={() => {
             if (hasNextPage) {

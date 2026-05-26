@@ -25,6 +25,7 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import BlockedTopicsNotice from '@/components/topic/BlockedTopicsNotice'
 import TopicItem from '@/components/topic/TopicItem'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
@@ -33,6 +34,7 @@ import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import usePreviousDistinct from '@/utils/usePreviousDistinct'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 40
 
@@ -216,6 +218,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
     [data.pages]
   )
+  const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
 
   return (
     <RefetchingIndicator
@@ -223,7 +226,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
       progressViewOffset={headerHeight}
     >
       <FlatList
-        data={flatedData}
+        data={visibleTopics}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
@@ -235,6 +238,12 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
           paddingTop: headerHeight,
         }}
         ItemSeparatorComponent={LineSeparator}
+        ListHeaderComponent={
+          <BlockedTopicsNotice
+            blockedTopics={blockedTopics}
+            sourceTitle="特别关注"
+          />
+        }
         renderItem={renderItem}
         onEndReached={() => {
           if (hasNextPage) {
@@ -282,6 +291,7 @@ function MemberTopics({
     () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
     [data?.pages]
   )
+  const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
 
   return (
     <RefetchingIndicator
@@ -289,7 +299,7 @@ function MemberTopics({
       progressViewOffset={headerHeight}
     >
       <FlatList
-        data={flatedData}
+        data={visibleTopics}
         refreshControl={
           <StyledRefreshControl
             refreshing={isRefetchingByUser}
@@ -301,6 +311,9 @@ function MemberTopics({
           paddingTop: headerHeight,
         }}
         ItemSeparatorComponent={LineSeparator}
+        ListHeaderComponent={
+          <BlockedTopicsNotice blockedTopics={blockedTopics} sourceTitle={username} />
+        }
         renderItem={renderItem}
         onEndReached={() => {
           if (hasNextPage) {

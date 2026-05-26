@@ -42,17 +42,19 @@ import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import BlockedTopicsNotice from '@/components/topic/BlockedTopicsNotice'
 import { searchHistoryAtom } from '@/jotai/searchHistoryAtom'
 import { sov2exArgsAtom } from '@/jotai/sov2exArgsAtom'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { Member, Node, Sov2exResult, k } from '@/servicies'
+import { Member, Node, Sov2exResult, Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { confirm } from '@/utils/confirm'
 import tw from '@/utils/tw'
 import { useQueryData } from '@/utils/useQueryData'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 export default function SearchScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'Search'>>()
@@ -357,6 +359,12 @@ function SoV2exList({
       variables: { ...sov2exArgs, q: query },
     })
 
+  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
+
+  const flatedData = useMemo(
+    () => uniqBy(data.pages.map(page => page.hits).flat(), '_id'),
+    [data.pages]
+  )
   const { data: nodeMap } = k.node.all.useQuery({
     select: useCallback(
       (nodes: Node[]) => Object.fromEntries(nodes.map(node => [node.id, node])),
@@ -364,56 +372,68 @@ function SoV2exList({
     ),
   })
 
-  const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
-
-  const renderItem: ListRenderItem<Sov2exResult['hits'][number]> = useCallback(
-    ({ item }) => (
-      <HitItem
-        topic={{
-          node: nodeMap?.[item._source.node],
-          member: {
-            username: item._source.member,
-          },
-          id: item._source.id,
-          title: item._source.title,
-          reply_count: item._source.replies,
-          created: item._source.created.toString(),
-          content: item.highlight?.content?.[0],
-        }}
-      />
-    ),
-    [nodeMap]
+  const topics = useMemo(
+    () =>
+      flatedData.map(
+        item =>
+          ({
+            node: nodeMap?.[item._source.node],
+            member: {
+              username: item._source.member,
+            },
+            id: item._source.id,
+            title: item._source.title,
+            reply_count: item._source.replies,
+            created: item._source.created.toString(),
+            last_touched: item._source.created.toString(),
+            content: item.highlight?.content?.[0] || '',
+            replies: [],
+            votes: 0,
+            supplements: [],
+            thanked: false,
+            views: 0,
+            likes: 0,
+            thanks: 0,
+          }) as Topic
+      ),
+    [flatedData, nodeMap]
   )
-
-  const flatedData = useMemo(
-    () => uniqBy(data.pages.map(page => page.hits).flat(), '_id'),
-    [data.pages]
+  const { visibleTopics, blockedTopics } = useTopicBlockRules(topics)
+  const renderItem: ListRenderItem<Topic> = useCallback(
+    ({ item }) => <HitItem topic={item} />,
+    []
   )
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
   return (
     <FlatList
-      data={flatedData}
+      data={visibleTopics}
       onScrollBeginDrag={onScrollBeginDrag}
       ListHeaderComponent={
-        !isEmpty(flatedData) ? (
-          <View style={tw`px-4 py-2.5`}>
-            <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
-              以下搜索结果来自于{' '}
-              <Text
-                style={tw`text-[${colors.primary}]`}
-                onPress={() => {
-                  navigation.navigate('Webview', {
-                    url: `https://www.sov2ex.com`,
-                  })
-                }}
-              >
-                SOV2EX
+        <>
+          {!isEmpty(visibleTopics) ? (
+            <View style={tw`px-4 py-2.5`}>
+              <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
+                以下搜索结果来自于{' '}
+                <Text
+                  style={tw`text-[${colors.primary}]`}
+                  onPress={() => {
+                    navigation.navigate('Webview', {
+                      url: `https://www.sov2ex.com`,
+                    })
+                  }}
+                >
+                  SOV2EX
+                </Text>
               </Text>
-            </Text>
-          </View>
-        ) : null
+            </View>
+          ) : null}
+          <BlockedTopicsNotice
+            blockedTopics={blockedTopics}
+            sourceTitle="SOV2EX"
+          />
+        </>
       }
       refreshControl={
         <StyledRefreshControl
@@ -449,15 +469,7 @@ const HitItem = memo(
   ({
     topic,
   }: {
-    topic: {
-      node: Node
-      member: Member
-      id: number
-      title: string
-      reply_count: number
-      created: string
-      content: string
-    }
+    topic: Topic
   }) => {
     const isReaded = useQueryData(
       k.topic.detail.getKey({ id: topic.id }),

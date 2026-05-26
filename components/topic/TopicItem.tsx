@@ -18,14 +18,25 @@ import StyledImage from '../StyledImage'
 export interface TopicItemProps {
   topic: Topic
   hideAvatar?: boolean
+  blockReason?: string
+  onPress?: () => void
 }
 
 export default memo(
   TopicItem,
-  (prev, next) => prev.topic.last_touched === next.topic.last_touched
+  (prev, next) =>
+    prev.topic.last_touched === next.topic.last_touched &&
+    prev.hideAvatar === next.hideAvatar &&
+    prev.blockReason === next.blockReason &&
+    prev.onPress === next.onPress
 )
 
-function TopicItem({ topic, hideAvatar }: TopicItemProps) {
+function TopicItem({
+  topic,
+  hideAvatar,
+  blockReason,
+  onPress,
+}: TopicItemProps) {
   const isReaded = useQueryData(
     k.topic.detail.getKey({ id: topic.id }),
     data => {
@@ -40,6 +51,11 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
     <DebouncedPressable
       style={tw`px-4 py-3 flex-row bg-[${colors.base100}]`}
       onPress={() => {
+        if (onPress) {
+          onPress()
+          return
+        }
+
         if (isTablet() && getCurrentRouteName() === 'TopicDetail') {
           navigation.replace('TopicDetail', topic)
         } else {
@@ -115,6 +131,14 @@ function TopicItem({ topic, hideAvatar }: TopicItemProps) {
 
         <Separator style={tw`mt-1`}>
           {compact([
+            !!blockReason && (
+              <Text
+                key="blockReason"
+                style={tw`text-[${colors.danger}] ${fontSize.small}`}
+              >
+                {blockReason}
+              </Text>
+            ),
             !!topic.votes && (
               <Text
                 key="votes"

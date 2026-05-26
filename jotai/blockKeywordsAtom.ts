@@ -1,3 +1,13 @@
-import { atom } from 'jotai'
+import { atomWithAsyncStorage } from './utils/atomWithAsyncStorage'
 
-export const blockKeywordsAtom = atom<string[]>([])
+export const topicTitleBlockKeywordsAtom = atomWithAsyncStorage<string[]>(
+  'topicTitleBlockKeywords',
+  []
+)
+
+export const blockedNodeNamesAtom = atomWithAsyncStorage<string[]>(
+  'blockedNodeNames',
+  []
+)
+
+export const blockKeywordsAtom = topicTitleBlockKeywordsAtom

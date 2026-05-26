@@ -24,12 +24,14 @@ import { LineSeparator } from '@/components/Separator'
 import StyledBlurView from '@/components/StyledBlurView'
 import StyledButton from '@/components/StyledButton'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import BlockedTopicsNotice from '@/components/topic/BlockedTopicsNotice'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
 import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useQueryData } from '@/utils/useQueryData'
+import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 40
 
@@ -200,14 +202,21 @@ function HotestTopics({
     ({ item }) => <HotestItem key={item.id} topic={item} />,
     []
   )
+  const { visibleTopics, blockedTopics } = useTopicBlockRules(data)
 
   return (
     <FlatList
-      data={data}
+      data={visibleTopics}
       contentContainerStyle={{
         paddingTop: headerHeight,
       }}
       ItemSeparatorComponent={LineSeparator}
+      ListHeaderComponent={
+        <BlockedTopicsNotice
+          blockedTopics={blockedTopics}
+          sourceTitle="历史最热"
+        />
+      }
       ListFooterComponent={<SafeAreaView edges={['bottom']} />}
       renderItem={renderItem}
       ListEmptyComponent={<Empty description="目前还没有主题" />}

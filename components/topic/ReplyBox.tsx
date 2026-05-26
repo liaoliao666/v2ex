@@ -1,13 +1,16 @@
 import { useAtomValue } from 'jotai'
 import { pick } from 'lodash-es'
-import { Fragment, useMemo, useRef } from 'react'
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react'
 import {
-  KeyboardAvoidingView,
+  Keyboard,
+  KeyboardEvent,
   Platform,
   Pressable,
   TextInput,
   View,
+  useWindowDimensions,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 
 import { uiAtom } from '@/jotai/uiAtom'
@@ -116,12 +119,74 @@ const ReplyBox = ({
     ? appendTopicMutation
     : replyMutation
 
-  const selectionRef = useRef<{
-    start: number
-    end: number
-  }>()
+  const selectionRef = useRef<
+    | {
+        start: number
+        end: number
+      }
+    | undefined
+  >(undefined)
 
   const { colors, fontSize } = useAtomValue(uiAtom)
+  const safeAreaInsets = useSafeAreaInsets()
+  const windowDimensions = useWindowDimensions()
+  const keyboardHiddenWindowHeightRef = useRef(windowDimensions.height)
+  const [keyboardMetrics, setKeyboardMetrics] = useState<{
+    height: number
+    screenY: number
+  } | null>(null)
+
+  useEffect(() => {
+    const onKeyboardFrameChange = (event: KeyboardEvent) => {
+      Keyboard.scheduleLayoutAnimation(event)
+      setKeyboardMetrics({
+        height: event.endCoordinates.height,
+        screenY: event.endCoordinates.screenY,
+      })
+    }
+    const onKeyboardHide = (event: KeyboardEvent) => {
+      Keyboard.scheduleLayoutAnimation(event)
+      keyboardHiddenWindowHeightRef.current = windowDimensions.height
+      setKeyboardMetrics(null)
+    }
+    const showSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillChangeFrame' : 'keyboardDidShow',
+      onKeyboardFrameChange
+    )
+    const hideSubscription = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      onKeyboardHide
+    )
+
+    return () => {
+      showSubscription.remove()
+      hideSubscription.remove()
+    }
+  }, [windowDimensions.height])
+
+  useEffect(() => {
+    if (!keyboardMetrics) {
+      keyboardHiddenWindowHeightRef.current = windowDimensions.height
+    }
+  }, [keyboardMetrics, windowDimensions.height])
+
+  const keyboardOffset = keyboardMetrics
+    ? Math.max(
+        Math.max(
+          keyboardMetrics.height,
+          keyboardHiddenWindowHeightRef.current - keyboardMetrics.screenY,
+          0
+        ) -
+          Math.max(
+            keyboardHiddenWindowHeightRef.current - windowDimensions.height,
+            0
+          ),
+        0
+      )
+    : 0
+  const bottomPadding = keyboardMetrics
+    ? safeAreaInsets.bottom + 10
+    : Math.max(safeAreaInsets.bottom, 8)
 
   return (
     <Fragment>
@@ -130,9 +195,10 @@ const ReplyBox = ({
         onPress={onCancel}
       />
 
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={tw`z-30`}
+      <View
+        style={tw.style(`absolute inset-x-0 z-30`, {
+          bottom: keyboardOffset,
+        })}
       >
         <View
           style={tw`px-4 bg-[${colors.base100}] flex-row items-center rounded-t-[32px] overflow-hidden`}
@@ -198,7 +264,11 @@ const ReplyBox = ({
           />
         </View>
 
-        <View style={tw`py-2 px-4 flex-row bg-[${colors.base100}]`}>
+        <View
+          style={tw.style(`pt-2 px-4 flex-row bg-[${colors.base100}]`, {
+            paddingBottom: bottomPadding,
+          })}
+        >
           <View style={tw`flex-row gap-2 mr-auto`}>
             <StyledButton
               shape="rounded"
@@ -271,7 +341,7 @@ const ReplyBox = ({
             {isPending ? '发送中' : '发送'}
           </StyledButton>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </Fragment>
   )
 }

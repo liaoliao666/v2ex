@@ -47,6 +47,7 @@ import StyledActivityIndicator from '@/components/StyledActivityIndicator'
 import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
+import BlockedTopicsNotice from '@/components/topic/BlockedTopicsNotice'
 import TopicItem from '@/components/topic/TopicItem'
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { store } from '@/jotai/store'
@@ -60,6 +61,7 @@ import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 53
 const TAB_VIEW_MARGIN_TOP = -2
@@ -510,15 +512,22 @@ const MemberTopics = forwardRef<
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
     [data.pages]
   )
+  const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
 
   return (
     <Animated.FlatList
       ref={ref}
-      data={flatedData}
+      data={visibleTopics}
       onScroll={onScroll}
       onMomentumScrollEnd={onScrollEnd}
       onScrollEndDrag={onScrollEnd}
       contentContainerStyle={contentContainerStyle}
+      ListHeaderComponent={
+        <BlockedTopicsNotice
+          blockedTopics={blockedTopics}
+          sourceTitle={params.username}
+        />
+      }
       refreshControl={
         <StyledRefreshControl
           refreshing={isRefetchingByUser}

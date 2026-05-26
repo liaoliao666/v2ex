@@ -24,6 +24,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
+import BlockedTopicsNotice from '@/components/topic/BlockedTopicsNotice'
 import TopicItem from '@/components/topic/TopicItem'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -36,6 +37,7 @@ import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 function getTopBarBgCls() {
   const { colors } = getUI()
@@ -102,6 +104,7 @@ function NodeTopicsScreen() {
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
     [data.pages]
   )
+  const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
@@ -156,9 +159,15 @@ function NodeTopicsScreen() {
 
       <Animated.FlatList
         key={colorScheme}
-        data={flatedData}
+        data={visibleTopics}
         ListHeaderComponent={
-          <NodeInfo once={lastPage.once} liked={lastPage.liked} />
+          <View>
+            <NodeInfo once={lastPage.once} liked={lastPage.liked} />
+            <BlockedTopicsNotice
+              blockedTopics={blockedTopics}
+              sourceTitle={node?.title || node?.name || params.name}
+            />
+          </View>
         }
         refreshControl={
           <StyledRefreshControl

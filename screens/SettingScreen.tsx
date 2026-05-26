@@ -199,6 +199,16 @@ function SettingScreen() {
         />
 
         <ListItem
+          label="主题屏蔽"
+          icon={
+            <MaterialIcons color={colors.foreground} size={24} name={'block'} />
+          }
+          onPress={() => {
+            navigation.navigate('TopicBlockSettings')
+          }}
+        />
+
+        <ListItem
           label="问题反馈"
           icon={<Feather color={colors.foreground} size={24} name="github" />}
           onPress={() => {

@@ -32,7 +32,10 @@ export type RootStackParamList = {
   }
   SearchOptions: undefined
   SearchNode: {
-    onPressNodeItem: (node: Node) => void
+    multiple?: boolean
+    selectedNodeNames?: string[]
+    onPressNodeItem?: (node: Node) => void
+    onSelectNodes?: (nodes: Node[]) => void
   }
   SearchReplyMember: {
     topicId: number
@@ -74,6 +77,7 @@ export type RootStackParamList = {
   HotestTopics: undefined
   ConfigureDomain: undefined
   CustomizeTheme: undefined
+  TopicBlockSettings: undefined
 }
 
 export type RootStackScreenProps<Screen extends keyof RootStackParamList> =
