@@ -176,13 +176,31 @@ function StackNavigator() {
 
       <Stack.Screen name="NodeTopics" component={NodeTopicsScreen} />
 
-      <Stack.Screen name="MemberDetail" component={MemberDetailScreen} />
+      <Stack.Screen
+        name="MemberDetail"
+        component={MemberDetailScreen}
+        options={{
+          fullScreenGestureEnabled: true,
+          gestureResponseDistance: {
+            start: 40,
+          },
+        }}
+      />
 
       <Stack.Screen name="MyNodes" component={MyNodesScreen} />
 
       <Stack.Screen name="MyTopics" component={MyTopicsScreen} />
 
-      <Stack.Screen name="MyFollowing" component={MyFollowingScreen} />
+      <Stack.Screen
+        name="MyFollowing"
+        component={MyFollowingScreen}
+        options={{
+          fullScreenGestureEnabled: true,
+          gestureResponseDistance: {
+            start: 40,
+          },
+        }}
+      />
 
       <Stack.Screen name="Notifications" component={NotificationsScreen} />
 

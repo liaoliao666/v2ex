@@ -319,6 +319,7 @@ function HomeScreen() {
       />
 
       <View
+        collapsable={false}
         style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-[${swipeEdgeWidth}px]`}
       />
     </Drawer>
@@ -439,7 +440,10 @@ const TabTopics = memo(
           }}
           ItemSeparatorComponent={LineSeparator}
           ListHeaderComponent={
-            <BlockedTopicsNotice blockedTopics={blockedTopics} sourceTitle={tab} />
+            <BlockedTopicsNotice
+              blockedTopics={blockedTopics}
+              sourceTitle={tab}
+            />
           }
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
           renderItem={renderItem}

@@ -156,6 +156,7 @@ function MemberDetailScreen() {
       TAB_VIEW_MARGIN_TOP,
     paddingTop: headerHeight ? headerHeight + TAB_BAR_HEIGHT : 0,
   }
+  const swipeEdgeWidth = Platform.OS === 'ios' ? 52 : 32
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
@@ -327,6 +328,11 @@ function MemberDetailScreen() {
             </Animated.View>
           )
         }}
+      />
+
+      <View
+        collapsable={false}
+        style={tw`absolute bg-transparent left-0 bottom-0 top-[${headerHeight}px] w-[${swipeEdgeWidth}px]`}
       />
     </View>
   )

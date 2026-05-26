@@ -4,6 +4,7 @@ import { memo, useCallback, useMemo, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
+  Platform,
   Text,
   TouchableOpacity,
   View,
@@ -106,6 +107,7 @@ function MyFollowingScreen() {
   const layout = useWindowDimensions()
 
   const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+  const swipeEdgeWidth = Platform.OS === 'ios' ? 52 : 32
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
@@ -193,6 +195,11 @@ function MyFollowingScreen() {
             </View>
           </View>
         )}
+      />
+
+      <View
+        collapsable={false}
+        style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-[${swipeEdgeWidth}px]`}
       />
     </View>
   )
@@ -312,7 +319,10 @@ function MemberTopics({
         }}
         ItemSeparatorComponent={LineSeparator}
         ListHeaderComponent={
-          <BlockedTopicsNotice blockedTopics={blockedTopics} sourceTitle={username} />
+          <BlockedTopicsNotice
+            blockedTopics={blockedTopics}
+            sourceTitle={username}
+          />
         }
         renderItem={renderItem}
         onEndReached={() => {
