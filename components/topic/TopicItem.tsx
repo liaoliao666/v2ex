@@ -71,7 +71,7 @@ function TopicItem({
                 username: topic.member?.username!,
               })
             }}
-            style={tw`pr-3`}
+            style={tw`pr-2`}
           >
             <StyledImage
               style={tw`w-6 h-6 rounded-full`}

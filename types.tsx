@@ -71,9 +71,6 @@ export type RootStackParamList = {
     url: string
   }
   ImgurConfig: undefined
-  SelectableText: {
-    html: string
-  }
   HotestTopics: undefined
   ConfigureDomain: undefined
   CustomizeTheme: undefined

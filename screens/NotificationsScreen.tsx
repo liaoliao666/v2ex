@@ -176,7 +176,7 @@ const NoticeItem = memo(
           }}
         >
           <StyledImage
-            style={tw`w-6 h-6 mr-3 rounded-full`}
+            style={tw`w-6 h-6 mr-2 rounded-full`}
             source={notice.member.avatar}
           />
         </Pressable>

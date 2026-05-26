@@ -1,0 +1,108 @@
+diff --git a/node_modules/react-native-uitextview/ios/RNUITextView.mm b/node_modules/react-native-uitextview/ios/RNUITextView.mm
+index d0c31ed..937f9c2 100644
+--- a/node_modules/react-native-uitextview/ios/RNUITextView.mm
++++ b/node_modules/react-native-uitextview/ios/RNUITextView.mm
+@@ -181,6 +181,10 @@ - (void)updateProps:(Props::Shared const &)props oldProps:(Props::Shared const &
+     _textView.selectable = newViewProps.selectable;
+   }
+ 
++  if (oldViewProps.selectionColor != newViewProps.selectionColor) {
++    _textView.tintColor = RCTUIColorFromSharedColor(newViewProps.selectionColor);
++  }
++
+   if (oldViewProps.allowFontScaling != newViewProps.allowFontScaling) {
+     if (@available(iOS 11.0, *)) {
+       _textView.adjustsFontForContentSizeCategory = newViewProps.allowFontScaling;
+diff --git a/node_modules/react-native-uitextview/lib/commonjs/RNUITextViewNativeComponent.ts b/node_modules/react-native-uitextview/lib/commonjs/RNUITextViewNativeComponent.ts
+index 1c571b4..e646a42 100644
+--- a/node_modules/react-native-uitextview/lib/commonjs/RNUITextViewNativeComponent.ts
++++ b/node_modules/react-native-uitextview/lib/commonjs/RNUITextViewNativeComponent.ts
+@@ -1,5 +1,5 @@
+ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent'
+-import type {ViewProps} from 'react-native'
++import type {ColorValue, ViewProps} from 'react-native'
+ import type {
+   BubblingEventHandler,
+   Int32,
+@@ -32,6 +32,7 @@ interface NativeProps extends ViewProps {
+   allowFontScaling?: WithDefault<boolean, true>
+   ellipsizeMode?: WithDefault<EllipsizeMode, 'tail'>
+   selectable?: boolean
++  selectionColor?: ColorValue
+   onTextLayout?: BubblingEventHandler<TextLayoutEvent>
+   /**
+    * Callback fired when the text selection changes.
+diff --git a/node_modules/react-native-uitextview/lib/module/RNUITextViewNativeComponent.ts b/node_modules/react-native-uitextview/lib/module/RNUITextViewNativeComponent.ts
+index 1c571b4..e646a42 100644
+--- a/node_modules/react-native-uitextview/lib/module/RNUITextViewNativeComponent.ts
++++ b/node_modules/react-native-uitextview/lib/module/RNUITextViewNativeComponent.ts
+@@ -1,5 +1,5 @@
+ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent'
+-import type {ViewProps} from 'react-native'
++import type {ColorValue, ViewProps} from 'react-native'
+ import type {
+   BubblingEventHandler,
+   Int32,
+@@ -32,6 +32,7 @@ interface NativeProps extends ViewProps {
+   allowFontScaling?: WithDefault<boolean, true>
+   ellipsizeMode?: WithDefault<EllipsizeMode, 'tail'>
+   selectable?: boolean
++  selectionColor?: ColorValue
+   onTextLayout?: BubblingEventHandler<TextLayoutEvent>
+   /**
+    * Callback fired when the text selection changes.
+diff --git a/node_modules/react-native-uitextview/lib/typescript/commonjs/src/RNUITextViewNativeComponent.d.ts b/node_modules/react-native-uitextview/lib/typescript/commonjs/src/RNUITextViewNativeComponent.d.ts
+index b53ccc9..41a7da2 100644
+--- a/node_modules/react-native-uitextview/lib/typescript/commonjs/src/RNUITextViewNativeComponent.d.ts
++++ b/node_modules/react-native-uitextview/lib/typescript/commonjs/src/RNUITextViewNativeComponent.d.ts
+@@ -1,4 +1,4 @@
+-import type { ViewProps } from 'react-native';
++import type { ColorValue, ViewProps } from 'react-native';
+ import type { BubblingEventHandler, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
+ interface TargetedEvent {
+     target: Int32;
+@@ -22,6 +22,7 @@ interface NativeProps extends ViewProps {
+     allowFontScaling?: WithDefault<boolean, true>;
+     ellipsizeMode?: WithDefault<EllipsizeMode, 'tail'>;
+     selectable?: boolean;
++    selectionColor?: ColorValue;
+     onTextLayout?: BubblingEventHandler<TextLayoutEvent>;
+     /**
+      * Callback fired when the text selection changes.
+diff --git a/node_modules/react-native-uitextview/lib/typescript/module/src/RNUITextViewNativeComponent.d.ts b/node_modules/react-native-uitextview/lib/typescript/module/src/RNUITextViewNativeComponent.d.ts
+index b53ccc9..41a7da2 100644
+--- a/node_modules/react-native-uitextview/lib/typescript/module/src/RNUITextViewNativeComponent.d.ts
++++ b/node_modules/react-native-uitextview/lib/typescript/module/src/RNUITextViewNativeComponent.d.ts
+@@ -1,4 +1,4 @@
+-import type { ViewProps } from 'react-native';
++import type { ColorValue, ViewProps } from 'react-native';
+ import type { BubblingEventHandler, Int32, WithDefault } from 'react-native/Libraries/Types/CodegenTypes';
+ interface TargetedEvent {
+     target: Int32;
+@@ -22,6 +22,7 @@ interface NativeProps extends ViewProps {
+     allowFontScaling?: WithDefault<boolean, true>;
+     ellipsizeMode?: WithDefault<EllipsizeMode, 'tail'>;
+     selectable?: boolean;
++    selectionColor?: ColorValue;
+     onTextLayout?: BubblingEventHandler<TextLayoutEvent>;
+     /**
+      * Callback fired when the text selection changes.
+diff --git a/node_modules/react-native-uitextview/src/RNUITextViewNativeComponent.ts b/node_modules/react-native-uitextview/src/RNUITextViewNativeComponent.ts
+index 1c571b4..e646a42 100644
+--- a/node_modules/react-native-uitextview/src/RNUITextViewNativeComponent.ts
++++ b/node_modules/react-native-uitextview/src/RNUITextViewNativeComponent.ts
+@@ -1,5 +1,5 @@
+ import codegenNativeComponent from 'react-native/Libraries/Utilities/codegenNativeComponent'
+-import type {ViewProps} from 'react-native'
++import type {ColorValue, ViewProps} from 'react-native'
+ import type {
+   BubblingEventHandler,
+   Int32,
+@@ -32,6 +32,7 @@ interface NativeProps extends ViewProps {
+   allowFontScaling?: WithDefault<boolean, true>
+   ellipsizeMode?: WithDefault<EllipsizeMode, 'tail'>
+   selectable?: boolean
++  selectionColor?: ColorValue
+   onTextLayout?: BubblingEventHandler<TextLayoutEvent>
+   /**
+    * Callback fired when the text selection changes.

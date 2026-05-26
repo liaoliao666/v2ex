@@ -134,7 +134,7 @@ const RecentTopicItem = memo(
           navigation.push('TopicDetail', recentTopic)
         }}
       >
-        <View style={tw`mr-3`}>
+        <View style={tw`mr-2`}>
           <DebouncedPressable
             onPress={() => {
               navigation.push('MemberDetail', {

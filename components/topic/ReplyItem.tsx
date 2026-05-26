@@ -158,7 +158,11 @@ function ReplyItem({
                   `bottom-[11px]`
                 )}
               >
-                <Feather name="minus-circle" size={16} color={colors.default} />
+                <Feather
+                  name="minus-circle"
+                  size={16}
+                  color={colors.foreground}
+                />
               </Pressable>
             )}
 
@@ -169,7 +173,11 @@ function ReplyItem({
                 hitSlop={8}
                 style={tw`w-6 h-6 items-center justify-center bg-[${itemBackgroundColor}] rounded-full z-10`}
               >
-                <Feather name="plus-circle" size={16} color={colors.default} />
+                <Feather
+                  name="plus-circle"
+                  size={16}
+                  color={colors.foreground}
+                />
               </Pressable>
 
               <Pressable
@@ -208,7 +216,7 @@ function ReplyItem({
             </Pressable>
           )}
         </View>
-        <View style={tw.style(`flex-1`, !showLegacyUi && `pb-2`, `ml-1`)}>
+        <View style={tw.style(`flex-1`, !showLegacyUi && `pb-2`, `ml-2`)}>
           <View style={tw`flex-row items-center`}>
             <View style={tw`flex-row gap-2 mr-auto`}>
               <Text

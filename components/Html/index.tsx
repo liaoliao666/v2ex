@@ -13,7 +13,6 @@ import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
-import { navigation } from '@/navigation/navigationRef'
 import tw from '@/utils/tw'
 import { isSvgURL, resolveURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
@@ -39,23 +38,21 @@ export default memo(
 function Html({
   inModalScreen,
   paddingX = 32,
-  selectOnly,
   ...renderHTMLProps
 }: RenderHTMLProps & {
   inModalScreen?: boolean
   paddingX?: number
-  selectOnly?: boolean
 }) {
   const mergedProps = {
     ...getDefaultProps({ inModalScreen }),
     ...renderHTMLProps,
   }
 
-  const html = (renderHTMLProps.source as any)?.html
-
   const setImageViewer = useSetAtom(imageViewerAtom)
 
   const imageUrls = useMemo(() => {
+    const html = (renderHTMLProps.source as any)?.html
+
     if (!isString(html)) return []
     const $ = load(html)
     return $('img')
@@ -64,7 +61,7 @@ function Html({
       }))
       .get()
       .filter(item => !!item.url)
-  }, [html])
+  }, [renderHTMLProps.source])
 
   const screenWidth = useScreenWidth()
 
@@ -126,15 +123,9 @@ function Html({
               imageUrls: urls,
             })
           },
-          onSelectText: () => {
-            navigation.navigate('SelectableText', {
-              html,
-            })
-          },
           paddingX,
-          selectOnly,
         }),
-        [imageUrls, setImageViewer, paddingX, inModalScreen, html, selectOnly]
+        [imageUrls, setImageViewer, paddingX, inModalScreen]
       )}
     >
       <RenderHtml
@@ -158,6 +149,7 @@ function Html({
         contentWidth={screenWidth - paddingX}
         {...mergedProps}
         renderers={{
+          a: TextRenderer,
           pre: CodeRenderer,
           img: ImageRenderer,
           iframe: IFrameRenderer,
