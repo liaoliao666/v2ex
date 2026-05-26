@@ -33,7 +33,14 @@ export default memo(
     prev.reply.thanked === next.reply.thanked &&
     prev.reply.created === next.reply.created &&
     prev.once === next.once &&
+    prev.showLegacyUi === next.showLegacyUi &&
+    prev.showNestedReply === next.showNestedReply &&
+    prev.reply.reply_level === next.reply.reply_level &&
     prev.reply.is_merged === next.reply.is_merged &&
+    prev.reply.reply_connectors?.join() ===
+      next.reply.reply_connectors?.join() &&
+    prev.reply.reply_has_nested_children ===
+      next.reply.reply_has_nested_children &&
     prev.reply.children?.length === next.reply.children?.length &&
     prev.reply.is_last_reply === next.reply.is_last_reply
 )
@@ -66,6 +73,7 @@ function ReplyItem({
   const colorScheme = useAtomValue(colorSchemeAtom)
   const { colors, fontSize } = useAtomValue(uiAtom)
   let reply_level = reply.reply_level
+  const replyConnectors = reply.reply_connectors || []
   const dividerColor =
     !themeName.light && colorScheme === 'light'
       ? 'rgb(207,217,222)'
@@ -86,9 +94,11 @@ function ReplyItem({
       {!showNestedReply || showLegacyUi ? null : (
         <>
           {Array.from({ length: reply_level }, (_, i) => {
+            if (!replyConnectors[i]) return null
+
             return (
               <View
-                key={i}
+                key={`connector-${i}`}
                 style={tw.style(
                   `absolute left-[${i * 24 + 28}px] top-0 bottom-0`,
 
@@ -98,11 +108,11 @@ function ReplyItem({
             )
           })}
 
-          {reply_level !== 0 && !reply.is_merged && (
+          {reply_level !== 0 && (
             <View
               style={tw`border-[${dividerColor}] absolute top-0 left-[${
                 reply_level * 24 + 4
-              }px] border-0 border-b-[1px] w-3 border-l-[1px] h-3 rounded-bl-[12px]`}
+              }px] border-0 border-b-[1px] w-6 border-l-[1px] h-3 rounded-bl-[12px]`}
             />
           )}
         </>
@@ -110,10 +120,7 @@ function ReplyItem({
 
       <View style={tw`flex-row ml-[${(reply.reply_level || 0) * 24}px]`}>
         <View>
-          {((!showLegacyUi &&
-            reply.reply_level === 0 &&
-            !reply.is_last_reply) ||
-            !isEmpty(reply.children) ||
+          {((reply.reply_has_nested_children ?? !isEmpty(reply.children)) ||
             (!showLegacyUi && !showNestedReply && !reply.is_last_reply)) && (
             <View
               style={tw`border-l border-solid border-[${dividerColor}] absolute top-0 bottom-0 left-3`}

@@ -98,6 +98,8 @@ export interface Reply {
   has_related_replies?: boolean
   reply_level: number
   is_merged?: boolean
+  reply_connectors?: boolean[]
+  reply_has_nested_children?: boolean
   children: Reply[]
 }
 

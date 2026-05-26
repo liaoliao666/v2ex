@@ -1,7 +1,7 @@
 import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
 import { useAtom, useAtomValue } from 'jotai'
-import { cloneDeep, isEmpty, last, uniqBy } from 'lodash-es'
+import { cloneDeep, last, uniqBy } from 'lodash-es'
 import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
 import {
   Animated,
@@ -98,55 +98,71 @@ function TopicDetailScreen() {
     const rawList = cloneDeep(
       uniqBy(data?.pages.map(page => page.replies).flat() || [], 'id')
     )
-    let _flatedData = []
+    let _flatedData: Reply[] = []
 
     if (orderBy === 'smart') {
       const ascList = rawList
       const replyMap = new Map<number, Reply>()
       const parentMap = new Map<number, number>()
-      const nameMap = new Map<string, number>()
       ascList.forEach(reply => {
         replyMap.set(reply.id, {
           ...reply,
           children: [],
           reply_level: 0,
+          is_merged: false,
+          is_last_reply: false,
+          reply_connectors: [],
+          reply_has_nested_children: false,
         })
-        nameMap.set(reply.member.username, reply.no)
       })
-      const usernameMap = new Map<string, number>()
+      const latestReplyIndexByName = new Map<string, number>()
+
+      function getParentReply(reply: Reply, replyIndex: number) {
+        const candidates = Array.from(getAtNameList(reply.content))
+          .map(name => {
+            const parentIndex = latestReplyIndexByName.get(name)
+            if (parentIndex === undefined || parentIndex >= replyIndex) {
+              return null
+            }
+
+            return {
+              index: parentIndex,
+              reply: replyMap.get(ascList[parentIndex].id)!,
+            }
+          })
+          .filter(Boolean) as { index: number; reply: Reply }[]
+
+        if (!candidates.length) return
+
+        const externalCandidates = candidates.filter(
+          candidate => candidate.reply.member.username !== reply.member.username
+        )
+        const parentCandidate = (
+          externalCandidates.length ? externalCandidates : candidates
+        ).sort((a, b) => b.index - a.index)[0]
+        let parent = parentCandidate.reply
+
+        while (parent.member.username === reply.member.username) {
+          const parentId = parentMap.get(parent.id)
+          if (parentId === undefined) return
+          parent = replyMap.get(parentId)!
+        }
+
+        return parent.id === reply.id ? undefined : parent
+      }
+
       for (let i = 0; i < ascList.length; i++) {
         const reply = ascList[i]
-        const atNames = getAtNameList(reply.content)
-        const sortedAtNames = Array.from(atNames).sort(
-          (a, b) => (nameMap.get(b) ?? 0) - (nameMap.get(a) ?? 0)
-        )
-        if (sortedAtNames.length > 0) {
-          // Even if there are multiple @, it will only count as one comment
-          const atName = sortedAtNames[0]
-          // Find the parent of the current reply using usernameMap
-          const parentIndex = usernameMap.get(atName)
-          if (parentIndex !== undefined && parentIndex < i) {
-            const potentialParent = ascList[parentIndex]
-            if (
-              potentialParent.member.username === atName &&
-              potentialParent.id !== reply.id
-            ) {
-              let child = replyMap.get(reply.id)!
-              const parent = replyMap.get(potentialParent.id)!
-              if (!parentMap.has(child.id)) {
-                child.reply_level = (parent.reply_level || 0) + 1
-                if (isEmpty(parent.children)) {
-                  child.is_first_reply = true
-                }
+        const child = replyMap.get(reply.id)!
+        const parent = getParentReply(reply, i)
 
-                parent.children!.push(child)
-                parentMap.set(child.id, parent.id)
-              }
-            }
-          }
+        if (parent && !parentMap.has(child.id)) {
+          child.reply_level = (parent.reply_level || 0) + 1
+          child.is_first_reply = parent.children.length === 0
+          parent.children.push(child)
+          parentMap.set(child.id, parent.id)
         }
-        // Update usernameMap with the current reply
-        usernameMap.set(reply.member.username, i)
+        latestReplyIndexByName.set(reply.member.username, i)
       }
       const result: Reply[] = []
       ascList.forEach(reply => {
@@ -154,64 +170,120 @@ function TopicDetailScreen() {
           result.push(replyMap.get(reply.id)!)
         }
       })
-      function flattenReplies(
-        replies: Reply[],
-        level = 0,
-        is_merged = false
+
+      function shouldMergeChild(
+        parent: Reply,
+        child: Reply,
+        level: number,
+        parentHasSiblings: boolean
+      ) {
+        if (parent.children.length !== 1) {
+          return false
+        }
+
+        if (parentHasSiblings && level > 0) {
+          return false
+        }
+
+        if (level === 1) {
+          return false
+        }
+
+        if (parent.member.username === child.member.username) {
+          return true
+        }
+
+        if (level === 0) {
+          return false
+        }
+
+        const usernames = new Set([parent.member.username])
+        let current = parent
+        let depth = 0
+
+        while (current.children.length === 1 && depth < 2) {
+          const next = current.children[0]
+          usernames.add(next.member.username)
+          if (usernames.size > 2) return false
+          current = next
+          depth++
+        }
+
+        return usernames.size === 2 && depth >= 1
+      }
+
+      function flattenReply(
+        reply: Reply,
+        level: number,
+        connectorStack: boolean[],
+        is_merged: boolean,
+        hasNextSibling: boolean,
+        hasSibling: boolean
       ): Reply[] {
+        const childMergeStates = reply.children.map(child =>
+          shouldMergeChild(reply, child, level, hasSibling)
+        )
+        const hasNestedChildren = childMergeStates.some(isMerged => !isMerged)
+        const hasMergedChildren = childMergeStates.some(Boolean)
+        const replyConnectors = connectorStack.slice(0, level)
+        if (level > 0) {
+          const shouldContinueConnector = hasNextSibling || hasMergedChildren
+
+          replyConnectors[0] = true
+          replyConnectors[level - 1] = shouldContinueConnector
+        }
+
+        const updatedReply = {
+          ...reply,
+          reply_level: level,
+          is_merged,
+          is_last_reply: !hasNextSibling,
+          reply_connectors: replyConnectors,
+          reply_has_nested_children: hasNestedChildren,
+        }
+
+        return [
+          updatedReply,
+          ...reply.children.flatMap((child, childIndex) => {
+            const childIsMerged = childMergeStates[childIndex]
+            const childLevel = childIsMerged ? level : level + 1
+            const hasNextNestedSibling =
+              !childIsMerged &&
+              childMergeStates.slice(childIndex + 1).some(isMerged => !isMerged)
+
+            return flattenReply(
+              child,
+              childLevel,
+              replyConnectors,
+              childIsMerged,
+              hasNextNestedSibling,
+              reply.children.length > 1
+            )
+          }),
+        ]
+      }
+
+      function flattenReplies(replies: Reply[], level = 0): Reply[] {
         return replies.flatMap((reply, replyIndex) => {
-          // 检查是否是重复的两人对话
-          const isRepeatedConversation = (() => {
-            if (reply.reply_level === 0) return false
-            if (!reply.children?.length) return false
-            const usernames = new Set([reply.member.username])
-            let current = reply
-            let depth = 0
-
-            while (current.children?.length === 1 && depth < 2) {
-              const next = current.children[0]
-              usernames.add(next.member.username)
-              // 如果超过两个人，不是重复对话
-              if (usernames.size > 2) return false
-              current = next
-              depth++
-            }
-
-            // 如果只有两个人且超过两级，是重复对话
-            return usernames.size === 2 && depth >= 1
-          })()
-
-          // 如果是重复对话，保持相同层级并设置is_merged
-          const nextLevel = isRepeatedConversation ? level : level + 1
-          const updatedReply = {
-            ...reply,
-            reply_level: level,
-            is_merged,
-            is_last_reply:
-              !isRepeatedConversation &&
-              !reply.children?.length &&
-              replyIndex === replies.length - 1,
-          }
-
-          return [
-            updatedReply,
-            ...flattenReplies(
-              reply.children || [],
-              nextLevel,
-              isRepeatedConversation
-            ),
-          ]
+          return flattenReply(
+            reply,
+            level,
+            [],
+            false,
+            replyIndex < replies.length - 1,
+            replies.length > 1
+          )
         })
       }
 
       _flatedData = flattenReplies(result)
-    } else if (orderBy == 'reverse') {
+    } else if (orderBy === 'reverse') {
       _flatedData = [...rawList].reverse()
     } else {
       _flatedData = rawList
     }
 
-    if (last(_flatedData)) {
+    if (last(_flatedData) && orderBy !== 'smart') {
       last(_flatedData)!.is_last_reply = true
     }
     return _flatedData
@@ -231,7 +303,7 @@ function TopicDetailScreen() {
               : undefined
           }
           showNestedReply={orderBy === 'smart'}
-          showLegacyUi={repliesMode == 'default'}
+          showLegacyUi={orderBy !== 'smart'}
           onReply={username => setReplyInfo({ topicId: topic.id, username })}
         />
       </View>
@@ -259,7 +331,7 @@ function TopicDetailScreen() {
         ref={flatListRef}
         key={colorScheme}
         data={flatedData}
-        ItemSeparatorComponent={repliesMode == 'default' ? LineSeparator : null}
+        ItemSeparatorComponent={orderBy !== 'smart' ? LineSeparator : null}
         removeClippedSubviews={false}
         contentContainerStyle={{
           paddingTop: navbarHeight,
@@ -326,7 +398,7 @@ function TopicDetailScreen() {
                     return
                   }
 
-                  if (v != 'reverse') {
+                  if (v !== 'reverse') {
                     setRepliesMode(v)
                   }
 
