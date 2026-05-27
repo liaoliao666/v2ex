@@ -1,8 +1,16 @@
 import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useAtom, useAtomValue } from 'jotai'
-import { cloneDeep, last, uniqBy } from 'lodash-es'
-import { Fragment, useCallback, useMemo, useRef, useState } from 'react'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { last } from 'lodash-es'
+import {
+  Fragment,
+  memo,
+  startTransition,
+  useCallback,
+  useMemo,
+  useRef,
+  useState,
+} from 'react'
 import {
   Animated,
   FlatList,
@@ -38,6 +46,7 @@ import TopicInfo, {
   VoteButton,
 } from '@/components/topic/TopicInfo'
 import { RepliesMode, repliesModeAtom } from '@/jotai/repliesMode'
+import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
@@ -51,6 +60,75 @@ import useMount from '@/utils/useMount'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 
 import { getAtNameList } from './RelatedRepliesScreen'
+
+type ReplyListEntry = {
+  reply: Reply
+  collapsed: boolean
+  isRootGroupEnd: boolean
+}
+
+type TopicReplyListItemProps = {
+  item: ReplyListEntry
+  topicId: number
+  once?: string
+  hightlight?: boolean
+  showNestedReply: boolean
+  showLegacyUi: boolean
+  onToggleCollapse: (replyId: number) => void
+  onReply: (username: string) => void
+}
+
+const TopicReplyListItem = memo(
+  function TopicReplyListItem({
+    item,
+    topicId,
+    once,
+    hightlight,
+    showNestedReply,
+    showLegacyUi,
+    onToggleCollapse,
+    onReply,
+  }: TopicReplyListItemProps) {
+    const { reply, collapsed, isRootGroupEnd } = item
+    const handleToggleCollapse = useCallback(() => {
+      onToggleCollapse(reply.id)
+    }, [onToggleCollapse, reply.id])
+
+    return (
+      <ReplyItem
+        reply={reply}
+        topicId={topicId}
+        once={once}
+        hightlight={hightlight}
+        showNestedReply={showNestedReply}
+        showLegacyUi={showLegacyUi}
+        collapsed={collapsed}
+        isRootGroupEnd={isRootGroupEnd}
+        onToggleCollapse={
+          showNestedReply && reply.reply_has_nested_children
+            ? handleToggleCollapse
+            : undefined
+        }
+        onReply={onReply}
+      />
+    )
+  },
+  (prev, next) =>
+    prev.item.reply === next.item.reply &&
+    prev.item.collapsed === next.item.collapsed &&
+    prev.item.isRootGroupEnd === next.item.isRootGroupEnd &&
+    prev.topicId === next.topicId &&
+    prev.once === next.once &&
+    prev.hightlight === next.hightlight &&
+    prev.showNestedReply === next.showNestedReply &&
+    prev.showLegacyUi === next.showLegacyUi &&
+    prev.onToggleCollapse === next.onToggleCollapse &&
+    prev.onReply === next.onReply
+)
+
+function keyExtractor(item: ReplyListEntry) {
+  return String(item.reply.id)
+}
 
 export default withQuerySuspense(TopicDetailScreen, {
   LoadingComponent: () => {
@@ -92,12 +170,27 @@ function TopicDetailScreen() {
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
   const topic = last(data?.pages)!
-  const [repliesMode, setRepliesMode] = useAtom(repliesModeAtom)
-  const [orderBy, setOrderBy] = useState<RepliesMode | 'reverse'>(repliesMode)
+  const setRepliesMode = useSetAtom(repliesModeAtom)
+  const [orderBy, setOrderBy] = useState<RepliesMode | 'reverse'>(
+    () => store.get(repliesModeAtom) ?? 'default'
+  )
+  const rawReplies = useMemo(() => {
+    const seenReplyIds = new Set<number>()
+    const replies: Reply[] = []
+
+    data?.pages.forEach(page => {
+      page.replies.forEach(reply => {
+        if (seenReplyIds.has(reply.id)) return
+
+        seenReplyIds.add(reply.id)
+        replies.push(reply)
+      })
+    })
+
+    return replies
+  }, [data?.pages])
   const flatedData = useMemo(() => {
-    const rawList = cloneDeep(
-      uniqBy(data?.pages.map(page => page.replies).flat() || [], 'id')
-    )
+    const rawList = rawReplies
     let _flatedData: Reply[] = []
 
     if (orderBy === 'smart') {
@@ -119,29 +212,35 @@ function TopicDetailScreen() {
       const latestReplyIndexByName = new Map<string, number>()
 
       function getParentReply(reply: Reply, replyIndex: number) {
-        const candidates = Array.from(getAtNameList(reply.content))
-          .map(name => {
-            const parentIndex = latestReplyIndexByName.get(name)
-            if (parentIndex === undefined || parentIndex >= replyIndex) {
-              return null
-            }
+        let latestExternalCandidate: { index: number; reply: Reply } | undefined
+        let latestCandidate: { index: number; reply: Reply } | undefined
 
-            return {
-              index: parentIndex,
-              reply: replyMap.get(ascList[parentIndex].id)!,
-            }
-          })
-          .filter(Boolean) as { index: number; reply: Reply }[]
+        for (const name of getAtNameList(reply.content)) {
+          const parentIndex = latestReplyIndexByName.get(name)
+          if (parentIndex === undefined || parentIndex >= replyIndex) {
+            continue
+          }
 
-        if (!candidates.length) return
+          const candidate = {
+            index: parentIndex,
+            reply: replyMap.get(ascList[parentIndex].id)!,
+          }
 
-        const externalCandidates = candidates.filter(
-          candidate => candidate.reply.member.username !== reply.member.username
-        )
-        const parentCandidate = (
-          externalCandidates.length ? externalCandidates : candidates
-        ).sort((a, b) => b.index - a.index)[0]
-        let parent = parentCandidate.reply
+          if (!latestCandidate || candidate.index > latestCandidate.index) {
+            latestCandidate = candidate
+          }
+
+          if (
+            candidate.reply.member.username !== reply.member.username &&
+            (!latestExternalCandidate ||
+              candidate.index > latestExternalCandidate.index)
+          ) {
+            latestExternalCandidate = candidate
+          }
+        }
+
+        let parent = (latestExternalCandidate || latestCandidate)?.reply
+        if (!parent) return
 
         while (parent.member.username === reply.member.username) {
           const parentId = parentMap.get(parent.id)
@@ -244,16 +343,24 @@ function TopicDetailScreen() {
           reply_has_nested_children: hasNestedChildren,
         }
 
-        return [
-          updatedReply,
-          ...reply.children.flatMap((child, childIndex) => {
-            const childIsMerged = childMergeStates[childIndex]
-            const childLevel = childIsMerged ? level : level + 1
-            const hasNextNestedSibling =
-              !childIsMerged &&
-              childMergeStates.slice(childIndex + 1).some(isMerged => !isMerged)
+        const replies: Reply[] = [updatedReply]
 
-            return flattenReply(
+        reply.children.forEach((child, childIndex) => {
+          const childIsMerged = childMergeStates[childIndex]
+          const childLevel = childIsMerged ? level : level + 1
+          let hasNextNestedSibling = false
+
+          if (!childIsMerged) {
+            for (let i = childIndex + 1; i < childMergeStates.length; i++) {
+              if (!childMergeStates[i]) {
+                hasNextNestedSibling = true
+                break
+              }
+            }
+          }
+
+          replies.push(
+            ...flattenReply(
               child,
               childLevel,
               replyConnectors,
@@ -262,107 +369,152 @@ function TopicDetailScreen() {
               hasNextNestedSibling,
               reply.children.length > 1
             )
-          }),
-        ]
+          )
+        })
+
+        return replies
       }
 
       function flattenReplies(replies: Reply[], level = 0): Reply[] {
-        return replies.flatMap((reply, replyIndex) => {
-          return flattenReply(
-            reply,
-            level,
-            [],
-            [],
-            false,
-            replyIndex < replies.length - 1,
-            replies.length > 1
+        const result: Reply[] = []
+
+        replies.forEach((reply, replyIndex) => {
+          result.push(
+            ...flattenReply(
+              reply,
+              level,
+              [],
+              [],
+              false,
+              replyIndex < replies.length - 1,
+              replies.length > 1
+            )
           )
         })
+
+        return result
       }
 
       _flatedData = flattenReplies(result)
     } else if (orderBy === 'reverse') {
-      _flatedData = [...rawList].reverse()
+      _flatedData = rawList.slice().reverse()
     } else {
       _flatedData = rawList
     }
 
-    if (last(_flatedData) && orderBy !== 'smart') {
-      last(_flatedData)!.is_last_reply = true
+    if (_flatedData.length > 0 && orderBy !== 'smart') {
+      const lastReplyIndex = _flatedData.length - 1
+      const lastReply = _flatedData[lastReplyIndex]
+
+      if (!lastReply.is_last_reply) {
+        const nextFlatedData =
+          _flatedData === rawList ? _flatedData.slice() : _flatedData
+
+        nextFlatedData[lastReplyIndex] = {
+          ...lastReply,
+          is_last_reply: true,
+        }
+
+        return nextFlatedData
+      }
     }
+
     return _flatedData
-  }, [data?.pages, orderBy])
+  }, [rawReplies, orderBy])
   const [collapsedReplyIds, setCollapsedReplyIds] = useState<Set<number>>(
     () => new Set()
   )
-  const visibleFlatedData = useMemo(() => {
-    if (orderBy !== 'smart' || collapsedReplyIds.size === 0) {
-      return flatedData
-    }
+  const replyListEntryCacheRef = useRef(new Map<number, ReplyListEntry>())
+  const replyListData = useMemo<ReplyListEntry[]>(() => {
+    const cache = replyListEntryCacheRef.current
+    const visibleReplyIds = new Set<number>()
+    const visibleReplies =
+      orderBy === 'smart' && collapsedReplyIds.size > 0
+        ? flatedData.filter(reply => {
+            return !reply.reply_ancestor_ids?.some(id =>
+              collapsedReplyIds.has(id)
+            )
+          })
+        : flatedData
 
-    return flatedData.filter(reply => {
-      return !reply.reply_ancestor_ids?.some(id => collapsedReplyIds.has(id))
-    })
-  }, [collapsedReplyIds, flatedData, orderBy])
-  const rootGroupEndReplyIds = useMemo(() => {
-    if (orderBy !== 'smart') {
-      return new Set<number>()
-    }
+    const entries = visibleReplies.map((reply, index) => {
+      const nextReply = visibleReplies[index + 1]
+      const collapsed = orderBy === 'smart' && collapsedReplyIds.has(reply.id)
+      const isRootGroupEnd =
+        orderBy === 'smart' && (!nextReply || nextReply.reply_level === 0)
+      const cachedEntry = cache.get(reply.id)
 
-    return visibleFlatedData.reduce((result, reply, index) => {
-      const nextReply = visibleFlatedData[index + 1]
-      if (!nextReply || nextReply.reply_level === 0) {
-        result.add(reply.id)
+      visibleReplyIds.add(reply.id)
+
+      if (
+        cachedEntry &&
+        cachedEntry.reply === reply &&
+        cachedEntry.collapsed === collapsed &&
+        cachedEntry.isRootGroupEnd === isRootGroupEnd
+      ) {
+        return cachedEntry
       }
-      return result
-    }, new Set<number>())
-  }, [orderBy, visibleFlatedData])
+
+      const entry = {
+        reply,
+        collapsed,
+        isRootGroupEnd,
+      }
+
+      cache.set(reply.id, entry)
+      return entry
+    })
+
+    cache.forEach((_, replyId) => {
+      if (!visibleReplyIds.has(replyId)) {
+        cache.delete(replyId)
+      }
+    })
+
+    return entries
+  }, [collapsedReplyIds, flatedData, orderBy])
   const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
-  const renderItem: ListRenderItem<Reply> = useCallback(
+  const toggleReplyCollapse = useCallback((replyId: number) => {
+    startTransition(() => {
+      setCollapsedReplyIds(prev => {
+        const next = new Set(prev)
+        if (next.has(replyId)) {
+          next.delete(replyId)
+        } else {
+          next.add(replyId)
+        }
+        return next
+      })
+    })
+  }, [])
+  const handleReply = useCallback(
+    (username: string) => setReplyInfo({ topicId: topic.id, username }),
+    [topic.id]
+  )
+  const renderItem: ListRenderItem<ReplyListEntry> = useCallback(
     ({ item }) => (
-      <View
-        key={`${item.id}_${item.reply_level}_${collapsedReplyIds.has(item.id)}`}
-      >
-        <ReplyItem
-          reply={item as Reply}
-          key={`${item.id}_${item.reply_level}`}
-          topicId={topic.id}
-          once={topic.once}
-          hightlight={
-            params.hightlightReplyNo
-              ? params.hightlightReplyNo === item.no
-              : undefined
-          }
-          showNestedReply={orderBy === 'smart'}
-          showLegacyUi={orderBy !== 'smart'}
-          collapsed={collapsedReplyIds.has(item.id)}
-          isRootGroupEnd={rootGroupEndReplyIds.has(item.id)}
-          onToggleCollapse={
-            orderBy === 'smart' && item.reply_has_nested_children
-              ? () => {
-                  setCollapsedReplyIds(prev => {
-                    const next = new Set(prev)
-                    if (next.has(item.id)) {
-                      next.delete(item.id)
-                    } else {
-                      next.add(item.id)
-                    }
-                    return next
-                  })
-                }
-              : undefined
-          }
-          onReply={username => setReplyInfo({ topicId: topic.id, username })}
-        />
-      </View>
+      <TopicReplyListItem
+        item={item}
+        topicId={topic.id}
+        once={topic.once}
+        hightlight={
+          params.hightlightReplyNo
+            ? params.hightlightReplyNo === item.reply.no
+            : undefined
+        }
+        showNestedReply={orderBy === 'smart'}
+        showLegacyUi={orderBy !== 'smart'}
+        onToggleCollapse={toggleReplyCollapse}
+        onReply={handleReply}
+      />
     ),
     [
-      collapsedReplyIds,
-      rootGroupEndReplyIds,
       topic.id,
       topic.once,
       params.hightlightReplyNo,
       orderBy,
+      toggleReplyCollapse,
+      handleReply,
     ]
   )
 
@@ -374,7 +526,7 @@ function TopicDetailScreen() {
 
   const safeAreaInsets = useSafeAreaInsets()
 
-  const flatListRef = useRef<FlatList<Reply>>(null)
+  const flatListRef = useRef<FlatList<ReplyListEntry>>(null)
 
   const scrollY = useRef(new Animated.Value(0)).current
 
@@ -385,9 +537,13 @@ function TopicDetailScreen() {
       <Animated.FlatList
         ref={flatListRef}
         key={colorScheme}
-        data={visibleFlatedData}
-        extraData={collapsedReplyIds}
+        data={replyListData}
+        keyExtractor={keyExtractor}
         ItemSeparatorComponent={orderBy !== 'smart' ? LineSeparator : null}
+        initialNumToRender={8}
+        maxToRenderPerBatch={8}
+        updateCellsBatchingPeriod={32}
+        windowSize={9}
         removeClippedSubviews={false}
         contentContainerStyle={{
           paddingTop: navbarHeight,
@@ -458,7 +614,9 @@ function TopicDetailScreen() {
                     setRepliesMode(v)
                   }
 
-                  setOrderBy(v)
+                  startTransition(() => {
+                    setOrderBy(v)
+                  })
 
                   if (v === 'reverse' && hasNextPage) {
                     if (topic.last_page - topic.page > 9) {

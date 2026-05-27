@@ -16,7 +16,7 @@
       "supportsTablet": true,
       "deploymentTarget": "16.4",
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.8.9.2",
+      "buildNumber": "1.8.9.4",
       "entitlements": {
         "aps-environment": "development"
       },
