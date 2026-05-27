@@ -95,5 +95,16 @@
     "react-test-renderer": "19.2.3",
     "typescript": "~6.0.3"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "doctor": {
+      "reactNativeDirectoryCheck": {
+        "exclude": [
+          "@react-native-cookies/cookies",
+          "react-native-system-navigation-bar",
+          "expo-modules-jsi"
+        ]
+      }
+    }
+  }
 }
