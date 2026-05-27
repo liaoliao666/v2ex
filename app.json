@@ -3,7 +3,7 @@
     "name": "V2Fun",
     "slug": "v2ex",
     "owner": "v2fun",
-    "version": "1.8.9",
+    "version": "1.9.0",
     "scheme": "v2fun",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
       "supportsTablet": true,
       "deploymentTarget": "16.4",
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.8.9.4",
+      "buildNumber": "1.9.0.3",
       "entitlements": {
         "aps-environment": "development"
       },
@@ -81,9 +81,12 @@
         "buttonStyle": "light"
       }
     },
-    "runtimeVersion": "1.8.7",
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
     "plugins": [
       "./plugins/with-gradle-jvm-args",
+      "./plugins/with-expo-modules-jsi-embed",
       [
         "expo-navigation-bar",
         {
