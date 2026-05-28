@@ -32,6 +32,7 @@ export interface ReplyBoxRef {
 export type ReplyInfo = {
   topicId: number
   username?: string
+  replyNo?: number
   isAppend?: boolean
 }
 
@@ -41,6 +42,7 @@ const cacheContent: {
   appendText: string
   topicId?: number
   replyName?: string
+  replyNo?: number
 } = {
   replyTopicText: '',
   replyMemberText: '',
@@ -60,7 +62,7 @@ const ReplyBox = ({
 }) => {
   const update = useUpdate()
 
-  const { username, isAppend, topicId } = replyInfo
+  const { username, replyNo, isAppend, topicId } = replyInfo
 
   function initContent() {
     if (cacheContent.topicId !== topicId) {
@@ -70,18 +72,25 @@ const ReplyBox = ({
         appendText: '',
         topicId: topicId,
         replyName: '',
+        replyNo: undefined,
       })
     }
 
     if (username) {
-      if (username !== cacheContent.replyName) {
+      const replyPrefix = `@${username}${replyNo ? ` #${replyNo}` : ''} `
+
+      if (
+        username !== cacheContent.replyName ||
+        replyNo !== cacheContent.replyNo
+      ) {
         Object.assign(cacheContent, {
-          replyMemberText: `@${username} `,
+          replyMemberText: replyPrefix,
           replyName: username,
+          replyNo,
         })
       } else if (!getContent().trim()) {
         Object.assign(cacheContent, {
-          replyMemberText: `@${username} `,
+          replyMemberText: replyPrefix,
         })
       }
     }

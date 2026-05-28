@@ -45,7 +45,7 @@ export type RootStackParamList = {
   TopicDetail: Partial<Topic> & { hightlightReplyNo?: number; id: number }
   RelatedReplies: {
     replyId: number
-    onReply: (username: string) => void
+    onReply: (username: string, replyNo?: number) => void
     topicId: number
   }
   NodeTopics: {

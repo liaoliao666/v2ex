@@ -43,6 +43,8 @@ export default memo(
       next.reply.reply_connectors?.join() &&
     prev.reply.reply_has_nested_children ===
       next.reply.reply_has_nested_children &&
+    prev.reply.reply_has_merged_children ===
+      next.reply.reply_has_merged_children &&
     prev.reply.children?.length === next.reply.children?.length &&
     prev.reply.is_last_reply === next.reply.is_last_reply
 )
@@ -66,7 +68,7 @@ function ReplyItem({
   once?: string
   reply: Reply
   hightlight?: boolean
-  onReply: (username: string) => void
+  onReply: (username: string, replyNo?: number) => void
   related?: boolean
   inModalScreen?: boolean
   onLayout?: ViewProps['onLayout']
@@ -80,7 +82,7 @@ function ReplyItem({
   const themeName = useAtomValue(themeNameAtom)
   const colorScheme = useAtomValue(colorSchemeAtom)
   const { colors, fontSize } = useAtomValue(uiAtom)
-  let reply_level = reply.reply_level
+  const replyLevel = showNestedReply ? reply.reply_level || 0 : 0
   const replyConnectors = reply.reply_connectors || []
   const dividerColor =
     !themeName.light && colorScheme === 'light'
@@ -92,6 +94,12 @@ function ReplyItem({
   const shouldShowRootGroupGap =
     !showLegacyUi && showNestedReply && isRootGroupEnd
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
+  const hasVisibleReplyChildren =
+    reply.reply_has_nested_children ||
+    reply.reply_has_merged_children ||
+    (reply.reply_has_nested_children === undefined &&
+      reply.reply_has_merged_children === undefined &&
+      !isEmpty(reply.children))
 
   return (
     <View
@@ -107,7 +115,7 @@ function ReplyItem({
     >
       {!showNestedReply || showLegacyUi ? null : (
         <>
-          {Array.from({ length: reply_level }, (_, i) => {
+          {Array.from({ length: replyLevel }, (_, i) => {
             if (!replyConnectors[i]) return null
 
             return (
@@ -122,20 +130,30 @@ function ReplyItem({
             )
           })}
 
-          {reply_level !== 0 && (
+          {replyLevel !== 0 && !reply.is_merged && (
             <View
               style={tw`border-[${dividerColor}] absolute top-0 left-[${
-                reply_level * 24 + 4
+                replyLevel * 24 + 4
               }px] border-0 border-b-[1px] w-6 border-l-[1px] h-3 rounded-bl-[12px]`}
             />
           )}
         </>
       )}
 
-      <View style={tw`flex-row ml-[${(reply.reply_level || 0) * 24}px]`}>
+      <View style={tw`flex-row ml-[${replyLevel * 24}px]`}>
         <View>
-          {((!collapsed &&
-            (reply.reply_has_nested_children ?? !isEmpty(reply.children))) ||
+          {!showLegacyUi &&
+            showNestedReply &&
+            reply.is_merged &&
+            replyLevel > 0 && (
+              <View
+                style={tw.style(
+                  `border-l border-solid border-[${dividerColor}] absolute top-0 left-3 h-3`
+                )}
+              />
+            )}
+
+          {((!collapsed && hasVisibleReplyChildren) ||
             (!showLegacyUi && !showNestedReply && !reply.is_last_reply)) && (
             <View
               style={tw.style(
@@ -295,9 +313,7 @@ function ReplyItem({
                         : reply.content,
                   }}
                   inModalScreen={inModalScreen}
-                  paddingX={
-                    32 + 28 + 24 * (showNestedReply ? reply.reply_level : 0)
-                  }
+                  paddingX={32 + 28 + 24 * replyLevel}
                 />
               </View>
 
@@ -315,7 +331,7 @@ function ReplyItem({
                   )}
 
                   <Pressable
-                    onPress={() => onReply(reply.member.username)}
+                    onPress={() => onReply(reply.member.username, reply.no)}
                     style={tw`flex-row items-center`}
                   >
                     {({ pressed }) => (
@@ -345,9 +361,9 @@ function ReplyItem({
                           navigation.navigate('RelatedReplies', {
                             replyId: reply.id,
                             topicId,
-                            onReply: username => {
+                            onReply: (username, replyNo) => {
                               navigation.goBack()
-                              sleep(300).then(() => onReply(username))
+                              sleep(300).then(() => onReply(username, replyNo))
                             },
                           })
                         }}

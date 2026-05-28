@@ -54,12 +54,14 @@ import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { isSelf } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
+import {
+  getReplyReferences,
+  hasExplicitReplyReference,
+} from '@/utils/replyReference'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import useMount from '@/utils/useMount'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
-
-import { getAtNameList } from './RelatedRepliesScreen'
 
 type ReplyListEntry = {
   reply: Reply
@@ -75,7 +77,7 @@ type TopicReplyListItemProps = {
   showNestedReply: boolean
   showLegacyUi: boolean
   onToggleCollapse: (replyId: number) => void
-  onReply: (username: string) => void
+  onReply: (username: string, replyNo?: number) => void
 }
 
 const TopicReplyListItem = memo(
@@ -207,16 +209,22 @@ function TopicDetailScreen() {
           reply_ancestor_ids: [],
           reply_connectors: [],
           reply_has_nested_children: false,
+          reply_has_merged_children: false,
         })
       })
       const latestReplyIndexByName = new Map<string, number>()
+      const replyIndexByNo = new Map<number, number>()
 
       function getParentReply(reply: Reply, replyIndex: number) {
         let latestExternalCandidate: { index: number; reply: Reply } | undefined
         let latestCandidate: { index: number; reply: Reply } | undefined
 
-        for (const name of getAtNameList(reply.content)) {
-          const parentIndex = latestReplyIndexByName.get(name)
+        for (const reference of getReplyReferences(reply.content)) {
+          const parentIndex =
+            reference.replyNo === undefined
+              ? latestReplyIndexByName.get(reference.username)
+              : replyIndexByNo.get(reference.replyNo)
+
           if (parentIndex === undefined || parentIndex >= replyIndex) {
             continue
           }
@@ -224,6 +232,17 @@ function TopicDetailScreen() {
           const candidate = {
             index: parentIndex,
             reply: replyMap.get(ascList[parentIndex].id)!,
+          }
+
+          if (
+            reference.replyNo !== undefined &&
+            candidate.reply.member.username !== reference.username
+          ) {
+            continue
+          }
+
+          if (reference.replyNo !== undefined) {
+            return candidate.reply
           }
 
           if (!latestCandidate || candidate.index > latestCandidate.index) {
@@ -263,6 +282,7 @@ function TopicDetailScreen() {
           parentMap.set(child.id, parent.id)
         }
         latestReplyIndexByName.set(reply.member.username, i)
+        replyIndexByNo.set(reply.no, i)
       }
       const result: Reply[] = []
       ascList.forEach(reply => {
@@ -277,6 +297,17 @@ function TopicDetailScreen() {
         level: number,
         parentHasSiblings: boolean
       ) {
+        if (
+          parent.member.username === child.member.username &&
+          hasExplicitReplyReference(
+            child.content,
+            parent.member.username,
+            parent.no
+          )
+        ) {
+          return false
+        }
+
         if (parent.children.length !== 1) {
           return false
         }
@@ -328,9 +359,7 @@ function TopicDetailScreen() {
         const hasMergedChildren = childMergeStates.some(Boolean)
         const replyConnectors = connectorStack.slice(0, level)
         if (level > 0) {
-          const shouldContinueConnector = hasNextSibling || hasMergedChildren
-
-          replyConnectors[level - 1] = shouldContinueConnector
+          replyConnectors[level - 1] = hasNextSibling
         }
 
         const updatedReply = {
@@ -341,6 +370,7 @@ function TopicDetailScreen() {
           is_last_reply: !hasNextSibling,
           reply_connectors: replyConnectors,
           reply_has_nested_children: hasNestedChildren,
+          reply_has_merged_children: hasMergedChildren,
         }
 
         const replies: Reply[] = [updatedReply]
@@ -376,10 +406,10 @@ function TopicDetailScreen() {
       }
 
       function flattenReplies(replies: Reply[], level = 0): Reply[] {
-        const result: Reply[] = []
+        const flattenedReplies: Reply[] = []
 
         replies.forEach((reply, replyIndex) => {
-          result.push(
+          flattenedReplies.push(
             ...flattenReply(
               reply,
               level,
@@ -392,7 +422,7 @@ function TopicDetailScreen() {
           )
         })
 
-        return result
+        return flattenedReplies
       }
 
       _flatedData = flattenReplies(result)
@@ -418,7 +448,6 @@ function TopicDetailScreen() {
         return nextFlatedData
       }
     }
-
     return _flatedData
   }, [rawReplies, orderBy])
   const [collapsedReplyIds, setCollapsedReplyIds] = useState<Set<number>>(
@@ -488,7 +517,8 @@ function TopicDetailScreen() {
     })
   }, [])
   const handleReply = useCallback(
-    (username: string) => setReplyInfo({ topicId: topic.id, username }),
+    (username: string, replyNo?: number) =>
+      setReplyInfo({ topicId: topic.id, username, replyNo }),
     [topic.id]
   )
   const renderItem: ListRenderItem<ReplyListEntry> = useCallback(

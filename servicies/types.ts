@@ -101,6 +101,7 @@ export interface Reply {
   reply_connectors?: boolean[]
   reply_ancestor_ids?: number[]
   reply_has_nested_children?: boolean
+  reply_has_merged_children?: boolean
   children: Reply[]
 }
 

@@ -32,7 +32,9 @@ export default memo(
   Html,
   (prev: any, next: any) =>
     prev.source?.html! === next.source?.html &&
-    prev.baseStyle?.color === next.baseStyle?.color
+    prev.baseStyle?.color === next.baseStyle?.color &&
+    prev.paddingX === next.paddingX &&
+    prev.inModalScreen === next.inModalScreen
 )
 
 function Html({

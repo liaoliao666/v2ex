@@ -23,6 +23,7 @@ import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { Reply, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
+import { getAtNameList, getReplyReferences } from '@/utils/replyReference'
 import tw from '@/utils/tw'
 import usePreviousDistinct from '@/utils/usePreviousDistinct'
 
@@ -51,6 +52,7 @@ export default function RelatedRepliesScreen() {
     if (!currentReply) return []
     const replyName = currentReply.member.username
     const replyAtNameList = getAtNameList(currentReply.content)
+    const replyByNo = new Map(flatedData.map(reply => [reply.no, reply]))
 
     const results = [] as {
       key: string
@@ -70,7 +72,12 @@ export default function RelatedRepliesScreen() {
 
       flatedData.forEach(reply => {
         if (reply.member.username === replyName) {
-          const related = isRelatedReply(reply.content, replyName, atName)
+          const related = isRelatedReply(
+            reply.content,
+            replyName,
+            atName,
+            replyByNo
+          )
           const item = {
             ...reply,
             related,
@@ -84,7 +91,7 @@ export default function RelatedRepliesScreen() {
           result.avatar = reply.member.avatar
           const related =
             replyId === reply.id ||
-            isRelatedReply(reply.content, replyName, atName)
+            isRelatedReply(reply.content, replyName, atName, replyByNo)
           const item = {
             ...reply,
             related,
@@ -249,7 +256,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
         reply={item as Reply}
         topicId={lastPage.id}
         once={lastPage.once}
-        onReply={onReply}
+        onReply={(username, replyNo) => onReply(username, replyNo ?? item.no)}
         related={item.related}
         inModalScreen
       />
@@ -280,28 +287,38 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
   )
 })
 
-// https://github.dev/sciooga/v2ex-plus
-//获取被@的用户
-export function getAtNameList(replyContent: string) {
-  const nameList = new Set<string>()
-  const pattAtName = RegExp('@<a href="/member/(.+?)">', 'g')
-
-  let match = pattAtName.exec(replyContent)
-  while (match) {
-    nameList.add(match[1])
-    match = pattAtName.exec(replyContent)
-  }
-
-  return nameList
-}
-
 //判断是否为相关的回复
 export function isRelatedReply(
   replyContent: string,
   replyUserName: string,
-  replyAtName: string
+  replyAtName: string,
+  replyByNo?: Map<number, Reply>
 ) {
-  const atNameList = getAtNameList(replyContent)
+  const references = getReplyReferences(replyContent)
+  const explicitReferences = references.filter(
+    reference => reference.replyNo !== undefined
+  )
+  const hasExactExplicitReference = explicitReferences.some(reference => {
+    const targetReply = replyByNo?.get(reference.replyNo!)
+
+    return targetReply?.member.username === reference.username
+  })
+
+  if (hasExactExplicitReference) {
+    return explicitReferences.some(reference => {
+      const targetReply = replyByNo?.get(reference.replyNo!)
+      if (targetReply?.member.username !== reference.username) {
+        return false
+      }
+
+      return (
+        targetReply.member.username === replyUserName ||
+        targetReply.member.username === replyAtName
+      )
+    })
+  }
+
+  const atNameList = new Set(references.map(reference => reference.username))
   return (
     atNameList.size === 0 ||
     atNameList.has(replyUserName) ||
