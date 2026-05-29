@@ -9,10 +9,13 @@ import {
   forwardRef,
   memo,
   useCallback,
+  useEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react'
 import {
+  Animated,
   FlatList,
   InteractionManager,
   ListRenderItem,
@@ -30,7 +33,7 @@ import Badge from '@/components/Badge'
 import Drawer, { useDrawer } from '@/components/Drawer'
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
-import NavBar, { useNavBarHeight } from '@/components/NavBar'
+import NavBar, { NAV_BAR_HEIGHT, useNavBarHeight } from '@/components/NavBar'
 import Profile from '@/components/Profile'
 import {
   FallbackComponent,
@@ -41,7 +44,6 @@ import RefetchingIndicator from '@/components/RefetchingIndicator'
 import SearchBar from '@/components/SearchBar'
 import { LineSeparator } from '@/components/Separator'
 import StyledActivityIndicator from '@/components/StyledActivityIndicator'
-import StyledBlurView from '@/components/StyledBlurView'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import TopicPlaceholder from '@/components/placeholder/TopicPlaceholder'
@@ -78,6 +80,12 @@ const HOME_LIST_PERFORMANCE_PROPS = {
 } as const
 const errorResetMap: Record<string, () => void> = {}
 
+type HomeListScrollProps = {
+  onScroll: (event: any) => void
+  scrollEventThrottle: number
+  contentTopPadding: any
+}
+
 function topicKeyExtractor(item: Topic) {
   return String(item.id)
 }
@@ -88,23 +96,28 @@ function xnaKeyExtractor(item: Xna) {
 
 function TabPlaceholder({
   children,
+  headerHeight,
   tab,
 }: {
   children: ReactNode
+  headerHeight: any
   tab: string
 }) {
-  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
   return (
     <QuerySuspense
       fallbackRender={fallbackProps => {
         errorResetMap[tab] = fallbackProps.resetErrorBoundary
         return (
-          <View style={{ paddingTop: headerHeight }}>
+          <Animated.View style={{ paddingTop: headerHeight }}>
             <FallbackComponent {...fallbackProps} />
-          </View>
+          </Animated.View>
         )
       }}
-      loading={<TopicPlaceholder style={{ paddingTop: headerHeight }} />}
+      loading={
+        <Animated.View style={{ paddingTop: headerHeight }}>
+          <TopicPlaceholder />
+        </Animated.View>
+      }
     >
       {children}
     </QuerySuspense>
@@ -131,8 +144,80 @@ function HomeScreen() {
   const { colors, fontSize } = useAtomValue(uiAtom)
   const tablet = useTablet()
   const layout = useWindowDimensions()
+  const safeAreaInsets = useSafeAreaInsets()
 
-  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+  const navBarHeight = useNavBarHeight()
+  const headerHeight = navBarHeight + TAB_BAR_HEIGHT
+  const topBarCollapseY = useRef(new Animated.Value(0)).current
+  const topBarCollapseValueRef = useRef(0)
+  const activeRouteKeyRef = useRef(tabs[index]?.key)
+  const routeScrollOffsetMapRef = useRef<Record<string, number>>({})
+  const topBarTranslateY = topBarCollapseY.interpolate({
+    inputRange: [0, NAV_BAR_HEIGHT],
+    outputRange: [0, -NAV_BAR_HEIGHT],
+    extrapolate: 'clamp',
+  })
+  const listContentTopPadding = useMemo(
+    () => Animated.subtract(headerHeight, topBarCollapseY),
+    [headerHeight, topBarCollapseY]
+  )
+
+  const updateTopBarCollapse = useCallback(
+    (value: number) => {
+      const nextValue = Math.max(0, Math.min(value, NAV_BAR_HEIGHT))
+      if (topBarCollapseValueRef.current === nextValue) return
+
+      topBarCollapseValueRef.current = nextValue
+      topBarCollapseY.setValue(nextValue)
+    },
+    [topBarCollapseY]
+  )
+
+  const syncTopBarToRoute = useCallback(
+    (routeKey: string, keepHidden = false) => {
+      if (keepHidden && topBarCollapseValueRef.current >= NAV_BAR_HEIGHT - 1) {
+        updateTopBarCollapse(NAV_BAR_HEIGHT)
+        return
+      }
+
+      const offset = routeScrollOffsetMapRef.current[routeKey] || 0
+      updateTopBarCollapse(offset < NAV_BAR_HEIGHT ? 0 : NAV_BAR_HEIGHT)
+    },
+    [updateTopBarCollapse]
+  )
+
+  const getHomeListScrollProps = useCallback(
+    (routeKey: string): HomeListScrollProps => ({
+      onScroll: event => {
+        const rawOffset = event.nativeEvent.contentOffset.y
+        const offset = Math.max(0, rawOffset)
+        const previousOffset = routeScrollOffsetMapRef.current[routeKey] ?? 0
+        const delta = rawOffset - previousOffset
+
+        routeScrollOffsetMapRef.current[routeKey] = offset
+
+        if (activeRouteKeyRef.current !== routeKey) return
+
+        if (delta < 0 && rawOffset < NAV_BAR_HEIGHT) {
+          updateTopBarCollapse(0)
+          return
+        }
+
+        updateTopBarCollapse(topBarCollapseValueRef.current + delta)
+      },
+      scrollEventThrottle: 16,
+      contentTopPadding: listContentTopPadding,
+    }),
+    [listContentTopPadding, updateTopBarCollapse]
+  )
+
+  useEffect(() => {
+    const activeTabKey = tabs[index]?.key
+    if (!activeTabKey) return
+
+    activeRouteKeyRef.current = activeTabKey
+    syncTopBarToRoute(activeTabKey, true)
+  }, [index, syncTopBarToRoute, tabs])
 
   const [refs] = useState<Record<string, RefObject<FlatList>>>({})
 
@@ -140,6 +225,8 @@ function HomeScreen() {
     const activeTab = tabs[i]
     if (!activeTab) return
 
+    activeRouteKeyRef.current = activeTab.key
+    syncTopBarToRoute(activeTab.key, true)
     setIndex(i)
 
     InteractionManager.runAfterInteractions(() => {
@@ -152,6 +239,16 @@ function HomeScreen() {
     forceFetch: boolean
   ) {
     const activeTabKey = activeTab.key
+    const scrollActiveTabToTop = () => {
+      routeScrollOffsetMapRef.current[activeTabKey] = 0
+      refs[activeTabKey]?.current?.scrollToOffset({
+        offset: 0,
+      })
+
+      if (activeRouteKeyRef.current === activeTabKey) {
+        updateTopBarCollapse(0)
+      }
+    }
     const activeQueryKey: any =
       activeTab.type === 'node'
         ? k.node.topics.getKey({ name: activeTabKey })
@@ -177,9 +274,7 @@ function HomeScreen() {
             ?.pages?.length || 0
 
         if (forceFetch || pages > 1) {
-          refs[activeTabKey]?.current?.scrollToOffset({
-            offset: 0,
-          })
+          scrollActiveTabToTop()
         }
 
         queryClient.prefetchInfiniteQuery({
@@ -192,9 +287,7 @@ function HomeScreen() {
         })
       } else {
         if (forceFetch) {
-          refs[activeTabKey]?.current?.scrollToOffset({
-            offset: 0,
-          })
+          scrollActiveTabToTop()
         }
 
         queryClient.prefetchQuery(
@@ -218,7 +311,9 @@ function HomeScreen() {
         lazy
         lazyPreloadDistance={0}
         renderLazyPlaceholder={() => (
-          <TopicPlaceholder style={{ paddingTop: headerHeight }} />
+          <Animated.View style={{ paddingTop: listContentTopPadding }}>
+            <TopicPlaceholder />
+          </Animated.View>
         )}
         renderScene={({ route }) => {
           const routeIndex = tabs.indexOf(route)
@@ -227,10 +322,12 @@ function HomeScreen() {
             Math.abs(index - routeIndex) > 1
           ) {
             return (
-              <TopicPlaceholder
+              <Animated.View
                 key={route.key}
-                style={{ paddingTop: headerHeight }}
-              />
+                style={{ paddingTop: listContentTopPadding }}
+              >
+                <TopicPlaceholder />
+              </Animated.View>
             )
           }
 
@@ -239,10 +336,14 @@ function HomeScreen() {
 
           if (route.type === 'node') {
             return (
-              <TabPlaceholder tab={route.key}>
+              <TabPlaceholder
+                headerHeight={listContentTopPadding}
+                tab={route.key}
+              >
                 <NodeTopics
                   ref={ref}
                   headerHeight={headerHeight}
+                  listScrollProps={getHomeListScrollProps(route.key)}
                   nodeName={route.key}
                 />
               </TabPlaceholder>
@@ -251,25 +352,43 @@ function HomeScreen() {
 
           if (route.type === RECENT_TAB_KEY) {
             return (
-              <TabPlaceholder tab={RECENT_TAB_KEY}>
-                <RecentTopics ref={ref} headerHeight={headerHeight} />
+              <TabPlaceholder
+                headerHeight={listContentTopPadding}
+                tab={RECENT_TAB_KEY}
+              >
+                <RecentTopics
+                  ref={ref}
+                  headerHeight={headerHeight}
+                  listScrollProps={getHomeListScrollProps(route.key)}
+                />
               </TabPlaceholder>
             )
           }
 
           if (route.type === XNA_KEY) {
             return (
-              <TabPlaceholder tab={XNA_KEY}>
-                <Xnas ref={ref} headerHeight={headerHeight} />
+              <TabPlaceholder
+                headerHeight={listContentTopPadding}
+                tab={XNA_KEY}
+              >
+                <Xnas
+                  ref={ref}
+                  headerHeight={headerHeight}
+                  listScrollProps={getHomeListScrollProps(route.key)}
+                />
               </TabPlaceholder>
             )
           }
 
           return (
-            <TabPlaceholder tab={route.key}>
+            <TabPlaceholder
+              headerHeight={listContentTopPadding}
+              tab={route.key}
+            >
               <TabTopics
                 ref={ref}
                 headerHeight={headerHeight}
+                listScrollProps={getHomeListScrollProps(route.key)}
                 tab={route.key}
               />
             </TabPlaceholder>
@@ -280,12 +399,21 @@ function HomeScreen() {
         tabBarPosition="bottom"
         renderTabBar={props => (
           <View style={tw`absolute top-0 inset-x-0 z-10`}>
-            <StyledBlurView style={tw`absolute inset-0`} />
+            <Animated.View
+              style={{
+                transform: [{ translateY: topBarTranslateY }],
+              }}
+            >
+              <TopNavBar />
+            </Animated.View>
 
-            <TopNavBar />
-
-            <View
-              style={tw`flex-row items-center border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px] pl-4`}
+            <Animated.View
+              style={[
+                tw`bg-[${colors.base100}] flex-row items-center border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px] pl-4`,
+                {
+                  transform: [{ translateY: topBarTranslateY }],
+                },
+              ]}
             >
               <TabBar
                 {...props}
@@ -340,7 +468,15 @@ function HomeScreen() {
                   style={tw`pr-4 pl-2`}
                 />
               </TouchableOpacity>
-            </View>
+            </Animated.View>
+
+            <View
+              pointerEvents="none"
+              style={[
+                tw`absolute top-0 inset-x-0 bg-[${colors.base100}]`,
+                { height: safeAreaInsets.top },
+              ]}
+            />
           </View>
         )}
       />
@@ -354,11 +490,15 @@ function HomeScreen() {
 }
 
 const RecentTopics = memo(
-  forwardRef<FlatList, { headerHeight: number }>(({ headerHeight }, ref) => {
+  forwardRef<
+    FlatList,
+    { headerHeight: number; listScrollProps: HomeListScrollProps }
+  >(({ headerHeight, listScrollProps }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.topic.recent.useSuspenseInfiniteQuery({
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(RECENT_TAB_KEY),
       })
+    const { contentTopPadding, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
       queryClient.prefetchInfiniteQuery({
@@ -383,11 +523,12 @@ const RecentTopics = memo(
         isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
         progressViewOffset={headerHeight}
       >
-        <FlatList
-          ref={ref}
+        <Animated.FlatList
+          ref={ref as any}
           data={visibleTopics}
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
+          {...scrollProps}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -396,15 +537,15 @@ const RecentTopics = memo(
               progressViewOffset={headerHeight}
             />
           }
-          contentContainerStyle={{
-            paddingTop: headerHeight,
-          }}
           ItemSeparatorComponent={LineSeparator}
           ListHeaderComponent={
-            <BlockedTopicsNotice
-              blockedTopics={blockedTopics}
-              sourceTitle="最近"
-            />
+            <>
+              <Animated.View style={{ height: contentTopPadding }} />
+              <BlockedTopicsNotice
+                blockedTopics={blockedTopics}
+                sourceTitle="最近"
+              />
+            </>
           }
           renderItem={renderItem}
           onEndReached={() => {
@@ -432,12 +573,14 @@ const TabTopics = memo(
     {
       tab: string
       headerHeight: number
+      listScrollProps: HomeListScrollProps
     }
-  >(({ tab, headerHeight }, ref) => {
+  >(({ tab, headerHeight, listScrollProps }, ref) => {
     const { data, refetch, isFetching } = k.topic.tab.useSuspenseQuery({
       variables: { tab },
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(tab),
     })
+    const { contentTopPadding, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
@@ -453,11 +596,12 @@ const TabTopics = memo(
         isRefetching={isFetching && !isRefetchingByUser}
         progressViewOffset={headerHeight}
       >
-        <FlatList
-          ref={ref}
+        <Animated.FlatList
+          ref={ref as any}
           data={visibleTopics}
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
+          {...scrollProps}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -466,15 +610,15 @@ const TabTopics = memo(
               progressViewOffset={headerHeight}
             />
           }
-          contentContainerStyle={{
-            paddingTop: headerHeight,
-          }}
           ItemSeparatorComponent={LineSeparator}
           ListHeaderComponent={
-            <BlockedTopicsNotice
-              blockedTopics={blockedTopics}
-              sourceTitle={tab}
-            />
+            <>
+              <Animated.View style={{ height: contentTopPadding }} />
+              <BlockedTopicsNotice
+                blockedTopics={blockedTopics}
+                sourceTitle={tab}
+              />
+            </>
           }
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
           renderItem={renderItem}
@@ -491,13 +635,15 @@ const NodeTopics = memo(
     {
       nodeName: string
       headerHeight: number
+      listScrollProps: HomeListScrollProps
     }
-  >(({ nodeName, headerHeight }, ref) => {
+  >(({ nodeName, headerHeight, listScrollProps }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.node.topics.useSuspenseInfiniteQuery({
         variables: { name: nodeName },
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(nodeName),
       })
+    const { contentTopPadding, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
       queryClient.prefetchInfiniteQuery({
@@ -522,11 +668,12 @@ const NodeTopics = memo(
         isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
         progressViewOffset={headerHeight}
       >
-        <FlatList
-          ref={ref}
+        <Animated.FlatList
+          ref={ref as any}
           data={visibleTopics}
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
+          {...scrollProps}
           refreshControl={
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
@@ -534,16 +681,16 @@ const NodeTopics = memo(
               progressViewOffset={headerHeight}
             />
           }
-          contentContainerStyle={{
-            paddingTop: headerHeight,
-          }}
           ListEmptyComponent={<Empty description="无法访问该节点" />}
           ItemSeparatorComponent={LineSeparator}
           ListHeaderComponent={
-            <BlockedTopicsNotice
-              blockedTopics={blockedTopics}
-              sourceTitle={nodeName}
-            />
+            <>
+              <Animated.View style={{ height: contentTopPadding }} />
+              <BlockedTopicsNotice
+                blockedTopics={blockedTopics}
+                sourceTitle={nodeName}
+              />
+            </>
           }
           renderItem={renderItem}
           onEndReached={() => {
@@ -566,11 +713,15 @@ const NodeTopics = memo(
 )
 
 const Xnas = memo(
-  forwardRef<FlatList, { headerHeight: number }>(({ headerHeight }, ref) => {
+  forwardRef<
+    FlatList,
+    { headerHeight: number; listScrollProps: HomeListScrollProps }
+  >(({ headerHeight, listScrollProps }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.topic.xna.useSuspenseInfiniteQuery({
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(XNA_KEY),
       })
+    const { contentTopPadding, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
       queryClient.prefetchInfiniteQuery({
@@ -594,11 +745,12 @@ const Xnas = memo(
         isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
         progressViewOffset={headerHeight}
       >
-        <FlatList
-          ref={ref}
+        <Animated.FlatList
+          ref={ref as any}
           data={flatedData}
           keyExtractor={xnaKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
+          {...scrollProps}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -607,10 +759,10 @@ const Xnas = memo(
               progressViewOffset={headerHeight}
             />
           }
-          contentContainerStyle={{
-            paddingTop: headerHeight,
-          }}
           ItemSeparatorComponent={LineSeparator}
+          ListHeaderComponent={
+            <Animated.View style={{ height: contentTopPadding }} />
+          }
           renderItem={renderItem}
           onEndReached={() => {
             if (hasNextPage && !isFetchingNextPage) {
@@ -641,7 +793,7 @@ function TopNavBar() {
   return (
     <NavBar
       disableStatusBarStyle={isTablet()}
-      style={tw`border-b-0`}
+      style={tw`bg-[${colors.base100}] border-b-0`}
       left={
         <Pressable
           onPress={() => {
