@@ -1,6 +1,5 @@
-import { load } from 'cheerio'
 import { isObjectLike } from 'lodash-es'
-import { useContext, useMemo } from 'react'
+import { useContext } from 'react'
 import { Pressable } from 'react-native'
 import { CustomBlockRenderer } from 'react-native-render-html'
 
@@ -13,10 +12,10 @@ import { HtmlContext } from './HtmlContext'
 const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const { onPreview, paddingX } = useContext(HtmlContext)
 
-  const url = useMemo(() => {
-    const $ = load(tnode.domNode as unknown as string)
-    return $('img').attr('src')
-  }, [tnode.domNode])
+  const url =
+    (tnode as any).attributes?.src ||
+    (tnode.domNode as any)?.attribs?.src ||
+    undefined
 
   const screenWidth = useScreenWidth()
   const containerWidth = isPlainContainer(tnode)

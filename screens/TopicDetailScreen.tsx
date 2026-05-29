@@ -15,6 +15,7 @@ import {
   Animated,
   FlatList,
   ListRenderItem,
+  Platform,
   Pressable,
   Text,
   TouchableOpacity,
@@ -50,7 +51,7 @@ import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
-import { Reply, k } from '@/servicies'
+import { Reply, Topic, k } from '@/servicies'
 import { RootStackParamList } from '@/types'
 import { isSelf } from '@/utils/authentication'
 import { queryClient } from '@/utils/query'
@@ -66,8 +67,24 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 type ReplyListEntry = {
   reply: Reply
   collapsed: boolean
-  isRootGroupEnd: boolean
 }
+
+const REPLY_LIST_PERFORMANCE_PROPS = {
+  initialNumToRender: 8,
+  maxToRenderPerBatch: 8,
+  updateCellsBatchingPeriod: 32,
+  windowSize: 9,
+  removeClippedSubviews: Platform.OS === 'android',
+} as const
+
+const REPLY_MODE_OPTIONS = [
+  { label: '默认', value: 'default' },
+  { label: '智能', value: 'smart' },
+  { label: '最新', value: 'reverse' },
+] as {
+  label: string
+  value: RepliesMode | 'reverse'
+}[]
 
 type TopicReplyListItemProps = {
   item: ReplyListEntry
@@ -91,7 +108,7 @@ const TopicReplyListItem = memo(
     onToggleCollapse,
     onReply,
   }: TopicReplyListItemProps) {
-    const { reply, collapsed, isRootGroupEnd } = item
+    const { reply, collapsed } = item
     const handleToggleCollapse = useCallback(() => {
       onToggleCollapse(reply.id)
     }, [onToggleCollapse, reply.id])
@@ -105,7 +122,6 @@ const TopicReplyListItem = memo(
         showNestedReply={showNestedReply}
         showLegacyUi={showLegacyUi}
         collapsed={collapsed}
-        isRootGroupEnd={isRootGroupEnd}
         onToggleCollapse={
           showNestedReply && reply.reply_has_nested_children
             ? handleToggleCollapse
@@ -118,7 +134,6 @@ const TopicReplyListItem = memo(
   (prev, next) =>
     prev.item.reply === next.item.reply &&
     prev.item.collapsed === next.item.collapsed &&
-    prev.item.isRootGroupEnd === next.item.isRootGroupEnd &&
     prev.topicId === next.topicId &&
     prev.once === next.once &&
     prev.hightlight === next.hightlight &&
@@ -131,6 +146,46 @@ const TopicReplyListItem = memo(
 function keyExtractor(item: ReplyListEntry) {
   return String(item.reply.id)
 }
+
+const TopicDetailHeader = memo(function TopicDetailHeader({
+  topic,
+  orderBy,
+  showLoading,
+  onAppend,
+  onOrderByChange,
+}: {
+  topic: Topic
+  orderBy: RepliesMode | 'reverse'
+  showLoading: boolean
+  onAppend: () => void
+  onOrderByChange: (value: RepliesMode | 'reverse') => void
+}) {
+  const { colors, fontSize } = useAtomValue(uiAtom)
+
+  return (
+    <TopicInfo topic={topic} onAppend={onAppend}>
+      <View
+        style={tw.style(
+          `flex-row items-center pt-3 mt-2 border-t border-solid border-[${colors.divider}]`
+        )}
+      >
+        <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
+          全部回复
+        </Text>
+        {showLoading && (
+          <StyledActivityIndicator size="small" style={tw`ml-2`} />
+        )}
+
+        <RadioButtonGroup
+          style={tw`ml-auto`}
+          options={REPLY_MODE_OPTIONS}
+          value={orderBy}
+          onChange={onOrderByChange}
+        />
+      </View>
+    </TopicInfo>
+  )
+})
 
 export default withQuerySuspense(TopicDetailScreen, {
   LoadingComponent: () => {
@@ -466,11 +521,8 @@ function TopicDetailScreen() {
           })
         : flatedData
 
-    const entries = visibleReplies.map((reply, index) => {
-      const nextReply = visibleReplies[index + 1]
+    const entries = visibleReplies.map(reply => {
       const collapsed = orderBy === 'smart' && collapsedReplyIds.has(reply.id)
-      const isRootGroupEnd =
-        orderBy === 'smart' && (!nextReply || nextReply.reply_level === 0)
       const cachedEntry = cache.get(reply.id)
 
       visibleReplyIds.add(reply.id)
@@ -478,8 +530,7 @@ function TopicDetailScreen() {
       if (
         cachedEntry &&
         cachedEntry.reply === reply &&
-        cachedEntry.collapsed === collapsed &&
-        cachedEntry.isRootGroupEnd === isRootGroupEnd
+        cachedEntry.collapsed === collapsed
       ) {
         return cachedEntry
       }
@@ -487,7 +538,6 @@ function TopicDetailScreen() {
       const entry = {
         reply,
         collapsed,
-        isRootGroupEnd,
       }
 
       cache.set(reply.id, entry)
@@ -521,6 +571,109 @@ function TopicDetailScreen() {
       setReplyInfo({ topicId: topic.id, username, replyNo }),
     [topic.id]
   )
+  const [isFetchingAllPage, setIsFetchingAllPage] = useState(false)
+  const handleAppend = useCallback(() => {
+    setReplyInfo({ topicId: topic.id, isAppend: true })
+  }, [topic.id])
+  const handleOrderByChange = useCallback(
+    async (v: RepliesMode | 'reverse') => {
+      if (v === 'reverse' && isFetching) {
+        Toast.show({
+          type: 'error',
+          text1: '请等待当前请求完成后再切换',
+        })
+        return
+      }
+
+      if (v === 'reverse' && hasNextPage && topic.last_page - topic.page > 9) {
+        Toast.show({
+          type: 'error',
+          text1: '该帖子页数过多无法启用最新模式',
+        })
+        return
+      }
+
+      if (v !== 'reverse') {
+        setRepliesMode(v)
+      }
+
+      startTransition(() => {
+        if (v !== 'smart') {
+          setCollapsedReplyIds(prev => (prev.size === 0 ? prev : new Set()))
+        }
+        setOrderBy(v)
+      })
+
+      if (v === 'reverse' && hasNextPage) {
+        // using fetchNextPage if the topic has only a next page
+        if (topic.last_page - topic.page === 1) {
+          fetchNextPage()
+          return
+        }
+
+        // fetch all page
+        if (!isFetchingAllPage) {
+          setIsFetchingAllPage(true)
+          try {
+            const pageToData = Object.fromEntries(
+              data!.pageParams.map((page, i) => [page, data!.pages[i]])
+            )
+            const allPageNo = Array.from({
+              length: topic.last_page,
+            }).map((_, i) => i + 1)
+            const pageDatas = await Promise.all(
+              allPageNo.map(page => {
+                if (!pageToData[page] || page === topic.last_page) {
+                  return k.topic.detail.fetcher(
+                    {
+                      id: params.id,
+                    },
+                    {
+                      pageParam: page,
+                    }
+                  )
+                }
+                return pageToData[page]
+              })
+            )
+
+            queryClient.setQueryData(
+              k.topic.detail.getKey({ id: params.id }),
+              allPageNo.reduce(
+                (acc, p, i) => {
+                  acc.pageParams[i] = p
+                  acc.pages[i] = pageDatas[i]
+                  return acc
+                },
+                {
+                  pages: [],
+                  pageParams: [],
+                } as typeof data
+              )
+            )
+          } catch (error) {
+            Toast.show({
+              type: 'error',
+              text1: error instanceof BizError ? error.message : '请求失败',
+            })
+          } finally {
+            setIsFetchingAllPage(false)
+          }
+        }
+      }
+    },
+    [
+      data,
+      fetchNextPage,
+      hasNextPage,
+      isFetching,
+      isFetchingAllPage,
+      params.id,
+      setRepliesMode,
+      topic.last_page,
+      topic.page,
+    ]
+  )
   const renderItem: ListRenderItem<ReplyListEntry> = useCallback(
     ({ item }) => (
       <TopicReplyListItem
@@ -552,8 +705,6 @@ function TopicDetailScreen() {
 
   const navbarHeight = useNavBarHeight()
 
-  const [isFetchingAllPage, setIsFetchingAllPage] = useState(false)
-
   const safeAreaInsets = useSafeAreaInsets()
 
   const flatListRef = useRef<FlatList<ReplyListEntry>>(null)
@@ -570,11 +721,7 @@ function TopicDetailScreen() {
         data={replyListData}
         keyExtractor={keyExtractor}
         ItemSeparatorComponent={orderBy !== 'smart' ? LineSeparator : null}
-        initialNumToRender={8}
-        maxToRenderPerBatch={8}
-        updateCellsBatchingPeriod={32}
-        windowSize={9}
-        removeClippedSubviews={false}
+        {...REPLY_LIST_PERFORMANCE_PROPS}
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
@@ -586,7 +733,6 @@ function TopicDetailScreen() {
           />
         }
         renderItem={renderItem}
-        // ItemSeparatorComponent={LineSeparator}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           {
@@ -594,140 +740,21 @@ function TopicDetailScreen() {
           }
         )}
         onEndReached={() => {
-          if (hasNextPage) {
+          if (hasNextPage && !isFetchingNextPage) {
             fetchNextPage()
           }
         }}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
-          <TopicInfo
+          <TopicDetailHeader
             topic={topic}
-            onAppend={() => {
-              setReplyInfo({ topicId: topic.id, isAppend: true })
-            }}
-          >
-            <View
-              style={tw.style(
-                `flex-row items-center pt-3 mt-2 border-t border-solid border-[${colors.divider}]`
-              )}
-            >
-              <Text style={tw`text-[${colors.foreground}] ${fontSize.medium}`}>
-                全部回复
-              </Text>
-              {(isFetching || isFetchingAllPage) && !isRefetchingByUser && (
-                <StyledActivityIndicator size="small" style={tw`ml-2`} />
-              )}
-
-              <RadioButtonGroup
-                style={tw`ml-auto`}
-                options={
-                  [
-                    { label: '默认', value: 'default' },
-                    { label: '智能', value: 'smart' },
-                    { label: '最新', value: 'reverse' },
-                  ] as {
-                    label: string
-                    value: typeof orderBy
-                  }[]
-                }
-                value={orderBy}
-                onChange={async v => {
-                  if (v === 'reverse' && isFetching) {
-                    Toast.show({
-                      type: 'error',
-                      text1: '请等待当前请求完成后再切换',
-                    })
-                    return
-                  }
-
-                  if (v !== 'reverse') {
-                    setRepliesMode(v)
-                  }
-
-                  startTransition(() => {
-                    if (v !== 'smart') {
-                      setCollapsedReplyIds(prev =>
-                        prev.size === 0 ? prev : new Set()
-                      )
-                    }
-                    setOrderBy(v)
-                  })
-
-                  if (v === 'reverse' && hasNextPage) {
-                    if (topic.last_page - topic.page > 9) {
-                      Toast.show({
-                        type: 'error',
-                        text1: '该帖子页数过多无法启用最新模式',
-                      })
-                      return
-                    }
-
-                    // using fetchNextPage if the topic has only a next page
-                    if (topic.last_page - topic.page === 1) {
-                      fetchNextPage()
-                      return
-                    }
-
-                    // fetch all page
-                    if (!isFetchingAllPage) {
-                      setIsFetchingAllPage(true)
-                      try {
-                        const pageToData = Object.fromEntries(
-                          data!.pageParams.map((page, i) => [
-                            page,
-                            data!.pages[i],
-                          ])
-                        )
-                        const allPageNo = Array.from({
-                          length: topic.last_page,
-                        }).map((_, i) => i + 1)
-                        const pageDatas = await Promise.all(
-                          allPageNo.map(page => {
-                            if (!pageToData[page] || page === topic.last_page) {
-                              return k.topic.detail.fetcher(
-                                {
-                                  id: params.id,
-                                },
-                                {
-                                  pageParam: page,
-                                }
-                              )
-                            }
-                            return pageToData[page]
-                          })
-                        )
-
-                        queryClient.setQueryData(
-                          k.topic.detail.getKey({ id: params.id }),
-                          allPageNo.reduce(
-                            (acc, p, i) => {
-                              acc.pageParams[i] = p
-                              acc.pages[i] = pageDatas[i]
-                              return acc
-                            },
-                            {
-                              pages: [],
-                              pageParams: [],
-                            } as typeof data
-                          )
-                        )
-                      } catch (error) {
-                        Toast.show({
-                          type: 'error',
-                          text1:
-                            error instanceof BizError
-                              ? error.message
-                              : '请求失败',
-                        })
-                      } finally {
-                        setIsFetchingAllPage(false)
-                      }
-                    }
-                  }
-                }}
-              />
-            </View>
-          </TopicInfo>
+            orderBy={orderBy}
+            showLoading={
+              (isFetching || isFetchingAllPage) && !isRefetchingByUser
+            }
+            onAppend={handleAppend}
+            onOrderByChange={handleOrderByChange}
+          />
         }
         ListFooterComponent={
           isFetchingNextPage ? (

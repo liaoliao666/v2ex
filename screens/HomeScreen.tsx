@@ -14,6 +14,7 @@ import {
 } from 'react'
 import {
   FlatList,
+  InteractionManager,
   ListRenderItem,
   Platform,
   Pressable,
@@ -68,7 +69,22 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 40
+const HOME_LIST_PERFORMANCE_PROPS = {
+  initialNumToRender: 8,
+  maxToRenderPerBatch: 8,
+  updateCellsBatchingPeriod: 32,
+  windowSize: 7,
+  removeClippedSubviews: Platform.OS === 'android',
+} as const
 const errorResetMap: Record<string, () => void> = {}
+
+function topicKeyExtractor(item: Topic) {
+  return String(item.id)
+}
+
+function xnaKeyExtractor(item: Xna) {
+  return String(item.id)
+}
 
 function TabPlaceholder({
   children,
@@ -122,6 +138,19 @@ function HomeScreen() {
 
   function handleInexChange(i: number, forceFetch = false) {
     const activeTab = tabs[i]
+    if (!activeTab) return
+
+    setIndex(i)
+
+    InteractionManager.runAfterInteractions(() => {
+      handleActiveTabRefresh(activeTab, forceFetch)
+    })
+  }
+
+  function handleActiveTabRefresh(
+    activeTab: (typeof tabs)[number],
+    forceFetch: boolean
+  ) {
     const activeTabKey = activeTab.key
     const activeQueryKey: any =
       activeTab.type === 'node'
@@ -173,8 +202,6 @@ function HomeScreen() {
         )
       }
     }
-
-    setIndex(i)
   }
 
   const swipeEdgeWidth = Platform.OS === 'ios' ? 52 : 32
@@ -189,7 +216,7 @@ function HomeScreen() {
         key={`${colorScheme}_${fontScale}`}
         navigationState={{ index, routes: tabs }}
         lazy
-        lazyPreloadDistance={1}
+        lazyPreloadDistance={0}
         renderLazyPlaceholder={() => (
           <TopicPlaceholder style={{ paddingTop: headerHeight }} />
         )}
@@ -341,7 +368,7 @@ const RecentTopics = memo(
     )
 
     const renderItem: ListRenderItem<Topic> = useCallback(
-      ({ item }) => <TopicItem key={item.id} topic={item} />,
+      ({ item }) => <TopicItem topic={item} />,
       []
     )
 
@@ -359,6 +386,8 @@ const RecentTopics = memo(
         <FlatList
           ref={ref}
           data={visibleTopics}
+          keyExtractor={topicKeyExtractor}
+          {...HOME_LIST_PERFORMANCE_PROPS}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -379,7 +408,7 @@ const RecentTopics = memo(
           }
           renderItem={renderItem}
           onEndReached={() => {
-            if (hasNextPage) {
+            if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage()
             }
           }}
@@ -413,7 +442,7 @@ const TabTopics = memo(
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
     const renderItem: ListRenderItem<Topic> = useCallback(
-      ({ item }) => <TopicItem key={item.id} topic={item} />,
+      ({ item }) => <TopicItem topic={item} />,
       []
     )
 
@@ -427,6 +456,8 @@ const TabTopics = memo(
         <FlatList
           ref={ref}
           data={visibleTopics}
+          keyExtractor={topicKeyExtractor}
+          {...HOME_LIST_PERFORMANCE_PROPS}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -476,7 +507,7 @@ const NodeTopics = memo(
     )
 
     const renderItem: ListRenderItem<Topic> = useCallback(
-      ({ item }) => <TopicItem key={item.id} topic={item} />,
+      ({ item }) => <TopicItem topic={item} />,
       []
     )
 
@@ -494,6 +525,8 @@ const NodeTopics = memo(
         <FlatList
           ref={ref}
           data={visibleTopics}
+          keyExtractor={topicKeyExtractor}
+          {...HOME_LIST_PERFORMANCE_PROPS}
           refreshControl={
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
@@ -514,7 +547,7 @@ const NodeTopics = memo(
           }
           renderItem={renderItem}
           onEndReached={() => {
-            if (hasNextPage) {
+            if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage()
             }
           }}
@@ -547,7 +580,7 @@ const Xnas = memo(
     )
 
     const renderItem: ListRenderItem<Xna> = useCallback(
-      ({ item }) => <XnaItem key={item.id} xna={item} />,
+      ({ item }) => <XnaItem xna={item} />,
       []
     )
 
@@ -564,6 +597,8 @@ const Xnas = memo(
         <FlatList
           ref={ref}
           data={flatedData}
+          keyExtractor={xnaKeyExtractor}
+          {...HOME_LIST_PERFORMANCE_PROPS}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -578,7 +613,7 @@ const Xnas = memo(
           ItemSeparatorComponent={LineSeparator}
           renderItem={renderItem}
           onEndReached={() => {
-            if (hasNextPage) {
+            if (hasNextPage && !isFetchingNextPage) {
               fetchNextPage()
             }
           }}

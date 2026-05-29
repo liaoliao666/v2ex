@@ -3,7 +3,13 @@ export type ReplyReference = {
   replyNo?: number
 }
 
+const REPLY_REFERENCES_CACHE_LIMIT = 2000
+const replyReferencesCache = new Map<string, ReplyReference[]>()
+
 export function getReplyReferences(replyContent: string): ReplyReference[] {
+  const cachedReferences = replyReferencesCache.get(replyContent)
+  if (cachedReferences) return cachedReferences
+
   const references: ReplyReference[] = []
   const seenKeys = new Set<string>()
   const htmlAtPattern = /@<a href="\/member\/(.+?)">.*?<\/a>\s*(?:#(\d+))?/g
@@ -34,6 +40,11 @@ export function getReplyReferences(replyContent: string): ReplyReference[] {
     match = textAtPattern.exec(textContent)
   }
 
+  if (replyReferencesCache.size >= REPLY_REFERENCES_CACHE_LIMIT) {
+    const firstKey = replyReferencesCache.keys().next().value
+    if (firstKey !== undefined) replyReferencesCache.delete(firstKey)
+  }
+  replyReferencesCache.set(replyContent, references)
   return references
 }
 

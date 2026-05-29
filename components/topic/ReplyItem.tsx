@@ -35,7 +35,6 @@ export default memo(
     prev.once === next.once &&
     prev.showLegacyUi === next.showLegacyUi &&
     prev.showNestedReply === next.showNestedReply &&
-    prev.isRootGroupEnd === next.isRootGroupEnd &&
     prev.collapsed === next.collapsed &&
     prev.reply.reply_level === next.reply.reply_level &&
     prev.reply.is_merged === next.reply.is_merged &&
@@ -61,7 +60,6 @@ function ReplyItem({
   showNestedReply = true,
   showLegacyUi = true,
   collapsed = false,
-  isRootGroupEnd = false,
   onToggleCollapse,
 }: {
   topicId: number
@@ -75,7 +73,6 @@ function ReplyItem({
   showNestedReply?: boolean
   showLegacyUi?: boolean
   collapsed?: boolean
-  isRootGroupEnd?: boolean
   onToggleCollapse?: () => void
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
@@ -93,7 +90,6 @@ function ReplyItem({
       ? 'rgb(51,54,57)'
       : colors.divider
   const itemBackgroundColor = hightlight ? colors.base200 : colors.base100
-  const shouldShowRootGroupGap = shouldUseNestedUi && isRootGroupEnd
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
   const hasVisibleReplyChildren =
     reply.reply_has_nested_children ||

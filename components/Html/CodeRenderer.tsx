@@ -20,7 +20,7 @@ import { getDefaultProps } from './helper'
 const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const context = useContext(HtmlContext)
 
-  const { inModalScreen, paddingX } = context
+  const { inModalScreen, paddingX, selectable } = context
 
   const screenWidth = useScreenWidth()
 
@@ -63,7 +63,7 @@ const CodeRenderer: CustomBlockRenderer = ({ tnode, style }) => {
       >
         <WrapView horizontal nestedScrollEnabled>
           <RenderHTML
-            {...getDefaultProps({ inModalScreen })}
+            {...getDefaultProps({ inModalScreen, selectable })}
             contentWidth={screenWidth - paddingX}
             baseStyle={tw.style(
               `px-3 ${fontSize.medium}`,

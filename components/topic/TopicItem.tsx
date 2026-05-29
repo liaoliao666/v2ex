@@ -119,6 +119,7 @@ function TopicItem({
         </View>
 
         <Text
+          numberOfLines={2}
           style={tw.style(
             `${fontSize.medium} pt-1 font-medium`,
             isReaded

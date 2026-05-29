@@ -54,11 +54,17 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
 
 export function getDefaultProps({
   inModalScreen,
+  selectable = true,
 }: {
   inModalScreen?: boolean
+  selectable?: boolean
 }): Omit<RenderHTMLProps, 'source'> {
   return {
     ...defaultProps,
+    defaultTextProps: {
+      ...defaultProps.defaultTextProps,
+      selectable,
+    },
     renderersProps: {
       a: {
         onPress: async (_, href: string) => {

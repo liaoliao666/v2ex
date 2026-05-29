@@ -1,4 +1,3 @@
-import { load } from 'cheerio'
 import { Image } from 'expo-image'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { compact, findIndex, isString, pick } from 'lodash-es'
@@ -27,6 +26,8 @@ import TextRenderer from './TextRenderer'
 import { getDefaultProps } from './helper'
 
 const systemFonts = ['italic', ...defaultSystemFonts]
+const IMG_TAG_PATTERN = /<img[\s/>]/i
+const IMG_SRC_PATTERN = /<img\b[^>]*?\bsrc=(?:"([^"]+)"|'([^']+)'|([^\s>]+))/gi
 
 export default memo(
   Html,
@@ -34,36 +35,51 @@ export default memo(
     prev.source?.html! === next.source?.html &&
     prev.baseStyle?.color === next.baseStyle?.color &&
     prev.paddingX === next.paddingX &&
-    prev.inModalScreen === next.inModalScreen
+    prev.inModalScreen === next.inModalScreen &&
+    (prev.selectable ?? true) === (next.selectable ?? true)
 )
 
 function Html({
   inModalScreen,
   paddingX = 32,
+  selectable = true,
   ...renderHTMLProps
 }: RenderHTMLProps & {
   inModalScreen?: boolean
   paddingX?: number
+  selectable?: boolean
 }) {
+  const defaultProps = getDefaultProps({ inModalScreen, selectable })
   const mergedProps = {
-    ...getDefaultProps({ inModalScreen }),
+    ...defaultProps,
     ...renderHTMLProps,
+    defaultTextProps: {
+      ...defaultProps.defaultTextProps,
+      ...renderHTMLProps.defaultTextProps,
+    },
   }
 
   const setImageViewer = useSetAtom(imageViewerAtom)
+  const sourceHtml = (renderHTMLProps.source as any)?.html
 
   const imageUrls = useMemo(() => {
-    const html = (renderHTMLProps.source as any)?.html
+    const html = sourceHtml
 
-    if (!isString(html)) return []
-    const $ = load(html)
-    return $('img')
-      .map((i, img) => ({
-        url: $(img).attr('src')!,
-      }))
-      .get()
-      .filter(item => !!item.url)
-  }, [renderHTMLProps.source])
+    if (!isString(html) || !IMG_TAG_PATTERN.test(html)) return []
+
+    IMG_SRC_PATTERN.lastIndex = 0
+
+    const urls: { url: string }[] = []
+    let match = IMG_SRC_PATTERN.exec(html)
+
+    while (match) {
+      const url = match[1] || match[2] || match[3]
+      if (url) urls.push({ url })
+      match = IMG_SRC_PATTERN.exec(html)
+    }
+
+    return urls
+  }, [sourceHtml])
 
   const screenWidth = useScreenWidth()
 
@@ -99,7 +115,7 @@ function Html({
                   )
                     return false
 
-                  let localUrl: string | null
+                  let localUrl: string | null = null
 
                   if (Platform.OS === 'ios' || Platform.OS === 'macos') {
                     localUrl = await Image.getCachePathAsync(resolvedURI)
@@ -126,8 +142,9 @@ function Html({
             })
           },
           paddingX,
+          selectable,
         }),
-        [imageUrls, setImageViewer, paddingX, inModalScreen]
+        [imageUrls, setImageViewer, paddingX, inModalScreen, selectable]
       )}
     >
       <RenderHtml
