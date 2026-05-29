@@ -84,6 +84,8 @@ function ReplyItem({
   const { colors, fontSize } = useAtomValue(uiAtom)
   const replyLevel = showNestedReply ? reply.reply_level || 0 : 0
   const replyConnectors = reply.reply_connectors || []
+  const shouldUseNestedUi = !showLegacyUi && showNestedReply
+  const connectorTurnHeight = shouldUseNestedUi ? 20 : 12
   const dividerColor =
     !themeName.light && colorScheme === 'light'
       ? 'rgb(207,217,222)'
@@ -91,8 +93,7 @@ function ReplyItem({
       ? 'rgb(51,54,57)'
       : colors.divider
   const itemBackgroundColor = hightlight ? colors.base200 : colors.base100
-  const shouldShowRootGroupGap =
-    !showLegacyUi && showNestedReply && isRootGroupEnd
+  const shouldShowRootGroupGap = shouldUseNestedUi && isRootGroupEnd
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
   const hasVisibleReplyChildren =
     reply.reply_has_nested_children ||
@@ -106,7 +107,7 @@ function ReplyItem({
       style={tw.style(
         `px-4`,
         showLegacyUi && `py-3`,
-        shouldShowRootGroupGap && !collapsed && `mb-2`,
+        shouldUseNestedUi && `pt-2`,
         shouldShowCollapsedGap && `pb-2`,
         `bg-[${itemBackgroundColor}]`,
         isBoolean(related) && !related && `opacity-64`
@@ -134,7 +135,7 @@ function ReplyItem({
             <View
               style={tw`border-[${dividerColor}] absolute top-0 left-[${
                 replyLevel * 24 + 4
-              }px] border-0 border-b-[1px] w-6 border-l-[1px] h-3 rounded-bl-[12px]`}
+              }px] border-0 border-b-[1px] w-6 border-l-[1px] h-[${connectorTurnHeight}px] rounded-bl-[12px]`}
             />
           )}
         </>
@@ -148,7 +149,7 @@ function ReplyItem({
             replyLevel > 0 && (
               <View
                 style={tw.style(
-                  `border-l border-solid border-[${dividerColor}] absolute top-0 left-3 h-3`
+                  `border-l border-solid border-[${dividerColor}] absolute top-0 left-3 h-[${connectorTurnHeight}px]`
                 )}
               />
             )}

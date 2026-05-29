@@ -645,6 +645,11 @@ function TopicDetailScreen() {
                   }
 
                   startTransition(() => {
+                    if (v !== 'smart') {
+                      setCollapsedReplyIds(prev =>
+                        prev.size === 0 ? prev : new Set()
+                      )
+                    }
                     setOrderBy(v)
                   })
 
