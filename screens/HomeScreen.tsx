@@ -9,7 +9,6 @@ import {
   forwardRef,
   memo,
   useCallback,
-  useEffect,
   useMemo,
   useRef,
   useState,
@@ -24,12 +23,16 @@ import {
   Text,
   TouchableOpacity,
   View,
-  useWindowDimensions,
 } from 'react-native'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
-import { TabBar, TabView } from 'react-native-tab-view'
+import { TabBar } from 'react-native-tab-view'
 
 import Badge from '@/components/Badge'
+import {
+  CollapsibleTabView,
+  CollapsibleTabViewHandle,
+  CollapsibleTabViewListScrollProps,
+} from '@/components/CollapsibleTabView'
 import Drawer, { useDrawer } from '@/components/Drawer'
 import Empty from '@/components/Empty'
 import IconButton from '@/components/IconButton'
@@ -80,12 +83,6 @@ const HOME_LIST_PERFORMANCE_PROPS = {
 } as const
 const errorResetMap: Record<string, () => void> = {}
 
-type HomeListScrollProps = {
-  onScroll: (event: any) => void
-  scrollEventThrottle: number
-  contentTopPadding: any
-}
-
 function topicKeyExtractor(item: Topic) {
   return String(item.id)
 }
@@ -100,7 +97,7 @@ function TabPlaceholder({
   tab,
 }: {
   children: ReactNode
-  headerHeight: any
+  headerHeight: number
   tab: string
 }) {
   return (
@@ -143,81 +140,11 @@ function HomeScreen() {
   const previousIndex = usePreviousDistinct(index)
   const { colors, fontSize } = useAtomValue(uiAtom)
   const tablet = useTablet()
-  const layout = useWindowDimensions()
   const safeAreaInsets = useSafeAreaInsets()
 
   const navBarHeight = useNavBarHeight()
   const headerHeight = navBarHeight + TAB_BAR_HEIGHT
-  const topBarCollapseY = useRef(new Animated.Value(0)).current
-  const topBarCollapseValueRef = useRef(0)
-  const activeRouteKeyRef = useRef(tabs[index]?.key)
-  const routeScrollOffsetMapRef = useRef<Record<string, number>>({})
-  const topBarTranslateY = topBarCollapseY.interpolate({
-    inputRange: [0, NAV_BAR_HEIGHT],
-    outputRange: [0, -NAV_BAR_HEIGHT],
-    extrapolate: 'clamp',
-  })
-  const listContentTopPadding = useMemo(
-    () => Animated.subtract(headerHeight, topBarCollapseY),
-    [headerHeight, topBarCollapseY]
-  )
-
-  const updateTopBarCollapse = useCallback(
-    (value: number) => {
-      const nextValue = Math.max(0, Math.min(value, NAV_BAR_HEIGHT))
-      if (topBarCollapseValueRef.current === nextValue) return
-
-      topBarCollapseValueRef.current = nextValue
-      topBarCollapseY.setValue(nextValue)
-    },
-    [topBarCollapseY]
-  )
-
-  const syncTopBarToRoute = useCallback(
-    (routeKey: string, keepHidden = false) => {
-      if (keepHidden && topBarCollapseValueRef.current >= NAV_BAR_HEIGHT - 1) {
-        updateTopBarCollapse(NAV_BAR_HEIGHT)
-        return
-      }
-
-      const offset = routeScrollOffsetMapRef.current[routeKey] || 0
-      updateTopBarCollapse(offset < NAV_BAR_HEIGHT ? 0 : NAV_BAR_HEIGHT)
-    },
-    [updateTopBarCollapse]
-  )
-
-  const getHomeListScrollProps = useCallback(
-    (routeKey: string): HomeListScrollProps => ({
-      onScroll: event => {
-        const rawOffset = event.nativeEvent.contentOffset.y
-        const offset = Math.max(0, rawOffset)
-        const previousOffset = routeScrollOffsetMapRef.current[routeKey] ?? 0
-        const delta = rawOffset - previousOffset
-
-        routeScrollOffsetMapRef.current[routeKey] = offset
-
-        if (activeRouteKeyRef.current !== routeKey) return
-
-        if (delta < 0 && rawOffset < NAV_BAR_HEIGHT) {
-          updateTopBarCollapse(0)
-          return
-        }
-
-        updateTopBarCollapse(topBarCollapseValueRef.current + delta)
-      },
-      scrollEventThrottle: 16,
-      contentTopPadding: listContentTopPadding,
-    }),
-    [listContentTopPadding, updateTopBarCollapse]
-  )
-
-  useEffect(() => {
-    const activeTabKey = tabs[index]?.key
-    if (!activeTabKey) return
-
-    activeRouteKeyRef.current = activeTabKey
-    syncTopBarToRoute(activeTabKey, true)
-  }, [index, syncTopBarToRoute, tabs])
+  const collapsibleTabViewRef = useRef<CollapsibleTabViewHandle>(null)
 
   const [refs] = useState<Record<string, RefObject<FlatList>>>({})
 
@@ -225,8 +152,6 @@ function HomeScreen() {
     const activeTab = tabs[i]
     if (!activeTab) return
 
-    activeRouteKeyRef.current = activeTab.key
-    syncTopBarToRoute(activeTab.key, true)
     setIndex(i)
 
     InteractionManager.runAfterInteractions(() => {
@@ -240,14 +165,10 @@ function HomeScreen() {
   ) {
     const activeTabKey = activeTab.key
     const scrollActiveTabToTop = () => {
-      routeScrollOffsetMapRef.current[activeTabKey] = 0
+      collapsibleTabViewRef.current?.resetRouteScroll(activeTabKey)
       refs[activeTabKey]?.current?.scrollToOffset({
         offset: 0,
       })
-
-      if (activeRouteKeyRef.current === activeTabKey) {
-        updateTopBarCollapse(0)
-      }
     }
     const activeQueryKey: any =
       activeTab.type === 'node'
@@ -305,17 +226,31 @@ function HomeScreen() {
       drawerStyle={tablet.isTablet ? { width: tablet.navbarWidth } : undefined}
       swipeEdgeWidth={swipeEdgeWidth}
     >
-      <TabView
+      <CollapsibleTabView
+        ref={collapsibleTabViewRef}
         key={`${colorScheme}_${fontScale}`}
+        collapsibleHeight={NAV_BAR_HEIGHT}
+        headerContainerStyle={tw`absolute top-0 inset-x-0 z-10`}
+        headerHeight={headerHeight}
         navigationState={{ index, routes: tabs }}
         lazy
         lazyPreloadDistance={0}
-        renderLazyPlaceholder={() => (
-          <Animated.View style={{ paddingTop: listContentTopPadding }}>
+        topSafeAreaOverlayStyle={[
+          tw`absolute top-0 inset-x-0 bg-[${colors.base100}]`,
+          { height: safeAreaInsets.top },
+        ]}
+        renderLazyPlaceholder={({ contentTopPadding }) => (
+          <Animated.View style={{ paddingTop: contentTopPadding }}>
             <TopicPlaceholder />
           </Animated.View>
         )}
-        renderScene={({ route }) => {
+        renderTopBar={() => <TopNavBar />}
+        renderScene={({
+          contentTopPadding,
+          headerHeight: sceneHeaderHeight,
+          listScrollProps,
+          route,
+        }) => {
           const routeIndex = tabs.indexOf(route)
           if (
             routeIndex !== previousIndex &&
@@ -324,7 +259,7 @@ function HomeScreen() {
             return (
               <Animated.View
                 key={route.key}
-                style={{ paddingTop: listContentTopPadding }}
+                style={{ paddingTop: contentTopPadding }}
               >
                 <TopicPlaceholder />
               </Animated.View>
@@ -336,14 +271,11 @@ function HomeScreen() {
 
           if (route.type === 'node') {
             return (
-              <TabPlaceholder
-                headerHeight={listContentTopPadding}
-                tab={route.key}
-              >
+              <TabPlaceholder headerHeight={contentTopPadding} tab={route.key}>
                 <NodeTopics
                   ref={ref}
-                  headerHeight={headerHeight}
-                  listScrollProps={getHomeListScrollProps(route.key)}
+                  headerHeight={sceneHeaderHeight}
+                  listScrollProps={listScrollProps}
                   nodeName={route.key}
                 />
               </TabPlaceholder>
@@ -353,13 +285,13 @@ function HomeScreen() {
           if (route.type === RECENT_TAB_KEY) {
             return (
               <TabPlaceholder
-                headerHeight={listContentTopPadding}
+                headerHeight={contentTopPadding}
                 tab={RECENT_TAB_KEY}
               >
                 <RecentTopics
                   ref={ref}
-                  headerHeight={headerHeight}
-                  listScrollProps={getHomeListScrollProps(route.key)}
+                  headerHeight={sceneHeaderHeight}
+                  listScrollProps={listScrollProps}
                 />
               </TabPlaceholder>
             )
@@ -367,116 +299,83 @@ function HomeScreen() {
 
           if (route.type === XNA_KEY) {
             return (
-              <TabPlaceholder
-                headerHeight={listContentTopPadding}
-                tab={XNA_KEY}
-              >
+              <TabPlaceholder headerHeight={contentTopPadding} tab={XNA_KEY}>
                 <Xnas
                   ref={ref}
-                  headerHeight={headerHeight}
-                  listScrollProps={getHomeListScrollProps(route.key)}
+                  headerHeight={sceneHeaderHeight}
+                  listScrollProps={listScrollProps}
                 />
               </TabPlaceholder>
             )
           }
 
           return (
-            <TabPlaceholder
-              headerHeight={listContentTopPadding}
-              tab={route.key}
-            >
+            <TabPlaceholder headerHeight={contentTopPadding} tab={route.key}>
               <TabTopics
                 ref={ref}
-                headerHeight={headerHeight}
-                listScrollProps={getHomeListScrollProps(route.key)}
+                headerHeight={sceneHeaderHeight}
+                listScrollProps={listScrollProps}
                 tab={route.key}
               />
             </TabPlaceholder>
           )
         }}
         onIndexChange={handleInexChange}
-        initialLayout={{ width: layout.width }}
         tabBarPosition="bottom"
-        renderTabBar={props => (
-          <View style={tw`absolute top-0 inset-x-0 z-10`}>
-            <Animated.View
-              style={{
-                transform: [{ translateY: topBarTranslateY }],
-              }}
-            >
-              <TopNavBar />
-            </Animated.View>
+        renderTabBar={(props, { changeIndex }) => (
+          <View
+            style={tw`bg-[${colors.base100}] flex-row items-center border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px] pl-4`}
+          >
+            <TabBar
+              {...props}
+              scrollEnabled
+              style={tw`flex-row flex-1 shadow-none bg-transparent`}
+              tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
+              indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
+              indicatorContainerStyle={tw`border-b-0`}
+              gap={16}
+              renderTabBarItem={tabBarItemProps => {
+                const { route } = tabBarItemProps
+                const active = tabs[index].key === route.key
 
-            <Animated.View
-              style={[
-                tw`bg-[${colors.base100}] flex-row items-center border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px] pl-4`,
-                {
-                  transform: [{ translateY: topBarTranslateY }],
-                },
-              ]}
-            >
-              <TabBar
-                {...props}
-                scrollEnabled
-                style={tw`flex-row flex-1 shadow-none bg-transparent`}
-                tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
-                indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
-                indicatorContainerStyle={tw`border-b-0`}
-                gap={16}
-                renderTabBarItem={tabBarItemProps => {
-                  const { route } = tabBarItemProps
-                  const active = tabs[index].key === route.key
-
-                  return (
-                    <TouchableOpacity
-                      {...tabBarItemProps}
-                      key={route.key}
-                      style={tw`w-auto items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
-                      activeOpacity={active ? 1 : 0.5}
-                      onPress={() => {
-                        handleInexChange(
-                          findIndex(tabs, { key: route.key }),
-                          active
-                        )
-                      }}
+                return (
+                  <TouchableOpacity
+                    {...tabBarItemProps}
+                    key={route.key}
+                    style={tw`w-auto items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
+                    activeOpacity={active ? 1 : 0.5}
+                    onPress={() => {
+                      changeIndex(findIndex(tabs, { key: route.key }), active)
+                    }}
+                  >
+                    <Text
+                      style={tw.style(
+                        fontSize.medium,
+                        active
+                          ? tw`text-[${colors.foreground}] font-medium`
+                          : tw`text-[${colors.default}]`
+                      )}
                     >
-                      <Text
-                        style={tw.style(
-                          fontSize.medium,
-                          active
-                            ? tw`text-[${colors.foreground}] font-medium`
-                            : tw`text-[${colors.default}]`
-                        )}
-                      >
-                        {route.title}
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                }}
-              />
-
-              <TouchableOpacity
-                onPress={() => {
-                  navigation.navigate('SortTabs')
-                }}
-                style={tw`h-full flex-row items-center justify-center z-50`}
-              >
-                <Feather
-                  name="menu"
-                  size={17}
-                  color={colors.default}
-                  style={tw`pr-4 pl-2`}
-                />
-              </TouchableOpacity>
-            </Animated.View>
-
-            <View
-              pointerEvents="none"
-              style={[
-                tw`absolute top-0 inset-x-0 bg-[${colors.base100}]`,
-                { height: safeAreaInsets.top },
-              ]}
+                      {route.title}
+                    </Text>
+                  </TouchableOpacity>
+                )
+              }}
             />
+
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('SortTabs')
+              }}
+              style={tw`h-full flex-row items-center justify-center z-50`}
+            >
+              <Feather
+                name="menu"
+                size={17}
+                color={colors.default}
+                style={tw`pr-4 pl-2`}
+              />
+            </TouchableOpacity>
           </View>
         )}
       />
@@ -492,7 +391,10 @@ function HomeScreen() {
 const RecentTopics = memo(
   forwardRef<
     FlatList,
-    { headerHeight: number; listScrollProps: HomeListScrollProps }
+    {
+      headerHeight: number
+      listScrollProps: CollapsibleTabViewListScrollProps
+    }
   >(({ headerHeight, listScrollProps }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.topic.recent.useSuspenseInfiniteQuery({
@@ -573,7 +475,7 @@ const TabTopics = memo(
     {
       tab: string
       headerHeight: number
-      listScrollProps: HomeListScrollProps
+      listScrollProps: CollapsibleTabViewListScrollProps
     }
   >(({ tab, headerHeight, listScrollProps }, ref) => {
     const { data, refetch, isFetching } = k.topic.tab.useSuspenseQuery({
@@ -635,7 +537,7 @@ const NodeTopics = memo(
     {
       nodeName: string
       headerHeight: number
-      listScrollProps: HomeListScrollProps
+      listScrollProps: CollapsibleTabViewListScrollProps
     }
   >(({ nodeName, headerHeight, listScrollProps }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
@@ -715,7 +617,10 @@ const NodeTopics = memo(
 const Xnas = memo(
   forwardRef<
     FlatList,
-    { headerHeight: number; listScrollProps: HomeListScrollProps }
+    {
+      headerHeight: number
+      listScrollProps: CollapsibleTabViewListScrollProps
+    }
   >(({ headerHeight, listScrollProps }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.topic.xna.useSuspenseInfiniteQuery({

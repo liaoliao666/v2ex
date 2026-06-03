@@ -1,12 +1,11 @@
 import { useAtomValue } from 'jotai'
-import { compact, isEqual } from 'lodash-es'
+import { isEqual } from 'lodash-es'
 import { memo } from 'react'
 import { Text, View } from 'react-native'
 
 import { uiAtom } from '@/jotai/uiAtom'
-import { getCurrentRouteName, navigation } from '@/navigation/navigationRef'
+import { navigation } from '@/navigation/navigationRef'
 import { Xna } from '@/servicies'
-import { isTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import useUpdate from '@/utils/useUpdate'
 
