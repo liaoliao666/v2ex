@@ -91,6 +91,8 @@ function ReplyItem({
       : colors.divider
   const itemBackgroundColor = hightlight ? colors.base200 : colors.base100
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
+  const shouldShowMergedContinuation =
+    !showLegacyUi && showNestedReply && reply.is_merged && !reply.is_last_reply
   const hasVisibleReplyChildren =
     reply.reply_has_nested_children ||
     reply.reply_has_merged_children ||
@@ -112,8 +114,8 @@ function ReplyItem({
     >
       {!showNestedReply || showLegacyUi ? null : (
         <>
-          {Array.from({ length: replyLevel }, (_, i) => {
-            if (!replyConnectors[i]) return null
+          {replyConnectors.map((isActive, i) => {
+            if (!isActive) return null
 
             return (
               <View
@@ -150,7 +152,8 @@ function ReplyItem({
               />
             )}
 
-          {((!collapsed && hasVisibleReplyChildren) ||
+          {((!collapsed &&
+            (hasVisibleReplyChildren || shouldShowMergedContinuation)) ||
             (!showLegacyUi && !showNestedReply && !reply.is_last_reply)) && (
             <View
               style={tw.style(

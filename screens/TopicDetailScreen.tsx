@@ -343,18 +343,20 @@ function TopicDetailScreen() {
       ) {
         if (replyIndex === 0) return parent
 
-        const previousReply = replyMap.get(ascList[replyIndex - 1].id)
-        if (!previousReply) return parent
+        for (let i = replyIndex - 1; i >= 0; i--) {
+          const previousReply = replyMap.get(ascList[i].id)
+          if (!previousReply) continue
 
-        if (previousReply.member.username !== reply.member.username) {
-          return parent
+          if (previousReply.member.username !== reply.member.username) {
+            continue
+          }
+
+          if (hasReplyAncestor(previousReply.id, parent.id)) {
+            return previousReply
+          }
         }
 
-        if (!hasReplyAncestor(previousReply.id, parent.id)) {
-          return parent
-        }
-
-        return previousReply
+        return parent
       }
 
       for (let i = 0; i < ascList.length; i++) {
@@ -380,12 +382,25 @@ function TopicDetailScreen() {
           result.push(replyMap.get(reply.id)!)
         }
       })
+      const replyOrderById = new Map(
+        ascList.map((reply, index) => [reply.id, index])
+      )
+
+      function getTwoPersonParticipants(reply: Reply) {
+        if (reply.children.length !== 1) return
+
+        const child = reply.children[0]
+        if (reply.member.username === child.member.username) return
+
+        return new Set([reply.member.username, child.member.username])
+      }
 
       function shouldMergeChild(
         parent: Reply,
         child: Reply,
         level: number,
-        parentHasSiblings: boolean
+        parentHasSiblings: boolean,
+        sameLevelParticipants: Set<string> | undefined
       ) {
         if (
           parent.member.username === child.member.username &&
@@ -396,6 +411,14 @@ function TopicDetailScreen() {
           )
         ) {
           return false
+        }
+
+        if (
+          sameLevelParticipants &&
+          level > 0 &&
+          sameLevelParticipants.has(child.member.username)
+        ) {
+          return true
         }
 
         if (parent.children.length !== 1) {
@@ -440,16 +463,26 @@ function TopicDetailScreen() {
         ancestorIds: number[],
         is_merged: boolean,
         hasNextSibling: boolean,
-        hasSibling: boolean
+        hasSibling: boolean,
+        sameLevelParticipants: Set<string> | undefined
       ): Reply[] {
+        const nextSameLevelParticipants =
+          sameLevelParticipants ||
+          (level === 0 ? getTwoPersonParticipants(reply) : undefined)
         const childMergeStates = reply.children.map(child =>
-          shouldMergeChild(reply, child, level, hasSibling)
+          shouldMergeChild(
+            reply,
+            child,
+            level,
+            hasSibling,
+            sameLevelParticipants
+          )
         )
         const hasNestedChildren = childMergeStates.some(isMerged => !isMerged)
         const hasMergedChildren = childMergeStates.some(Boolean)
         const replyConnectors = connectorStack.slice(0, level)
         if (level > 0) {
-          replyConnectors[level - 1] = hasNextSibling
+          replyConnectors[level - 1] = !is_merged && hasNextSibling
         }
 
         const updatedReply = {
@@ -468,16 +501,12 @@ function TopicDetailScreen() {
         reply.children.forEach((child, childIndex) => {
           const childIsMerged = childMergeStates[childIndex]
           const childLevel = childIsMerged ? level : level + 1
-          let hasNextNestedSibling = false
-
-          if (!childIsMerged) {
-            for (let i = childIndex + 1; i < childMergeStates.length; i++) {
-              if (!childMergeStates[i]) {
-                hasNextNestedSibling = true
-                break
-              }
-            }
-          }
+          const childHasNextSibling = childIndex < reply.children.length - 1
+          const childSameLevelParticipants = nextSameLevelParticipants?.has(
+            child.member.username
+          )
+            ? nextSameLevelParticipants
+            : undefined
 
           replies.push(
             ...flattenReply(
@@ -486,8 +515,9 @@ function TopicDetailScreen() {
               replyConnectors,
               [...ancestorIds, reply.id],
               childIsMerged,
-              hasNextNestedSibling,
-              reply.children.length > 1
+              childHasNextSibling,
+              reply.children.length > 1,
+              childSameLevelParticipants
             )
           )
         })
@@ -495,19 +525,153 @@ function TopicDetailScreen() {
         return replies
       }
 
+      function hasLaterReplyAtSameLevel(replies: Reply[], index: number) {
+        const reply = replies[index]
+        const level = reply.reply_level || 0
+        const ancestorId =
+          level > 0 ? reply.reply_ancestor_ids?.[level - 1] : undefined
+
+        for (let i = index + 1; i < replies.length; i++) {
+          const nextReply = replies[i]
+          if ((nextReply.reply_level || 0) !== level) continue
+
+          if (level === 0) return true
+
+          if (nextReply.reply_ancestor_ids?.[level - 1] === ancestorId) {
+            return true
+          }
+        }
+
+        return false
+      }
+
+      function normalizeFlattenedReplies(replies: Reply[]) {
+        if (replies.length <= 2) return replies
+
+        const [rootReply, ...childReplies] = replies
+        childReplies.sort(
+          (a, b) =>
+            (replyOrderById.get(a.id) ?? 0) - (replyOrderById.get(b.id) ?? 0)
+        )
+
+        const sortedReplies = [rootReply, ...childReplies]
+        const replyIndexById = new Map(
+          sortedReplies.map((reply, index) => [reply.id, index])
+        )
+        const siblingGroups = new Map<string, number[]>()
+        sortedReplies.forEach((reply, index) => {
+          if (reply.is_merged) return
+
+          const level = reply.reply_level || 0
+          if (level === 0) return
+
+          const parentId = reply.reply_ancestor_ids?.[level - 1]
+          if (parentId === undefined) return
+
+          const key = `${level}:${parentId}`
+          const siblingGroup = siblingGroups.get(key)
+          if (siblingGroup) {
+            siblingGroup.push(index)
+          } else {
+            siblingGroups.set(key, [index])
+          }
+        })
+        const siblingConnectorRanges = Array.from(siblingGroups.values())
+          .filter(indexes => indexes.length > 1)
+          .map(indexes => {
+            const firstIndex = indexes[0]
+            const lastIndex = indexes[indexes.length - 1]
+            const level = sortedReplies[firstIndex].reply_level || 0
+
+            return {
+              connectorLevel: level - 1,
+              startIndex: firstIndex,
+              endIndex: lastIndex,
+            }
+          })
+        const parentConnectorRanges = sortedReplies.flatMap(
+          (reply, childIndex) => {
+            const parentId = last(reply.reply_ancestor_ids)
+            if (parentId === undefined) return []
+
+            const parentIndex = replyIndexById.get(parentId)
+            if (parentIndex === undefined || parentIndex + 1 >= childIndex) {
+              return []
+            }
+
+            for (let i = parentIndex + 1; i < childIndex; i++) {
+              const previousReply = sortedReplies[i]
+              if (
+                last(previousReply.reply_ancestor_ids) === parentId &&
+                previousReply.reply_level === reply.reply_level
+              ) {
+                return []
+              }
+            }
+
+            const level = reply.reply_level || 0
+            const connectorLevel = reply.is_merged ? level : level - 1
+            if (connectorLevel < 0) return []
+
+            return [
+              {
+                connectorLevel,
+                startIndex: parentIndex + 1,
+                endIndex: childIndex,
+              },
+            ]
+          }
+        )
+        const connectorRanges = [
+          ...siblingConnectorRanges,
+          ...parentConnectorRanges,
+        ]
+
+        return sortedReplies.map((reply, index) => {
+          const level = reply.reply_level || 0
+          const activeConnectorLevels = new Set(
+            connectorRanges
+              .filter(
+                range => range.startIndex <= index && index < range.endIndex
+              )
+              .map(range => range.connectorLevel)
+          )
+          const connectorLength = Math.max(
+            level,
+            ...Array.from(
+              activeConnectorLevels,
+              connectorLevel => connectorLevel + 1
+            )
+          )
+          const replyConnectors = Array.from(
+            { length: connectorLength },
+            (_, i) => activeConnectorLevels.has(i)
+          )
+
+          return {
+            ...reply,
+            is_last_reply: !hasLaterReplyAtSameLevel(sortedReplies, index),
+            reply_connectors: replyConnectors,
+          }
+        })
+      }
+
       function flattenReplies(replies: Reply[], level = 0): Reply[] {
         const flattenedReplies: Reply[] = []
 
         replies.forEach((reply, replyIndex) => {
           flattenedReplies.push(
-            ...flattenReply(
-              reply,
-              level,
-              [],
-              [],
-              false,
-              replyIndex < replies.length - 1,
-              replies.length > 1
+            ...normalizeFlattenedReplies(
+              flattenReply(
+                reply,
+                level,
+                [],
+                [],
+                false,
+                replyIndex < replies.length - 1,
+                replies.length > 1,
+                undefined
+              )
             )
           )
         })
