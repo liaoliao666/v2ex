@@ -270,6 +270,17 @@ function TopicDetailScreen() {
       const latestReplyIndexByName = new Map<string, number>()
       const replyIndexByNo = new Map<number, number>()
 
+      function hasReplyAncestor(replyId: number, ancestorId: number) {
+        let parentId = parentMap.get(replyId)
+
+        while (parentId !== undefined) {
+          if (parentId === ancestorId) return true
+          parentId = parentMap.get(parentId)
+        }
+
+        return false
+      }
+
       function getParentReply(reply: Reply, replyIndex: number) {
         let latestExternalCandidate: { index: number; reply: Reply } | undefined
         let latestCandidate: { index: number; reply: Reply } | undefined
@@ -325,16 +336,40 @@ function TopicDetailScreen() {
         return parent.id === reply.id ? undefined : parent
       }
 
+      function getContinuationParent(
+        reply: Reply,
+        replyIndex: number,
+        parent: Reply
+      ) {
+        if (replyIndex === 0) return parent
+
+        const previousReply = replyMap.get(ascList[replyIndex - 1].id)
+        if (!previousReply) return parent
+
+        if (previousReply.member.username !== reply.member.username) {
+          return parent
+        }
+
+        if (!hasReplyAncestor(previousReply.id, parent.id)) {
+          return parent
+        }
+
+        return previousReply
+      }
+
       for (let i = 0; i < ascList.length; i++) {
         const reply = ascList[i]
         const child = replyMap.get(reply.id)!
         const parent = getParentReply(reply, i)
+        const resolvedParent = parent
+          ? getContinuationParent(reply, i, parent)
+          : undefined
 
-        if (parent && !parentMap.has(child.id)) {
-          child.reply_level = (parent.reply_level || 0) + 1
-          child.is_first_reply = parent.children.length === 0
-          parent.children.push(child)
-          parentMap.set(child.id, parent.id)
+        if (resolvedParent && !parentMap.has(child.id)) {
+          child.reply_level = (resolvedParent.reply_level || 0) + 1
+          child.is_first_reply = resolvedParent.children.length === 0
+          resolvedParent.children.push(child)
+          parentMap.set(child.id, resolvedParent.id)
         }
         latestReplyIndexByName.set(reply.member.username, i)
         replyIndexByNo.set(reply.no, i)
