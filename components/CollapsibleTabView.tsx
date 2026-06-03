@@ -128,6 +128,7 @@ function CollapsibleTabViewInner<T extends Route>(
     navigationState.routes[navigationState.index]?.key
   )
   const bottomBounceRouteMapRef = useRef<Record<string, boolean>>({})
+  const scrollToTopRouteMapRef = useRef<Record<string, boolean>>({})
   const routeDistanceToBottomMapRef = useRef<Record<string, number>>({})
   const routeScrollOffsetMapRef = useRef<Record<string, number>>({})
   const [isTopBarCollapsed, setIsTopBarCollapsed] = useState(false)
@@ -231,6 +232,7 @@ function CollapsibleTabViewInner<T extends Route>(
   const resetRouteScroll = useCallback(
     (routeKey: string) => {
       bottomBounceRouteMapRef.current[routeKey] = false
+      scrollToTopRouteMapRef.current[routeKey] = true
       routeDistanceToBottomMapRef.current[routeKey] = Number.POSITIVE_INFINITY
       routeScrollOffsetMapRef.current[routeKey] = 0
 
@@ -264,6 +266,20 @@ function CollapsibleTabViewInner<T extends Route>(
 
         routeDistanceToBottomMapRef.current[routeKey] = distanceToBottom
 
+        if (scrollToTopRouteMapRef.current[routeKey]) {
+          routeScrollOffsetMapRef.current[routeKey] = offset
+
+          if (offset <= SCROLL_DELTA_THRESHOLD) {
+            scrollToTopRouteMapRef.current[routeKey] = false
+            lastScrollDirectionRef.current = 0
+          }
+
+          if (activeRouteKeyRef.current === routeKey) {
+            updateTopBarCollapse(0)
+          }
+          return
+        }
+
         if (isBottomBounce || bottomBounceRouteMapRef.current[routeKey]) {
           bottomBounceRouteMapRef.current[routeKey] = true
           routeDistanceToBottomMapRef.current[routeKey] = 0
@@ -291,12 +307,19 @@ function CollapsibleTabViewInner<T extends Route>(
       },
       onScrollBeginDrag: () => {
         bottomBounceRouteMapRef.current[routeKey] = false
+        scrollToTopRouteMapRef.current[routeKey] = false
       },
       onScrollEndDrag: () => {
+        if (scrollToTopRouteMapRef.current[routeKey]) return
         if (bottomBounceRouteMapRef.current[routeKey]) return
         snapTopBarCollapse(routeKey)
       },
       onMomentumScrollEnd: () => {
+        if (scrollToTopRouteMapRef.current[routeKey]) {
+          scrollToTopRouteMapRef.current[routeKey] = false
+          lastScrollDirectionRef.current = 0
+          return
+        }
         if (bottomBounceRouteMapRef.current[routeKey]) {
           bottomBounceRouteMapRef.current[routeKey] = false
           return
@@ -312,6 +335,7 @@ function CollapsibleTabViewInner<T extends Route>(
       contentTopPadding,
       lockDistance,
       snapTopBarCollapse,
+      updateTopBarCollapse,
     ]
   )
 
