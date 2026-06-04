@@ -167,6 +167,8 @@ const TopicReplyListItem = memo(
     onReply,
   }: TopicReplyListItemProps) {
     const { reply, collapsed } = item
+    const canToggleReplyTree =
+      reply.reply_has_nested_children || reply.reply_has_merged_children
     const handleToggleCollapse = useCallback(() => {
       onToggleCollapse(reply.id)
     }, [onToggleCollapse, reply.id])
@@ -193,17 +195,17 @@ const TopicReplyListItem = memo(
           showNestedReply ? onToggleCollapsePressOut : undefined
         }
         onToggleCollapse={
-          showNestedReply && reply.reply_has_nested_children
+          showNestedReply && canToggleReplyTree
             ? handleToggleCollapse
             : undefined
         }
         onToggleCollapsePressIn={
-          showNestedReply && reply.reply_has_nested_children
+          showNestedReply && canToggleReplyTree
             ? handleToggleCollapsePressIn
             : undefined
         }
         onToggleCollapsePressOut={
-          showNestedReply && reply.reply_has_nested_children
+          showNestedReply && canToggleReplyTree
             ? onToggleCollapsePressOut
             : undefined
         }
@@ -590,28 +592,53 @@ function TopicDetailScreen() {
         parentHasSiblings: boolean,
         sameLevelParticipants: Set<string> | undefined
       ) {
-        if (
-          parent.member.username === child.member.username &&
-          hasExplicitReplyReference(
-            child.content,
+        function isSameAuthorContinuation(reply: Reply) {
+          if (parent.member.username !== reply.member.username) {
+            return false
+          }
+
+          if (!parentHasSiblings) {
+            return true
+          }
+
+          return !hasExplicitReplyReference(
+            reply.content,
             parent.member.username,
             parent.no
           )
+        }
+
+        const isChildSameAuthorContinuation = isSameAuthorContinuation(child)
+        const visibleChildrenCount = parent.children.filter(
+          reply => !isSameAuthorContinuation(reply)
+        ).length
+
+        if (
+          parent.member.username === child.member.username &&
+          !isChildSameAuthorContinuation
         ) {
           return false
         }
 
-        if (parent.children.length !== 1) {
-          return false
+        if (
+          isChildSameAuthorContinuation &&
+          (level === 0 || !parentHasSiblings)
+        ) {
+          return true
         }
 
         if (
           sameLevelParticipants &&
           level > 0 &&
           !parentHasSiblings &&
+          visibleChildrenCount <= 1 &&
           sameLevelParticipants.has(child.member.username)
         ) {
           return true
+        }
+
+        if (visibleChildrenCount > 1) {
+          return false
         }
 
         if (parentHasSiblings && level > 0) {
@@ -620,10 +647,6 @@ function TopicDetailScreen() {
 
         if (level === 1) {
           return false
-        }
-
-        if (parent.member.username === child.member.username) {
-          return true
         }
 
         if (level === 0) {
@@ -719,11 +742,21 @@ function TopicDetailScreen() {
         const level = reply.reply_level || 0
 
         if (reply.is_merged) {
+          const parentId = last(reply.reply_ancestor_ids)
+
           for (let i = index + 1; i < replies.length; i++) {
             const nextReply = replies[i]
             if (!nextReply.is_merged) continue
+            if ((nextReply.reply_level || 0) !== level) continue
 
-            return last(nextReply.reply_ancestor_ids) === reply.id
+            const nextParentId = last(nextReply.reply_ancestor_ids)
+
+            if (
+              nextParentId === reply.id ||
+              (parentId !== undefined && nextParentId === parentId)
+            ) {
+              return true
+            }
           }
 
           return false
@@ -944,7 +977,10 @@ function TopicDetailScreen() {
     () =>
       new Set(
         flatedData
-          .filter(reply => reply.reply_has_nested_children)
+          .filter(
+            reply =>
+              reply.reply_has_nested_children || reply.reply_has_merged_children
+          )
           .map(reply => reply.id)
       ),
     [flatedData]

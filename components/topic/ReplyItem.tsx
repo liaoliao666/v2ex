@@ -125,29 +125,64 @@ function ReplyItem({
       : !themeName.dark && colorScheme === 'dark'
       ? 'rgb(51,54,57)'
       : colors.divider
+  function isLineInHighlightedCollapseTree(replyId?: number) {
+    if (replyId === undefined || highlightedCollapseReplyId === undefined) {
+      return false
+    }
+
+    if (replyId === highlightedCollapseReplyId) return true
+
+    const ancestorIds = reply.reply_ancestor_ids || []
+    const highlightedIndex = ancestorIds.indexOf(highlightedCollapseReplyId)
+    const replyIndex = ancestorIds.indexOf(replyId)
+
+    return highlightedIndex !== -1 && replyIndex > highlightedIndex
+  }
+
   function getLineColor(replyId?: number) {
-    return replyId !== undefined && highlightedCollapseReplyId === replyId
+    return isLineInHighlightedCollapseTree(replyId)
       ? colors.foreground
       : dividerColor
   }
 
-  function getCollapsibleAncestorId(level: number) {
-    const ancestorId = reply.reply_ancestor_ids?.[level]
-    return ancestorId !== undefined && collapsibleReplyIds?.has(ancestorId)
-      ? ancestorId
+  function getCollapsibleReplyId(replyId: number | undefined) {
+    return replyId !== undefined && collapsibleReplyIds?.has(replyId)
+      ? replyId
       : undefined
   }
 
+  function getCollapsibleAncestorId(level: number) {
+    return getCollapsibleReplyId(reply.reply_ancestor_ids?.[level])
+  }
+
+  const canToggleReplyTree =
+    reply.reply_has_nested_children || reply.reply_has_merged_children
   const parentLineReplyId =
     replyLevel > 0 ? getCollapsibleAncestorId(replyLevel - 1) : undefined
+  const mergedParentReplyId = reply.is_merged
+    ? reply.reply_ancestor_ids?.[reply.reply_ancestor_ids.length - 1]
+    : undefined
+  const mergedParentLineReplyId = getCollapsibleReplyId(mergedParentReplyId)
+  const shouldShowMergedContinuation =
+    !showLegacyUi && showNestedReply && reply.is_merged && !reply.is_last_reply
+  const ownContinuationLineReplyId = canToggleReplyTree
+    ? reply.id
+    : shouldShowMergedContinuation
+    ? mergedParentLineReplyId
+    : undefined
+  const isHighlightedCollapseSubtree =
+    highlightedCollapseReplyId !== undefined &&
+    (reply.id === highlightedCollapseReplyId ||
+      !!reply.reply_ancestor_ids?.includes(highlightedCollapseReplyId))
+  const subtreeLineColor = isHighlightedCollapseSubtree
+    ? colors.foreground
+    : dividerColor
   const ownLineColor =
-    highlightedCollapseReplyId === reply.id && reply.reply_has_nested_children
-      ? colors.default
+    ownContinuationLineReplyId !== undefined
+      ? getLineColor(ownContinuationLineReplyId)
       : dividerColor
   const itemBackgroundColor = hightlight ? colors.base200 : colors.base100
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
-  const shouldShowMergedContinuation =
-    !showLegacyUi && showNestedReply && reply.is_merged && !reply.is_last_reply
   const replyHtml =
     isParsed && reply.parsed_content ? reply.parsed_content : reply.content
   const replyHtmlSource = useMemo(() => ({ html: replyHtml }), [replyHtml])
@@ -257,15 +292,44 @@ function ReplyItem({
           {!showLegacyUi &&
             showNestedReply &&
             reply.is_merged &&
-            replyLevel > 0 && (
+            replyLevel > 0 &&
+            (mergedParentLineReplyId !== undefined &&
+            onToggleLineCollapse &&
+            onToggleLineCollapsePressIn ? (
+              <Pressable
+                onPress={() => onToggleLineCollapse(mergedParentLineReplyId)}
+                onPressIn={() =>
+                  onToggleLineCollapsePressIn(mergedParentLineReplyId)
+                }
+                onPressOut={onToggleLineCollapsePressOut}
+                style={tw.style(
+                  `absolute top-0 left-0 w-6 z-10`,
+                  `h-[${connectorTurnHeight}px]`
+                )}
+              >
+                {({ pressed }) => (
+                  <View
+                    style={tw.style(
+                      `border-l border-solid border-[${
+                        pressed
+                          ? colors.foreground
+                          : getLineColor(mergedParentLineReplyId)
+                      }] absolute top-0 left-3`,
+                      `h-[${connectorTurnHeight}px]`
+                    )}
+                  />
+                )}
+              </Pressable>
+            ) : (
               <View
                 style={tw.style(
                   `border-l border-solid border-[${getLineColor(
-                    parentLineReplyId
-                  )}] absolute top-0 left-3 h-[${connectorTurnHeight}px]`
+                    mergedParentLineReplyId
+                  )}] absolute top-0 left-3`,
+                  `h-[${connectorTurnHeight}px]`
                 )}
               />
-            )}
+            ))}
 
           {((!collapsed &&
             (hasVisibleReplyChildren || shouldShowMergedContinuation)) ||
@@ -273,13 +337,18 @@ function ReplyItem({
             <>
               {!showLegacyUi &&
               showNestedReply &&
-              reply.reply_has_nested_children &&
-              onToggleCollapse &&
+              ownContinuationLineReplyId !== undefined &&
+              onToggleLineCollapse &&
+              onToggleLineCollapsePressIn &&
               !collapsed ? (
                 <Pressable
-                  onPress={onToggleCollapse}
-                  onPressIn={onToggleCollapsePressIn}
-                  onPressOut={onToggleCollapsePressOut}
+                  onPress={() =>
+                    onToggleLineCollapse(ownContinuationLineReplyId)
+                  }
+                  onPressIn={() =>
+                    onToggleLineCollapsePressIn(ownContinuationLineReplyId)
+                  }
+                  onPressOut={onToggleLineCollapsePressOut}
                   style={tw.style(
                     `absolute bottom-0 left-0 right-0 z-10`,
                     `top-6`
@@ -288,7 +357,7 @@ function ReplyItem({
                   {({ pressed }) => (
                     <View
                       style={tw`border-l border-solid border-[${
-                        pressed ? colors.default : ownLineColor
+                        pressed ? colors.foreground : ownLineColor
                       }] absolute top-0 bottom-0 left-3`}
                     />
                   )}
@@ -296,7 +365,7 @@ function ReplyItem({
               ) : (
                 <View
                   style={tw.style(
-                    `border-l border-solid border-[${dividerColor}] absolute bottom-0 left-3`,
+                    `border-l border-solid border-[${subtreeLineColor}] absolute bottom-0 left-3`,
                     !showLegacyUi && showNestedReply ? `top-6` : `top-0`
                   )}
                 />
