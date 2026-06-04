@@ -142,7 +142,7 @@ function ReplyItem({
     replyLevel > 0 ? getCollapsibleAncestorId(replyLevel - 1) : undefined
   const ownLineColor =
     highlightedCollapseReplyId === reply.id && reply.reply_has_nested_children
-      ? colors.foreground
+      ? colors.default
       : dividerColor
   const itemBackgroundColor = hightlight ? colors.base200 : colors.base100
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
@@ -288,7 +288,7 @@ function ReplyItem({
                   {({ pressed }) => (
                     <View
                       style={tw`border-l border-solid border-[${
-                        pressed ? colors.foreground : ownLineColor
+                        pressed ? colors.default : ownLineColor
                       }] absolute top-0 bottom-0 left-3`}
                     />
                   )}
@@ -319,11 +319,7 @@ function ReplyItem({
                   `bottom-[11px]`
                 )}
               >
-                <Feather
-                  name="minus-circle"
-                  size={16}
-                  color={colors.foreground}
-                />
+                <Feather name="minus-circle" size={16} color={colors.default} />
               </Pressable>
             )}
 
@@ -334,14 +330,11 @@ function ReplyItem({
                 hitSlop={8}
                 style={tw`w-6 h-6 items-center justify-center bg-[${itemBackgroundColor}] rounded-full z-10`}
               >
-                <Feather
-                  name="plus-circle"
-                  size={16}
-                  color={colors.foreground}
-                />
+                <Feather name="plus-circle" size={16} color={colors.default} />
               </Pressable>
 
               <Pressable
+                style={tw`z-20`}
                 onPress={() => {
                   if (inModalScreen) {
                     navigation.goBack()
@@ -360,6 +353,7 @@ function ReplyItem({
             </View>
           ) : (
             <Pressable
+              style={tw`z-20`}
               onPress={() => {
                 if (inModalScreen) {
                   navigation.goBack()
