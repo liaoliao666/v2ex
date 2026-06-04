@@ -281,6 +281,103 @@ function TopicDetailScreen() {
         return false
       }
 
+      function replyMentionsUsername(reply: Reply, username: string) {
+        return getReplyReferences(reply.content).some(
+          reference => reference.username === username
+        )
+      }
+
+      function branchMentionsUsername(
+        replyId: number,
+        ancestorId: number,
+        username: string
+      ) {
+        let currentId: number | undefined = replyId
+
+        while (currentId !== undefined && currentId !== ancestorId) {
+          const currentReply = replyMap.get(currentId)
+          if (!currentReply) return false
+
+          if (
+            currentReply.member.username === username ||
+            replyMentionsUsername(currentReply, username)
+          ) {
+            return true
+          }
+
+          currentId = parentMap.get(currentId)
+        }
+
+        return false
+      }
+
+      function getFirstReferenceReplyInBranch(
+        replyId: number,
+        referenceUsername: string
+      ) {
+        let currentId: number | undefined = replyId
+        let firstReferenceReply: Reply | undefined
+
+        while (currentId !== undefined) {
+          const currentReply = replyMap.get(currentId)
+          if (!currentReply) return firstReferenceReply
+
+          if (replyMentionsUsername(currentReply, referenceUsername)) {
+            firstReferenceReply = currentReply
+          }
+
+          currentId = parentMap.get(currentId)
+        }
+
+        return firstReferenceReply
+      }
+
+      function getSameReferenceParent(
+        reply: Reply,
+        referenceUsername: string,
+        candidate: { index: number; reply: Reply }
+      ) {
+        const referenceReply = getFirstReferenceReplyInBranch(
+          candidate.reply.id,
+          referenceUsername
+        )
+        if (!referenceReply) return candidate.reply
+
+        if (referenceReply.member.username === reply.member.username) {
+          return candidate.reply
+        }
+
+        const referenceParentId = parentMap.get(referenceReply.id)
+        if (referenceParentId === undefined) return candidate.reply
+
+        const referenceParent = replyMap.get(referenceParentId)
+        if (
+          !referenceParent ||
+          referenceParent.member.username !== referenceUsername
+        ) {
+          return candidate.reply
+        }
+
+        if (
+          candidate.reply.id !== referenceParent.id &&
+          !hasReplyAncestor(candidate.reply.id, referenceParent.id)
+        ) {
+          return candidate.reply
+        }
+
+        if (
+          branchMentionsUsername(
+            candidate.reply.id,
+            referenceParent.id,
+            reply.member.username
+          )
+        ) {
+          return candidate.reply
+        }
+
+        return referenceParent
+      }
+
       function getParentReply(reply: Reply, replyIndex: number) {
         let latestExternalCandidate: { index: number; reply: Reply } | undefined
         let latestCandidate: { index: number; reply: Reply } | undefined
@@ -308,8 +405,14 @@ function TopicDetailScreen() {
           }
 
           if (reference.replyNo !== undefined) {
-            return candidate.reply
+            return { reply: candidate.reply, isExplicit: true }
           }
+
+          candidate.reply = getSameReferenceParent(
+            reply,
+            reference.username,
+            candidate
+          )
 
           if (!latestCandidate || candidate.index > latestCandidate.index) {
             latestCandidate = candidate
@@ -333,7 +436,9 @@ function TopicDetailScreen() {
           parent = replyMap.get(parentId)!
         }
 
-        return parent.id === reply.id ? undefined : parent
+        return parent.id === reply.id
+          ? undefined
+          : { reply: parent, isExplicit: false }
       }
 
       function getContinuationParent(
@@ -364,7 +469,9 @@ function TopicDetailScreen() {
         const child = replyMap.get(reply.id)!
         const parent = getParentReply(reply, i)
         const resolvedParent = parent
-          ? getContinuationParent(reply, i, parent)
+          ? parent.isExplicit
+            ? parent.reply
+            : getContinuationParent(reply, i, parent.reply)
           : undefined
 
         if (resolvedParent && !parentMap.has(child.id)) {
@@ -382,10 +489,6 @@ function TopicDetailScreen() {
           result.push(replyMap.get(reply.id)!)
         }
       })
-      const replyOrderById = new Map(
-        ascList.map((reply, index) => [reply.id, index])
-      )
-
       function getTwoPersonParticipants(reply: Reply) {
         if (reply.children.length !== 1) return
 
@@ -413,16 +516,17 @@ function TopicDetailScreen() {
           return false
         }
 
+        if (parent.children.length !== 1) {
+          return false
+        }
+
         if (
           sameLevelParticipants &&
           level > 0 &&
+          !parentHasSiblings &&
           sameLevelParticipants.has(child.member.username)
         ) {
           return true
-        }
-
-        if (parent.children.length !== 1) {
-          return false
         }
 
         if (parentHasSiblings && level > 0) {
@@ -528,6 +632,18 @@ function TopicDetailScreen() {
       function hasLaterReplyAtSameLevel(replies: Reply[], index: number) {
         const reply = replies[index]
         const level = reply.reply_level || 0
+
+        if (reply.is_merged) {
+          for (let i = index + 1; i < replies.length; i++) {
+            const nextReply = replies[i]
+            if (!nextReply.is_merged) continue
+
+            return last(nextReply.reply_ancestor_ids) === reply.id
+          }
+
+          return false
+        }
+
         const ancestorId =
           level > 0 ? reply.reply_ancestor_ids?.[level - 1] : undefined
 
@@ -548,47 +664,10 @@ function TopicDetailScreen() {
       function normalizeFlattenedReplies(replies: Reply[]) {
         if (replies.length <= 2) return replies
 
-        const [rootReply, ...childReplies] = replies
-        childReplies.sort(
-          (a, b) =>
-            (replyOrderById.get(a.id) ?? 0) - (replyOrderById.get(b.id) ?? 0)
-        )
-
-        const sortedReplies = [rootReply, ...childReplies]
+        const sortedReplies = replies
         const replyIndexById = new Map(
           sortedReplies.map((reply, index) => [reply.id, index])
         )
-        const siblingGroups = new Map<string, number[]>()
-        sortedReplies.forEach((reply, index) => {
-          if (reply.is_merged) return
-
-          const level = reply.reply_level || 0
-          if (level === 0) return
-
-          const parentId = reply.reply_ancestor_ids?.[level - 1]
-          if (parentId === undefined) return
-
-          const key = `${level}:${parentId}`
-          const siblingGroup = siblingGroups.get(key)
-          if (siblingGroup) {
-            siblingGroup.push(index)
-          } else {
-            siblingGroups.set(key, [index])
-          }
-        })
-        const siblingConnectorRanges = Array.from(siblingGroups.values())
-          .filter(indexes => indexes.length > 1)
-          .map(indexes => {
-            const firstIndex = indexes[0]
-            const lastIndex = indexes[indexes.length - 1]
-            const level = sortedReplies[firstIndex].reply_level || 0
-
-            return {
-              connectorLevel: level - 1,
-              startIndex: firstIndex,
-              endIndex: lastIndex,
-            }
-          })
         const parentConnectorRanges = sortedReplies.flatMap(
           (reply, childIndex) => {
             const parentId = last(reply.reply_ancestor_ids)
@@ -622,20 +701,20 @@ function TopicDetailScreen() {
             ]
           }
         )
-        const connectorRanges = [
-          ...siblingConnectorRanges,
-          ...parentConnectorRanges,
-        ]
 
         return sortedReplies.map((reply, index) => {
           const level = reply.reply_level || 0
-          const activeConnectorLevels = new Set(
-            connectorRanges
-              .filter(
-                range => range.startIndex <= index && index < range.endIndex
-              )
-              .map(range => range.connectorLevel)
-          )
+          const activeConnectorLevels = new Set<number>()
+          reply.reply_connectors?.forEach((isActive, connectorLevel) => {
+            if (isActive) activeConnectorLevels.add(connectorLevel)
+          })
+          parentConnectorRanges
+            .filter(
+              range => range.startIndex <= index && index < range.endIndex
+            )
+            .forEach(range => {
+              activeConnectorLevels.add(range.connectorLevel)
+            })
           const connectorLength = Math.max(
             level,
             ...Array.from(
