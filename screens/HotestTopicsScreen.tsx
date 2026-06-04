@@ -7,12 +7,15 @@ import { memo, useCallback, useRef, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
+  Platform,
   Text,
   TouchableOpacity,
   View,
+  useWindowDimensions,
 } from 'react-native'
 import DateTimePickerModal from 'react-native-modal-datetime-picker'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { TabView } from 'react-native-tab-view'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
 import Empty from '@/components/Empty'
@@ -33,6 +36,18 @@ import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useQueryData } from '@/utils/useQueryData'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
+
+const MIN_DATE = '2018-08-05'
+const DATE_ROUTE_INDEX = {
+  previous: 0,
+  current: 1,
+  next: 2,
+}
+const DATE_ROUTES = [
+  { key: 'previous', title: '昨天' },
+  { key: 'current', title: '今天' },
+  { key: 'next', title: '明天' },
+]
 
 export default withQuerySuspense(HotestTopicsScreen, {
   LoadingComponent: () => (
@@ -70,9 +85,15 @@ const MemoHotestTopics = withQuerySuspense(memo(HotestTopics), {
 
 function HotestTopicsScreen() {
   const [date, setDate] = useState(dayjs().subtract(1, 'day').toDate())
-  const flatListRef = useRef<FlatList<Topic>>(null)
+  const [tabIndex, setTabIndex] = useState(DATE_ROUTE_INDEX.current)
+  const [pagerVersion, setPagerVersion] = useState(0)
+  const previousFlatListRef = useRef<FlatList<Topic>>(null)
+  const currentFlatListRef = useRef<FlatList<Topic>>(null)
+  const nextFlatListRef = useRef<FlatList<Topic>>(null)
 
   const headerHeight = useNavBarHeight()
+  const swipeEdgeWidth = Platform.OS === 'ios' ? 52 : 32
+  const layout = useWindowDimensions()
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
@@ -81,15 +102,75 @@ function HotestTopicsScreen() {
   const iconSize = tw.style(fontSize.small).fontSize as number
 
   const colorScheme = useAtomValue(colorSchemeAtom)
+  const formattedDate = dayjs(date).format('YYYY-MM-DD')
   const scrollToTop = useCallback(() => {
-    flatListRef.current?.scrollToOffset({ offset: 0, animated: false })
+    previousFlatListRef.current?.scrollToOffset({ offset: 0, animated: false })
+    currentFlatListRef.current?.scrollToOffset({ offset: 0, animated: false })
+    nextFlatListRef.current?.scrollToOffset({ offset: 0, animated: false })
   }, [])
   const handleDateChange = useCallback(
     (nextDate: Date) => {
       scrollToTop()
+      setTabIndex(DATE_ROUTE_INDEX.current)
       setDate(nextDate)
     },
     [scrollToTop]
+  )
+  const isSelectableDate = useCallback((nextDate: dayjs.Dayjs) => {
+    return (
+      !nextDate.isBefore(MIN_DATE, 'day') &&
+      !nextDate.isAfter(dayjs().subtract(1, 'day'), 'day')
+    )
+  }, [])
+  const getRouteDate = useCallback(
+    (routeKey: string) => {
+      if (routeKey === 'previous') return dayjs(date).subtract(1, 'day')
+      if (routeKey === 'next') return dayjs(date).add(1, 'day')
+      return dayjs(date)
+    },
+    [date]
+  )
+  const handleIndexChange = useCallback(
+    (nextIndex: number) => {
+      if (nextIndex === DATE_ROUTE_INDEX.current) {
+        setTabIndex(nextIndex)
+        return
+      }
+
+      const nextDate = getRouteDate(DATE_ROUTES[nextIndex].key)
+      if (isSelectableDate(nextDate)) {
+        scrollToTop()
+        setDate(nextDate.toDate())
+      } else {
+        setPagerVersion(version => version + 1)
+      }
+
+      setTabIndex(DATE_ROUTE_INDEX.current)
+    },
+    [getRouteDate, isSelectableDate, scrollToTop]
+  )
+
+  const renderScene = useCallback(
+    ({ route }: { route: (typeof DATE_ROUTES)[number] }) => {
+      const routeDate = getRouteDate(route.key)
+      if (!isSelectableDate(routeDate)) return <View />
+
+      const listRef =
+        route.key === 'previous'
+          ? previousFlatListRef
+          : route.key === 'next'
+          ? nextFlatListRef
+          : currentFlatListRef
+
+      return (
+        <MemoHotestTopics
+          listRef={listRef}
+          headerHeight={headerHeight}
+          date={routeDate.format('YYYY-MM-DD')}
+        />
+      )
+    },
+    [getRouteDate, headerHeight, isSelectableDate]
   )
 
   return (
@@ -102,7 +183,7 @@ function HotestTopicsScreen() {
           style={tw`border-b-0`}
           right={
             <View style={tw`flex-row items-center`}>
-              {dayjs(date).isBefore('2018-08-06') ? (
+              {!isSelectableDate(dayjs(date).subtract(1, 'day')) ? (
                 <AntDesign
                   name="caret-left"
                   size={iconSize}
@@ -134,10 +215,10 @@ function HotestTopicsScreen() {
                     `text-[${colors.primary}] font-medium`
                   )}
                 >
-                  {dayjs(date).format('YYYY-MM-DD')}
+                  {formattedDate}
                 </Text>
               </TouchableOpacity>
-              {dayjs(date).isAfter(dayjs().subtract(2, 'day')) ? (
+              {!isSelectableDate(dayjs(date).add(1, 'day')) ? (
                 <AntDesign
                   name="caret-right"
                   size={iconSize}
@@ -163,10 +244,16 @@ function HotestTopicsScreen() {
         />
       </View>
 
-      <MemoHotestTopics
-        listRef={flatListRef}
-        headerHeight={headerHeight}
-        date={dayjs(date).format('YYYY-MM-DD')}
+      <TabView
+        key={`${colorScheme}-${formattedDate}-${pagerVersion}`}
+        navigationState={{ index: tabIndex, routes: DATE_ROUTES }}
+        animationEnabled={false}
+        lazy
+        lazyPreloadDistance={1}
+        renderScene={renderScene}
+        onIndexChange={handleIndexChange}
+        initialLayout={{ width: layout.width }}
+        renderTabBar={() => null}
       />
 
       <DateTimePickerModal
@@ -183,7 +270,7 @@ function HotestTopicsScreen() {
         mode="date"
         display="inline"
         locale="zh-CN"
-        minimumDate={dayjs('2018-08-05').toDate()}
+        minimumDate={dayjs(MIN_DATE).toDate()}
         maximumDate={dayjs().subtract(1, 'day').toDate()}
         onConfirm={d => {
           handleDateChange(d)
@@ -193,6 +280,11 @@ function HotestTopicsScreen() {
           setDatePickerVisibility(false)
         }}
         date={date}
+      />
+
+      <View
+        collapsable={false}
+        style={tw`absolute left-0 bottom-0 top-[${headerHeight}px] w-[${swipeEdgeWidth}px]`}
       />
     </View>
   )
