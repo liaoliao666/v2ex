@@ -37,8 +37,15 @@ export default memo(
     prev.hightlight === next.hightlight &&
     prev.related === next.related &&
     prev.inModalScreen === next.inModalScreen &&
+    prev.highlightedCollapseReplyId === next.highlightedCollapseReplyId &&
+    prev.collapsibleReplyIds === next.collapsibleReplyIds &&
     prev.onReply === next.onReply &&
     prev.onToggleCollapse === next.onToggleCollapse &&
+    prev.onToggleCollapsePressIn === next.onToggleCollapsePressIn &&
+    prev.onToggleCollapsePressOut === next.onToggleCollapsePressOut &&
+    prev.onToggleLineCollapse === next.onToggleLineCollapse &&
+    prev.onToggleLineCollapsePressIn === next.onToggleLineCollapsePressIn &&
+    prev.onToggleLineCollapsePressOut === next.onToggleLineCollapsePressOut &&
     (prev.reply === next.reply ||
       (prev.reply.id === next.reply.id &&
         prev.reply.no === next.reply.no &&
@@ -75,7 +82,14 @@ function ReplyItem({
   showNestedReply = true,
   showLegacyUi = true,
   collapsed = false,
+  highlightedCollapseReplyId,
+  collapsibleReplyIds,
   onToggleCollapse,
+  onToggleCollapsePressIn,
+  onToggleCollapsePressOut,
+  onToggleLineCollapse,
+  onToggleLineCollapsePressIn,
+  onToggleLineCollapsePressOut,
 }: {
   topicId: number
   once?: string
@@ -88,7 +102,14 @@ function ReplyItem({
   showNestedReply?: boolean
   showLegacyUi?: boolean
   collapsed?: boolean
+  highlightedCollapseReplyId?: number
+  collapsibleReplyIds?: Set<number>
   onToggleCollapse?: () => void
+  onToggleCollapsePressIn?: () => void
+  onToggleCollapsePressOut?: () => void
+  onToggleLineCollapse?: (replyId: number) => void
+  onToggleLineCollapsePressIn?: (replyId: number) => void
+  onToggleLineCollapsePressOut?: () => void
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
   const themeName = useAtomValue(themeNameAtom)
@@ -104,6 +125,25 @@ function ReplyItem({
       : !themeName.dark && colorScheme === 'dark'
       ? 'rgb(51,54,57)'
       : colors.divider
+  function getLineColor(replyId?: number) {
+    return replyId !== undefined && highlightedCollapseReplyId === replyId
+      ? colors.foreground
+      : dividerColor
+  }
+
+  function getCollapsibleAncestorId(level: number) {
+    const ancestorId = reply.reply_ancestor_ids?.[level]
+    return ancestorId !== undefined && collapsibleReplyIds?.has(ancestorId)
+      ? ancestorId
+      : undefined
+  }
+
+  const parentLineReplyId =
+    replyLevel > 0 ? getCollapsibleAncestorId(replyLevel - 1) : undefined
+  const ownLineColor =
+    highlightedCollapseReplyId === reply.id && reply.reply_has_nested_children
+      ? colors.foreground
+      : dividerColor
   const itemBackgroundColor = hightlight ? colors.base200 : colors.base100
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
   const shouldShowMergedContinuation =
@@ -135,24 +175,79 @@ function ReplyItem({
           {replyConnectors.map((isActive, i) => {
             if (!isActive) return null
 
-            return (
+            const connectorReplyId = getCollapsibleAncestorId(i)
+
+            return connectorReplyId !== undefined &&
+              onToggleLineCollapse &&
+              onToggleLineCollapsePressIn ? (
+              <Pressable
+                key={`connector-${i}`}
+                onPress={() => onToggleLineCollapse(connectorReplyId)}
+                onPressIn={() => onToggleLineCollapsePressIn(connectorReplyId)}
+                onPressOut={onToggleLineCollapsePressOut}
+                style={tw`absolute left-[${
+                  i * 24 + 16
+                }px] top-0 bottom-0 w-6 z-10`}
+              >
+                {({ pressed }) => (
+                  <View
+                    style={tw`absolute top-0 bottom-0 left-3 border-l border-solid border-[${
+                      pressed
+                        ? colors.foreground
+                        : getLineColor(connectorReplyId)
+                    }]`}
+                  />
+                )}
+              </Pressable>
+            ) : (
               <View
                 key={`connector-${i}`}
                 style={tw.style(
                   `absolute left-[${i * 24 + 28}px] top-0 bottom-0`,
-
-                  `border-l border-solid border-[${dividerColor}]`
+                  `border-l border-solid border-[${getLineColor(
+                    connectorReplyId
+                  )}]`
                 )}
               />
             )
           })}
 
           {replyLevel !== 0 && !reply.is_merged && (
-            <View
-              style={tw`border-[${dividerColor}] absolute top-0 left-[${
-                replyLevel * 24 + 4
-              }px] border-0 border-b-[1px] w-6 border-l-[1px] h-[${connectorTurnHeight}px] rounded-bl-[12px]`}
-            />
+            <>
+              {parentLineReplyId !== undefined &&
+              onToggleLineCollapse &&
+              onToggleLineCollapsePressIn ? (
+                <Pressable
+                  onPress={() => onToggleLineCollapse(parentLineReplyId)}
+                  onPressIn={() =>
+                    onToggleLineCollapsePressIn(parentLineReplyId)
+                  }
+                  onPressOut={onToggleLineCollapsePressOut}
+                  style={tw.style(
+                    `absolute top-0 left-[${replyLevel * 24}px] w-8 z-10`,
+                    `h-[${connectorTurnHeight}px]`
+                  )}
+                >
+                  {({ pressed }) => (
+                    <View
+                      style={tw`border-[${
+                        pressed
+                          ? colors.foreground
+                          : getLineColor(parentLineReplyId)
+                      }] absolute top-0 left-1 border-0 border-b-[1px] w-6 border-l-[1px] h-[${connectorTurnHeight}px] rounded-bl-[12px]`}
+                    />
+                  )}
+                </Pressable>
+              ) : (
+                <View
+                  style={tw`border-[${getLineColor(
+                    parentLineReplyId
+                  )}] absolute top-0 left-[${
+                    replyLevel * 24 + 4
+                  }px] border-0 border-b-[1px] w-6 border-l-[1px] h-[${connectorTurnHeight}px] rounded-bl-[12px]`}
+                />
+              )}
+            </>
           )}
         </>
       )}
@@ -165,7 +260,9 @@ function ReplyItem({
             replyLevel > 0 && (
               <View
                 style={tw.style(
-                  `border-l border-solid border-[${dividerColor}] absolute top-0 left-3 h-[${connectorTurnHeight}px]`
+                  `border-l border-solid border-[${getLineColor(
+                    parentLineReplyId
+                  )}] absolute top-0 left-3 h-[${connectorTurnHeight}px]`
                 )}
               />
             )}
@@ -173,12 +270,38 @@ function ReplyItem({
           {((!collapsed &&
             (hasVisibleReplyChildren || shouldShowMergedContinuation)) ||
             (!showLegacyUi && !showNestedReply && !reply.is_last_reply)) && (
-            <View
-              style={tw.style(
-                `border-l border-solid border-[${dividerColor}] absolute bottom-0 left-3`,
-                !showLegacyUi && showNestedReply ? `top-6` : `top-0`
+            <>
+              {!showLegacyUi &&
+              showNestedReply &&
+              reply.reply_has_nested_children &&
+              onToggleCollapse &&
+              !collapsed ? (
+                <Pressable
+                  onPress={onToggleCollapse}
+                  onPressIn={onToggleCollapsePressIn}
+                  onPressOut={onToggleCollapsePressOut}
+                  style={tw.style(
+                    `absolute bottom-0 left-0 right-0 z-10`,
+                    `top-6`
+                  )}
+                >
+                  {({ pressed }) => (
+                    <View
+                      style={tw`border-l border-solid border-[${
+                        pressed ? colors.foreground : ownLineColor
+                      }] absolute top-0 bottom-0 left-3`}
+                    />
+                  )}
+                </Pressable>
+              ) : (
+                <View
+                  style={tw.style(
+                    `border-l border-solid border-[${dividerColor}] absolute bottom-0 left-3`,
+                    !showLegacyUi && showNestedReply ? `top-6` : `top-0`
+                  )}
+                />
               )}
-            />
+            </>
           )}
 
           {!showLegacyUi &&
@@ -188,6 +311,8 @@ function ReplyItem({
             !collapsed && (
               <Pressable
                 onPress={onToggleCollapse}
+                onPressIn={onToggleCollapsePressIn}
+                onPressOut={onToggleCollapsePressOut}
                 hitSlop={8}
                 style={tw.style(
                   `absolute left-[4px] z-10 bg-[${itemBackgroundColor}] rounded-full`,

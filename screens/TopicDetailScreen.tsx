@@ -141,9 +141,13 @@ type TopicReplyListItemProps = {
   topicId: number
   once?: string
   hightlight?: boolean
+  highlightedCollapseReplyId?: number
+  collapsibleReplyIds: Set<number>
   showNestedReply: boolean
   showLegacyUi: boolean
   onToggleCollapse: (replyId: number) => void
+  onToggleCollapsePressIn: (replyId: number) => void
+  onToggleCollapsePressOut: () => void
   onReply: (username: string, replyNo?: number) => void
 }
 
@@ -153,15 +157,22 @@ const TopicReplyListItem = memo(
     topicId,
     once,
     hightlight,
+    highlightedCollapseReplyId,
+    collapsibleReplyIds,
     showNestedReply,
     showLegacyUi,
     onToggleCollapse,
+    onToggleCollapsePressIn,
+    onToggleCollapsePressOut,
     onReply,
   }: TopicReplyListItemProps) {
     const { reply, collapsed } = item
     const handleToggleCollapse = useCallback(() => {
       onToggleCollapse(reply.id)
     }, [onToggleCollapse, reply.id])
+    const handleToggleCollapsePressIn = useCallback(() => {
+      onToggleCollapsePressIn(reply.id)
+    }, [onToggleCollapsePressIn, reply.id])
 
     return (
       <ReplyItem
@@ -172,9 +183,28 @@ const TopicReplyListItem = memo(
         showNestedReply={showNestedReply}
         showLegacyUi={showLegacyUi}
         collapsed={collapsed}
+        highlightedCollapseReplyId={highlightedCollapseReplyId}
+        collapsibleReplyIds={collapsibleReplyIds}
+        onToggleLineCollapse={showNestedReply ? onToggleCollapse : undefined}
+        onToggleLineCollapsePressIn={
+          showNestedReply ? onToggleCollapsePressIn : undefined
+        }
+        onToggleLineCollapsePressOut={
+          showNestedReply ? onToggleCollapsePressOut : undefined
+        }
         onToggleCollapse={
           showNestedReply && reply.reply_has_nested_children
             ? handleToggleCollapse
+            : undefined
+        }
+        onToggleCollapsePressIn={
+          showNestedReply && reply.reply_has_nested_children
+            ? handleToggleCollapsePressIn
+            : undefined
+        }
+        onToggleCollapsePressOut={
+          showNestedReply && reply.reply_has_nested_children
+            ? onToggleCollapsePressOut
             : undefined
         }
         onReply={onReply}
@@ -187,9 +217,13 @@ const TopicReplyListItem = memo(
     prev.topicId === next.topicId &&
     prev.once === next.once &&
     prev.hightlight === next.hightlight &&
+    prev.highlightedCollapseReplyId === next.highlightedCollapseReplyId &&
+    prev.collapsibleReplyIds === next.collapsibleReplyIds &&
     prev.showNestedReply === next.showNestedReply &&
     prev.showLegacyUi === next.showLegacyUi &&
     prev.onToggleCollapse === next.onToggleCollapse &&
+    prev.onToggleCollapsePressIn === next.onToggleCollapsePressIn &&
+    prev.onToggleCollapsePressOut === next.onToggleCollapsePressOut &&
     prev.onReply === next.onReply
 )
 
@@ -859,6 +893,9 @@ function TopicDetailScreen() {
   const [collapsedReplyIds, setCollapsedReplyIds] = useState<Set<number>>(
     () => new Set()
   )
+  const [pressedCollapseReplyId, setPressedCollapseReplyId] = useState<
+    number | null
+  >(null)
   const replyListEntryCacheRef = useRef(new Map<number, ReplyListEntry>())
   const replyListData = useMemo<ReplyListEntry[]>(() => {
     const cache = replyListEntryCacheRef.current
@@ -903,8 +940,19 @@ function TopicDetailScreen() {
 
     return entries
   }, [collapsedReplyIds, flatedData, orderBy])
+  const collapsibleReplyIds = useMemo(
+    () =>
+      new Set(
+        flatedData
+          .filter(reply => reply.reply_has_nested_children)
+          .map(reply => reply.id)
+      ),
+    [flatedData]
+  )
   const [replyInfo, setReplyInfo] = useState<ReplyInfo | null>(null)
   const toggleReplyCollapse = useCallback((replyId: number) => {
+    setPressedCollapseReplyId(null)
+
     startTransition(() => {
       setCollapsedReplyIds(prev => {
         const next = new Set(prev)
@@ -916,6 +964,12 @@ function TopicDetailScreen() {
         return next
       })
     })
+  }, [])
+  const handleToggleCollapsePressIn = useCallback((replyId: number) => {
+    setPressedCollapseReplyId(replyId)
+  }, [])
+  const handleToggleCollapsePressOut = useCallback(() => {
+    setPressedCollapseReplyId(null)
   }, [])
   const handleReply = useCallback(
     (username: string, replyNo?: number) =>
@@ -1036,9 +1090,20 @@ function TopicDetailScreen() {
             ? params.hightlightReplyNo === item.reply.no
             : undefined
         }
+        highlightedCollapseReplyId={
+          orderBy === 'smart' &&
+          pressedCollapseReplyId !== null &&
+          (item.reply.id === pressedCollapseReplyId ||
+            !!item.reply.reply_ancestor_ids?.includes(pressedCollapseReplyId))
+            ? pressedCollapseReplyId
+            : undefined
+        }
+        collapsibleReplyIds={collapsibleReplyIds}
         showNestedReply={orderBy === 'smart'}
         showLegacyUi={orderBy !== 'smart'}
         onToggleCollapse={toggleReplyCollapse}
+        onToggleCollapsePressIn={handleToggleCollapsePressIn}
+        onToggleCollapsePressOut={handleToggleCollapsePressOut}
         onReply={handleReply}
       />
     ),
@@ -1047,7 +1112,11 @@ function TopicDetailScreen() {
       topic.once,
       params.hightlightReplyNo,
       orderBy,
+      collapsibleReplyIds,
+      pressedCollapseReplyId,
       toggleReplyCollapse,
+      handleToggleCollapsePressIn,
+      handleToggleCollapsePressOut,
       handleReply,
     ]
   )

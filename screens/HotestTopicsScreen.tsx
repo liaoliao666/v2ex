@@ -2,7 +2,8 @@ import { AntDesign } from '@expo/vector-icons'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { isEqual, isUndefined, maxBy } from 'lodash-es'
-import { memo, useCallback, useState } from 'react'
+import type { RefObject } from 'react'
+import { memo, useCallback, useRef, useState } from 'react'
 import {
   FlatList,
   ListRenderItem,
@@ -32,8 +33,6 @@ import { Topic, k } from '@/servicies'
 import tw from '@/utils/tw'
 import { useQueryData } from '@/utils/useQueryData'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
-
-const TAB_BAR_HEIGHT = 40
 
 export default withQuerySuspense(HotestTopicsScreen, {
   LoadingComponent: () => (
@@ -71,6 +70,7 @@ const MemoHotestTopics = withQuerySuspense(memo(HotestTopics), {
 
 function HotestTopicsScreen() {
   const [date, setDate] = useState(dayjs().subtract(1, 'day').toDate())
+  const flatListRef = useRef<FlatList<Topic>>(null)
 
   const headerHeight = useNavBarHeight()
 
@@ -81,6 +81,16 @@ function HotestTopicsScreen() {
   const iconSize = tw.style(fontSize.small).fontSize as number
 
   const colorScheme = useAtomValue(colorSchemeAtom)
+  const scrollToTop = useCallback(() => {
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: false })
+  }, [])
+  const handleDateChange = useCallback(
+    (nextDate: Date) => {
+      scrollToTop()
+      setDate(nextDate)
+    },
+    [scrollToTop]
+  )
 
   return (
     <View style={tw`flex-1`}>
@@ -102,7 +112,7 @@ function HotestTopicsScreen() {
               ) : (
                 <TouchableOpacity
                   onPress={() => {
-                    setDate(dayjs(date).subtract(1, 'day').toDate())
+                    handleDateChange(dayjs(date).subtract(1, 'day').toDate())
                   }}
                 >
                   <AntDesign
@@ -137,7 +147,7 @@ function HotestTopicsScreen() {
               ) : (
                 <TouchableOpacity
                   onPress={() => {
-                    setDate(dayjs(date).add(1, 'day').toDate())
+                    handleDateChange(dayjs(date).add(1, 'day').toDate())
                   }}
                 >
                   <AntDesign
@@ -154,6 +164,7 @@ function HotestTopicsScreen() {
       </View>
 
       <MemoHotestTopics
+        listRef={flatListRef}
         headerHeight={headerHeight}
         date={dayjs(date).format('YYYY-MM-DD')}
       />
@@ -175,7 +186,7 @@ function HotestTopicsScreen() {
         minimumDate={dayjs('2018-08-05').toDate()}
         maximumDate={dayjs().subtract(1, 'day').toDate()}
         onConfirm={d => {
-          setDate(d)
+          handleDateChange(d)
           setDatePickerVisibility(false)
         }}
         onCancel={() => {
@@ -188,9 +199,11 @@ function HotestTopicsScreen() {
 }
 
 function HotestTopics({
+  listRef,
   headerHeight,
   date,
 }: {
+  listRef: RefObject<FlatList<Topic> | null>
   date: string
   headerHeight: number
 }) {
@@ -206,6 +219,7 @@ function HotestTopics({
 
   return (
     <FlatList
+      ref={listRef}
       data={visibleTopics}
       contentContainerStyle={{
         paddingTop: headerHeight,
