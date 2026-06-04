@@ -305,14 +305,70 @@ function TopicDetailScreen() {
     variables: { id: params.id },
   })
 
+  const topic = last(data?.pages)!
+  const [isFetchingAllPage, setIsFetchingAllPage] = useState(false)
+  const fetchAllPages = useCallback(async () => {
+    if (isFetchingAllPage) return
+
+    setIsFetchingAllPage(true)
+    try {
+      const pageToData = Object.fromEntries(
+        data!.pageParams.map((page, i) => [page, data!.pages[i]])
+      )
+      const allPageNo = Array.from({
+        length: topic.last_page,
+      }).map((_, i) => i + 1)
+      const pageDatas = await Promise.all(
+        allPageNo.map(page => {
+          if (!pageToData[page] || page === topic.last_page) {
+            return k.topic.detail.fetcher(
+              {
+                id: params.id,
+              },
+              {
+                pageParam: page,
+              }
+            )
+          }
+          return pageToData[page]
+        })
+      )
+
+      queryClient.setQueryData(
+        k.topic.detail.getKey({ id: params.id }),
+        allPageNo.reduce(
+          (acc, p, i) => {
+            acc.pageParams[i] = p
+            acc.pages[i] = pageDatas[i]
+            return acc
+          },
+          {
+            pages: [],
+            pageParams: [],
+          } as typeof data
+        )
+      )
+    } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: error instanceof BizError ? error.message : '请求失败',
+      })
+    } finally {
+      setIsFetchingAllPage(false)
+    }
+  }, [data, isFetchingAllPage, params.id, topic.last_page])
+
   useMount(() => {
     if (hasNextPage) {
-      fetchNextPage()
+      if (orderBy === 'smart' && topic.last_page - topic.page <= 2) {
+        fetchAllPages()
+      } else {
+        fetchNextPage()
+      }
     }
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
-  const topic = last(data?.pages)!
   const setRepliesMode = useSetAtom(repliesModeAtom)
   const [orderBy, setOrderBy] = useState<RepliesMode | 'reverse'>(
     () => store.get(repliesModeAtom) ?? 'default'
@@ -1012,13 +1068,12 @@ function TopicDetailScreen() {
       setReplyInfo({ topicId: topic.id, username, replyNo }),
     [topic.id]
   )
-  const [isFetchingAllPage, setIsFetchingAllPage] = useState(false)
   const handleAppend = useCallback(() => {
     setReplyInfo({ topicId: topic.id, isAppend: true })
   }, [topic.id])
   const handleOrderByChange = useCallback(
     async (v: RepliesMode | 'reverse') => {
-      if (v === 'reverse' && isFetching) {
+      if (v === 'reverse' && (isFetching || isFetchingAllPage)) {
         Toast.show({
           type: 'error',
           text1: '请等待当前请求完成后再切换',
@@ -1053,63 +1108,15 @@ function TopicDetailScreen() {
         }
 
         // fetch all page
-        if (!isFetchingAllPage) {
-          setIsFetchingAllPage(true)
-          try {
-            const pageToData = Object.fromEntries(
-              data!.pageParams.map((page, i) => [page, data!.pages[i]])
-            )
-            const allPageNo = Array.from({
-              length: topic.last_page,
-            }).map((_, i) => i + 1)
-            const pageDatas = await Promise.all(
-              allPageNo.map(page => {
-                if (!pageToData[page] || page === topic.last_page) {
-                  return k.topic.detail.fetcher(
-                    {
-                      id: params.id,
-                    },
-                    {
-                      pageParam: page,
-                    }
-                  )
-                }
-                return pageToData[page]
-              })
-            )
-
-            queryClient.setQueryData(
-              k.topic.detail.getKey({ id: params.id }),
-              allPageNo.reduce(
-                (acc, p, i) => {
-                  acc.pageParams[i] = p
-                  acc.pages[i] = pageDatas[i]
-                  return acc
-                },
-                {
-                  pages: [],
-                  pageParams: [],
-                } as typeof data
-              )
-            )
-          } catch (error) {
-            Toast.show({
-              type: 'error',
-              text1: error instanceof BizError ? error.message : '请求失败',
-            })
-          } finally {
-            setIsFetchingAllPage(false)
-          }
-        }
+        fetchAllPages()
       }
     },
     [
-      data,
+      fetchAllPages,
       fetchNextPage,
       hasNextPage,
       isFetching,
       isFetchingAllPage,
-      params.id,
       setRepliesMode,
       topic.last_page,
       topic.page,
