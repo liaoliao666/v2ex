@@ -69,11 +69,61 @@ type ReplyListEntry = {
   collapsed: boolean
 }
 
+function areArrayValuesEqual<T>(a: T[] | undefined, b: T[] | undefined) {
+  if (a === b) return true
+  if (!a || !b) return false
+  if (a.length !== b.length) return false
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i] !== b[i]) return false
+  }
+
+  return true
+}
+
+function areReplyChildrenEqual(a: Reply[] | undefined, b: Reply[] | undefined) {
+  if (a === b) return true
+  if (!a || !b) return false
+  if (a.length !== b.length) return false
+
+  for (let i = 0; i < a.length; i++) {
+    if (a[i].id !== b[i].id) return false
+  }
+
+  return true
+}
+
+function areReplyListFieldsEqual(a: Reply, b: Reply) {
+  return (
+    a.id === b.id &&
+    a.no === b.no &&
+    a.content === b.content &&
+    a.parsed_content === b.parsed_content &&
+    a.created === b.created &&
+    a.member.username === b.member.username &&
+    a.member.avatar === b.member.avatar &&
+    a.thanks === b.thanks &&
+    a.thanked === b.thanked &&
+    a.mod === b.mod &&
+    a.op === b.op &&
+    a.is_first_reply === b.is_first_reply &&
+    a.is_last_reply === b.is_last_reply &&
+    a.has_related_replies === b.has_related_replies &&
+    a.reply_level === b.reply_level &&
+    a.is_merged === b.is_merged &&
+    a.reply_has_nested_children === b.reply_has_nested_children &&
+    a.reply_has_merged_children === b.reply_has_merged_children &&
+    areArrayValuesEqual(a.reply_connectors, b.reply_connectors) &&
+    areArrayValuesEqual(a.reply_ancestor_ids, b.reply_ancestor_ids) &&
+    areReplyChildrenEqual(a.children, b.children)
+  )
+}
+
 const REPLY_LIST_PERFORMANCE_PROPS = {
-  initialNumToRender: 8,
-  maxToRenderPerBatch: 8,
-  updateCellsBatchingPeriod: 32,
-  windowSize: 9,
+  initialNumToRender: 6,
+  maxToRenderPerBatch: 4,
+  updateCellsBatchingPeriod: 50,
+  windowSize: 7,
   removeClippedSubviews: Platform.OS === 'android',
 } as const
 
@@ -246,6 +296,7 @@ function TopicDetailScreen() {
 
     return replies
   }, [data?.pages])
+  const flatedReplyCacheRef = useRef(new Map<string, Reply>())
   const flatedData = useMemo(() => {
     const rawList = rawReplies
     let _flatedData: Reply[] = []
@@ -778,10 +829,32 @@ function TopicDetailScreen() {
           is_last_reply: true,
         }
 
-        return nextFlatedData
+        _flatedData = nextFlatedData
       }
     }
-    return _flatedData
+    const cache = flatedReplyCacheRef.current
+    const visibleCacheKeys = new Set<string>()
+    const stableFlatedData = _flatedData.map(reply => {
+      const cacheKey = `${orderBy}:${reply.id}`
+      const cachedReply = cache.get(cacheKey)
+
+      visibleCacheKeys.add(cacheKey)
+
+      if (cachedReply && areReplyListFieldsEqual(cachedReply, reply)) {
+        return cachedReply
+      }
+
+      cache.set(cacheKey, reply)
+      return reply
+    })
+
+    cache.forEach((_, cacheKey) => {
+      if (!visibleCacheKeys.has(cacheKey)) {
+        cache.delete(cacheKey)
+      }
+    })
+
+    return stableFlatedData
   }, [rawReplies, orderBy])
   const [collapsedReplyIds, setCollapsedReplyIds] = useState<Set<number>>(
     () => new Set()
@@ -1011,6 +1084,7 @@ function TopicDetailScreen() {
           />
         }
         renderItem={renderItem}
+        scrollEventThrottle={16}
         onScroll={Animated.event(
           [{ nativeEvent: { contentOffset: { y: scrollY } } }],
           {

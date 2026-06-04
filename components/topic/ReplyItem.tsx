@@ -3,7 +3,7 @@ import { Feather, FontAwesome5 } from '@expo/vector-icons'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { compact, find, findIndex, isBoolean, isEmpty } from 'lodash-es'
-import { Fragment, memo, useState } from 'react'
+import { Fragment, memo, useMemo, useState } from 'react'
 import { Platform, Pressable, Share, Text, View, ViewProps } from 'react-native'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
@@ -30,22 +30,37 @@ import StyledImage from '../StyledImage'
 export default memo(
   ReplyItem,
   (prev, next) =>
-    prev.reply.thanked === next.reply.thanked &&
-    prev.reply.created === next.reply.created &&
     prev.once === next.once &&
     prev.showLegacyUi === next.showLegacyUi &&
     prev.showNestedReply === next.showNestedReply &&
     prev.collapsed === next.collapsed &&
-    prev.reply.reply_level === next.reply.reply_level &&
-    prev.reply.is_merged === next.reply.is_merged &&
-    prev.reply.reply_connectors?.join() ===
-      next.reply.reply_connectors?.join() &&
-    prev.reply.reply_has_nested_children ===
-      next.reply.reply_has_nested_children &&
-    prev.reply.reply_has_merged_children ===
-      next.reply.reply_has_merged_children &&
-    prev.reply.children?.length === next.reply.children?.length &&
-    prev.reply.is_last_reply === next.reply.is_last_reply
+    prev.hightlight === next.hightlight &&
+    prev.related === next.related &&
+    prev.inModalScreen === next.inModalScreen &&
+    prev.onReply === next.onReply &&
+    prev.onToggleCollapse === next.onToggleCollapse &&
+    (prev.reply === next.reply ||
+      (prev.reply.id === next.reply.id &&
+        prev.reply.no === next.reply.no &&
+        prev.reply.content === next.reply.content &&
+        prev.reply.parsed_content === next.reply.parsed_content &&
+        prev.reply.created === next.reply.created &&
+        prev.reply.member.username === next.reply.member.username &&
+        prev.reply.member.avatar === next.reply.member.avatar &&
+        prev.reply.thanks === next.reply.thanks &&
+        prev.reply.thanked === next.reply.thanked &&
+        prev.reply.mod === next.reply.mod &&
+        prev.reply.op === next.reply.op &&
+        prev.reply.reply_level === next.reply.reply_level &&
+        prev.reply.is_merged === next.reply.is_merged &&
+        prev.reply.reply_connectors?.join() ===
+          next.reply.reply_connectors?.join() &&
+        prev.reply.reply_has_nested_children ===
+          next.reply.reply_has_nested_children &&
+        prev.reply.reply_has_merged_children ===
+          next.reply.reply_has_merged_children &&
+        prev.reply.children?.length === next.reply.children?.length &&
+        prev.reply.is_last_reply === next.reply.is_last_reply))
 )
 
 function ReplyItem({
@@ -93,6 +108,9 @@ function ReplyItem({
   const shouldShowCollapsedGap = !showLegacyUi && showNestedReply && collapsed
   const shouldShowMergedContinuation =
     !showLegacyUi && showNestedReply && reply.is_merged && !reply.is_last_reply
+  const replyHtml =
+    isParsed && reply.parsed_content ? reply.parsed_content : reply.content
+  const replyHtmlSource = useMemo(() => ({ html: replyHtml }), [replyHtml])
   const hasVisibleReplyChildren =
     reply.reply_has_nested_children ||
     reply.reply_has_merged_children ||
@@ -306,12 +324,7 @@ function ReplyItem({
 
               <View style={tw`pt-0.5`}>
                 <Html
-                  source={{
-                    html:
-                      isParsed && reply.parsed_content
-                        ? reply.parsed_content
-                        : reply.content,
-                  }}
+                  source={replyHtmlSource}
                   inModalScreen={inModalScreen}
                   paddingX={32 + 28 + 24 * replyLevel}
                 />
