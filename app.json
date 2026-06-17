@@ -3,7 +3,7 @@
     "name": "V2Fun",
     "slug": "v2ex",
     "owner": "v2fun",
-    "version": "1.9.0",
+    "version": "1.9.1",
     "scheme": "v2fun",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "automatic",
@@ -16,7 +16,7 @@
       "supportsTablet": true,
       "deploymentTarget": "16.4",
       "bundleIdentifier": "com.liaoliao666.v2ex",
-      "buildNumber": "1.9.0.3",
+      "buildNumber": "1.9.1.1",
       "entitlements": {
         "aps-environment": "development"
       },
