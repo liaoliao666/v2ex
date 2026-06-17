@@ -25,6 +25,7 @@ import {
 } from 'react-native-tab-view'
 
 const SCROLL_DELTA_THRESHOLD = 0.5
+const TOP_BAR_TOGGLE_SCROLL_THRESHOLD = 16
 
 export type CollapsibleTabViewListScrollProps = {
   onScroll: (event: any) => void
@@ -130,6 +131,8 @@ function CollapsibleTabViewInner<T extends Route>(
   const bottomBounceRouteMapRef = useRef<Record<string, boolean>>({})
   const scrollToTopRouteMapRef = useRef<Record<string, boolean>>({})
   const routeDistanceToBottomMapRef = useRef<Record<string, number>>({})
+  const routeScrollIntentDirectionMapRef = useRef<Record<string, number>>({})
+  const routeScrollIntentDistanceMapRef = useRef<Record<string, number>>({})
   const routeScrollOffsetMapRef = useRef<Record<string, number>>({})
   const [isTopBarCollapsed, setIsTopBarCollapsed] = useState(false)
   const lockDistance = bottomScrollLockDistance ?? collapsibleHeight * 2
@@ -141,6 +144,11 @@ function CollapsibleTabViewInner<T extends Route>(
   const contentTopPadding = isTopBarCollapsed
     ? headerHeight - collapsibleHeight
     : headerHeight
+
+  const resetRouteScrollIntent = useCallback((routeKey: string) => {
+    routeScrollIntentDirectionMapRef.current[routeKey] = 0
+    routeScrollIntentDistanceMapRef.current[routeKey] = 0
+  }, [])
 
   const updateTopBarCollapse = useCallback(
     (value: number) => {
@@ -234,6 +242,7 @@ function CollapsibleTabViewInner<T extends Route>(
       bottomBounceRouteMapRef.current[routeKey] = false
       scrollToTopRouteMapRef.current[routeKey] = true
       routeDistanceToBottomMapRef.current[routeKey] = Number.POSITIVE_INFINITY
+      resetRouteScrollIntent(routeKey)
       routeScrollOffsetMapRef.current[routeKey] = 0
 
       if (activeRouteKeyRef.current === routeKey) {
@@ -241,7 +250,7 @@ function CollapsibleTabViewInner<T extends Route>(
         updateTopBarCollapse(0)
       }
     },
-    [updateTopBarCollapse]
+    [resetRouteScrollIntent, updateTopBarCollapse]
   )
 
   const changeIndex = useCallback(
@@ -250,10 +259,12 @@ function CollapsibleTabViewInner<T extends Route>(
       if (!nextRoute) return
 
       activeRouteKeyRef.current = nextRoute.key
+      lastScrollDirectionRef.current = 0
+      resetRouteScrollIntent(nextRoute.key)
       syncRoute(nextRoute.key, true)
       onIndexChange(nextIndex, forceFetch)
     },
-    [navigationState.routes, onIndexChange, syncRoute]
+    [navigationState.routes, onIndexChange, resetRouteScrollIntent, syncRoute]
   )
 
   const getListScrollProps = useCallback(
@@ -272,6 +283,7 @@ function CollapsibleTabViewInner<T extends Route>(
           if (offset <= SCROLL_DELTA_THRESHOLD) {
             scrollToTopRouteMapRef.current[routeKey] = false
             lastScrollDirectionRef.current = 0
+            resetRouteScrollIntent(routeKey)
           }
 
           if (activeRouteKeyRef.current === routeKey) {
@@ -283,6 +295,7 @@ function CollapsibleTabViewInner<T extends Route>(
         if (isBottomBounce || bottomBounceRouteMapRef.current[routeKey]) {
           bottomBounceRouteMapRef.current[routeKey] = true
           routeDistanceToBottomMapRef.current[routeKey] = 0
+          resetRouteScrollIntent(routeKey)
           routeScrollOffsetMapRef.current[routeKey] = maxOffset
           return
         }
@@ -292,22 +305,44 @@ function CollapsibleTabViewInner<T extends Route>(
         if (activeRouteKeyRef.current !== routeKey) return
         if (distanceToBottom <= lockDistance) return
 
-        if (Math.abs(delta) > SCROLL_DELTA_THRESHOLD) {
-          lastScrollDirectionRef.current = delta > 0 ? 1 : -1
+        if (Math.abs(delta) <= SCROLL_DELTA_THRESHOLD) {
+          return
         }
 
-        if (delta < -SCROLL_DELTA_THRESHOLD) {
+        const direction = delta > 0 ? 1 : -1
+        const previousDirection =
+          routeScrollIntentDirectionMapRef.current[routeKey] || 0
+        const scrollIntentDistance =
+          previousDirection === direction
+            ? (routeScrollIntentDistanceMapRef.current[routeKey] || 0) +
+              Math.abs(delta)
+            : Math.abs(delta)
+
+        routeScrollIntentDirectionMapRef.current[routeKey] = direction
+        routeScrollIntentDistanceMapRef.current[routeKey] = scrollIntentDistance
+
+        if (scrollIntentDistance < TOP_BAR_TOGGLE_SCROLL_THRESHOLD) return
+
+        lastScrollDirectionRef.current = direction
+
+        if (direction < 0) {
+          resetRouteScrollIntent(routeKey)
           animateTopBarCollapse(0)
           return
         }
 
-        if (delta > SCROLL_DELTA_THRESHOLD && offset >= collapsibleHeight) {
+        if (offset >= collapsibleHeight) {
+          resetRouteScrollIntent(routeKey)
           animateTopBarCollapse(collapsibleHeight)
         }
       },
       onScrollBeginDrag: () => {
         bottomBounceRouteMapRef.current[routeKey] = false
         scrollToTopRouteMapRef.current[routeKey] = false
+        resetRouteScrollIntent(routeKey)
+        if (activeRouteKeyRef.current === routeKey) {
+          lastScrollDirectionRef.current = 0
+        }
       },
       onScrollEndDrag: () => {
         if (scrollToTopRouteMapRef.current[routeKey]) return
@@ -334,6 +369,7 @@ function CollapsibleTabViewInner<T extends Route>(
       collapsibleHeight,
       contentTopPadding,
       lockDistance,
+      resetRouteScrollIntent,
       snapTopBarCollapse,
       updateTopBarCollapse,
     ]
@@ -353,8 +389,15 @@ function CollapsibleTabViewInner<T extends Route>(
     if (!activeRouteKey) return
 
     activeRouteKeyRef.current = activeRouteKey
+    lastScrollDirectionRef.current = 0
+    resetRouteScrollIntent(activeRouteKey)
     syncRoute(activeRouteKey, true)
-  }, [navigationState.index, navigationState.routes, syncRoute])
+  }, [
+    navigationState.index,
+    navigationState.routes,
+    resetRouteScrollIntent,
+    syncRoute,
+  ])
 
   return (
     <TabView
