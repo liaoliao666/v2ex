@@ -134,45 +134,65 @@ function CollapsibleTabViewInner<T extends Route>(
   const routeScrollIntentDirectionMapRef = useRef<Record<string, number>>({})
   const routeScrollIntentDistanceMapRef = useRef<Record<string, number>>({})
   const routeScrollOffsetMapRef = useRef<Record<string, number>>({})
-  const [isTopBarCollapsed, setIsTopBarCollapsed] = useState(false)
+  const [contentTopPadding, setContentTopPadding] = useState(headerHeight)
   const lockDistance = bottomScrollLockDistance ?? collapsibleHeight * 2
   const topBarTranslateY = topBarCollapseY.interpolate({
     inputRange: [0, collapsibleHeight],
     outputRange: [0, -collapsibleHeight],
     extrapolate: 'clamp',
   })
-  const contentTopPadding = isTopBarCollapsed
-    ? headerHeight - collapsibleHeight
-    : headerHeight
+  const expandedContentTopPadding = headerHeight
+  const collapsedContentTopPadding = headerHeight - collapsibleHeight
 
   const resetRouteScrollIntent = useCallback((routeKey: string) => {
     routeScrollIntentDirectionMapRef.current[routeKey] = 0
     routeScrollIntentDistanceMapRef.current[routeKey] = 0
   }, [])
 
+  const updateContentTopPadding = useCallback(
+    (isCollapsed: boolean, force = false) => {
+      const nextPadding = isCollapsed
+        ? collapsedContentTopPadding
+        : expandedContentTopPadding
+
+      setContentTopPadding(currentPadding =>
+        force || currentPadding === nextPadding ? nextPadding : currentPadding
+      )
+    },
+    [collapsedContentTopPadding, expandedContentTopPadding]
+  )
+
   const updateTopBarCollapse = useCallback(
-    (value: number) => {
+    (value: number, forceContentPadding = false) => {
       topBarAnimationRef.current?.stop()
       topBarAnimationRef.current = null
 
       const nextValue = Math.max(0, Math.min(value, collapsibleHeight))
-      if (topBarCollapseValueRef.current === nextValue) return
+      const nextIsCollapsed = nextValue >= collapsibleHeight
+      if (topBarCollapseValueRef.current === nextValue) {
+        updateContentTopPadding(nextIsCollapsed, forceContentPadding)
+        return
+      }
 
       topBarCollapseValueRef.current = nextValue
-      setIsTopBarCollapsed(nextValue >= collapsibleHeight)
+      updateContentTopPadding(nextIsCollapsed, forceContentPadding)
       topBarCollapseY.setValue(nextValue)
     },
-    [collapsibleHeight, topBarCollapseY]
+    [collapsibleHeight, topBarCollapseY, updateContentTopPadding]
   )
 
   const animateTopBarCollapse = useCallback(
-    (targetValue: number) => {
+    (targetValue: number, forceContentPadding = false) => {
       const nextValue = Math.max(0, Math.min(targetValue, collapsibleHeight))
-      if (topBarCollapseValueRef.current === nextValue) return
+      const nextIsCollapsed = nextValue >= collapsibleHeight
+      if (topBarCollapseValueRef.current === nextValue) {
+        updateContentTopPadding(nextIsCollapsed, forceContentPadding)
+        return
+      }
 
       topBarAnimationRef.current?.stop()
       topBarCollapseValueRef.current = nextValue
-      setIsTopBarCollapsed(nextValue >= collapsibleHeight)
+      updateContentTopPadding(nextIsCollapsed, forceContentPadding)
 
       const animation = Animated.timing(topBarCollapseY, {
         toValue: nextValue,
@@ -189,7 +209,7 @@ function CollapsibleTabViewInner<T extends Route>(
         topBarCollapseValueRef.current = nextValue
       })
     },
-    [collapsibleHeight, topBarCollapseY]
+    [collapsibleHeight, topBarCollapseY, updateContentTopPadding]
   )
 
   const snapTopBarCollapse = useCallback(
@@ -223,16 +243,21 @@ function CollapsibleTabViewInner<T extends Route>(
 
   const syncRoute = useCallback(
     (routeKey: string, keepHidden = false) => {
-      if (
-        keepHidden &&
-        topBarCollapseValueRef.current >= collapsibleHeight - 1
-      ) {
-        updateTopBarCollapse(collapsibleHeight)
+      if (keepHidden) {
+        updateTopBarCollapse(
+          topBarCollapseValueRef.current >= collapsibleHeight - 1
+            ? collapsibleHeight
+            : 0,
+          true
+        )
         return
       }
 
       const offset = routeScrollOffsetMapRef.current[routeKey] || 0
-      updateTopBarCollapse(offset < collapsibleHeight ? 0 : collapsibleHeight)
+      updateTopBarCollapse(
+        offset < collapsibleHeight ? 0 : collapsibleHeight,
+        true
+      )
     },
     [collapsibleHeight, updateTopBarCollapse]
   )
@@ -247,7 +272,7 @@ function CollapsibleTabViewInner<T extends Route>(
 
       if (activeRouteKeyRef.current === routeKey) {
         lastScrollDirectionRef.current = 0
-        updateTopBarCollapse(0)
+        updateTopBarCollapse(0, true)
       }
     },
     [resetRouteScrollIntent, updateTopBarCollapse]
@@ -287,7 +312,7 @@ function CollapsibleTabViewInner<T extends Route>(
           }
 
           if (activeRouteKeyRef.current === routeKey) {
-            updateTopBarCollapse(0)
+            updateTopBarCollapse(0, true)
           }
           return
         }
@@ -327,7 +352,11 @@ function CollapsibleTabViewInner<T extends Route>(
 
         if (direction < 0) {
           resetRouteScrollIntent(routeKey)
-          animateTopBarCollapse(0)
+          animateTopBarCollapse(
+            0,
+            contentTopPadding < expandedContentTopPadding &&
+              offset < collapsibleHeight
+          )
           return
         }
 
@@ -368,6 +397,7 @@ function CollapsibleTabViewInner<T extends Route>(
       animateTopBarCollapse,
       collapsibleHeight,
       contentTopPadding,
+      expandedContentTopPadding,
       lockDistance,
       resetRouteScrollIntent,
       snapTopBarCollapse,
@@ -383,6 +413,13 @@ function CollapsibleTabViewInner<T extends Route>(
     }),
     [resetRouteScroll, syncRoute]
   )
+
+  useEffect(() => {
+    updateContentTopPadding(
+      topBarCollapseValueRef.current >= collapsibleHeight,
+      true
+    )
+  }, [collapsibleHeight, headerHeight, updateContentTopPadding])
 
   useEffect(() => {
     const activeRouteKey = navigationState.routes[navigationState.index]?.key
