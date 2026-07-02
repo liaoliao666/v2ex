@@ -3,6 +3,7 @@ import { InfiniteData } from '@tanstack/react-query'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import {
+  ForwardedRef,
   ReactNode,
   RefObject,
   createRef,
@@ -89,6 +90,17 @@ function topicKeyExtractor(item: Topic) {
 
 function xnaKeyExtractor(item: Xna) {
   return String(item.id)
+}
+
+function assignForwardedRef<T>(ref: ForwardedRef<T>, value: T | null) {
+  if (typeof ref === 'function') {
+    ref(value)
+    return
+  }
+
+  if (ref) {
+    ref.current = value
+  }
 }
 
 function TabPlaceholder({
@@ -334,19 +346,39 @@ function HomeScreen() {
               indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
               indicatorContainerStyle={tw`border-b-0`}
               gap={16}
+              onTabPress={({ route, preventDefault }) => {
+                preventDefault()
+
+                const nextIndex = findIndex(tabs, { key: route.key })
+                if (nextIndex < 0) return
+
+                changeIndex(nextIndex, tabs[index]?.key === route.key)
+              }}
               renderTabBarItem={tabBarItemProps => {
-                const { route } = tabBarItemProps
-                const active = tabs[index].key === route.key
+                const {
+                  accessibilityLabel,
+                  accessible,
+                  onLayout,
+                  onLongPress,
+                  onPress,
+                  route,
+                  testID,
+                } = tabBarItemProps
+                const active = tabs[index]?.key === route.key
 
                 return (
                   <TouchableOpacity
-                    {...tabBarItemProps}
                     key={route.key}
+                    accessibilityLabel={accessibilityLabel}
+                    accessibilityRole="tab"
+                    accessibilityState={{ selected: active }}
+                    accessible={accessible}
+                    testID={testID}
+                    onLayout={onLayout}
+                    onLongPress={onLongPress}
+                    onPress={onPress}
                     style={tw`w-auto items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
                     activeOpacity={active ? 1 : 0.5}
-                    onPress={() => {
-                      changeIndex(findIndex(tabs, { key: route.key }), active)
-                    }}
                   >
                     <Text
                       style={tw.style(
@@ -400,7 +432,7 @@ const RecentTopics = memo(
       k.topic.recent.useSuspenseInfiniteQuery({
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(RECENT_TAB_KEY),
       })
-    const { contentTopPadding, ...scrollProps } = listScrollProps
+    const { contentTopPadding, setScrollRef, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
       queryClient.prefetchInfiniteQuery({
@@ -412,6 +444,13 @@ const RecentTopics = memo(
     const renderItem: ListRenderItem<Topic> = useCallback(
       ({ item }) => <TopicItem topic={item} />,
       []
+    )
+    const listRef = useCallback(
+      (list: FlatList | null) => {
+        setScrollRef(list)
+        assignForwardedRef(ref, list)
+      },
+      [ref, setScrollRef]
     )
 
     const flatedData = useMemo(
@@ -426,7 +465,7 @@ const RecentTopics = memo(
         progressViewOffset={headerHeight}
       >
         <Animated.FlatList
-          ref={ref as any}
+          ref={listRef as any}
           data={visibleTopics}
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
@@ -482,13 +521,20 @@ const TabTopics = memo(
       variables: { tab },
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(tab),
     })
-    const { contentTopPadding, ...scrollProps } = listScrollProps
+    const { contentTopPadding, setScrollRef, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
 
     const renderItem: ListRenderItem<Topic> = useCallback(
       ({ item }) => <TopicItem topic={item} />,
       []
+    )
+    const listRef = useCallback(
+      (list: FlatList | null) => {
+        setScrollRef(list)
+        assignForwardedRef(ref, list)
+      },
+      [ref, setScrollRef]
     )
 
     const { visibleTopics, blockedTopics } = useTopicBlockRules(data)
@@ -499,7 +545,7 @@ const TabTopics = memo(
         progressViewOffset={headerHeight}
       >
         <Animated.FlatList
-          ref={ref as any}
+          ref={listRef as any}
           data={visibleTopics}
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
@@ -545,7 +591,7 @@ const NodeTopics = memo(
         variables: { name: nodeName },
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(nodeName),
       })
-    const { contentTopPadding, ...scrollProps } = listScrollProps
+    const { contentTopPadding, setScrollRef, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
       queryClient.prefetchInfiniteQuery({
@@ -557,6 +603,13 @@ const NodeTopics = memo(
     const renderItem: ListRenderItem<Topic> = useCallback(
       ({ item }) => <TopicItem topic={item} />,
       []
+    )
+    const listRef = useCallback(
+      (list: FlatList | null) => {
+        setScrollRef(list)
+        assignForwardedRef(ref, list)
+      },
+      [ref, setScrollRef]
     )
 
     const flatedData = useMemo(
@@ -571,7 +624,7 @@ const NodeTopics = memo(
         progressViewOffset={headerHeight}
       >
         <Animated.FlatList
-          ref={ref as any}
+          ref={listRef as any}
           data={visibleTopics}
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
@@ -626,7 +679,7 @@ const Xnas = memo(
       k.topic.xna.useSuspenseInfiniteQuery({
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(XNA_KEY),
       })
-    const { contentTopPadding, ...scrollProps } = listScrollProps
+    const { contentTopPadding, setScrollRef, ...scrollProps } = listScrollProps
 
     const { isRefetchingByUser, refetchByUser } = useRefreshByUser(() =>
       queryClient.prefetchInfiniteQuery({
@@ -638,6 +691,13 @@ const Xnas = memo(
     const renderItem: ListRenderItem<Xna> = useCallback(
       ({ item }) => <XnaItem xna={item} />,
       []
+    )
+    const listRef = useCallback(
+      (list: FlatList | null) => {
+        setScrollRef(list)
+        assignForwardedRef(ref, list)
+      },
+      [ref, setScrollRef]
     )
 
     const flatedData = useMemo(
@@ -651,7 +711,7 @@ const Xnas = memo(
         progressViewOffset={headerHeight}
       >
         <Animated.FlatList
-          ref={ref as any}
+          ref={listRef as any}
           data={flatedData}
           keyExtractor={xnaKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}

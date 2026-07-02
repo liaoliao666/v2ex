@@ -7,11 +7,13 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
-  useState,
 } from 'react'
 import {
   Animated,
   Easing,
+  LayoutChangeEvent,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   StyleProp,
   View,
   ViewStyle,
@@ -24,16 +26,26 @@ import {
   TabViewProps,
 } from 'react-native-tab-view'
 
-const SCROLL_DELTA_THRESHOLD = 0.5
-const TOP_BAR_TOGGLE_SCROLL_THRESHOLD = 16
+const HEADER_SYNC_HAIRLINE = 1
+const SNAP_ANIMATION_DURATION = 160
+const SCROLL_SYNC_RETRY_COUNT = 4
+const SCROLL_SYNC_RETRY_DELAY = 16
+
+type ScrollableRef = {
+  scrollTo?: (params: { animated?: boolean; y?: number }) => void
+  scrollToOffset?: (params: { animated?: boolean; offset: number }) => void
+}
 
 export type CollapsibleTabViewListScrollProps = {
-  onScroll: (event: any) => void
+  contentTopPadding: number
+  onContentSizeChange: (width: number, height: number) => void
+  onLayout: (event: LayoutChangeEvent) => void
+  onMomentumScrollEnd: () => void
+  onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag: () => void
   onScrollEndDrag: () => void
-  onMomentumScrollEnd: () => void
   scrollEventThrottle: number
-  contentTopPadding: number
+  setScrollRef: (scrollRef: ScrollableRef | null) => void
 }
 
 export type CollapsibleTabViewHandle = {
@@ -87,30 +99,71 @@ export type CollapsibleTabViewProps<T extends Route> = Omit<
   topSafeAreaOverlayStyle?: StyleProp<ViewStyle>
 }
 
-function getEffectiveScrollOffset(event: any) {
+type RouteScrollState = {
+  contentHeight: number
+  layoutHeight: number
+  maxOffset: number
+  pendingScrollY: number | null
+  ref: ScrollableRef | null
+  scrollY: number
+}
+
+function clamp(value: number, min: number, max: number) {
+  return Math.max(min, Math.min(value, max))
+}
+
+function createRouteScrollState(): RouteScrollState {
+  return {
+    contentHeight: 0,
+    layoutHeight: 0,
+    maxOffset: 0,
+    pendingScrollY: null,
+    ref: null,
+    scrollY: 0,
+  }
+}
+
+function getEventScrollY(event: NativeSyntheticEvent<NativeScrollEvent>) {
   const { contentOffset, contentSize, layoutMeasurement } = event.nativeEvent
-  const rawOffset = contentOffset.y
   const maxOffset = Math.max(0, contentSize.height - layoutMeasurement.height)
-  const offset = Math.max(0, Math.min(rawOffset, maxOffset))
-  const distanceToBottom = Math.max(0, maxOffset - offset)
 
   return {
-    distanceToBottom,
-    isBottomBounce: rawOffset > maxOffset,
     maxOffset,
-    offset,
+    scrollY: clamp(contentOffset.y, 0, maxOffset),
   }
+}
+
+function getScrollableTargetOffset(
+  state: RouteScrollState,
+  targetScrollY: number
+) {
+  if (state.maxOffset <= 0) return Math.max(0, targetScrollY)
+
+  return clamp(targetScrollY, 0, state.maxOffset)
+}
+
+function scrollTo(
+  scrollRef: ScrollableRef,
+  scrollY: number,
+  animated: boolean
+) {
+  if (scrollRef.scrollToOffset) {
+    scrollRef.scrollToOffset({ offset: scrollY, animated })
+    return
+  }
+
+  scrollRef.scrollTo?.({ y: scrollY, animated })
 }
 
 function CollapsibleTabViewInner<T extends Route>(
   {
-    bottomScrollLockDistance,
     collapsibleHeight,
     headerContainerStyle,
     headerHeight,
     initialLayout,
     navigationState,
     onIndexChange,
+    onSwipeStart,
     renderLazyPlaceholder,
     renderScene,
     renderTabBar,
@@ -121,161 +174,190 @@ function CollapsibleTabViewInner<T extends Route>(
   ref: Ref<CollapsibleTabViewHandle>
 ) {
   const layout = useWindowDimensions()
-  const topBarCollapseY = useRef(new Animated.Value(0)).current
-  const topBarCollapseValueRef = useRef(0)
-  const topBarAnimationRef = useRef<Animated.CompositeAnimation | null>(null)
-  const lastScrollDirectionRef = useRef(0)
+  const headerOffsetY = useRef(new Animated.Value(0)).current
+  const headerOffsetAnimationRef = useRef<Animated.CompositeAnimation | null>(
+    null
+  )
   const activeRouteKeyRef = useRef(
     navigationState.routes[navigationState.index]?.key
   )
-  const bottomBounceRouteMapRef = useRef<Record<string, boolean>>({})
-  const scrollToTopRouteMapRef = useRef<Record<string, boolean>>({})
-  const routeDistanceToBottomMapRef = useRef<Record<string, number>>({})
-  const routeScrollIntentDirectionMapRef = useRef<Record<string, number>>({})
-  const routeScrollIntentDistanceMapRef = useRef<Record<string, number>>({})
-  const routeScrollOffsetMapRef = useRef<Record<string, number>>({})
-  const [contentTopPadding, setContentTopPadding] = useState(headerHeight)
-  const lockDistance = bottomScrollLockDistance ?? collapsibleHeight * 2
-  const topBarTranslateY = topBarCollapseY.interpolate({
+  const currentScrollYRef = useRef(0)
+  const headerOffsetValueRef = useRef(0)
+  const routeScrollStateMapRef = useRef<Record<string, RouteScrollState>>({})
+  const contentTopPadding = headerHeight
+  const topBarTranslateY = headerOffsetY.interpolate({
     inputRange: [0, collapsibleHeight],
     outputRange: [0, -collapsibleHeight],
     extrapolate: 'clamp',
   })
-  const expandedContentTopPadding = headerHeight
-  const collapsedContentTopPadding = headerHeight - collapsibleHeight
 
-  const resetRouteScrollIntent = useCallback((routeKey: string) => {
-    routeScrollIntentDirectionMapRef.current[routeKey] = 0
-    routeScrollIntentDistanceMapRef.current[routeKey] = 0
+  const getRouteScrollState = useCallback((routeKey: string) => {
+    const existingState = routeScrollStateMapRef.current[routeKey]
+    if (existingState) return existingState
+
+    const nextState = createRouteScrollState()
+    routeScrollStateMapRef.current[routeKey] = nextState
+    return nextState
   }, [])
 
-  const updateContentTopPadding = useCallback(
-    (isCollapsed: boolean, force = false) => {
-      const nextPadding = isCollapsed
-        ? collapsedContentTopPadding
-        : expandedContentTopPadding
+  const setHeaderOffset = useCallback(
+    (value: number, animated = false) => {
+      const nextHeaderOffset = clamp(value, 0, collapsibleHeight)
+      if (headerOffsetValueRef.current === nextHeaderOffset) return
 
-      setContentTopPadding(currentPadding =>
-        force || currentPadding === nextPadding ? nextPadding : currentPadding
-      )
-    },
-    [collapsedContentTopPadding, expandedContentTopPadding]
-  )
+      headerOffsetAnimationRef.current?.stop()
+      headerOffsetAnimationRef.current = null
+      headerOffsetValueRef.current = nextHeaderOffset
 
-  const updateTopBarCollapse = useCallback(
-    (value: number, forceContentPadding = false) => {
-      topBarAnimationRef.current?.stop()
-      topBarAnimationRef.current = null
-
-      const nextValue = Math.max(0, Math.min(value, collapsibleHeight))
-      const nextIsCollapsed = nextValue >= collapsibleHeight
-      if (topBarCollapseValueRef.current === nextValue) {
-        updateContentTopPadding(nextIsCollapsed, forceContentPadding)
+      if (!animated) {
+        headerOffsetY.setValue(nextHeaderOffset)
         return
       }
 
-      topBarCollapseValueRef.current = nextValue
-      updateContentTopPadding(nextIsCollapsed, forceContentPadding)
-      topBarCollapseY.setValue(nextValue)
-    },
-    [collapsibleHeight, topBarCollapseY, updateContentTopPadding]
-  )
-
-  const animateTopBarCollapse = useCallback(
-    (targetValue: number, forceContentPadding = false) => {
-      const nextValue = Math.max(0, Math.min(targetValue, collapsibleHeight))
-      const nextIsCollapsed = nextValue >= collapsibleHeight
-      if (topBarCollapseValueRef.current === nextValue) {
-        updateContentTopPadding(nextIsCollapsed, forceContentPadding)
-        return
-      }
-
-      topBarAnimationRef.current?.stop()
-      topBarCollapseValueRef.current = nextValue
-      updateContentTopPadding(nextIsCollapsed, forceContentPadding)
-
-      const animation = Animated.timing(topBarCollapseY, {
-        toValue: nextValue,
-        duration: 160,
+      const animation = Animated.timing(headerOffsetY, {
+        toValue: nextHeaderOffset,
+        duration: SNAP_ANIMATION_DURATION,
         easing: Easing.out(Easing.cubic),
         useNativeDriver: true,
       })
 
-      topBarAnimationRef.current = animation
+      headerOffsetAnimationRef.current = animation
       animation.start(() => {
-        if (topBarAnimationRef.current === animation) {
-          topBarAnimationRef.current = null
+        if (headerOffsetAnimationRef.current === animation) {
+          headerOffsetAnimationRef.current = null
         }
-        topBarCollapseValueRef.current = nextValue
+        headerOffsetValueRef.current = nextHeaderOffset
       })
     },
-    [collapsibleHeight, topBarCollapseY, updateContentTopPadding]
+    [collapsibleHeight, headerOffsetY]
   )
 
-  const snapTopBarCollapse = useCallback(
-    (routeKey: string) => {
-      if (activeRouteKeyRef.current !== routeKey) return
-
-      const distanceToBottom =
-        routeDistanceToBottomMapRef.current[routeKey] ??
-        Number.POSITIVE_INFINITY
-      if (distanceToBottom <= lockDistance) return
-
-      const offset = routeScrollOffsetMapRef.current[routeKey] || 0
-      const currentValue = topBarCollapseValueRef.current
-      let targetValue: number
-
-      if (offset < collapsibleHeight) {
-        targetValue = 0
-      } else if (lastScrollDirectionRef.current > 0) {
-        targetValue = collapsibleHeight
-      } else if (lastScrollDirectionRef.current < 0) {
-        targetValue = 0
-      } else {
-        targetValue =
-          currentValue >= collapsibleHeight / 2 ? collapsibleHeight : 0
+  const updateHeaderOffsetFromScroll = useCallback(
+    (scrollY: number, previousScrollY: number) => {
+      if (scrollY <= collapsibleHeight) {
+        setHeaderOffset(scrollY)
+        return
       }
 
-      animateTopBarCollapse(targetValue)
+      const delta = scrollY - previousScrollY
+      if (delta === 0) return
+
+      setHeaderOffset(headerOffsetValueRef.current + delta)
     },
-    [animateTopBarCollapse, collapsibleHeight, lockDistance]
+    [collapsibleHeight, setHeaderOffset]
   )
+
+  const snapHeaderOffset = useCallback(() => {
+    const currentHeaderOffset = headerOffsetValueRef.current
+    if (currentHeaderOffset <= 0 || currentHeaderOffset >= collapsibleHeight) {
+      return
+    }
+
+    const targetHeaderOffset =
+      currentScrollYRef.current <= collapsibleHeight ||
+      currentHeaderOffset < collapsibleHeight / 2
+        ? 0
+        : collapsibleHeight
+
+    setHeaderOffset(targetHeaderOffset, true)
+  }, [collapsibleHeight, setHeaderOffset])
+
+  const applyRouteScroll = useCallback(
+    (
+      routeKey: string,
+      targetScrollY: number,
+      animated = false,
+      retryCount = 0
+    ) => {
+      const routeState = getRouteScrollState(routeKey)
+      const nextScrollY = getScrollableTargetOffset(routeState, targetScrollY)
+
+      routeState.pendingScrollY = nextScrollY
+      routeState.scrollY = nextScrollY
+
+      if (activeRouteKeyRef.current === routeKey) {
+        currentScrollYRef.current = nextScrollY
+        setHeaderOffset(nextScrollY)
+      }
+
+      if (!routeState.ref) return
+
+      scrollTo(routeState.ref, nextScrollY, animated)
+
+      if (retryCount <= 0) {
+        if (routeState.contentHeight > 0 && routeState.layoutHeight > 0) {
+          routeState.pendingScrollY = null
+        }
+        return
+      }
+
+      setTimeout(() => {
+        applyRouteScroll(routeKey, targetScrollY, animated, retryCount - 1)
+      }, SCROLL_SYNC_RETRY_DELAY)
+    },
+    [getRouteScrollState, setHeaderOffset]
+  )
+
+  const getSyncedRouteScrollY = useCallback(
+    (routeKey: string) => {
+      const routeScrollY = getRouteScrollState(routeKey).scrollY
+      const currentHeaderOffset = headerOffsetValueRef.current
+      const routeIsWithinHeader =
+        routeScrollY <= collapsibleHeight + HEADER_SYNC_HAIRLINE
+      const hasHeaderGap = currentHeaderOffset > routeScrollY
+
+      // Mirrors react-native-collapsible-tab-view: only move an unfocused tab
+      // when its current offset would create a gap under the header.
+      if (hasHeaderGap || routeIsWithinHeader) {
+        return currentHeaderOffset
+      }
+
+      return routeScrollY
+    },
+    [collapsibleHeight, getRouteScrollState]
+  )
+
+  const syncRouteToCurrentHeader = useCallback(
+    (routeKey: string, retryCount = SCROLL_SYNC_RETRY_COUNT) => {
+      const nextScrollY = getSyncedRouteScrollY(routeKey)
+
+      applyRouteScroll(routeKey, nextScrollY, false, retryCount)
+      return nextScrollY
+    },
+    [applyRouteScroll, getSyncedRouteScrollY]
+  )
+
+  const syncAdjacentRoutes = useCallback(() => {
+    const previousRoute = navigationState.routes[navigationState.index - 1]
+    const nextRoute = navigationState.routes[navigationState.index + 1]
+
+    if (previousRoute) syncRouteToCurrentHeader(previousRoute.key, 0)
+    if (nextRoute) syncRouteToCurrentHeader(nextRoute.key, 0)
+  }, [navigationState.index, navigationState.routes, syncRouteToCurrentHeader])
 
   const syncRoute = useCallback(
     (routeKey: string, keepHidden = false) => {
       if (keepHidden) {
-        updateTopBarCollapse(
-          topBarCollapseValueRef.current >= collapsibleHeight - 1
-            ? collapsibleHeight
-            : 0,
-          true
-        )
+        syncRouteToCurrentHeader(routeKey)
         return
       }
 
-      const offset = routeScrollOffsetMapRef.current[routeKey] || 0
-      updateTopBarCollapse(
-        offset < collapsibleHeight ? 0 : collapsibleHeight,
-        true
-      )
+      const routeState = getRouteScrollState(routeKey)
+      currentScrollYRef.current = routeState.scrollY
+      setHeaderOffset(routeState.scrollY)
     },
-    [collapsibleHeight, updateTopBarCollapse]
+    [getRouteScrollState, setHeaderOffset, syncRouteToCurrentHeader]
   )
 
   const resetRouteScroll = useCallback(
     (routeKey: string) => {
-      bottomBounceRouteMapRef.current[routeKey] = false
-      scrollToTopRouteMapRef.current[routeKey] = true
-      routeDistanceToBottomMapRef.current[routeKey] = Number.POSITIVE_INFINITY
-      resetRouteScrollIntent(routeKey)
-      routeScrollOffsetMapRef.current[routeKey] = 0
+      const routeState = getRouteScrollState(routeKey)
+      routeState.pendingScrollY = 0
+      routeState.scrollY = 0
 
-      if (activeRouteKeyRef.current === routeKey) {
-        lastScrollDirectionRef.current = 0
-        updateTopBarCollapse(0, true)
-      }
+      applyRouteScroll(routeKey, 0, false, SCROLL_SYNC_RETRY_COUNT)
     },
-    [resetRouteScrollIntent, updateTopBarCollapse]
+    [applyRouteScroll, getRouteScrollState]
   )
 
   const changeIndex = useCallback(
@@ -283,127 +365,104 @@ function CollapsibleTabViewInner<T extends Route>(
       const nextRoute = navigationState.routes[nextIndex]
       if (!nextRoute) return
 
-      activeRouteKeyRef.current = nextRoute.key
-      lastScrollDirectionRef.current = 0
-      resetRouteScrollIntent(nextRoute.key)
-      syncRoute(nextRoute.key, true)
+      if (nextIndex !== navigationState.index) {
+        syncRouteToCurrentHeader(nextRoute.key)
+        activeRouteKeyRef.current = nextRoute.key
+      }
+
       onIndexChange(nextIndex, forceFetch)
     },
-    [navigationState.routes, onIndexChange, resetRouteScrollIntent, syncRoute]
+    [
+      navigationState.index,
+      navigationState.routes,
+      onIndexChange,
+      syncRouteToCurrentHeader,
+    ]
   )
 
   const getListScrollProps = useCallback(
     (routeKey: string): CollapsibleTabViewListScrollProps => ({
-      onScroll: event => {
-        const { distanceToBottom, isBottomBounce, maxOffset, offset } =
-          getEffectiveScrollOffset(event)
-        const previousOffset = routeScrollOffsetMapRef.current[routeKey] ?? 0
-        const delta = offset - previousOffset
+      contentTopPadding,
+      onContentSizeChange: (_width, height) => {
+        const routeState = getRouteScrollState(routeKey)
+        routeState.contentHeight = height
+        routeState.maxOffset = Math.max(0, height - routeState.layoutHeight)
 
-        routeDistanceToBottomMapRef.current[routeKey] = distanceToBottom
-
-        if (scrollToTopRouteMapRef.current[routeKey]) {
-          routeScrollOffsetMapRef.current[routeKey] = offset
-
-          if (offset <= SCROLL_DELTA_THRESHOLD) {
-            scrollToTopRouteMapRef.current[routeKey] = false
-            lastScrollDirectionRef.current = 0
-            resetRouteScrollIntent(routeKey)
-          }
-
-          if (activeRouteKeyRef.current === routeKey) {
-            updateTopBarCollapse(0, true)
-          }
-          return
-        }
-
-        if (isBottomBounce || bottomBounceRouteMapRef.current[routeKey]) {
-          bottomBounceRouteMapRef.current[routeKey] = true
-          routeDistanceToBottomMapRef.current[routeKey] = 0
-          resetRouteScrollIntent(routeKey)
-          routeScrollOffsetMapRef.current[routeKey] = maxOffset
-          return
-        }
-
-        routeScrollOffsetMapRef.current[routeKey] = offset
-
-        if (activeRouteKeyRef.current !== routeKey) return
-        if (distanceToBottom <= lockDistance) return
-
-        if (Math.abs(delta) <= SCROLL_DELTA_THRESHOLD) {
-          return
-        }
-
-        const direction = delta > 0 ? 1 : -1
-        const previousDirection =
-          routeScrollIntentDirectionMapRef.current[routeKey] || 0
-        const scrollIntentDistance =
-          previousDirection === direction
-            ? (routeScrollIntentDistanceMapRef.current[routeKey] || 0) +
-              Math.abs(delta)
-            : Math.abs(delta)
-
-        routeScrollIntentDirectionMapRef.current[routeKey] = direction
-        routeScrollIntentDistanceMapRef.current[routeKey] = scrollIntentDistance
-
-        if (scrollIntentDistance < TOP_BAR_TOGGLE_SCROLL_THRESHOLD) return
-
-        lastScrollDirectionRef.current = direction
-
-        if (direction < 0) {
-          resetRouteScrollIntent(routeKey)
-          animateTopBarCollapse(
-            0,
-            contentTopPadding < expandedContentTopPadding &&
-              offset < collapsibleHeight
-          )
-          return
-        }
-
-        if (offset >= collapsibleHeight) {
-          resetRouteScrollIntent(routeKey)
-          animateTopBarCollapse(collapsibleHeight)
+        if (routeState.pendingScrollY !== null) {
+          applyRouteScroll(routeKey, routeState.pendingScrollY)
         }
       },
-      onScrollBeginDrag: () => {
-        bottomBounceRouteMapRef.current[routeKey] = false
-        scrollToTopRouteMapRef.current[routeKey] = false
-        resetRouteScrollIntent(routeKey)
-        if (activeRouteKeyRef.current === routeKey) {
-          lastScrollDirectionRef.current = 0
+      onLayout: event => {
+        const routeState = getRouteScrollState(routeKey)
+        routeState.layoutHeight = event.nativeEvent.layout.height
+        routeState.maxOffset = Math.max(
+          0,
+          routeState.contentHeight - routeState.layoutHeight
+        )
+
+        if (routeState.pendingScrollY !== null) {
+          applyRouteScroll(routeKey, routeState.pendingScrollY)
         }
-      },
-      onScrollEndDrag: () => {
-        if (scrollToTopRouteMapRef.current[routeKey]) return
-        if (bottomBounceRouteMapRef.current[routeKey]) return
-        snapTopBarCollapse(routeKey)
       },
       onMomentumScrollEnd: () => {
-        if (scrollToTopRouteMapRef.current[routeKey]) {
-          scrollToTopRouteMapRef.current[routeKey] = false
-          lastScrollDirectionRef.current = 0
-          return
+        getRouteScrollState(routeKey).pendingScrollY = null
+        if (activeRouteKeyRef.current === routeKey) {
+          snapHeaderOffset()
         }
-        if (bottomBounceRouteMapRef.current[routeKey]) {
-          bottomBounceRouteMapRef.current[routeKey] = false
-          return
+      },
+      onScroll: event => {
+        const { maxOffset, scrollY } = getEventScrollY(event)
+        const routeState = getRouteScrollState(routeKey)
+        const previousScrollY = routeState.scrollY
+
+        routeState.maxOffset = maxOffset
+        routeState.scrollY = scrollY
+        routeState.pendingScrollY = null
+
+        if (activeRouteKeyRef.current !== routeKey) return
+
+        currentScrollYRef.current = scrollY
+        updateHeaderOffsetFromScroll(scrollY, previousScrollY)
+      },
+      onScrollBeginDrag: () => {
+        headerOffsetAnimationRef.current?.stop()
+        headerOffsetAnimationRef.current = null
+        getRouteScrollState(routeKey).pendingScrollY = null
+      },
+      onScrollEndDrag: () => {
+        getRouteScrollState(routeKey).pendingScrollY = null
+        if (activeRouteKeyRef.current === routeKey) {
+          snapHeaderOffset()
         }
-        snapTopBarCollapse(routeKey)
       },
       scrollEventThrottle: 16,
-      contentTopPadding,
+      setScrollRef: scrollRef => {
+        const routeState = getRouteScrollState(routeKey)
+        routeState.ref = scrollRef
+
+        if (scrollRef && routeState.pendingScrollY !== null) {
+          applyRouteScroll(
+            routeKey,
+            routeState.pendingScrollY,
+            false,
+            SCROLL_SYNC_RETRY_COUNT
+          )
+        }
+      },
     }),
     [
-      animateTopBarCollapse,
-      collapsibleHeight,
+      applyRouteScroll,
       contentTopPadding,
-      expandedContentTopPadding,
-      lockDistance,
-      resetRouteScrollIntent,
-      snapTopBarCollapse,
-      updateTopBarCollapse,
+      getRouteScrollState,
+      snapHeaderOffset,
+      updateHeaderOffsetFromScroll,
     ]
   )
+
+  const handleSwipeStart = useCallback(() => {
+    syncAdjacentRoutes()
+    onSwipeStart?.()
+  }, [onSwipeStart, syncAdjacentRoutes])
 
   useImperativeHandle(
     ref,
@@ -415,25 +474,22 @@ function CollapsibleTabViewInner<T extends Route>(
   )
 
   useEffect(() => {
-    updateContentTopPadding(
-      topBarCollapseValueRef.current >= collapsibleHeight,
-      true
-    )
-  }, [collapsibleHeight, headerHeight, updateContentTopPadding])
-
-  useEffect(() => {
     const activeRouteKey = navigationState.routes[navigationState.index]?.key
     if (!activeRouteKey) return
 
-    activeRouteKeyRef.current = activeRouteKey
-    lastScrollDirectionRef.current = 0
-    resetRouteScrollIntent(activeRouteKey)
-    syncRoute(activeRouteKey, true)
+    if (activeRouteKeyRef.current !== activeRouteKey) {
+      syncRouteToCurrentHeader(activeRouteKey)
+      activeRouteKeyRef.current = activeRouteKey
+      return
+    }
+
+    const routeState = getRouteScrollState(activeRouteKey)
+    currentScrollYRef.current = routeState.scrollY
   }, [
+    getRouteScrollState,
     navigationState.index,
     navigationState.routes,
-    resetRouteScrollIntent,
-    syncRoute,
+    syncRouteToCurrentHeader,
   ])
 
   return (
@@ -442,6 +498,7 @@ function CollapsibleTabViewInner<T extends Route>(
       initialLayout={initialLayout ?? { width: layout.width }}
       navigationState={navigationState}
       onIndexChange={changeIndex}
+      onSwipeStart={handleSwipeStart}
       renderLazyPlaceholder={
         renderLazyPlaceholder
           ? lazyPlaceholderProps =>
