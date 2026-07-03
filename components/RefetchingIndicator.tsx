@@ -27,7 +27,9 @@ export default function RefetchingIndicator({
           entering={FadeIn.duration(400)}
           exiting={FadeOut.duration(400)}
           style={tw.style(`absolute inset-x-0 flex-row justify-center`, {
+            elevation: 24,
             top: progressViewOffset + 24,
+            zIndex: 24,
           })}
           pointerEvents="none"
         >

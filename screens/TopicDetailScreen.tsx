@@ -1,6 +1,6 @@
 import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { last } from 'lodash-es'
 import {
   Fragment,
@@ -47,7 +47,6 @@ import TopicInfo, {
   VoteButton,
 } from '@/components/topic/TopicInfo'
 import { RepliesMode, repliesModeAtom } from '@/jotai/repliesMode'
-import { store } from '@/jotai/store'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { uiAtom } from '@/jotai/uiAtom'
 import { navigation } from '@/navigation/navigationRef'
@@ -369,10 +368,8 @@ function TopicDetailScreen() {
   })
 
   const { isRefetchingByUser, refetchByUser } = useRefreshByUser(refetch)
-  const setRepliesMode = useSetAtom(repliesModeAtom)
-  const [orderBy, setOrderBy] = useState<RepliesMode | 'reverse'>(
-    () => store.get(repliesModeAtom) ?? 'default'
-  )
+  const [repliesMode = 'default', setRepliesMode] = useAtom(repliesModeAtom)
+  const [orderBy, setOrderBy] = useState<RepliesMode | 'reverse'>(repliesMode)
   const rawReplies = useMemo(() => {
     const seenReplyIds = new Set<number>()
     const replies: Reply[] = []

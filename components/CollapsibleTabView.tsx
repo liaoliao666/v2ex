@@ -7,6 +7,7 @@ import {
   useEffect,
   useImperativeHandle,
   useRef,
+  useState,
 } from 'react'
 import {
   Animated,
@@ -184,12 +185,40 @@ function CollapsibleTabViewInner<T extends Route>(
   const currentScrollYRef = useRef(0)
   const headerOffsetValueRef = useRef(0)
   const routeScrollStateMapRef = useRef<Record<string, RouteScrollState>>({})
-  const contentTopPadding = headerHeight
+  const expandedContentTopPadding = headerHeight
+  const collapsedContentTopPadding = Math.max(
+    0,
+    headerHeight - collapsibleHeight
+  )
+  const [contentTopPadding, setContentTopPaddingState] = useState(
+    expandedContentTopPadding
+  )
+  const contentTopPaddingValueRef = useRef(expandedContentTopPadding)
   const topBarTranslateY = headerOffsetY.interpolate({
     inputRange: [0, collapsibleHeight],
     outputRange: [0, -collapsibleHeight],
     extrapolate: 'clamp',
   })
+
+  const updateContentTopPadding = useCallback(
+    (headerOffset: number, force = false) => {
+      const nextContentTopPadding =
+        headerOffset >= collapsibleHeight - HEADER_SYNC_HAIRLINE
+          ? collapsedContentTopPadding
+          : expandedContentTopPadding
+
+      if (
+        !force &&
+        contentTopPaddingValueRef.current === nextContentTopPadding
+      ) {
+        return
+      }
+
+      contentTopPaddingValueRef.current = nextContentTopPadding
+      setContentTopPaddingState(nextContentTopPadding)
+    },
+    [collapsedContentTopPadding, collapsibleHeight, expandedContentTopPadding]
+  )
 
   const getRouteScrollState = useCallback((routeKey: string) => {
     const existingState = routeScrollStateMapRef.current[routeKey]
@@ -203,11 +232,15 @@ function CollapsibleTabViewInner<T extends Route>(
   const setHeaderOffset = useCallback(
     (value: number, animated = false) => {
       const nextHeaderOffset = clamp(value, 0, collapsibleHeight)
-      if (headerOffsetValueRef.current === nextHeaderOffset) return
+      if (headerOffsetValueRef.current === nextHeaderOffset) {
+        updateContentTopPadding(nextHeaderOffset)
+        return
+      }
 
       headerOffsetAnimationRef.current?.stop()
       headerOffsetAnimationRef.current = null
       headerOffsetValueRef.current = nextHeaderOffset
+      updateContentTopPadding(nextHeaderOffset)
 
       if (!animated) {
         headerOffsetY.setValue(nextHeaderOffset)
@@ -229,7 +262,7 @@ function CollapsibleTabViewInner<T extends Route>(
         headerOffsetValueRef.current = nextHeaderOffset
       })
     },
-    [collapsibleHeight, headerOffsetY]
+    [collapsibleHeight, headerOffsetY, updateContentTopPadding]
   )
 
   const updateHeaderOffsetFromScroll = useCallback(
@@ -382,7 +415,7 @@ function CollapsibleTabViewInner<T extends Route>(
 
   const getListScrollProps = useCallback(
     (routeKey: string): CollapsibleTabViewListScrollProps => ({
-      contentTopPadding,
+      contentTopPadding: headerHeight,
       onContentSizeChange: (_width, height) => {
         const routeState = getRouteScrollState(routeKey)
         routeState.contentHeight = height
@@ -452,8 +485,8 @@ function CollapsibleTabViewInner<T extends Route>(
     }),
     [
       applyRouteScroll,
-      contentTopPadding,
       getRouteScrollState,
+      headerHeight,
       snapHeaderOffset,
       updateHeaderOffsetFromScroll,
     ]
@@ -472,6 +505,10 @@ function CollapsibleTabViewInner<T extends Route>(
     }),
     [resetRouteScroll, syncRoute]
   )
+
+  useEffect(() => {
+    updateContentTopPadding(headerOffsetValueRef.current, true)
+  }, [collapsibleHeight, headerHeight, updateContentTopPadding])
 
   useEffect(() => {
     const activeRouteKey = navigationState.routes[navigationState.index]?.key

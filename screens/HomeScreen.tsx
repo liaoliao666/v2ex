@@ -257,12 +257,7 @@ function HomeScreen() {
           </Animated.View>
         )}
         renderTopBar={() => <TopNavBar />}
-        renderScene={({
-          contentTopPadding,
-          headerHeight: sceneHeaderHeight,
-          listScrollProps,
-          route,
-        }) => {
+        renderScene={({ contentTopPadding, listScrollProps, route }) => {
           const routeIndex = tabs.indexOf(route)
           if (
             routeIndex !== previousIndex &&
@@ -271,7 +266,9 @@ function HomeScreen() {
             return (
               <Animated.View
                 key={route.key}
-                style={{ paddingTop: contentTopPadding }}
+                style={{
+                  paddingTop: contentTopPadding,
+                }}
               >
                 <TopicPlaceholder />
               </Animated.View>
@@ -286,9 +283,9 @@ function HomeScreen() {
               <TabPlaceholder headerHeight={contentTopPadding} tab={route.key}>
                 <NodeTopics
                   ref={ref}
-                  headerHeight={sceneHeaderHeight}
                   listScrollProps={listScrollProps}
                   nodeName={route.key}
+                  progressViewOffset={contentTopPadding}
                 />
               </TabPlaceholder>
             )
@@ -302,8 +299,8 @@ function HomeScreen() {
               >
                 <RecentTopics
                   ref={ref}
-                  headerHeight={sceneHeaderHeight}
                   listScrollProps={listScrollProps}
+                  progressViewOffset={contentTopPadding}
                 />
               </TabPlaceholder>
             )
@@ -314,8 +311,8 @@ function HomeScreen() {
               <TabPlaceholder headerHeight={contentTopPadding} tab={XNA_KEY}>
                 <Xnas
                   ref={ref}
-                  headerHeight={sceneHeaderHeight}
                   listScrollProps={listScrollProps}
+                  progressViewOffset={contentTopPadding}
                 />
               </TabPlaceholder>
             )
@@ -325,8 +322,8 @@ function HomeScreen() {
             <TabPlaceholder headerHeight={contentTopPadding} tab={route.key}>
               <TabTopics
                 ref={ref}
-                headerHeight={sceneHeaderHeight}
                 listScrollProps={listScrollProps}
+                progressViewOffset={contentTopPadding}
                 tab={route.key}
               />
             </TabPlaceholder>
@@ -424,10 +421,10 @@ const RecentTopics = memo(
   forwardRef<
     FlatList,
     {
-      headerHeight: number
       listScrollProps: CollapsibleTabViewListScrollProps
+      progressViewOffset: number
     }
-  >(({ headerHeight, listScrollProps }, ref) => {
+  >(({ listScrollProps, progressViewOffset }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.topic.recent.useSuspenseInfiniteQuery({
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(RECENT_TAB_KEY),
@@ -462,7 +459,7 @@ const RecentTopics = memo(
     return (
       <RefetchingIndicator
         isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
-        progressViewOffset={headerHeight}
+        progressViewOffset={progressViewOffset}
       >
         <Animated.FlatList
           ref={listRef as any}
@@ -475,7 +472,7 @@ const RecentTopics = memo(
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
               onRefresh={refetchByUser}
-              progressViewOffset={headerHeight}
+              progressViewOffset={progressViewOffset}
             />
           }
           ItemSeparatorComponent={LineSeparator}
@@ -513,10 +510,10 @@ const TabTopics = memo(
     FlatList,
     {
       tab: string
-      headerHeight: number
       listScrollProps: CollapsibleTabViewListScrollProps
+      progressViewOffset: number
     }
-  >(({ tab, headerHeight, listScrollProps }, ref) => {
+  >(({ tab, listScrollProps, progressViewOffset }, ref) => {
     const { data, refetch, isFetching } = k.topic.tab.useSuspenseQuery({
       variables: { tab },
       refetchOnWindowFocus: () => isRefetchOnWindowFocus(tab),
@@ -542,7 +539,7 @@ const TabTopics = memo(
     return (
       <RefetchingIndicator
         isRefetching={isFetching && !isRefetchingByUser}
-        progressViewOffset={headerHeight}
+        progressViewOffset={progressViewOffset}
       >
         <Animated.FlatList
           ref={listRef as any}
@@ -555,7 +552,7 @@ const TabTopics = memo(
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
               onRefresh={refetchByUser}
-              progressViewOffset={headerHeight}
+              progressViewOffset={progressViewOffset}
             />
           }
           ItemSeparatorComponent={LineSeparator}
@@ -582,10 +579,10 @@ const NodeTopics = memo(
     FlatList,
     {
       nodeName: string
-      headerHeight: number
       listScrollProps: CollapsibleTabViewListScrollProps
+      progressViewOffset: number
     }
-  >(({ nodeName, headerHeight, listScrollProps }, ref) => {
+  >(({ nodeName, listScrollProps, progressViewOffset }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.node.topics.useSuspenseInfiniteQuery({
         variables: { name: nodeName },
@@ -621,7 +618,7 @@ const NodeTopics = memo(
     return (
       <RefetchingIndicator
         isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
-        progressViewOffset={headerHeight}
+        progressViewOffset={progressViewOffset}
       >
         <Animated.FlatList
           ref={listRef as any}
@@ -633,7 +630,7 @@ const NodeTopics = memo(
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
               onRefresh={refetchByUser}
-              progressViewOffset={headerHeight}
+              progressViewOffset={progressViewOffset}
             />
           }
           ListEmptyComponent={<Empty description="无法访问该节点" />}
@@ -671,10 +668,10 @@ const Xnas = memo(
   forwardRef<
     FlatList,
     {
-      headerHeight: number
       listScrollProps: CollapsibleTabViewListScrollProps
+      progressViewOffset: number
     }
-  >(({ headerHeight, listScrollProps }, ref) => {
+  >(({ listScrollProps, progressViewOffset }, ref) => {
     const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isFetching } =
       k.topic.xna.useSuspenseInfiniteQuery({
         refetchOnWindowFocus: () => isRefetchOnWindowFocus(XNA_KEY),
@@ -708,7 +705,7 @@ const Xnas = memo(
     return (
       <RefetchingIndicator
         isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
-        progressViewOffset={headerHeight}
+        progressViewOffset={progressViewOffset}
       >
         <Animated.FlatList
           ref={listRef as any}
@@ -721,7 +718,7 @@ const Xnas = memo(
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
               onRefresh={refetchByUser}
-              progressViewOffset={headerHeight}
+              progressViewOffset={progressViewOffset}
             />
           }
           ItemSeparatorComponent={LineSeparator}
