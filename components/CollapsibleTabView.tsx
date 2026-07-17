@@ -267,15 +267,19 @@ function CollapsibleTabViewInner<T extends Route>(
 
   const updateHeaderOffsetFromScroll = useCallback(
     (scrollY: number, previousScrollY: number) => {
-      if (scrollY <= collapsibleHeight) {
-        setHeaderOffset(scrollY)
-        return
-      }
-
       const delta = scrollY - previousScrollY
       if (delta === 0) return
 
-      setHeaderOffset(headerOffsetValueRef.current + delta)
+      // Keep the header movement continuous when an expanded header reaches
+      // the top range instead of hiding it again by snapping to scrollY.
+      const maxHeaderOffset = Math.min(scrollY, collapsibleHeight)
+      const nextHeaderOffset = clamp(
+        headerOffsetValueRef.current + delta,
+        0,
+        maxHeaderOffset
+      )
+
+      setHeaderOffset(nextHeaderOffset)
     },
     [collapsibleHeight, setHeaderOffset]
   )
