@@ -28,7 +28,9 @@ import {
 } from 'react-native-tab-view'
 
 const HEADER_SYNC_HAIRLINE = 1
+const HEADER_ANIMATION_DELTA_THRESHOLD = 12
 const SNAP_ANIMATION_DURATION = 160
+const SCROLL_END_SNAP_DELAY = 32
 const SCROLL_SYNC_RETRY_COUNT = 4
 const SCROLL_SYNC_RETRY_DELAY = 16
 
@@ -41,6 +43,7 @@ export type CollapsibleTabViewListScrollProps = {
   contentTopPadding: number
   onContentSizeChange: (width: number, height: number) => void
   onLayout: (event: LayoutChangeEvent) => void
+  onMomentumScrollBegin: () => void
   onMomentumScrollEnd: () => void
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void
   onScrollBeginDrag: () => void
@@ -179,6 +182,9 @@ function CollapsibleTabViewInner<T extends Route>(
   const headerOffsetAnimationRef = useRef<Animated.CompositeAnimation | null>(
     null
   )
+  const pendingHeaderSnapTimeoutRef = useRef<ReturnType<
+    typeof setTimeout
+  > | null>(null)
   const activeRouteKeyRef = useRef(
     navigationState.routes[navigationState.index]?.key
   )
@@ -259,7 +265,6 @@ function CollapsibleTabViewInner<T extends Route>(
         if (headerOffsetAnimationRef.current === animation) {
           headerOffsetAnimationRef.current = null
         }
-        headerOffsetValueRef.current = nextHeaderOffset
       })
     },
     [collapsibleHeight, headerOffsetY, updateContentTopPadding]
@@ -278,8 +283,12 @@ function CollapsibleTabViewInner<T extends Route>(
         0,
         maxHeaderOffset
       )
+      const shouldAnimate =
+        headerOffsetAnimationRef.current !== null ||
+        Math.abs(nextHeaderOffset - headerOffsetValueRef.current) >=
+          HEADER_ANIMATION_DELTA_THRESHOLD
 
-      setHeaderOffset(nextHeaderOffset)
+      setHeaderOffset(nextHeaderOffset, shouldAnimate)
     },
     [collapsibleHeight, setHeaderOffset]
   )
@@ -298,6 +307,26 @@ function CollapsibleTabViewInner<T extends Route>(
 
     setHeaderOffset(targetHeaderOffset, true)
   }, [collapsibleHeight, setHeaderOffset])
+
+  const cancelPendingHeaderSnap = useCallback(() => {
+    if (pendingHeaderSnapTimeoutRef.current === null) return
+
+    clearTimeout(pendingHeaderSnapTimeoutRef.current)
+    pendingHeaderSnapTimeoutRef.current = null
+  }, [])
+
+  const scheduleHeaderSnap = useCallback(
+    (routeKey: string) => {
+      cancelPendingHeaderSnap()
+      pendingHeaderSnapTimeoutRef.current = setTimeout(() => {
+        pendingHeaderSnapTimeoutRef.current = null
+        if (activeRouteKeyRef.current === routeKey) {
+          snapHeaderOffset()
+        }
+      }, SCROLL_END_SNAP_DELAY)
+    },
+    [cancelPendingHeaderSnap, snapHeaderOffset]
+  )
 
   const applyRouteScroll = useCallback(
     (
@@ -441,7 +470,11 @@ function CollapsibleTabViewInner<T extends Route>(
           applyRouteScroll(routeKey, routeState.pendingScrollY)
         }
       },
+      onMomentumScrollBegin: () => {
+        cancelPendingHeaderSnap()
+      },
       onMomentumScrollEnd: () => {
+        cancelPendingHeaderSnap()
         getRouteScrollState(routeKey).pendingScrollY = null
         if (activeRouteKeyRef.current === routeKey) {
           snapHeaderOffset()
@@ -462,6 +495,7 @@ function CollapsibleTabViewInner<T extends Route>(
         updateHeaderOffsetFromScroll(scrollY, previousScrollY)
       },
       onScrollBeginDrag: () => {
+        cancelPendingHeaderSnap()
         headerOffsetAnimationRef.current?.stop()
         headerOffsetAnimationRef.current = null
         getRouteScrollState(routeKey).pendingScrollY = null
@@ -469,7 +503,7 @@ function CollapsibleTabViewInner<T extends Route>(
       onScrollEndDrag: () => {
         getRouteScrollState(routeKey).pendingScrollY = null
         if (activeRouteKeyRef.current === routeKey) {
-          snapHeaderOffset()
+          scheduleHeaderSnap(routeKey)
         }
       },
       scrollEventThrottle: 16,
@@ -489,8 +523,10 @@ function CollapsibleTabViewInner<T extends Route>(
     }),
     [
       applyRouteScroll,
+      cancelPendingHeaderSnap,
       getRouteScrollState,
       headerHeight,
+      scheduleHeaderSnap,
       snapHeaderOffset,
       updateHeaderOffsetFromScroll,
     ]
@@ -513,6 +549,13 @@ function CollapsibleTabViewInner<T extends Route>(
   useEffect(() => {
     updateContentTopPadding(headerOffsetValueRef.current, true)
   }, [collapsibleHeight, headerHeight, updateContentTopPadding])
+
+  useEffect(
+    () => () => {
+      cancelPendingHeaderSnap()
+    },
+    [cancelPendingHeaderSnap]
+  )
 
   useEffect(() => {
     const activeRouteKey = navigationState.routes[navigationState.index]?.key
