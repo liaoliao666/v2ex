@@ -50,6 +50,7 @@ export type CollapsibleTabViewListScrollProps = {
   onScrollEndDrag: () => void
   scrollEventThrottle: number
   setScrollRef: (scrollRef: ScrollableRef | null) => void
+  contentContainerStyle?: ViewStyle
 }
 
 export type CollapsibleTabViewHandle = {
@@ -446,6 +447,7 @@ function CollapsibleTabViewInner<T extends Route>(
     ]
   )
 
+
   const getListScrollProps = useCallback(
     (routeKey: string): CollapsibleTabViewListScrollProps => ({
       contentTopPadding: headerHeight,
@@ -520,15 +522,20 @@ function CollapsibleTabViewInner<T extends Route>(
           )
         }
       },
+      contentContainerStyle: {
+        minHeight: layout.height + collapsibleHeight ,
+      },
     }),
     [
       applyRouteScroll,
       cancelPendingHeaderSnap,
       getRouteScrollState,
       headerHeight,
+      collapsibleHeight,
       scheduleHeaderSnap,
       snapHeaderOffset,
       updateHeaderOffsetFromScroll,
+      layout.height,
     ]
   )
 
