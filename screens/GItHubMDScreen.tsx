@@ -36,7 +36,7 @@ export default withQuerySuspense(GItHubMDScreen, {
   },
 })
 
-function GItHubMDScreen() {
+function GitHubMDScreen() {
   const { params } = useRoute<RouteProp<RootStackParamList, 'GItHubMD'>>()
 
   const { data: html } = k.other.repoReadme.useSuspenseQuery({
