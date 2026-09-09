@@ -4,8 +4,9 @@
   "main": "index.js",
   "scripts": {
     "start": "expo start --offline",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo prebuild --platform ios && expo run:ios",
+    "ios:start": "expo start --ios",
     "web": "expo start --web",
     "postinstall": "npx patch-package"
   },
@@ -44,6 +45,7 @@
     "expo-splash-screen": "~56.0.10",
     "expo-status-bar": "~56.0.4",
     "expo-updates": "~56.0.17",
+    "expo-widgets": "~56.0.15",
     "highlight.js": "^11.6.0",
     "immer": "^10.0.3",
     "jotai": "^1.12.0",

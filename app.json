@@ -87,6 +87,29 @@
     "plugins": [
       "./plugins/with-gradle-jvm-args",
       "./plugins/with-expo-modules-jsi-embed",
+      "./plugins/with-widget-version",
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "com.liaoliao666.v2ex.widgets",
+          "groupIdentifier": "group.com.liaoliao666.v2ex",
+          "widgets": [
+            {
+              "name": "TodayHotWidget",
+              "displayName": "今日最热",
+              "description": "查看 V2EX 今日最热主题",
+              "ios": {
+                "supportedFamilies": [
+                  "systemSmall",
+                  "systemMedium",
+                  "systemLarge"
+                ]
+              },
+              "android": null
+            }
+          ]
+        }
+      ],
       [
         "expo-navigation-bar",
         {

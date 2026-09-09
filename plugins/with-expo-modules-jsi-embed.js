@@ -73,7 +73,10 @@ function insertPostInstallCall(contents) {
     );
   }
 
-  const endIndex = contents.indexOf("\n  end\nend", postInstallIndex);
+  const endMatch = contents
+    .slice(postInstallIndex)
+    .match(/\n  end(?:\r?\n[ \t]*)*\r?\nend/);
+  const endIndex = endMatch ? postInstallIndex + endMatch.index : -1;
   if (endIndex === -1) {
     throw new Error(
       "Cannot patch ios/Podfile: post_install hook end was not found."

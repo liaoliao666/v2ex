@@ -35,6 +35,7 @@ import { k } from './servicies'
 import './utils/dayjsPlugins'
 import { queryClient } from './utils/query'
 import tw from './utils/tw'
+import TodayHotWidgetSync from './widgets/TodayHotWidgetSync'
 
 SplashScreen.preventAutoHideAsync()
 
@@ -58,6 +59,7 @@ export default function App() {
             <Suspense>
               <AsyncStoragePersist>
                 <AppInitializer>
+                  <TodayHotWidgetSync />
                   <Navigation />
                   <StatusBar />
                   <GlobalImageViewer />
