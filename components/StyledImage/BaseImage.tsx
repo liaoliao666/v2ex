@@ -3,7 +3,7 @@ import { Image, ImageBackground, ImageProps, ImageSource } from 'expo-image'
 import { useAtomValue } from 'jotai'
 import { isEqual, isObject, memoize, pick } from 'lodash-es'
 import { useCallback, useEffect } from 'react'
-import { View, ViewStyle } from 'react-native'
+import { StyleSheet, View, ViewStyle } from 'react-native'
 
 import { uiAtom } from '@/jotai/uiAtom'
 import { hasSize } from '@/utils/hasSize'
@@ -39,7 +39,10 @@ export function BaseImage({
   const uri = (source as ImageSource).uri
   const result = imageResults.get(uri)
   const update = useUpdate()
-  const hasPassedSize = hasSize(style)
+  const normalizedStyle = Array.isArray(style)
+    ? StyleSheet.flatten(style)
+    : style
+  const hasPassedSize = hasSize(normalizedStyle)
   const imageProps: ImageProps = {
     ...props,
     source,
@@ -54,7 +57,7 @@ export function BaseImage({
         imageResults.set(uri, nextImageResult)
         if (!hasPassedSize) update()
       }
-      onLoad?.(ev)
+      if (typeof onLoad === 'function') onLoad(ev)
     },
     onError: err => {
       // TODO: This is a trick
@@ -63,14 +66,14 @@ export function BaseImage({
         imageResults.set(uri, 'error')
         update()
       }
-      onError?.(err)
+      if (typeof onError === 'function') onError(err)
     },
     placeholder: genPlaceholder(colors.neutral),
     placeholderContentFit: 'cover',
     style: tw.style(
       // Compute image size if style has no size
       !hasPassedSize && computeOptimalDispalySize(containerWidth, result),
-      style as ViewStyle
+      normalizedStyle as ViewStyle
     ),
   }
 
@@ -89,7 +92,7 @@ export function BaseImage({
     }
   }, [refetch, result, uri])
 
-  if (!uri) return <View style={style as any} {...props} />
+  if (!uri) return <View style={normalizedStyle} {...props} />
 
   if (result === 'error') {
     return (
@@ -101,7 +104,7 @@ export function BaseImage({
             refetch()
           }
         }}
-        style={style as any}
+        style={normalizedStyle}
       />
     )
   }

@@ -117,13 +117,23 @@ function Html({
 
                   let localUrl: string | null = null
 
-                  if (Platform.OS === 'ios' || Platform.OS === 'macos') {
-                    localUrl = await Image.getCachePathAsync(resolvedURI)
+                  if (
+                    (Platform.OS === 'ios' || Platform.OS === 'macos') &&
+                    typeof Image.getCachePathAsync === 'function'
+                  ) {
+                    try {
+                      localUrl = await Image.getCachePathAsync(resolvedURI)
+                    } catch {
+                      localUrl = null
+                    }
 
-                    if (localUrl) {
-                      localUrl = RNImage.resolveAssetSource({
-                        uri: localUrl,
-                      }).uri
+                    if (
+                      localUrl &&
+                      typeof RNImage.resolveAssetSource === 'function'
+                    ) {
+                      localUrl =
+                        RNImage.resolveAssetSource({ uri: localUrl })?.uri ||
+                        localUrl
                     }
                   }
 

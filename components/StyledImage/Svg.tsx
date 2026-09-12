@@ -1,5 +1,5 @@
 import { useAtomValue } from 'jotai'
-import { View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { SvgXml, UriProps } from 'react-native-svg'
 
 import { uiAtom } from '@/jotai/uiAtom'
@@ -17,7 +17,10 @@ export default function Svg({
   ...props
 }: UriProps & { containerWidth?: number }) {
   const { colors } = useAtomValue(uiAtom)
-  const hasPassedSize = hasSize(style)
+  const normalizedStyle = Array.isArray(style)
+    ? StyleSheet.flatten(style)
+    : style
+  const hasPassedSize = hasSize(normalizedStyle)
 
   const svgQuery = k.other.svgXml.useQuery({
     variables: uri!,
@@ -33,14 +36,14 @@ export default function Svg({
               svgQuery.errorUpdateCount ? 'refetching' : undefined
             ),
           `bg-[${colors.neutral}]`,
-          style as any
+          normalizedStyle as any
         )}
       />
     )
   }
 
   if (!svgQuery.data) {
-    return <BrokenImage style={style} onPress={svgQuery.refetch} />
+    return <BrokenImage style={normalizedStyle} onPress={svgQuery.refetch} />
   }
 
   return (
@@ -50,7 +53,7 @@ export default function Svg({
       style={tw.style(
         !hasPassedSize &&
           computeOptimalDispalySize(containerWidth, svgQuery.data as any),
-        style as any
+        normalizedStyle as any
       )}
       width="100%"
     />
