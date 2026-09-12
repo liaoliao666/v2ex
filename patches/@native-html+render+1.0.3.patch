@@ -1,0 +1,19 @@
+diff --git a/node_modules/@native-html/render/src/render/RenderRegistry.ts b/node_modules/@native-html/render/src/render/RenderRegistry.ts
+index bca4643..2b0933a 100644
+--- a/node_modules/@native-html/render/src/render/RenderRegistry.ts
++++ b/node_modules/@native-html/render/src/render/RenderRegistry.ts
+@@ -72,6 +72,14 @@ export default class RenderRegistry {
+       }
+       return renderer as any;
+     }
++    if (
++      (tnode.type === 'text' || tnode.type === 'phrasing') &&
++      this.customRenderers._TEXT_ &&
++      !internalTextRenderers[tnode.tagName!] &&
++      !internalRenderers[tnode.tagName!]
++    ) {
++      return this.customRenderers._TEXT_ as any;
++    }
+     return null;
+   }
+ 

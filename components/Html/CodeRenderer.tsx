@@ -6,7 +6,7 @@ import { ScrollView, View } from 'react-native'
 import RenderHTML, {
   CustomBlockRenderer,
   MixedStyleDeclaration,
-} from 'react-native-render-html'
+} from '@native-html/render'
 
 import { colorSchemeAtom } from '@/jotai/themeAtom'
 import { isDefaultBgColor, uiAtom } from '@/jotai/uiAtom'

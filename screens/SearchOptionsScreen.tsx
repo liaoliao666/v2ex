@@ -1,7 +1,10 @@
 import { zodResolver } from '@hookform/resolvers/zod'
+import dayjs from 'dayjs'
 import { useAtom, useAtomValue } from 'jotai'
+import { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { View } from 'react-native'
+import { ScrollView, Text, View } from 'react-native'
+import DateTimePickerModal from 'react-native-modal-datetime-picker'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import FormControl from '@/components/FormControl'
@@ -22,7 +25,7 @@ export default withQuerySuspense(SearchOptionsScreen)
 function SearchOptionsScreen() {
   const [sov2exArgs, setSov2exArgsm] = useAtom(sov2exArgsAtom)
 
-  const { control, reset, handleSubmit, watch } = useForm({
+  const { control, reset, handleSubmit, watch, setValue } = useForm({
     resolver: zodResolver(Sov2exArgs),
     defaultValues: sov2exArgs,
   })
@@ -30,17 +33,36 @@ function SearchOptionsScreen() {
   const sort = watch('sort')
 
   const source = watch('source')
+  const [dateField, setDateField] = useState<'gte' | 'lte' | null>(null)
 
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const { colors } = useAtomValue(uiAtom)
+  const selectedDate = (dateField ? watch(dateField) : undefined) as
+    | string
+    | undefined
 
   return (
     <View style={tw`bg-[${colors.base100}] flex-1`} key={colorScheme}>
       <NavBar title="搜索条件" hideSafeTop />
-      <View style={tw`flex-1 p-4`}>
+      <ScrollView
+        style={tw`flex-1`}
+        contentContainerStyle={tw`p-4 pb-6`}
+        keyboardShouldPersistTaps="handled"
+      >
+        <Text
+          style={tw`text-lg font-semibold text-[${colors.foreground}] mb-1`}
+        >
+          搜索范围
+        </Text>
+        <Text style={tw`text-sm text-[${colors.neutral}] mb-3`}>
+          使用 SOV2EX 时可按节点、作者和日期筛选结果
+        </Text>
         <View
-          style={tw.style(source === 'google' && 'opacity-50')}
+          style={tw.style(
+            source === 'google' && 'opacity-50',
+            `rounded-xl bg-[${colors.base200}] p-3`
+          )}
           pointerEvents={source === 'google' ? 'none' : undefined}
         >
           <FormControl
@@ -86,7 +108,7 @@ function SearchOptionsScreen() {
             )}
           />
 
-          <View style={tw`flex-row`}>
+          <View style={tw`flex-row gap-2`}>
             <FormControl
               style={tw`flex-1`}
               control={control}
@@ -98,12 +120,14 @@ function SearchOptionsScreen() {
                   onChangeText={onChange}
                   value={value}
                   placeholder="格式为 YYYY-MM-DD"
+                  onFocus={() => setDateField('gte')}
+                  showSoftInputOnFocus={false}
                 />
               )}
             />
 
             <FormControl
-              style={tw`flex-1 ml-2`}
+              style={tw`flex-1`}
               control={control}
               name="lte"
               label="发帖的结束日期"
@@ -113,6 +137,8 @@ function SearchOptionsScreen() {
                   onChangeText={onChange}
                   value={value}
                   placeholder="格式为 YYYY-MM-DD"
+                  onFocus={() => setDateField('lte')}
+                  showSoftInputOnFocus={false}
                 />
               )}
             />
@@ -158,9 +184,14 @@ function SearchOptionsScreen() {
           </View>
         </View>
 
-        <View style={tw`flex-row`}>
+        <Text
+          style={tw`text-lg font-semibold text-[${colors.foreground}] mt-5 mb-3`}
+        >
+          搜索服务
+        </Text>
+        <View style={tw`rounded-xl bg-[${colors.base200}] p-3`}>
           <FormControl
-            style={tw`w-1/2`}
+            style={tw`w-full`}
             control={control}
             name="source"
             label="搜索服务"
@@ -176,7 +207,7 @@ function SearchOptionsScreen() {
             )}
           />
         </View>
-      </View>
+      </ScrollView>
 
       <SafeAreaView edges={['bottom']}>
         <View style={tw`flex-row p-4`}>
@@ -192,6 +223,8 @@ function SearchOptionsScreen() {
                 order: '0',
                 gte: '',
                 lte: '',
+                username: '',
+                q: '',
                 source: 'sov2ex',
                 node: '',
               })
@@ -214,6 +247,25 @@ function SearchOptionsScreen() {
           </StyledButton>
         </View>
       </SafeAreaView>
+      <DateTimePickerModal
+        isVisible={dateField !== null}
+        mode="date"
+        display="inline"
+        locale="zh-CN"
+        date={
+          selectedDate && dayjs(selectedDate).isValid()
+            ? dayjs(selectedDate).toDate()
+            : new Date()
+        }
+        onConfirm={date => {
+          if (dateField) {
+            const updateValue = setValue as any
+            updateValue(dateField, dayjs(date).format('YYYY-MM-DD'))
+          }
+          setDateField(null)
+        }}
+        onCancel={() => setDateField(null)}
+      />
     </View>
   )
 }

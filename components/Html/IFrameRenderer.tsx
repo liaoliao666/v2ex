@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { useContext, useMemo } from 'react'
 import { View } from 'react-native'
-import { CustomBlockRenderer } from 'react-native-render-html'
+import { CustomBlockRenderer } from '@native-html/render'
 import YoutubePlayer, { YoutubeIframeProps } from 'react-native-youtube-iframe'
 
 import tw from '@/utils/tw'

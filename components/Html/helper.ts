@@ -4,7 +4,7 @@ import {
   HTMLContentModel,
   HTMLElementModel,
   RenderHTMLProps,
-} from 'react-native-render-html'
+} from '@native-html/render'
 import Toast from 'react-native-toast-message'
 
 import { enabledWebviewAtom } from '@/jotai/enabledWebviewAtom'
@@ -34,6 +34,10 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   },
 
   customHTMLElementModels: {
+    img: HTMLElementModel.fromCustomModel({
+      tagName: 'img',
+      contentModel: HTMLContentModel.mixed,
+    }),
     iframe: HTMLElementModel.fromCustomModel({
       tagName: 'iframe',
       contentModel: HTMLContentModel.block,

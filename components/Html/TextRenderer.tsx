@@ -1,13 +1,13 @@
-import { useAtomValue } from 'jotai'
-import { Platform, Text } from 'react-native'
 import {
   getNativePropsForTNode,
   useInternalRenderer,
-} from 'react-native-render-html'
+} from '@native-html/render'
 import type {
   CustomTextualRenderer,
   TDefaultRendererProps,
-} from 'react-native-render-html'
+} from '@native-html/render'
+import { useAtomValue } from 'jotai'
+import { Platform, Text } from 'react-native'
 import { UITextView } from 'react-native-uitextview'
 
 import { uiAtom } from '@/jotai/uiAtom'
@@ -22,11 +22,7 @@ const TextRenderer: CustomTextualRenderer = props => {
 
   if (Platform.OS === 'ios' && renderProps.selectable) {
     return (
-      <UITextView
-        uiTextView
-        {...renderProps}
-        selectionColor={colors.primary}
-      />
+      <UITextView uiTextView {...renderProps} selectionColor={colors.primary} />
     )
   }
 

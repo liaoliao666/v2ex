@@ -6,7 +6,7 @@ import { Alert, Platform, Image as RNImage } from 'react-native'
 import RenderHtml, {
   RenderHTMLProps,
   defaultSystemFonts,
-} from 'react-native-render-html'
+} from '@native-html/render'
 
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'

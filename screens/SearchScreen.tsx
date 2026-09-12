@@ -572,9 +572,9 @@ const HitItem = memo(
 const getTopicLink = `(function() {
   try {
     document.body.addEventListener('click', function(e) {
-      const a = e.target.closest('a');
+      const a = e.target instanceof Element ? e.target.closest('a') : null;
 
-      if (a && /^https:\\/\\/(\\\w+\\.)?v2ex\\.com\\/t/.test(a.href)) {
+      if (a && /v2ex[.]com\\/t\\/\\d+/i.test(a.href)) {
         e.preventDefault();
         e.stopPropagation();
         window.ReactNativeWebView.postMessage(a.href)
@@ -584,7 +584,19 @@ const getTopicLink = `(function() {
     });
   } catch (err) {
   }
-}())`
+}()); true;`
+
+function getTopicId(value: string) {
+  let candidate = value
+  for (let index = 0; index < 2; index += 1) {
+    try {
+      candidate = decodeURIComponent(candidate)
+    } catch {
+      break
+    }
+  }
+  return candidate.match(/v2ex[.]com\/t\/(\d+)(?:[/?#]|$)/i)?.[1]
+}
 
 function GoogleSearch({
   navbarHeight,
@@ -599,6 +611,7 @@ function GoogleSearch({
   return (
     <WebView
       injectedJavaScript={getTopicLink}
+      injectedJavaScriptBeforeContentLoaded={getTopicLink}
       style={tw.style(`flex-1`, {
         marginTop: navbarHeight,
       })}
@@ -609,8 +622,7 @@ function GoogleSearch({
       }}
       onMessage={event => {
         const link = event.nativeEvent.data
-        const [, id] =
-          link.slice(link.indexOf('com') + 3).match(/\/\w+\/(\w+)/) || []
+        const id = getTopicId(link)
 
         if (id && Date.now() - latestJumpTimestamp.current > 1000) {
           latestJumpTimestamp.current = Date.now()
@@ -618,6 +630,13 @@ function GoogleSearch({
             id: parseInt(id, 10),
           })
         }
+      }}
+      onShouldStartLoadWithRequest={request => {
+        const id = getTopicId(request.url)
+        if (!id || Date.now() - latestJumpTimestamp.current <= 1000) return !id
+        latestJumpTimestamp.current = Date.now()
+        navigation.push('TopicDetail', { id: parseInt(id, 10) })
+        return false
       }}
       javaScriptEnabled={true}
       domStorageEnabled={true}

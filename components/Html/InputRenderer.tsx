@@ -1,7 +1,7 @@
 import { load } from 'cheerio'
 import { useMemo } from 'react'
 import { Text } from 'react-native'
-import { CustomBlockRenderer } from 'react-native-render-html'
+import { CustomBlockRenderer } from '@native-html/render'
 
 const InputRenderer: CustomBlockRenderer = ({ tnode, style }) => {
   const { isCheckbox, isRadio, isChecked } = useMemo(() => {

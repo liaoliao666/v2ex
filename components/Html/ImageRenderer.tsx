@@ -1,7 +1,6 @@
-import { isObjectLike } from 'lodash-es'
+import { CustomMixedRenderer } from '@native-html/render'
 import { useContext } from 'react'
 import { Pressable } from 'react-native'
-import { CustomBlockRenderer } from 'react-native-render-html'
 
 import { isSvgURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
@@ -9,7 +8,7 @@ import { useScreenWidth } from '@/utils/useScreenWidth'
 import StyledImage from '../StyledImage'
 import { HtmlContext } from './HtmlContext'
 
-const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
+const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
   const { onPreview, paddingX } = useContext(HtmlContext)
 
   const url =
@@ -18,9 +17,7 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
     undefined
 
   const screenWidth = useScreenWidth()
-  const containerWidth = isPlainContainer(tnode)
-    ? screenWidth - paddingX
-    : undefined
+  const containerWidth = screenWidth - paddingX
 
   if (url && isSvgURL(url))
     return (
@@ -47,14 +44,6 @@ const ImageRenderer: CustomBlockRenderer = ({ tnode, style }) => {
       />
     </Pressable>
   )
-}
-
-const plainContainers = ['html', 'body', 'div', 'a', 'p', 'img']
-
-function isPlainContainer(tnode: any, lever = 0): boolean {
-  if (!isObjectLike(tnode) || lever >= 3) return true
-  if (!plainContainers.includes(tnode.tagName)) return false
-  return isPlainContainer(tnode.parent, lever + 1)
 }
 
 export default ImageRenderer

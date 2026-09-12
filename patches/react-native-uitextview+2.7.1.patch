@@ -1,0 +1,53 @@
+diff --git a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
+--- a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
++++ b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
+@@ -6,6 +6,7 @@
+ #include <react/renderer/mounting/ShadowView.h>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ namespace facebook::react {
+ 
+@@ -81,6 +82,10 @@ RNUITextViewContent RNUITextViewShadowNode::getContentWithMeasuredAttachments(
+   localLayoutConstraints.minimumSize = Size{0, 0};
+   auto &fragments = attributedString.getFragments();
+ 
++  for (auto &fragment : fragments) {
++    fragment.textAttributes.lineHeight = std::numeric_limits<Float>::quiet_NaN();
++  }
++
+   for (const auto &attachment : attachments) {
+     const auto layoutableShadowNode =
+         dynamic_cast<const LayoutableShadowNode *>(attachment.shadowNode);
+diff --git a/node_modules/react-native-uitextview/ios/RNUITextView.mm b/node_modules/react-native-uitextview/ios/RNUITextView.mm
+--- a/node_modules/react-native-uitextview/ios/RNUITextView.mm
++++ b/node_modules/react-native-uitextview/ios/RNUITextView.mm
+@@ -231,6 +231,27 @@
+   }
+ }
+ 
++- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
++{
++  UIView *hitView = [super hitTest:point withEvent:event];
++  if (![hitView isDescendantOfView:_textView] || _textView.selectedRange.length > 0) {
++    return hitView;
++  }
++
++  for (UIView *subview in [self.subviews reverseObjectEnumerator]) {
++    if (subview == _view || subview == _textView) {
++      continue;
++    }
++    UIView *attachmentHitView =
++        [subview hitTest:[subview convertPoint:point fromView:self] withEvent:event];
++    if (attachmentHitView != nil) {
++      return attachmentHitView;
++    }
++  }
++
++  return hitView;
++}
++
+ - (void)drawRect:(CGRect)rect
+ {
+   if (!_state) {
