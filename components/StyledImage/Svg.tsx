@@ -14,8 +14,9 @@ export default function Svg({
   uri,
   style,
   containerWidth,
+  placeholderSize,
   ...props
-}: UriProps & { containerWidth?: number }) {
+}: UriProps & { containerWidth?: number; placeholderSize?: number }) {
   const { colors } = useAtomValue(uiAtom)
   const normalizedStyle = Array.isArray(style)
     ? StyleSheet.flatten(style)
@@ -33,7 +34,8 @@ export default function Svg({
           !hasPassedSize &&
             computeOptimalDispalySize(
               containerWidth,
-              svgQuery.errorUpdateCount ? 'refetching' : undefined
+              svgQuery.errorUpdateCount ? 'refetching' : undefined,
+              placeholderSize
             ),
           `bg-[${colors.neutral}]`,
           normalizedStyle as any

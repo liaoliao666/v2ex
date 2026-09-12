@@ -1,4 +1,4 @@
-import { CustomMixedRenderer } from '@native-html/render'
+import { CustomMixedRenderer, HTMLContentModel } from '@native-html/render'
 import { isObject } from 'lodash-es'
 import { useContext, useMemo, useState } from 'react'
 import { Pressable, StyleSheet } from 'react-native'
@@ -7,6 +7,7 @@ import { isSvgURL, resolveURL } from '@/utils/url'
 import { useScreenWidth } from '@/utils/useScreenWidth'
 
 import StyledImage, { imageResults } from '../StyledImage'
+import { BROKEN_IMAGE_SIZE } from '../StyledImage/helper'
 import { HtmlContext } from './HtmlContext'
 import { INLINE_IMAGE_TAG } from './helper'
 
@@ -20,6 +21,10 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
 
   const screenWidth = useScreenWidth()
   const containerWidth = screenWidth - paddingX
+  const placeholderSize =
+    tnode.contentModel === HTMLContentModel.mixed
+      ? BROKEN_IMAGE_SIZE
+      : undefined
   const resolvedURL = url ? resolveURL(url) : undefined
   const cachedResult = resolvedURL ? imageResults.get(resolvedURL) : undefined
   const [imageSize, setImageSize] = useState<
@@ -58,6 +63,7 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
         style={imageStyle as any}
         source={url}
         containerWidth={containerWidth}
+        placeholderSize={placeholderSize}
         onLoad={handleLoad}
       />
     )
@@ -67,6 +73,7 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
       style={imageStyle as any}
       source={url}
       containerWidth={containerWidth}
+      placeholderSize={placeholderSize}
       priority="low"
       autoplay={false}
       onLoad={handleLoad}

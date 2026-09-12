@@ -93,6 +93,7 @@ export interface Reply {
   thanked: boolean
   mod?: boolean
   op?: boolean
+  pro?: boolean
   is_first_reply?: boolean
   is_last_reply?: boolean
   has_related_replies?: boolean

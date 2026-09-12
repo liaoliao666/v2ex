@@ -259,6 +259,7 @@ export function parseTopic($: CheerioAPI): Omit<Topic, 'id'> {
           thanked: !!$reply.find('.thanked').length,
           op: !!$reply.find('.badge.op').length,
           mod: !!$reply.find('.badge.mod').length,
+          pro: !!$reply.find('.badge.pro').length,
           has_related_replies: !!RegExp('<a href="/member/(.*?)">').exec(
             replyContent
           ),

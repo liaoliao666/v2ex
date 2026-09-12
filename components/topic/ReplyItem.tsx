@@ -27,6 +27,11 @@ import IconButton from '../IconButton'
 import Separator from '../Separator'
 import StyledImage from '../StyledImage'
 
+const badgeStyle = tw`items-center justify-center px-[3px] py-px rounded-sm`
+const badgeTextStyle = tw.style(`text-[9px] leading-[9px] text-center`, {
+  includeFontPadding: false,
+})
+
 export default memo(
   ReplyItem,
   (prev, next) =>
@@ -58,6 +63,7 @@ export default memo(
         prev.reply.thanked === next.reply.thanked &&
         prev.reply.mod === next.reply.mod &&
         prev.reply.op === next.reply.op &&
+        prev.reply.pro === next.reply.pro &&
         prev.reply.reply_level === next.reply.reply_level &&
         prev.reply.is_merged === next.reply.is_merged &&
         prev.reply.reply_connectors?.join() ===
@@ -442,7 +448,7 @@ function ReplyItem({
         </View>
         <View style={tw.style(`flex-1`, !showLegacyUi && `pb-2`, `ml-2`)}>
           <View style={tw`flex-row items-center`}>
-            <View style={tw`flex-row gap-2 mr-auto`}>
+            <View style={tw`flex-row items-center gap-2 mr-auto`}>
               <Text
                 key="username"
                 style={tw`text-[${colors.foreground}] ${fontSize.medium} font-medium`}
@@ -460,21 +466,42 @@ function ReplyItem({
                 {reply.mod && (
                   <View
                     style={tw.style(
-                      `px-1 bg-[${colors.primary}] border-[${colors.primary}] border border-solid rounded-sm`,
-                      reply.op && `rounded-r-none`
+                      badgeStyle,
+                      `bg-[${colors.primary}] border-[${colors.primary}] border`,
+                      (reply.op || reply.pro) && `border-r-0 rounded-r-none`
                     )}
                   >
-                    <Text style={tw`text-white`}>MOD</Text>
+                    <Text
+                      style={[badgeTextStyle, { color: colors.primary }]}
+                    >
+                      MOD
+                    </Text>
                   </View>
                 )}
                 {reply.op && (
                   <View
                     style={tw.style(
-                      `px-1 border-[${colors.primary}] border border-solid rounded-sm`,
-                      reply.mod && `rounded-l-none`
+                      badgeStyle,
+                      `border-[${colors.primary}] border`,
+                      reply.mod && `border-l-0 rounded-l-none`,
+                      reply.pro && `border-r-0 rounded-r-none`
                     )}
                   >
-                    <Text style={tw`text-[${colors.primary}]`}>OP</Text>
+                    <Text style={[badgeTextStyle, { color: colors.primary }]}>
+                      OP
+                    </Text>
+                  </View>
+                )}
+                {reply.pro && (
+                  <View
+                    style={tw.style(
+                      badgeStyle,
+                      `border-[${colors.primary}] border`,
+                      colorScheme !== 'dark' && `bg-[#323a45]`,
+                      (reply.mod || reply.op) && `border-l-0 rounded-l-none`
+                    )}
+                  >
+                    <Text style={[badgeTextStyle, colorScheme === "dark" ? tw`text-[rgba(255,255,255,0.8)]`: tw`text-white`]}>PRO</Text>
                   </View>
                 )}
               </View>

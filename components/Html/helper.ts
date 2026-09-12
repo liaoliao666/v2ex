@@ -19,42 +19,12 @@ export const INLINE_IMAGE_TAG = 'v2ex-inline-img'
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
     onElement: (el: any) => {
-      if (el.name === 'img') {
-        const parent = el.parent ?? el.parentNode
-        const parentName = parent?.name ?? parent?.tagName
-        const grandParent = parent?.parent ?? parent?.parentNode
-        const container = parentName === 'a' ? grandParent : parent
-        const containerName = container?.name ?? container?.tagName
-        const siblings = parent?.children ?? parent?.childNodes ?? []
-        const imageNames = new Set(['img', INLINE_IMAGE_TAG])
-        const isImageNode = (node: any) =>
-          imageNames.has(node?.name ?? node?.tagName)
-        const imageSiblingIndex = siblings.indexOf(el)
-        const hasAdjacentImage =
-          imageSiblingIndex >= 0 &&
-          [-1, 1].some(direction => {
-            for (
-              let siblingIndex = imageSiblingIndex + direction;
-              siblingIndex >= 0 && siblingIndex < siblings.length;
-              siblingIndex += direction
-            ) {
-              const sibling = siblings[siblingIndex]
-              if (sibling?.type === 'text' && !sibling.data?.trim()) continue
-              if (isImageNode(sibling)) {
-                if (sibling.name === 'img') sibling.name = INLINE_IMAGE_TAG
-                return true
-              }
-              return false
-            }
-            return false
-          })
-        const isInlineImage =
-          containerName === 'div' ||
-          containerName === 'body' ||
-          container?.type === 'root' ||
-          hasAdjacentImage
-
-        if (isInlineImage) el.name = INLINE_IMAGE_TAG
+      if (
+        el.name === 'img' &&
+        el.attribs?.loading?.toLowerCase() !== 'lazy' &&
+        el.attribs?.class?.split(/\s+/).includes('embedded_image')
+      ) {
+        el.name = INLINE_IMAGE_TAG
       }
 
       const firstChild: any = first(

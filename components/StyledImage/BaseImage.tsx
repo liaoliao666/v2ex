@@ -18,6 +18,7 @@ import { computeOptimalDispalySize } from './helper'
 
 export interface BaseImageProps extends ImageProps {
   containerWidth?: number
+  placeholderSize?: number
 }
 
 const genPlaceholder = memoize((color: string) => {
@@ -33,6 +34,7 @@ export function BaseImage({
   onLoad,
   onError,
   containerWidth,
+  placeholderSize,
   ...props
 }: BaseImageProps) {
   const { colors } = useAtomValue(uiAtom)
@@ -72,7 +74,8 @@ export function BaseImage({
     placeholderContentFit: 'cover',
     style: tw.style(
       // Compute image size if style has no size
-      !hasPassedSize && computeOptimalDispalySize(containerWidth, result),
+      !hasPassedSize &&
+        computeOptimalDispalySize(containerWidth, result, placeholderSize),
       normalizedStyle as ViewStyle
     ),
   }

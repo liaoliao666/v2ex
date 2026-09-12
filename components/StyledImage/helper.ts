@@ -18,7 +18,8 @@ export const BROKEN_IMAGE_SIZE = 24
 
 export function computeOptimalDispalySize(
   containerWidth?: number,
-  size?: ImageResult
+  size?: ImageResult,
+  placeholderSize?: number
 ): ViewStyle {
   if (size === 'refetching' || size === 'error') {
     return {
@@ -29,6 +30,10 @@ export function computeOptimalDispalySize(
 
   // Display placeholder size if image size is not available
   if (!size) {
+    if (placeholderSize !== undefined) {
+      return { width: placeholderSize, height: placeholderSize }
+    }
+
     return {
       aspectRatio: 1,
       width: containerWidth
