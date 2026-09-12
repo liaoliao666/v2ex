@@ -1,12 +1,12 @@
+import RenderHtml, {
+  RenderHTMLProps,
+  defaultSystemFonts,
+} from '@native-html/render'
 import { Image } from 'expo-image'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { compact, findIndex, isString, pick } from 'lodash-es'
 import { memo, useMemo } from 'react'
 import { Alert, Platform, Image as RNImage } from 'react-native'
-import RenderHtml, {
-  RenderHTMLProps,
-  defaultSystemFonts,
-} from '@native-html/render'
 
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'
@@ -23,7 +23,7 @@ import IFrameRenderer from './IFrameRenderer'
 import ImageRenderer from './ImageRenderer'
 import InputRenderer from './InputRenderer'
 import TextRenderer from './TextRenderer'
-import { getDefaultProps } from './helper'
+import { INLINE_IMAGE_TAG, getDefaultProps } from './helper'
 
 const systemFonts = ['italic', ...defaultSystemFonts]
 const IMG_TAG_PATTERN = /<img[\s/>]/i
@@ -181,6 +181,7 @@ function Html({
           a: TextRenderer,
           pre: CodeRenderer,
           img: ImageRenderer,
+          [INLINE_IMAGE_TAG]: ImageRenderer,
           iframe: IFrameRenderer,
           input: InputRenderer,
           _TEXT_: TextRenderer,

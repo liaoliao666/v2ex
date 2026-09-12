@@ -1,0 +1,42 @@
+diff --git a/node_modules/react-native/React/Fabric/RCTSurfaceTouchHandler.mm b/node_modules/react-native/React/Fabric/RCTSurfaceTouchHandler.mm
+index 4945d35..1bf565d 100644
+--- a/node_modules/react-native/React/Fabric/RCTSurfaceTouchHandler.mm
++++ b/node_modules/react-native/React/Fabric/RCTSurfaceTouchHandler.mm
+@@ -8,6 +8,7 @@
+ #import "RCTSurfaceTouchHandler.h"
+ 
+ #import <React/RCTIdentifierPool.h>
++#import <React/RCTLog.h>
+ #import <React/RCTUtils.h>
+ #import <React/RCTViewComponentView.h>
+ 
+@@ -206,8 +207,8 @@ - (void)_updateTouches:(NSSet<UITouch *> *)touches
+ {
+   for (UITouch *touch in touches) {
+     auto iterator = _activeTouches.find(touch);
+-    RCTAssert(iterator != _activeTouches.end(), @"Inconsistency between local and UIKit touch registries");
+     if (iterator == _activeTouches.end()) {
++      RCTLogWarn(@"Inconsistency between local and UIKit touch registries");
+       continue;
+     }
+ 
+@@ -219,8 +220,8 @@ - (void)_unregisterTouches:(NSSet<UITouch *> *)touches
+ {
+   for (UITouch *touch in touches) {
+     auto iterator = _activeTouches.find(touch);
+-    RCTAssert(iterator != _activeTouches.end(), @"Inconsistency between local and UIKit touch registries");
+     if (iterator == _activeTouches.end()) {
++      RCTLogWarn(@"Inconsistency between local and UIKit touch registries");
+       continue;
+     }
+     auto &activeTouch = iterator->second;
+@@ -236,8 +237,8 @@ - (void)_unregisterTouches:(NSSet<UITouch *> *)touches
+ 
+   for (UITouch *touch in touches) {
+     auto iterator = _activeTouches.find(touch);
+-    RCTAssert(iterator != _activeTouches.end(), @"Inconsistency between local and UIKit touch registries");
+     if (iterator == _activeTouches.end()) {
++      RCTLogWarn(@"Inconsistency between local and UIKit touch registries");
+       continue;
+     }
+     activeTouches.push_back(iterator->second);

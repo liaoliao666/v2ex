@@ -8,6 +8,7 @@ import { useScreenWidth } from '@/utils/useScreenWidth'
 
 import StyledImage, { imageResults } from '../StyledImage'
 import { HtmlContext } from './HtmlContext'
+import { INLINE_IMAGE_TAG } from './helper'
 
 const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
   const { onPreview, paddingX } = useContext(HtmlContext)
@@ -36,7 +37,9 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
   const hasContentBefore = !!previousSibling
   const previousSiblingIsImage =
     previousSibling?.tagName === 'img' ||
-    previousSibling?.domNode?.name === 'img'
+    previousSibling?.tagName === INLINE_IMAGE_TAG ||
+    previousSibling?.domNode?.name === 'img' ||
+    previousSibling?.domNode?.name === INLINE_IMAGE_TAG
   const imageStyle =
     hasContentBefore && !previousSiblingIsImage
       ? StyleSheet.flatten([style as any, { marginTop: 8 }])

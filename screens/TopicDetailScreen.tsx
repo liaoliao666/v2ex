@@ -1182,6 +1182,9 @@ function TopicDetailScreen() {
         keyExtractor={keyExtractor}
         ItemSeparatorComponent={orderBy !== 'smart' ? LineSeparator : null}
         {...REPLY_LIST_PERFORMANCE_PROPS}
+        maintainVisibleContentPosition={
+          orderBy === 'smart' ? { minIndexForVisible: 1 } : undefined
+        }
         contentContainerStyle={{
           paddingTop: navbarHeight,
         }}
