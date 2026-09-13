@@ -15,10 +15,13 @@ import tw from '@/utils/tw'
 import { openURL, resolveURL } from '@/utils/url'
 
 export const INLINE_IMAGE_TAG = 'v2ex-inline-img'
+export const INLINE_BREAK_TAG = 'v2ex-inline-break'
 
 const defaultProps: Omit<RenderHTMLProps, 'source'> = {
   domVisitors: {
     onElement: (el: any) => {
+      if (el.name === 'br') el.name = INLINE_BREAK_TAG
+
       if (
         el.name === 'img' &&
         el.attribs?.loading?.toLowerCase() !== 'lazy' &&
@@ -51,6 +54,10 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
     [INLINE_IMAGE_TAG]: HTMLElementModel.fromCustomModel({
       tagName: INLINE_IMAGE_TAG,
       contentModel: HTMLContentModel.mixed,
+    }),
+    [INLINE_BREAK_TAG]: HTMLElementModel.fromCustomModel({
+      tagName: INLINE_BREAK_TAG,
+      contentModel: HTMLContentModel.textual,
     }),
     iframe: HTMLElementModel.fromCustomModel({
       tagName: 'iframe',

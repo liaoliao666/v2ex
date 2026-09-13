@@ -1,29 +1,8 @@
-diff --git a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
---- a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
-+++ b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
-@@ -6,6 +6,7 @@
- #include <react/renderer/mounting/ShadowView.h>
- 
- #include <cmath>
-+#include <limits>
- 
- namespace facebook::react {
- 
-@@ -81,6 +82,10 @@ RNUITextViewContent RNUITextViewShadowNode::getContentWithMeasuredAttachments(
-   localLayoutConstraints.minimumSize = Size{0, 0};
-   auto &fragments = attributedString.getFragments();
- 
-+  for (auto &fragment : fragments) {
-+    fragment.textAttributes.lineHeight = std::numeric_limits<Float>::quiet_NaN();
-+  }
-+
-   for (const auto &attachment : attachments) {
-     const auto layoutableShadowNode =
-         dynamic_cast<const LayoutableShadowNode *>(attachment.shadowNode);
 diff --git a/node_modules/react-native-uitextview/ios/RNUITextView.mm b/node_modules/react-native-uitextview/ios/RNUITextView.mm
+index 2f76e86..e8dc50b 100644
 --- a/node_modules/react-native-uitextview/ios/RNUITextView.mm
 +++ b/node_modules/react-native-uitextview/ios/RNUITextView.mm
-@@ -231,6 +231,27 @@
+@@ -231,6 +231,27 @@ - (void)layoutSubviews
    }
  }
  
@@ -51,3 +30,81 @@ diff --git a/node_modules/react-native-uitextview/ios/RNUITextView.mm b/node_mod
  - (void)drawRect:(CGRect)rect
  {
    if (!_state) {
+diff --git a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
+index 88843d8..0e099a1 100644
+--- a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
++++ b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
+@@ -6,6 +6,7 @@
+ #include <react/renderer/mounting/ShadowView.h>
+ 
+ #include <cmath>
++#include <limits>
+ 
+ namespace facebook::react {
+ 
+@@ -81,6 +82,10 @@ RNUITextViewContent RNUITextViewShadowNode::getContentWithMeasuredAttachments(
+   localLayoutConstraints.minimumSize = Size{0, 0};
+   auto &fragments = attributedString.getFragments();
+ 
++  for (auto &fragment : fragments) {
++    fragment.textAttributes.lineHeight = std::numeric_limits<Float>::quiet_NaN();
++  }
++
+   for (const auto &attachment : attachments) {
+     const auto layoutableShadowNode =
+         dynamic_cast<const LayoutableShadowNode *>(attachment.shadowNode);
+diff --git a/node_modules/react-native-uitextview/lib/commonjs/index.js b/node_modules/react-native-uitextview/lib/commonjs/index.js
+index c0284ad..f6bde9c 100644
+--- a/node_modules/react-native-uitextview/lib/commonjs/index.js
++++ b/node_modules/react-native-uitextview/lib/commonjs/index.js
+@@ -3,7 +3,9 @@
+ Object.defineProperty(exports, "__esModule", {
+   value: true
+ });
++exports.UITextViewChild = void 0;
+ var _Text = require("./Text");
++var _RNUITextViewChildNativeComponent = _interopRequireDefault(require("./RNUITextViewChildNativeComponent"));
+ Object.keys(_Text).forEach(function (key) {
+   if (key === "default" || key === "__esModule") return;
+   if (key in exports && exports[key] === _Text[key]) return;
+@@ -14,4 +16,7 @@ Object.keys(_Text).forEach(function (key) {
+     }
+   });
+ });
++var _default = _RNUITextViewChildNativeComponent.default;
++exports.UITextViewChild = _default;
++function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
+ //# sourceMappingURL=index.js.map
+diff --git a/node_modules/react-native-uitextview/lib/module/index.js b/node_modules/react-native-uitextview/lib/module/index.js
+index a621c01..0ebda20 100644
+--- a/node_modules/react-native-uitextview/lib/module/index.js
++++ b/node_modules/react-native-uitextview/lib/module/index.js
+@@ -1,4 +1,5 @@
+ "use strict";
+ 
+ export * from './Text';
++export { default as UITextViewChild } from './RNUITextViewChildNativeComponent';
+ //# sourceMappingURL=index.js.map
+diff --git a/node_modules/react-native-uitextview/lib/typescript/commonjs/src/index.d.ts b/node_modules/react-native-uitextview/lib/typescript/commonjs/src/index.d.ts
+index b7aa41f..021710e 100644
+--- a/node_modules/react-native-uitextview/lib/typescript/commonjs/src/index.d.ts
++++ b/node_modules/react-native-uitextview/lib/typescript/commonjs/src/index.d.ts
+@@ -1,2 +1,3 @@
+ export * from './Text';
++export { default as UITextViewChild } from './RNUITextViewChildNativeComponent';
+ //# sourceMappingURL=index.d.ts.map
+diff --git a/node_modules/react-native-uitextview/lib/typescript/module/src/index.d.ts b/node_modules/react-native-uitextview/lib/typescript/module/src/index.d.ts
+index b7aa41f..021710e 100644
+--- a/node_modules/react-native-uitextview/lib/typescript/module/src/index.d.ts
++++ b/node_modules/react-native-uitextview/lib/typescript/module/src/index.d.ts
+@@ -1,2 +1,3 @@
+ export * from './Text';
++export { default as UITextViewChild } from './RNUITextViewChildNativeComponent';
+ //# sourceMappingURL=index.d.ts.map
+diff --git a/node_modules/react-native-uitextview/src/index.tsx b/node_modules/react-native-uitextview/src/index.tsx
+index cb34914..dd834d8 100644
+--- a/node_modules/react-native-uitextview/src/index.tsx
++++ b/node_modules/react-native-uitextview/src/index.tsx
+@@ -1 +1,2 @@
+ export * from './Text'
++export { default as UITextViewChild } from './RNUITextViewChildNativeComponent'

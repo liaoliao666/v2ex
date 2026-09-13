@@ -28,9 +28,6 @@ import Separator from '../Separator'
 import StyledImage from '../StyledImage'
 
 const badgeStyle = tw`items-center justify-center px-[3px] py-px rounded-sm`
-const badgeTextStyle = tw.style(`text-[9px] leading-[9px] text-center`, {
-  includeFontPadding: false,
-})
 
 export default memo(
   ReplyItem,
@@ -121,6 +118,14 @@ function ReplyItem({
   const themeName = useAtomValue(themeNameAtom)
   const colorScheme = useAtomValue(colorSchemeAtom)
   const { colors, fontSize } = useAtomValue(uiAtom)
+  const badgeFontSize =
+    (tw.style(fontSize.tiny) as { fontSize?: number }).fontSize ?? 9
+  const badgeTextStyle = tw.style(fontSize.tiny, {
+    fontSize: badgeFontSize,
+    lineHeight: badgeFontSize,
+    textAlign: 'center',
+    includeFontPadding: false,
+  })
   const replyLevel = showNestedReply ? reply.reply_level || 0 : 0
   const replyConnectors = reply.reply_connectors || []
   const shouldUseNestedUi = !showLegacyUi && showNestedReply
@@ -471,9 +476,7 @@ function ReplyItem({
                       (reply.op || reply.pro) && `border-r-0 rounded-r-none`
                     )}
                   >
-                    <Text
-                      style={[badgeTextStyle, { color: colors.primary }]}
-                    >
+                    <Text style={[badgeTextStyle, { color: colors.primary }]}>
                       MOD
                     </Text>
                   </View>
@@ -501,7 +504,16 @@ function ReplyItem({
                       (reply.mod || reply.op) && `border-l-0 rounded-l-none`
                     )}
                   >
-                    <Text style={[badgeTextStyle, colorScheme === "dark" ? tw`text-[rgba(255,255,255,0.8)]`: tw`text-white`]}>PRO</Text>
+                    <Text
+                      style={[
+                        badgeTextStyle,
+                        colorScheme === 'dark'
+                          ? tw`text-[rgba(255,255,255,0.8)]`
+                          : tw`text-white`,
+                      ]}
+                    >
+                      PRO
+                    </Text>
                   </View>
                 )}
               </View>

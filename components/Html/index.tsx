@@ -1,12 +1,15 @@
 import RenderHtml, {
+  CustomTextualRenderer,
   RenderHTMLProps,
   defaultSystemFonts,
+  getNativePropsForTNode,
 } from '@native-html/render'
 import { Image } from 'expo-image'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { compact, findIndex, isString, pick } from 'lodash-es'
 import { memo, useMemo } from 'react'
-import { Alert, Platform, Image as RNImage } from 'react-native'
+import { Alert, Platform, Image as RNImage, Text } from 'react-native'
+import { UITextViewChild } from 'react-native-uitextview'
 
 import { imageViewerAtom } from '@/jotai/imageViewerAtom'
 import { store } from '@/jotai/store'
@@ -23,7 +26,16 @@ import IFrameRenderer from './IFrameRenderer'
 import ImageRenderer from './ImageRenderer'
 import InputRenderer from './InputRenderer'
 import TextRenderer from './TextRenderer'
-import { INLINE_IMAGE_TAG, getDefaultProps } from './helper'
+import { INLINE_BREAK_TAG, INLINE_IMAGE_TAG, getDefaultProps } from './helper'
+
+const BreakRenderer: CustomTextualRenderer = props => {
+  const nativeProps = getNativePropsForTNode(props as any)
+  if (Platform.OS !== 'ios' || !nativeProps.selectable) {
+    return <Text {...nativeProps}>{'\n'}</Text>
+  }
+
+  return <UITextViewChild text={'\n'} style={nativeProps.style} />
+}
 
 const systemFonts = ['italic', ...defaultSystemFonts]
 const IMG_TAG_PATTERN = /<img[\s/>]/i
@@ -180,6 +192,7 @@ function Html({
         renderers={{
           a: TextRenderer,
           pre: CodeRenderer,
+          [INLINE_BREAK_TAG]: BreakRenderer,
           img: ImageRenderer,
           [INLINE_IMAGE_TAG]: ImageRenderer,
           iframe: IFrameRenderer,
