@@ -43,6 +43,7 @@
     "expo-image-picker": "~57.0.17",
     "expo-linking": "~57.0.10",
     "expo-navigation-bar": "~57.0.2",
+    "expo-pretext": "^1.2.0",
     "expo-sharing": "~57.0.19",
     "expo-splash-screen": "~57.0.9",
     "expo-status-bar": "~57.0.1",

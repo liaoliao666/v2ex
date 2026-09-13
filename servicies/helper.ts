@@ -360,8 +360,13 @@ export function parseProfile($: CheerioAPI): Profile {
 }
 
 export function parseNavAtoms($: CheerioAPI) {
-  return $(`#Main .box`)
-    .eq(1)
+  const boxes = $('#Main .box').length ? $('#Main .box') : $('div.box')
+  const nodesBox = boxes
+    .toArray()
+    .find(box => $(box).find('.fr a[href="/planes"]').length > 0)
+  const $nodesBox = nodesBox ? $(nodesBox) : $()
+
+  return $nodesBox
     .children('div:not(:first-child)')
     .map((i, item) => {
       const $td = $(item).find('td')

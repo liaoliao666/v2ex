@@ -1,8 +1,10 @@
+import { measureHeights } from 'expo-pretext'
 import { useAtomValue } from 'jotai'
 import { findIndex, last, uniqBy } from 'lodash-es'
-import { memo, useCallback, useMemo, useState } from 'react'
+import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import {
   FlatList,
+  LayoutChangeEvent,
   ListRenderItem,
   Platform,
   Text,
@@ -35,20 +37,100 @@ import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import usePreviousDistinct from '@/utils/usePreviousDistinct'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+import { useScreenWidth } from '@/utils/useScreenWidth'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 40
+const TOPIC_ITEM_FIXED_HEIGHT = 32
+
+function getTextMetrics(style: string) {
+  const textStyle = tw.style(style) as {
+    fontSize?: number
+    lineHeight?: number
+  }
+  return {
+    fontSize: textStyle.fontSize || 14,
+    lineHeight: textStyle.lineHeight || textStyle.fontSize || 14,
+  }
+}
+
+function useTopicListLayout(
+  items: Topic[],
+  headerHeight: number,
+  hideAvatar: boolean
+) {
+  const { fontSize } = useAtomValue(uiAtom)
+  const screenWidth = useScreenWidth()
+  const heights = useRef(new Map<number, number>()).current
+  const headerLength = useRef(0)
+  const mediumMetrics = getTextMetrics(fontSize.medium)
+  const smallMetrics = getTextMetrics(fontSize.small)
+  const predictedHeights = useMemo(() => {
+    const titleHeights = measureHeights(
+      items.map(item => item.title),
+      {
+        fontFamily: 'System',
+        fontSize: mediumMetrics.fontSize,
+        lineHeight: mediumMetrics.lineHeight,
+        fontWeight: '500',
+      },
+      Math.max(1, screenWidth - (hideAvatar ? 32 : 64))
+    )
+    return new Map(
+      items.map((item, index) => [
+        item.id,
+        TOPIC_ITEM_FIXED_HEIGHT +
+          mediumMetrics.lineHeight +
+          Math.min(titleHeights[index] || 0, mediumMetrics.lineHeight * 2) +
+          smallMetrics.lineHeight,
+      ])
+    )
+  }, [
+    hideAvatar,
+    items,
+    mediumMetrics.fontSize,
+    mediumMetrics.lineHeight,
+    screenWidth,
+    smallMetrics.lineHeight,
+  ])
+  const onItemLayout = useCallback(
+    (id: number, event: LayoutChangeEvent) => {
+      heights.set(id, event.nativeEvent.layout.height)
+    },
+    [heights]
+  )
+  const onHeaderLayout = useCallback((event: LayoutChangeEvent) => {
+    headerLength.current = event.nativeEvent.layout.height
+  }, [])
+  const getItemLayout = useCallback(
+    (data: ArrayLike<Topic> | null | undefined, index: number) => {
+      const getLength = (itemIndex: number) => {
+        const item = data?.[itemIndex]
+        return item
+          ? heights.get(item.id) ?? predictedHeights.get(item.id) ?? 120
+          : 120
+      }
+      let offset = headerHeight + headerLength.current
+      for (let itemIndex = 0; itemIndex < index; itemIndex++) {
+        offset += getLength(itemIndex) + 1
+      }
+      return { length: getLength(index), offset, index }
+    },
+    [headerHeight, heights, predictedHeights]
+  )
+  return { getItemLayout, onHeaderLayout, onItemLayout }
+}
 
 export default withQuerySuspense(MyFollowingScreen, {
   LoadingComponent: () => (
     <View style={tw`flex-1`}>
-      <NavBar title="特别关注" />
+      <NavBar />
       <TopicPlaceholder />
     </View>
   ),
   fallbackRender: props => (
     <View style={tw`flex-1`}>
-      <NavBar title="特别关注" />
+      <NavBar />
       <FallbackComponent {...props} />
     </View>
   ),
@@ -56,7 +138,7 @@ export default withQuerySuspense(MyFollowingScreen, {
 
 const MemoMyFollowing = withQuerySuspense(memo(MyFollowing), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+    const headerHeight = useNavBarHeight()
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -66,7 +148,7 @@ const MemoMyFollowing = withQuerySuspense(memo(MyFollowing), {
 })
 const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+    const headerHeight = useNavBarHeight()
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -74,7 +156,7 @@ const MemoMemberTopics = withQuerySuspense(memo(MemberTopics), {
     )
   },
   LoadingComponent: () => {
-    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+    const headerHeight = useNavBarHeight()
     return (
       <View style={{ paddingTop: headerHeight }}>
         <TopicPlaceholder hideAvatar />
@@ -106,7 +188,7 @@ function MyFollowingScreen() {
 
   const layout = useWindowDimensions()
 
-  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+  const headerHeight = useNavBarHeight()
   const swipeEdgeWidth = Platform.OS === 'ios' ? 52 : 32
 
   const { colors, fontSize } = useAtomValue(uiAtom)
@@ -143,11 +225,7 @@ function MyFollowingScreen() {
           <View style={tw`absolute top-0 inset-x-0 z-10`}>
             <StyledBlurView style={tw`absolute inset-0`} />
 
-            <NavBar title="特别关注" style={tw`border-b-0`} />
-
-            <View
-              style={tw`px-4 border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px]`}
-            >
+            <NavBar style={tw`border-b-0`}>
               <TabBar
                 {...props}
                 scrollEnabled
@@ -192,7 +270,7 @@ function MyFollowingScreen() {
                   )
                 }}
               />
-            </View>
+            </NavBar>
           </View>
         )}
       />
@@ -216,16 +294,24 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
     })
   )
 
-  const renderItem: ListRenderItem<Topic> = useCallback(
-    ({ item }) => <TopicItem key={item.id} topic={item} />,
-    []
-  )
-
   const flatedData = useMemo(
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
     [data.pages]
   )
   const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
+  const { getItemLayout, onHeaderLayout, onItemLayout } = useTopicListLayout(
+    visibleTopics,
+    headerHeight,
+    false
+  )
+  const renderItem: ListRenderItem<Topic> = useCallback(
+    ({ item }) => (
+      <View onLayout={event => onItemLayout(item.id, event)}>
+        <TopicItem key={item.id} topic={item} />
+      </View>
+    ),
+    [onItemLayout]
+  )
 
   return (
     <RefetchingIndicator
@@ -246,12 +332,15 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
         }}
         ItemSeparatorComponent={LineSeparator}
         ListHeaderComponent={
-          <BlockedTopicsNotice
-            blockedTopics={blockedTopics}
-            sourceTitle="特别关注"
-          />
+          <View onLayout={onHeaderLayout}>
+            <BlockedTopicsNotice
+              blockedTopics={blockedTopics}
+              sourceTitle="特别关注"
+            />
+          </View>
         }
         renderItem={renderItem}
+        getItemLayout={getItemLayout}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage()
@@ -289,16 +378,24 @@ function MemberTopics({
     })
   )
 
-  const renderItem: ListRenderItem<Topic> = useCallback(
-    ({ item }) => <TopicItem key={item.id} topic={item} hideAvatar />,
-    []
-  )
-
   const flatedData = useMemo(
     () => uniqBy(data?.pages.map(page => page.list).flat(), 'id'),
     [data?.pages]
   )
   const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
+  const { getItemLayout, onHeaderLayout, onItemLayout } = useTopicListLayout(
+    visibleTopics,
+    headerHeight,
+    true
+  )
+  const renderItem: ListRenderItem<Topic> = useCallback(
+    ({ item }) => (
+      <View onLayout={event => onItemLayout(item.id, event)}>
+        <TopicItem key={item.id} topic={item} hideAvatar />
+      </View>
+    ),
+    [onItemLayout]
+  )
 
   return (
     <RefetchingIndicator
@@ -319,12 +416,15 @@ function MemberTopics({
         }}
         ItemSeparatorComponent={LineSeparator}
         ListHeaderComponent={
-          <BlockedTopicsNotice
-            blockedTopics={blockedTopics}
-            sourceTitle={username}
-          />
+          <View onLayout={onHeaderLayout}>
+            <BlockedTopicsNotice
+              blockedTopics={blockedTopics}
+              sourceTitle={username}
+            />
+          </View>
         }
         renderItem={renderItem}
+        getItemLayout={getItemLayout}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage()

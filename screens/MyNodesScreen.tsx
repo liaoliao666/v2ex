@@ -95,11 +95,14 @@ function MyNodesScreen() {
         }
         ListEmptyComponent={<Empty description={`目前还没有收藏节点`} />}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-        getItemLayout={(_, itemIndex) => ({
-          length: ITEM_HEIGHT,
-          offset: itemIndex * ITEM_HEIGHT,
-          index: itemIndex,
-        })}
+        getItemLayout={(_, itemIndex) => {
+          const rowIndex = Math.floor(itemIndex / 4)
+          return {
+            length: ITEM_HEIGHT,
+            offset: rowIndex * ITEM_HEIGHT,
+            index: itemIndex,
+          }
+        }}
       />
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>

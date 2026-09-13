@@ -3581,6 +3581,11 @@ expo-navigation-bar@~57.0.2:
   dependencies:
     debug "^4.3.2"
 
+expo-pretext@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/expo-pretext/-/expo-pretext-1.2.0.tgz#e9186782bed5269a670b6782be66877d3355e7ad"
+  integrity sha512-WPlrQ3R1M6z9D+eQVzTHGOOu+nqYNx3FVREdiBmubogghpSomT4eyRwF0Y6OCvE3T4yAbrpW3RR1QEgZI0sD1w==
+
 expo-server@^57.0.3:
   version "57.0.3"
   resolved "https://registry.yarnpkg.com/expo-server/-/expo-server-57.0.3.tgz#02e038a85453f1f4eb00024256b4b3cab949cace"

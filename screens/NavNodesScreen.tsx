@@ -123,11 +123,14 @@ function NavNodesScreen() {
           data={routes[index].nodes}
           numColumns={3}
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-          getItemLayout={(_, itemIndex) => ({
-            length: ITEM_HEIGHT,
-            offset: itemIndex * ITEM_HEIGHT,
-            index: itemIndex,
-          })}
+          getItemLayout={(_, itemIndex) => {
+            const rowIndex = Math.floor(itemIndex / 3)
+            return {
+              length: ITEM_HEIGHT,
+              offset: rowIndex * ITEM_HEIGHT,
+              index: itemIndex,
+            }
+          }}
         />
       </View>
 

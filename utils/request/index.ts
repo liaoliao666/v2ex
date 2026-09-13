@@ -146,10 +146,8 @@ function updateProfile($: CheerioAPI) {
 }
 
 function updateNavNodes($: CheerioAPI) {
-  const $nodesBox = $(`#Main .box`).eq(1)
-  const hasNavAtoms = $nodesBox.find('.fr a').eq(0).attr('href') === '/planes'
-  if (!hasNavAtoms) return
-  store.set(navNodesAtom, parseNavAtoms($))
+  const navNodes = parseNavAtoms($)
+  if (navNodes.length > 0) store.set(navNodesAtom, navNodes)
 }
 
 function updateRecentTopics($: CheerioAPI) {

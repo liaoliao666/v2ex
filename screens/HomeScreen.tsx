@@ -1,5 +1,6 @@
 import { Feather } from '@expo/vector-icons'
 import { InfiniteData } from '@tanstack/react-query'
+import { measureHeights } from 'expo-pretext'
 import { useAtom, useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import {
@@ -72,6 +73,7 @@ import { isTablet, useTablet } from '@/utils/tablet'
 import tw from '@/utils/tw'
 import usePreviousDistinct from '@/utils/usePreviousDistinct'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+import { useScreenWidth } from '@/utils/useScreenWidth'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 40
@@ -83,6 +85,82 @@ const HOME_LIST_PERFORMANCE_PROPS = {
   removeClippedSubviews: Platform.OS === 'android',
 } as const
 const errorResetMap: Record<string, () => void> = {}
+
+const TOPIC_ITEM_FIXED_HEIGHT = 32
+const ITEM_SEPARATOR_HEIGHT = 1
+
+function getTextMetrics(style: string) {
+  const textStyle = tw.style(style) as {
+    fontSize?: number
+    lineHeight?: number
+  }
+  return {
+    fontSize: textStyle.fontSize || 14,
+    lineHeight: textStyle.lineHeight || textStyle.fontSize || 14,
+  }
+}
+
+function getLayoutForHeights<T>(heights: number[], headerLength: number) {
+  return (_: ArrayLike<T> | null | undefined, index: number) => {
+    let offset = headerLength
+    for (let itemIndex = 0; itemIndex < index; itemIndex++) {
+      offset += heights[itemIndex] || 0
+      offset += ITEM_SEPARATOR_HEIGHT
+    }
+
+    return {
+      length: heights[index] || 0,
+      offset,
+      index,
+    }
+  }
+}
+
+function useTextItemLayout<T extends { title: string }>(
+  items: T[],
+  contentWidth: number,
+  mediumClass: string,
+  smallClass: string,
+  headerLength: number,
+  maxLines?: number
+) {
+  const mediumMetrics = getTextMetrics(mediumClass)
+  const smallMetrics = getTextMetrics(smallClass)
+
+  return useMemo(() => {
+    const titleHeights = measureHeights(
+      items.map(item => item.title),
+      {
+        fontFamily: 'System',
+        fontSize: mediumMetrics.fontSize,
+        lineHeight: mediumMetrics.lineHeight,
+        fontWeight: '500',
+      },
+      contentWidth
+    )
+    const itemHeights = titleHeights.map(titleHeight => {
+      const limitedTitleHeight = maxLines
+        ? Math.min(titleHeight, mediumMetrics.lineHeight * maxLines)
+        : titleHeight
+      return (
+        TOPIC_ITEM_FIXED_HEIGHT +
+        mediumMetrics.lineHeight +
+        limitedTitleHeight +
+        smallMetrics.lineHeight
+      )
+    })
+
+    return getLayoutForHeights(itemHeights, headerLength)
+  }, [
+    items,
+    contentWidth,
+    mediumMetrics.fontSize,
+    mediumMetrics.lineHeight,
+    smallMetrics.lineHeight,
+    headerLength,
+    maxLines,
+  ])
+}
 
 function topicKeyExtractor(item: Topic) {
   return String(item.id)
@@ -455,6 +533,19 @@ const RecentTopics = memo(
       [data.pages]
     )
     const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
+    const { fontSize } = useAtomValue(uiAtom)
+    const contentWidth = Math.max(0, useScreenWidth() - 64)
+    const getItemLayout = useTextItemLayout(
+      visibleTopics,
+      contentWidth,
+      fontSize.medium,
+      fontSize.small,
+      contentTopPadding +
+        (blockedTopics.length
+          ? 32 + Math.max(18, getTextMetrics(fontSize.small).lineHeight)
+          : 0),
+      2
+    )
 
     return (
       <RefetchingIndicator
@@ -467,6 +558,7 @@ const RecentTopics = memo(
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
           {...scrollProps}
+          getItemLayout={getItemLayout}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -535,6 +627,19 @@ const TabTopics = memo(
     )
 
     const { visibleTopics, blockedTopics } = useTopicBlockRules(data)
+    const { fontSize } = useAtomValue(uiAtom)
+    const contentWidth = Math.max(0, useScreenWidth() - 64)
+    const getItemLayout = useTextItemLayout(
+      visibleTopics,
+      contentWidth,
+      fontSize.medium,
+      fontSize.small,
+      contentTopPadding +
+        (blockedTopics.length
+          ? 32 + Math.max(18, getTextMetrics(fontSize.small).lineHeight)
+          : 0),
+      2
+    )
 
     return (
       <RefetchingIndicator
@@ -547,6 +652,7 @@ const TabTopics = memo(
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
           {...scrollProps}
+          getItemLayout={getItemLayout}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
@@ -614,6 +720,19 @@ const NodeTopics = memo(
       [data.pages]
     )
     const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
+    const { fontSize } = useAtomValue(uiAtom)
+    const contentWidth = Math.max(0, useScreenWidth() - 64)
+    const getItemLayout = useTextItemLayout(
+      visibleTopics,
+      contentWidth,
+      fontSize.medium,
+      fontSize.small,
+      contentTopPadding +
+        (blockedTopics.length
+          ? 32 + Math.max(18, getTextMetrics(fontSize.small).lineHeight)
+          : 0),
+      2
+    )
 
     return (
       <RefetchingIndicator
@@ -626,6 +745,7 @@ const NodeTopics = memo(
           keyExtractor={topicKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
           {...scrollProps}
+          getItemLayout={getItemLayout}
           refreshControl={
             <StyledRefreshControl
               refreshing={isRefetchingByUser}
@@ -701,6 +821,15 @@ const Xnas = memo(
       () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
       [data.pages]
     )
+    const { fontSize } = useAtomValue(uiAtom)
+    const contentWidth = Math.max(0, useScreenWidth() - 64)
+    const getItemLayout = useTextItemLayout(
+      flatedData,
+      contentWidth,
+      fontSize.medium,
+      fontSize.small,
+      contentTopPadding
+    )
 
     return (
       <RefetchingIndicator
@@ -713,6 +842,7 @@ const Xnas = memo(
           keyExtractor={xnaKeyExtractor}
           {...HOME_LIST_PERFORMANCE_PROPS}
           {...scrollProps}
+          getItemLayout={getItemLayout}
           automaticallyAdjustsScrollIndicatorInsets={false}
           refreshControl={
             <StyledRefreshControl
