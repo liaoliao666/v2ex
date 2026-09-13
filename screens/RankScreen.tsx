@@ -1,14 +1,8 @@
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { findIndex } from 'lodash-es'
 import { memo, useCallback, useState } from 'react'
-import {
-  FlatList,
-  ListRenderItem,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from 'react-native'
+import { Text, TouchableOpacity, View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
@@ -180,7 +174,7 @@ function TopRichList({ headerHeight }: { headerHeight: number }) {
   )
 
   return (
-    <FlatList
+    <FlashList
       data={data}
       refreshControl={
         <StyledRefreshControl
@@ -213,7 +207,7 @@ function TopPlayerList({ headerHeight }: { headerHeight: number }) {
   )
 
   return (
-    <FlatList
+    <FlashList
       data={data}
       refreshControl={
         <StyledRefreshControl

@@ -1,12 +1,7 @@
+import { FlashList } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
-import {
-  FlatList,
-  ListRenderItem,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native'
+import { ListRenderItem, Text, View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import BottomSheet from '@/components/BottomSheet'
@@ -63,7 +58,7 @@ export default function BlockedTopicsSheet({
       subtitle={subtitle}
       onClose={onClose}
     >
-      <FlatList
+      <FlashList
         style={{ maxHeight: height * 0.9 - 92 }}
         data={blockedTopics}
         keyExtractor={item => item.topic.id.toString()}

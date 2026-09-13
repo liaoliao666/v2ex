@@ -1,7 +1,8 @@
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtom, useAtomValue } from 'jotai'
 import { compact, isString, last, pick, uniqBy, upperCase } from 'lodash-es'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
-import { FlatList, ListRenderItem, Text, TextInput, View } from 'react-native'
+import { Text, TextInput, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
@@ -68,7 +69,7 @@ export default function RecentTopicScreen() {
 
   return (
     <View style={tw`flex-1`}>
-      <FlatList
+      <FlashList
         data={allRecentTopics}
         contentContainerStyle={{
           paddingTop: navbarHeight,

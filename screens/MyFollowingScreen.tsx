@@ -1,11 +1,9 @@
-import { measureHeights } from 'expo-pretext'
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { findIndex, last, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
 import {
-  FlatList,
   LayoutChangeEvent,
-  ListRenderItem,
   Platform,
   Text,
   TouchableOpacity,
@@ -37,88 +35,23 @@ import { queryClient } from '@/utils/query'
 import tw from '@/utils/tw'
 import usePreviousDistinct from '@/utils/usePreviousDistinct'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
-import { useScreenWidth } from '@/utils/useScreenWidth'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 40
-const TOPIC_ITEM_FIXED_HEIGHT = 32
-
-function getTextMetrics(style: string) {
-  const textStyle = tw.style(style) as {
-    fontSize?: number
-    lineHeight?: number
-  }
-  return {
-    fontSize: textStyle.fontSize || 14,
-    lineHeight: textStyle.lineHeight || textStyle.fontSize || 14,
-  }
-}
 
 function useTopicListLayout(
-  items: Topic[],
-  headerHeight: number,
-  hideAvatar: boolean
+  _items: Topic[],
+  _headerHeight: number,
+  _hideAvatar: boolean
 ) {
-  const { fontSize } = useAtomValue(uiAtom)
-  const screenWidth = useScreenWidth()
   const heights = useRef(new Map<number, number>()).current
-  const headerLength = useRef(0)
-  const mediumMetrics = getTextMetrics(fontSize.medium)
-  const smallMetrics = getTextMetrics(fontSize.small)
-  const predictedHeights = useMemo(() => {
-    const titleHeights = measureHeights(
-      items.map(item => item.title),
-      {
-        fontFamily: 'System',
-        fontSize: mediumMetrics.fontSize,
-        lineHeight: mediumMetrics.lineHeight,
-        fontWeight: '500',
-      },
-      Math.max(1, screenWidth - (hideAvatar ? 32 : 64))
-    )
-    return new Map(
-      items.map((item, index) => [
-        item.id,
-        TOPIC_ITEM_FIXED_HEIGHT +
-          mediumMetrics.lineHeight +
-          Math.min(titleHeights[index] || 0, mediumMetrics.lineHeight * 2) +
-          smallMetrics.lineHeight,
-      ])
-    )
-  }, [
-    hideAvatar,
-    items,
-    mediumMetrics.fontSize,
-    mediumMetrics.lineHeight,
-    screenWidth,
-    smallMetrics.lineHeight,
-  ])
   const onItemLayout = useCallback(
     (id: number, event: LayoutChangeEvent) => {
       heights.set(id, event.nativeEvent.layout.height)
     },
     [heights]
   )
-  const onHeaderLayout = useCallback((event: LayoutChangeEvent) => {
-    headerLength.current = event.nativeEvent.layout.height
-  }, [])
-  const getItemLayout = useCallback(
-    (data: ArrayLike<Topic> | null | undefined, index: number) => {
-      const getLength = (itemIndex: number) => {
-        const item = data?.[itemIndex]
-        return item
-          ? heights.get(item.id) ?? predictedHeights.get(item.id) ?? 120
-          : 120
-      }
-      let offset = headerHeight + headerLength.current
-      for (let itemIndex = 0; itemIndex < index; itemIndex++) {
-        offset += getLength(itemIndex) + 1
-      }
-      return { length: getLength(index), offset, index }
-    },
-    [headerHeight, heights, predictedHeights]
-  )
-  return { getItemLayout, onHeaderLayout, onItemLayout }
+  return { onItemLayout }
 }
 
 export default withQuerySuspense(MyFollowingScreen, {
@@ -299,7 +232,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
     [data.pages]
   )
   const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
-  const { getItemLayout, onHeaderLayout, onItemLayout } = useTopicListLayout(
+  const { onItemLayout } = useTopicListLayout(
     visibleTopics,
     headerHeight,
     false
@@ -318,7 +251,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
       isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
       progressViewOffset={headerHeight}
     >
-      <FlatList
+      <FlashList
         data={visibleTopics}
         refreshControl={
           <StyledRefreshControl
@@ -332,7 +265,7 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
         }}
         ItemSeparatorComponent={LineSeparator}
         ListHeaderComponent={
-          <View onLayout={onHeaderLayout}>
+          <View>
             <BlockedTopicsNotice
               blockedTopics={blockedTopics}
               sourceTitle="特别关注"
@@ -340,7 +273,6 @@ function MyFollowing({ headerHeight }: { headerHeight: number }) {
           </View>
         }
         renderItem={renderItem}
-        getItemLayout={getItemLayout}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage()
@@ -383,11 +315,7 @@ function MemberTopics({
     [data?.pages]
   )
   const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
-  const { getItemLayout, onHeaderLayout, onItemLayout } = useTopicListLayout(
-    visibleTopics,
-    headerHeight,
-    true
-  )
+  const { onItemLayout } = useTopicListLayout(visibleTopics, headerHeight, true)
   const renderItem: ListRenderItem<Topic> = useCallback(
     ({ item }) => (
       <View onLayout={event => onItemLayout(item.id, event)}>
@@ -402,7 +330,7 @@ function MemberTopics({
       isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
       progressViewOffset={headerHeight}
     >
-      <FlatList
+      <FlashList
         data={visibleTopics}
         refreshControl={
           <StyledRefreshControl
@@ -416,7 +344,7 @@ function MemberTopics({
         }}
         ItemSeparatorComponent={LineSeparator}
         ListHeaderComponent={
-          <View onLayout={onHeaderLayout}>
+          <View>
             <BlockedTopicsNotice
               blockedTopics={blockedTopics}
               sourceTitle={username}
@@ -424,7 +352,6 @@ function MemberTopics({
           </View>
         }
         renderItem={renderItem}
-        getItemLayout={getItemLayout}
         onEndReached={() => {
           if (hasNextPage) {
             fetchNextPage()

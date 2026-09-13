@@ -115,6 +115,7 @@ function ReplyItem({
   onToggleLineCollapsePressOut?: () => void
 }) {
   const [isParsed, setIsParsed] = useState(store.get(enabledParseContentAtom)!)
+  const [contentWidth, setContentWidth] = useState<number>()
   const themeName = useAtomValue(themeNameAtom)
   const colorScheme = useAtomValue(colorSchemeAtom)
   const { colors, fontSize } = useAtomValue(uiAtom)
@@ -206,11 +207,13 @@ function ReplyItem({
 
   return (
     <View
+      collapsable={false}
       style={tw.style(
         `px-4`,
         showLegacyUi && `py-3`,
         shouldUseNestedUi && `pt-2`,
         shouldShowCollapsedGap && `pb-2`,
+        `overflow-visible`,
         `bg-[${itemBackgroundColor}]`,
         isBoolean(related) && !related && `opacity-64`
       )}
@@ -549,12 +552,25 @@ function ReplyItem({
                 ])}
               </Separator>
 
-              <View style={tw`pt-0.5`}>
-                <Html
-                  source={replyHtmlSource}
-                  inModalScreen={inModalScreen}
-                  paddingX={32 + 28 + 24 * replyLevel}
-                />
+              <View
+                collapsable={false}
+                onLayout={event => {
+                  const width = event.nativeEvent.layout.width
+                  setContentWidth(previous =>
+                    previous === width ? previous : width
+                  )
+                }}
+                style={tw`pt-0.5 w-full`}
+              >
+                {contentWidth !== undefined && (
+                  <Html
+                    key={`${reply.id}-${contentWidth}`}
+                    source={replyHtmlSource}
+                    contentWidth={contentWidth}
+                    inModalScreen={inModalScreen}
+                    paddingX={32 + 28 + 24 * replyLevel}
+                  />
+                )}
               </View>
 
               <View style={tw`flex-row items-center pt-2`}>

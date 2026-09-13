@@ -1,14 +1,8 @@
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { findIndex, isEmpty, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
-import {
-  FlatList,
-  ListRenderItem,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from 'react-native'
+import { Text, TouchableOpacity, View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 import { Toast } from 'react-native-toast-message/lib/src/Toast'
@@ -244,7 +238,7 @@ function Blockers({ headerHeight }: { headerHeight: number }) {
   )
 
   return (
-    <FlatList
+    <FlashList
       data={flatedData}
       contentContainerStyle={{
         paddingTop: headerHeight,
@@ -278,7 +272,7 @@ function IgnoreTopics({ headerHeight }: { headerHeight: number }) {
   )
 
   return (
-    <FlatList
+    <FlashList
       data={flatedData}
       contentContainerStyle={{
         paddingTop: headerHeight,

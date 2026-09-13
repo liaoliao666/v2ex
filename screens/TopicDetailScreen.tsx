@@ -1,7 +1,6 @@
 import { Entypo, Feather } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
-import { load } from 'cheerio'
-import { measureHeights } from 'expo-pretext'
+import { FlashList, FlashListRef } from '@shopify/flash-list'
 import { useAtom, useAtomValue } from 'jotai'
 import { last } from 'lodash-es'
 import {
@@ -15,10 +14,8 @@ import {
 } from 'react'
 import {
   Animated,
-  FlatList,
   LayoutChangeEvent,
   ListRenderItem,
-  Platform,
   Pressable,
   Text,
   TouchableOpacity,
@@ -65,7 +62,6 @@ import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import useMount from '@/utils/useMount'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
-import { useScreenWidth } from '@/utils/useScreenWidth'
 
 type ReplyListEntry = {
   reply: Reply
@@ -127,7 +123,6 @@ const REPLY_LIST_PERFORMANCE_PROPS = {
   maxToRenderPerBatch: 4,
   updateCellsBatchingPeriod: 50,
   windowSize: 7,
-  removeClippedSubviews: Platform.OS === 'android',
 } as const
 
 const REPLY_MODE_OPTIONS = [
@@ -138,6 +133,7 @@ const REPLY_MODE_OPTIONS = [
   label: string
   value: RepliesMode | 'reverse'
 }[]
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList) as any
 
 type TopicReplyListItemProps = {
   item: ReplyListEntry
@@ -238,23 +234,6 @@ const TopicReplyListItem = memo(
 
 function keyExtractor(item: ReplyListEntry) {
   return String(item.reply.id)
-}
-
-function extractPlainReplyText(html: string) {
-  const $ = load(html)
-  if ($('img, iframe, pre, code, table, ul, ol, blockquote').length) {
-    return null
-  }
-
-  $('br').replaceWith('\n')
-  $('p, div, li').each((_, element) => {
-    $(element).before('\n').after('\n')
-  })
-  const text = $.root()
-    .text()
-    .replace(/\u00a0/g, ' ')
-    .trim()
-  return text || null
 }
 
 const TopicDetailHeader = memo(function TopicDetailHeader({
@@ -1145,77 +1124,16 @@ function TopicDetailScreen() {
     ]
   )
   const replyHeights = useRef(new Map<string, number>()).current
-  const replyTextCache = useRef(
-    new Map<number, { html: string; text: string | null }>()
-  ).current
-  const topicHeaderHeight = useRef(0)
+  const [, setReplyLayoutVersion] = useState(0)
   const { colors, fontSize } = useAtomValue(uiAtom)
-  const screenWidth = useScreenWidth()
-  const predictedReplyHeights = useMemo(() => {
-    const textStyle = tw.style(fontSize.medium) as {
-      fontSize?: number
-      lineHeight?: number
-    }
-    const mediumFontSize = textStyle.fontSize || 14
-    const mediumLineHeight = textStyle.lineHeight || mediumFontSize
-    const staticHeight = orderBy === 'smart' ? 94 : 102
-    const grouped = new Map<number, { key: string; text: string }[]>()
-    const visibleReplyIds = new Set<number>()
-
-    for (const item of replyListData) {
-      visibleReplyIds.add(item.reply.id)
-      if (item.collapsed) continue
-      const cachedText = replyTextCache.get(item.reply.id)
-      const text =
-        cachedText?.html === item.reply.content
-          ? cachedText.text
-          : extractPlainReplyText(item.reply.content)
-      if (!cachedText || cachedText.html !== item.reply.content) {
-        replyTextCache.set(item.reply.id, {
-          html: item.reply.content,
-          text,
-        })
-      }
-      if (!text) continue
-      const width = Math.max(
-        1,
-        screenWidth - 32 - 28 - 24 * (item.reply.reply_level || 0)
-      )
-      const key = `${orderBy}:${item.collapsed ? 'collapsed' : 'expanded'}:${
-        item.reply.id
-      }`
-      const entries = grouped.get(width) || []
-      entries.push({ key, text })
-      grouped.set(width, entries)
-    }
-
-    replyTextCache.forEach((_, replyId) => {
-      if (!visibleReplyIds.has(replyId)) replyTextCache.delete(replyId)
-    })
-
-    const heights = new Map<string, number>()
-    for (const [width, entries] of grouped) {
-      const bodyHeights = measureHeights(
-        entries.map(entry => entry.text),
-        {
-          fontFamily: 'System',
-          fontSize: mediumFontSize,
-          lineHeight: mediumLineHeight,
-        },
-        width
-      )
-      entries.forEach((entry, index) => {
-        heights.set(entry.key, staticHeight + bodyHeights[index]!)
-      })
-    }
-
-    return heights
-  }, [fontSize.medium, orderBy, replyListData, replyTextCache, screenWidth])
   const onReplyLayout = useCallback(
     (layoutKey: string, event: LayoutChangeEvent) => {
-      replyHeights.set(layoutKey, event.nativeEvent.layout.height)
+      const height = event.nativeEvent.layout.height
+      if (replyHeights.get(layoutKey) === height) return
+      replyHeights.set(layoutKey, height)
+      setReplyLayoutVersion(version => version + 1)
     },
-    [replyHeights]
+    [replyHeights, setReplyLayoutVersion]
   )
   const renderItem: ListRenderItem<ReplyListEntry> = useCallback(
     ({ item }) => (
@@ -1274,49 +1192,20 @@ function TopicDetailScreen() {
 
   const safeAreaInsets = useSafeAreaInsets()
 
-  const flatListRef = useRef<FlatList<ReplyListEntry>>(null)
-  const onTopicHeaderLayout = useCallback((event: LayoutChangeEvent) => {
-    topicHeaderHeight.current = event.nativeEvent.layout.height
-  }, [])
-  const getItemLayout = useCallback(
-    (listData: ArrayLike<ReplyListEntry> | null | undefined, index: number) => {
-      const separatorHeight = orderBy === 'smart' ? 0 : 1
-      const getLength = (itemIndex: number) => {
-        const item = listData?.[itemIndex]
-        if (!item) return 160
-
-        const key = `${orderBy}:${item.collapsed ? 'collapsed' : 'expanded'}:${
-          item.reply.id
-        }`
-        return (
-          replyHeights.get(key) ??
-          predictedReplyHeights.get(key) ??
-          (item.collapsed ? 40 : 160)
-        )
-      }
-
-      let offset = navbarHeight + topicHeaderHeight.current
-      for (let itemIndex = 0; itemIndex < index; itemIndex++) {
-        offset += getLength(itemIndex) + separatorHeight
-      }
-
-      return { length: getLength(index), offset, index }
-    },
-    [navbarHeight, orderBy, predictedReplyHeights, replyHeights]
-  )
+  const flatListRef = useRef<FlashListRef<ReplyListEntry>>(null)
 
   const scrollY = useRef(new Animated.Value(0)).current
 
   return (
     <View style={tw`flex-1 bg-[${colors.base100}]`}>
-      <Animated.FlatList
+      <AnimatedFlashList
         ref={flatListRef}
         key={colorScheme}
         data={replyListData}
         keyExtractor={keyExtractor}
         ItemSeparatorComponent={orderBy !== 'smart' ? LineSeparator : null}
         {...REPLY_LIST_PERFORMANCE_PROPS}
-        getItemLayout={getItemLayout}
+        removeClippedSubviews={false}
         maintainVisibleContentPosition={
           orderBy === 'smart' ? { minIndexForVisible: 1 } : undefined
         }
@@ -1345,7 +1234,7 @@ function TopicDetailScreen() {
         }}
         onEndReachedThreshold={0.3}
         ListHeaderComponent={
-          <View onLayout={onTopicHeaderLayout}>
+          <View>
             <TopicDetailHeader
               topic={topic}
               orderBy={orderBy}

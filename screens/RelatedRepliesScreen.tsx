@@ -1,15 +1,9 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { find, findIndex, isEmpty, last, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
-import {
-  FlatList,
-  ListRenderItem,
-  Text,
-  TouchableOpacity,
-  View,
-  useWindowDimensions,
-} from 'react-native'
+import { Text, TouchableOpacity, View, useWindowDimensions } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { TabBar, TabView } from 'react-native-tab-view'
 
@@ -265,7 +259,7 @@ const Replies = memo(({ replies }: { replies: RelatedReply[] }) => {
   )
 
   return (
-    <FlatList
+    <FlashList
       data={replies}
       renderItem={renderItem}
       onEndReached={() => {

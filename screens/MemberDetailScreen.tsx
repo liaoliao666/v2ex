@@ -1,4 +1,5 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { FlashList, FlashListRef, ListRenderItem } from '@shopify/flash-list'
 import { darken, lighten } from 'color2k'
 import { useAtomValue } from 'jotai'
 import { every, findIndex, last, pick, some, uniqBy } from 'lodash-es'
@@ -15,8 +16,6 @@ import {
 } from 'react'
 import {
   Animated,
-  FlatList,
-  ListRenderItem,
   NativeScrollEvent,
   Platform,
   ScrollViewProps,
@@ -64,6 +63,7 @@ import { useRefreshByUser } from '@/utils/useRefreshByUser'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
 
 const TAB_BAR_HEIGHT = 53
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList) as any
 const TAB_VIEW_MARGIN_TOP = -2
 
 function getTopBarBgCls() {
@@ -129,13 +129,13 @@ function MemberDetailScreen() {
       title: '主题',
       key: 'MemberTopics',
       scrollY: 0,
-      ref: createRef<FlatList>() as any,
+      ref: createRef<FlashListRef<Topic>>() as any,
     },
     {
       title: '回复',
       key: 'MemberReplies',
       scrollY: 0,
-      ref: createRef<FlatList>() as any,
+      ref: createRef<FlashListRef<Topic>>() as any,
     },
   ])
 
@@ -488,7 +488,7 @@ const MemberHeader = memo(() => {
 })
 
 const MemberTopics = forwardRef<
-  FlatList,
+  FlashListRef<Topic>,
   {
     contentContainerStyle: ViewStyle
     onScrollEnd: () => void
@@ -521,7 +521,7 @@ const MemberTopics = forwardRef<
   const { visibleTopics, blockedTopics } = useTopicBlockRules(flatedData)
 
   return (
-    <Animated.FlatList
+    <AnimatedFlashList
       ref={ref}
       data={visibleTopics}
       onScroll={onScroll}
@@ -566,7 +566,7 @@ const MemberTopics = forwardRef<
 })
 
 const MemberReplies = forwardRef<
-  FlatList,
+  FlashListRef<Topic>,
   {
     contentContainerStyle: ViewStyle
     onScrollEnd: () => void
@@ -598,7 +598,7 @@ const MemberReplies = forwardRef<
   )
 
   return (
-    <Animated.FlatList
+    <AnimatedFlashList
       ref={ref}
       data={flatedData}
       onScroll={onScroll}

@@ -1,9 +1,10 @@
 import { Feather } from '@expo/vector-icons'
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
-import { FlatList, ListRenderItem, Pressable, Text, View } from 'react-native'
+import { Pressable, Text, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
@@ -97,7 +98,7 @@ function NotificationsScreen() {
         isRefetching={isFetching && !isRefetchingByUser}
         progressViewOffset={navbarHeight}
       >
-        <FlatList
+        <FlashList
           key={colorScheme}
           data={flatedData}
           refreshControl={

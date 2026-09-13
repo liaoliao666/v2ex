@@ -1,12 +1,11 @@
 import { AntDesign } from '@expo/vector-icons'
+import { FlashList, FlashListRef, ListRenderItem } from '@shopify/flash-list'
 import dayjs from 'dayjs'
 import { useAtomValue } from 'jotai'
 import { isEqual, isUndefined, maxBy } from 'lodash-es'
 import type { RefObject } from 'react'
 import { memo, useCallback, useRef, useState } from 'react'
 import {
-  FlatList,
-  ListRenderItem,
   Platform,
   Text,
   TouchableOpacity,
@@ -87,9 +86,9 @@ function HotestTopicsScreen() {
   const [date, setDate] = useState(dayjs().subtract(1, 'day').toDate())
   const [tabIndex, setTabIndex] = useState(DATE_ROUTE_INDEX.current)
   const [pagerVersion, setPagerVersion] = useState(0)
-  const previousFlatListRef = useRef<FlatList<Topic>>(null)
-  const currentFlatListRef = useRef<FlatList<Topic>>(null)
-  const nextFlatListRef = useRef<FlatList<Topic>>(null)
+  const previousFlatListRef = useRef<FlashListRef<Topic>>(null)
+  const currentFlatListRef = useRef<FlashListRef<Topic>>(null)
+  const nextFlatListRef = useRef<FlashListRef<Topic>>(null)
 
   const headerHeight = useNavBarHeight()
   const swipeEdgeWidth = Platform.OS === 'ios' ? 52 : 32
@@ -295,7 +294,7 @@ function HotestTopics({
   headerHeight,
   date,
 }: {
-  listRef: RefObject<FlatList<Topic> | null>
+  listRef: RefObject<FlashListRef<Topic> | null>
   date: string
   headerHeight: number
 }) {
@@ -310,7 +309,7 @@ function HotestTopics({
   const { visibleTopics, blockedTopics } = useTopicBlockRules(data)
 
   return (
-    <FlatList
+    <FlashList
       ref={listRef}
       data={visibleTopics}
       contentContainerStyle={{

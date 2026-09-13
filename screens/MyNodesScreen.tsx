@@ -1,12 +1,7 @@
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { useCallback } from 'react'
-import {
-  FlatList,
-  ListRenderItem,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { Text, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Empty from '@/components/Empty'
@@ -80,7 +75,7 @@ function MyNodesScreen() {
 
   return (
     <View style={tw`flex-1`}>
-      <FlatList
+      <FlashList
         key={colorScheme}
         contentContainerStyle={tw`pb-4 pt-[${navbarHeight + 16}px]`}
         renderItem={renderItem}
@@ -95,14 +90,6 @@ function MyNodesScreen() {
         }
         ListEmptyComponent={<Empty description={`目前还没有收藏节点`} />}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-        getItemLayout={(_, itemIndex) => {
-          const rowIndex = Math.floor(itemIndex / 4)
-          return {
-            length: ITEM_HEIGHT,
-            offset: rowIndex * ITEM_HEIGHT,
-            index: itemIndex,
-          }
-        }}
       />
 
       <View style={tw`absolute top-0 inset-x-0 z-10`}>

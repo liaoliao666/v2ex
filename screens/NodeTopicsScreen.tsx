@@ -1,5 +1,6 @@
 import { AntDesign } from '@expo/vector-icons'
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { FlashList } from '@shopify/flash-list'
 import { darken, lighten } from 'color2k'
 import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
@@ -38,6 +39,8 @@ import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
 import { useTopicBlockRules } from '@/utils/useTopicBlockRules'
+
+const AnimatedFlashList = Animated.createAnimatedComponent(FlashList) as any
 
 function getTopBarBgCls() {
   const { colors } = getUI()
@@ -157,7 +160,7 @@ function NodeTopicsScreen() {
         </Animated.View>
       </NavBar>
 
-      <Animated.FlatList
+      <AnimatedFlashList
         key={colorScheme}
         data={visibleTopics}
         ListHeaderComponent={

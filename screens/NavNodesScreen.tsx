@@ -1,8 +1,7 @@
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { useCallback, useState } from 'react'
 import {
-  FlatList,
-  ListRenderItem,
   Pressable,
   ScrollView,
   Text,
@@ -116,21 +115,13 @@ function NavNodesScreen() {
           <SafeAreaView edges={['bottom']} />
         </ScrollView>
 
-        <FlatList
+        <FlashList
           style={tw`flex-1`}
           contentContainerStyle={tw`px-4 pb-4 pt-[${navbarHeight}px]`}
           renderItem={renderItem}
           data={routes[index].nodes}
           numColumns={3}
           ListFooterComponent={<SafeAreaView edges={['bottom']} />}
-          getItemLayout={(_, itemIndex) => {
-            const rowIndex = Math.floor(itemIndex / 3)
-            return {
-              length: ITEM_HEIGHT,
-              offset: rowIndex * ITEM_HEIGHT,
-              index: itemIndex,
-            }
-          }}
         />
       </View>
 

@@ -1,7 +1,8 @@
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { uniqBy } from 'lodash-es'
 import { useCallback, useMemo } from 'react'
-import { FlatList, ListRenderItem, View } from 'react-native'
+import { View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
@@ -71,7 +72,7 @@ function MyTopicsScreen() {
         isRefetching={isFetching && !isRefetchingByUser}
         progressViewOffset={navbarHeight}
       >
-        <FlatList
+        <FlashList
           key={colorScheme}
           data={visibleTopics}
           refreshControl={

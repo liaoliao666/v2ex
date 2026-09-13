@@ -1,19 +1,13 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { isString, upperCase } from 'lodash-es'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import {
-  FlatList,
-  ListRenderItem,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
 import Empty from '@/components/Empty'
-import NavBar, { NAV_BAR_HEIGHT } from '@/components/NavBar'
+import NavBar from '@/components/NavBar'
 import NodeItem from '@/components/NodeItem'
 import SearchBar from '@/components/SearchBar'
 import { colorSchemeAtom } from '@/jotai/themeAtom'
@@ -129,17 +123,12 @@ export default function SearchNodeScreen() {
         />
       </NavBar>
 
-      <FlatList
+      <FlashList
         key={colorScheme}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         data={matchNodes}
         renderItem={renderNodeItem}
         ListEmptyComponent={<Empty description="暂无搜索结果" />}
-        getItemLayout={(_, index) => ({
-          length: NAV_BAR_HEIGHT,
-          offset: index * NAV_BAR_HEIGHT,
-          index,
-        })}
         onScrollBeginDrag={() => {
           inputRef.current?.blur()
         }}

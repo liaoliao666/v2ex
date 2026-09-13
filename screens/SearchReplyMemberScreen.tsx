@@ -1,15 +1,9 @@
 import { RouteProp, useRoute } from '@react-navigation/native'
+import { FlashList, ListRenderItem } from '@shopify/flash-list'
 import { useAtomValue } from 'jotai'
 import { uniqBy, upperCase } from 'lodash-es'
 import { memo, useCallback, useMemo, useRef, useState } from 'react'
-import {
-  FlatList,
-  ListRenderItem,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native'
+import { Text, TextInput, TouchableOpacity, View } from 'react-native'
 import BouncyCheckbox from 'react-native-bouncy-checkbox'
 import { SafeAreaView } from 'react-native-safe-area-context'
 
@@ -119,7 +113,7 @@ export default function SearchReplyMemberScreen() {
         />
       </NavBar>
 
-      <FlatList
+      <FlashList
         key={colorScheme}
         ListFooterComponent={<SafeAreaView edges={['bottom']} />}
         data={flatedData}

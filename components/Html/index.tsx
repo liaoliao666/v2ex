@@ -45,6 +45,7 @@ export default memo(
   Html,
   (prev: any, next: any) =>
     prev.source?.html! === next.source?.html &&
+    prev.contentWidth === next.contentWidth &&
     prev.baseStyle?.color === next.baseStyle?.color &&
     prev.paddingX === next.paddingX &&
     prev.inModalScreen === next.inModalScreen &&
@@ -52,11 +53,13 @@ export default memo(
 )
 
 function Html({
+  contentWidth: measuredContentWidth,
   inModalScreen,
   paddingX = 32,
   selectable = true,
   ...renderHTMLProps
 }: RenderHTMLProps & {
+  contentWidth?: number
   inModalScreen?: boolean
   paddingX?: number
   selectable?: boolean
@@ -187,7 +190,7 @@ function Html({
           em: tw`italic`,
           ...mergedProps.tagsStyles,
         }}
-        contentWidth={screenWidth - paddingX}
+        contentWidth={measuredContentWidth ?? screenWidth - paddingX}
         {...mergedProps}
         renderers={{
           a: TextRenderer,

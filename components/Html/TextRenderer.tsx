@@ -22,7 +22,13 @@ const TextRenderer: CustomTextualRenderer = props => {
 
   if (Platform.OS === 'ios' && renderProps.selectable) {
     return (
-      <UITextView uiTextView {...renderProps} selectionColor={colors.primary} />
+      <UITextView
+        uiTextView
+        {...renderProps}
+        numberOfLines={0}
+        ellipsizeMode="clip"
+        selectionColor={colors.primary}
+      />
     )
   }
 
