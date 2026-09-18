@@ -15,6 +15,31 @@
 
 [Expo 文档](https://docs.expo.dev/)
 
+### iOS
+
+iOS 开发需要 Xcode、Command Line Tools 和 CocoaPods。推荐使用 Homebrew 安装：
+
+```sh
+brew install cocoapods
+```
+
+如果使用的是 macOS 自带 Ruby 2.6（`ruby -v` 显示 2.6），请安装兼容版本：
+
+```sh
+gem install ffi -v 1.15.5 --user-install --no-document
+gem install i18n -v 1.14.7 --user-install --no-document
+gem install zeitwerk -v 2.6.18 --user-install --no-document
+gem install activesupport -v 6.1.7.10 --user-install --no-document
+gem install concurrent-ruby -v 1.3.4 --user-install --no-document
+gem install cocoapods -v 1.15.2 --user-install --no-document
+```
+
+`yarn ios` 会自动加入用户 RubyGems 的可执行文件目录，并兼容 macOS Ruby 的 logger 加载问题。安装完成后直接运行：
+
+```sh
+yarn ios
+```
+
 ## URL Scheme
 
 | 页面     | URL Scheme               | 例子                                 |

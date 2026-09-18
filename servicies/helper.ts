@@ -131,6 +131,7 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
       const topic = parseTopicByATag($topicItem.find('.item_title a'))
       const $node = $topicItem.find('.node')
       const hasNode = !!$node.attr('href')
+      const lastTouched = $topicInfo.find('span[title]').first().text().trim()
 
       let node
       let last_touched: string
@@ -143,9 +144,11 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
             ?.trim(),
           title: $node.text(),
         }
-        last_touched = $topicInfo.children(':nth-child(4)').text().trim()
+        last_touched =
+          lastTouched || $topicInfo.children(':nth-child(4)').text().trim()
       } else {
-        last_touched = $topicInfo.children(':nth-child(2)').text().trim()
+        last_touched =
+          lastTouched || $topicInfo.children(':nth-child(2)').text().trim()
       }
 
       if (ignoredTopics.has(topic.id)) return
@@ -160,6 +163,7 @@ export function parseTopicItems($: CheerioAPI, selector: string): Topic[] {
           username: $topicInfo.find('strong a').eq(0).text().trim(),
           avatar: $avatar.attr('data-src') || $avatar.attr('src'),
         },
+        pro: !!$topicInfo.find('.badges .badge.pro').length,
         votes: parseInt($topicItem.find('.votes').text().trim(), 10),
         last_reply_by: pasreArgByATag(
           $topicInfo.find('strong:nth-of-type(2) a'),

@@ -44,7 +44,7 @@ export default withQuerySuspense(RankScreen, {
 
 const MemoTopRichList = withQuerySuspense(memo(TopRichList), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+    const headerHeight = useNavBarHeight()
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -54,7 +54,7 @@ const MemoTopRichList = withQuerySuspense(memo(TopRichList), {
 })
 const MemoTopPlayerList = withQuerySuspense(memo(TopPlayerList), {
   FallbackComponent: props => {
-    const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+    const headerHeight = useNavBarHeight()
     return (
       <View style={{ paddingTop: headerHeight }}>
         <FallbackComponent {...props} />
@@ -86,7 +86,7 @@ function RankScreen() {
 
   const layout = useWindowDimensions()
 
-  const headerHeight = useNavBarHeight() + TAB_BAR_HEIGHT
+  const headerHeight = useNavBarHeight()
 
   const { colors, fontSize } = useAtomValue(uiAtom)
 
@@ -110,15 +110,9 @@ function RankScreen() {
         renderTabBar={props => (
           <View style={tw`absolute top-0 inset-x-0 z-10`}>
             <StyledBlurView style={tw`absolute inset-0`} />
-
-            <NavBar title="社区排行" style={tw`border-b-0`} />
-
-            <View
-              style={tw`px-4 border-b border-[${colors.divider}] border-solid h-[${TAB_BAR_HEIGHT}px]`}
-            >
+            <NavBar style={tw`border-b-0`} title="社区排行">
               <TabBar
                 {...props}
-                scrollEnabled
                 style={tw`flex-row flex-1 shadow-none bg-transparent`}
                 tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
                 indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
@@ -153,7 +147,7 @@ function RankScreen() {
                   )
                 }}
               />
-            </View>
+            </NavBar>
           </View>
         )}
       />

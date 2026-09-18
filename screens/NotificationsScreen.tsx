@@ -4,12 +4,20 @@ import { produce } from 'immer'
 import { useAtomValue } from 'jotai'
 import { findIndex, uniqBy } from 'lodash-es'
 import { memo, useCallback, useMemo, useState } from 'react'
-import { Pressable, Text, View } from 'react-native'
+import {
+  Pressable,
+  Text,
+  TouchableOpacity,
+  View,
+  useWindowDimensions,
+} from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
 import { inferData } from 'react-query-kit'
 
 import DebouncedPressable from '@/components/DebouncedPressable'
+import Empty from '@/components/Empty'
 import Html from '@/components/Html'
 import IconButton from '@/components/IconButton'
 import NavBar, { useNavBarHeight } from '@/components/NavBar'
@@ -36,6 +44,16 @@ import { queryClient } from '@/utils/query'
 import { BizError } from '@/utils/request'
 import tw from '@/utils/tw'
 import { useRefreshByUser } from '@/utils/useRefreshByUser'
+
+const TAB_BAR_HEIGHT = 40
+
+type NotificationTabKey = 'reply' | 'thanks' | 'favorite'
+
+const routes: { title: string; key: NotificationTabKey }[] = [
+  { title: '回复', key: 'reply' },
+  { title: '感谢', key: 'thanks' },
+  { title: '收藏', key: 'favorite' },
+]
 
 export default withQuerySuspense(NotificationsScreen, {
   LoadingComponent: () => (
@@ -67,67 +85,120 @@ function NotificationsScreen() {
 
   const profile = useAtomValue(profileAtom)
 
-  const renderItem: ListRenderItem<Notice> = useCallback(
-    ({ item }) => (
-      <NoticeItem
-        key={item.id}
-        notice={item}
-        onReply={() => {
-          setReplyInfo({
-            topicId: item.topic.id,
-            username: item.member.username,
-          })
-        }}
-      />
-    ),
-    []
-  )
-
   const flatedData = useMemo(
     () => uniqBy(data.pages.map(page => page.list).flat(), 'id'),
     [data.pages]
   )
 
+  const noticesByType = useMemo(() => {
+    return flatedData.reduce<Record<NotificationTabKey, Notice[]>>(
+      (result, notice) => {
+        const actionText = `${notice.prev_action_text}${notice.next_action_text}`
+        const key: NotificationTabKey = actionText.includes('感谢')
+          ? 'thanks'
+          : actionText.includes('收藏')
+          ? 'favorite'
+          : 'reply'
+
+        result[key].push(notice)
+        return result
+      },
+      { reply: [], thanks: [], favorite: [] }
+    )
+  }, [flatedData])
+
+  const handleReply = useCallback((notice: Notice) => {
+    setReplyInfo({
+      topicId: notice.topic.id,
+      username: notice.member.username,
+    })
+  }, [])
+
   const colorScheme = useAtomValue(colorSchemeAtom)
 
   const navbarHeight = useNavBarHeight()
+  const layout = useWindowDimensions()
+  const { colors, fontSize } = useAtomValue(uiAtom)
+  const [index, setIndex] = useState(0)
 
   return (
     <View style={tw`flex-1`}>
-      <RefetchingIndicator
-        isRefetching={isFetching && !isRefetchingByUser}
-        progressViewOffset={navbarHeight}
-      >
-        <FlashList
-          key={colorScheme}
-          data={flatedData}
-          refreshControl={
-            <StyledRefreshControl
-              refreshing={isRefetchingByUser}
-              onRefresh={refetchByUser}
-              progressViewOffset={navbarHeight}
+      <TabView
+        key={colorScheme}
+        navigationState={{ index, routes }}
+        lazy
+        lazyPreloadDistance={1}
+        renderScene={({ route }) => {
+          const routeKey = route.key as NotificationTabKey
+          const routeInfo = routes.find(item => item.key === routeKey)!
+
+          return (
+            <NotificationList
+              colorScheme={colorScheme}
+              notices={noticesByType[routeKey]}
+              emptyDescription={`暂无${routeInfo.title}提醒`}
+              hasNextPage={hasNextPage}
+              fetchNextPage={fetchNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              isFetching={isFetching}
+              isRefetchingByUser={isRefetchingByUser}
+              refetchByUser={refetchByUser}
+              headerHeight={navbarHeight}
+              onReply={handleReply}
             />
-          }
-          contentContainerStyle={{
-            paddingTop: navbarHeight,
-          }}
-          ItemSeparatorComponent={LineSeparator}
-          renderItem={renderItem}
-          onEndReached={() => {
-            if (hasNextPage) {
-              fetchNextPage()
-            }
-          }}
-          onEndReachedThreshold={0.3}
-          ListFooterComponent={
-            <SafeAreaView edges={['bottom']}>
-              {isFetchingNextPage ? (
-                <StyledActivityIndicator style={tw`py-4`} />
-              ) : null}
-            </SafeAreaView>
-          }
-        />
-      </RefetchingIndicator>
+          )
+        }}
+        onIndexChange={setIndex}
+        initialLayout={{ width: layout.width }}
+        tabBarPosition="bottom"
+        renderTabBar={props => (
+          <View style={tw`absolute top-0 inset-x-0 z-10`}>
+            <StyledBlurView style={tw`absolute inset-0`} />
+            <NavBar style={tw`border-b-0`} title="未读提醒">
+              <TabBar
+                {...props}
+                style={tw`flex-row flex-1 shadow-none bg-transparent`}
+                tabStyle={tw`w-auto h-[${TAB_BAR_HEIGHT}px]`}
+                indicatorStyle={tw`bg-[${colors.foreground}] h-1 rounded-full`}
+                indicatorContainerStyle={tw`border-b-0`}
+                gap={24}
+                renderTabBarItem={tabBarItemProps => {
+                  const { route } = tabBarItemProps
+                  const active = routes[index].key === route.key
+
+                  return (
+                    <TouchableOpacity
+                      {...tabBarItemProps}
+                      key={route.key}
+                      style={tw`w-auto flex-row items-center justify-center h-[${TAB_BAR_HEIGHT}px]`}
+                      activeOpacity={active ? 1 : 0.5}
+                      onPress={() => {
+                        setIndex(
+                          findIndex(routes, {
+                            key: route.key as NotificationTabKey,
+                          })
+                        )
+                      }}
+                    >
+                      <Text
+                        style={tw.style(
+                          fontSize.medium,
+                          active
+                            ? tw`text-[${colors.foreground}] font-semibold`
+                            : tw`text-[${colors.default}] font-medium`
+                        )}
+                        numberOfLines={1}
+                      >
+                        {route.title}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                }}
+              />
+            </NavBar>
+          </View>
+        )}
+      />
 
       {replyInfo && (
         <ReplyBox
@@ -141,12 +212,84 @@ function NotificationsScreen() {
           once={profile?.once}
         />
       )}
-
-      <View style={tw`absolute top-0 inset-x-0 z-10`}>
-        <StyledBlurView style={tw`absolute inset-0`} />
-        <NavBar title="未读提醒" />
-      </View>
     </View>
+  )
+}
+
+function NotificationList({
+  colorScheme,
+  notices,
+  emptyDescription,
+  hasNextPage,
+  fetchNextPage,
+  isFetchingNextPage,
+  isFetching,
+  isRefetchingByUser,
+  refetchByUser,
+  headerHeight,
+  onReply,
+}: {
+  colorScheme: string
+  notices: Notice[]
+  emptyDescription: string
+  hasNextPage: boolean
+  fetchNextPage: () => void
+  isFetchingNextPage: boolean
+  isFetching: boolean
+  isRefetchingByUser: boolean
+  refetchByUser: () => void
+  headerHeight: number
+  onReply: (notice: Notice) => void
+}) {
+  const renderItem: ListRenderItem<Notice> = useCallback(
+    ({ item }) => (
+      <NoticeItem
+        key={item.id}
+        notice={item}
+        onReply={() => {
+          onReply(item)
+        }}
+      />
+    ),
+    [onReply]
+  )
+
+  return (
+    <RefetchingIndicator
+      isRefetching={isFetching && !isRefetchingByUser && !isFetchingNextPage}
+      progressViewOffset={headerHeight}
+    >
+      <FlashList
+        key={colorScheme}
+        data={notices}
+        refreshControl={
+          <StyledRefreshControl
+            refreshing={isRefetchingByUser}
+            onRefresh={refetchByUser}
+            progressViewOffset={headerHeight}
+          />
+        }
+        contentContainerStyle={{
+          paddingTop: headerHeight,
+        }}
+        ItemSeparatorComponent={LineSeparator}
+        renderItem={renderItem}
+        onEndReached={() => {
+          if (hasNextPage) {
+            fetchNextPage()
+          }
+        }}
+        onEndReachedThreshold={0.3}
+        ListEmptyComponent={<Empty description={emptyDescription} />}
+        ListFooterComponent={
+          <SafeAreaView edges={['bottom']}>
+            {isFetchingNextPage ? (
+              <StyledActivityIndicator style={tw`py-4`} />
+            ) : null}
+          </SafeAreaView>
+        }
+      />
+    </RefetchingIndicator>
   )
 }
 

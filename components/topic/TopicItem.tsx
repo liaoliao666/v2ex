@@ -14,6 +14,7 @@ import DebouncedPressable from '../DebouncedPressable'
 import Separator from '../Separator'
 import StyledButton from '../StyledButton'
 import StyledImage from '../StyledImage'
+import ProBadge from './ProBadge'
 
 export interface TopicItemProps {
   topic: Topic
@@ -26,6 +27,7 @@ export default memo(
   TopicItem,
   (prev, next) =>
     prev.topic.last_touched === next.topic.last_touched &&
+    prev.topic.pro === next.topic.pro &&
     prev.hideAvatar === next.hideAvatar &&
     prev.blockReason === next.blockReason &&
     prev.onPress === next.onPress
@@ -82,7 +84,7 @@ function TopicItem({
         </View>
       )}
       <View style={tw`flex-1`}>
-        <View style={tw`flex-row gap-2`}>
+        <View style={tw`flex-row items-center gap-2`}>
           <Text
             style={tw`text-[${colors.foreground}] ${fontSize.medium} flex-shrink`}
             numberOfLines={1}
@@ -94,6 +96,8 @@ function TopicItem({
           >
             {topic.member?.username}
           </Text>
+
+          {topic.pro && <ProBadge />}
 
           {!!topic.node?.title && (
             <StyledButton

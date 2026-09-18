@@ -87,6 +87,7 @@
     "plugins": [
       "./plugins/with-gradle-jvm-args",
       "./plugins/with-expo-modules-jsi-embed",
+      "./plugins/with-ios-scene",
       [
         "expo-navigation-bar",
         {

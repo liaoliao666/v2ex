@@ -26,6 +26,7 @@ import Html from '../Html'
 import IconButton from '../IconButton'
 import Separator from '../Separator'
 import StyledImage from '../StyledImage'
+import ProBadge from './ProBadge'
 
 const badgeStyle = tw`items-center justify-center px-[3px] py-px rounded-sm`
 
@@ -498,27 +499,7 @@ function ReplyItem({
                     </Text>
                   </View>
                 )}
-                {reply.pro && (
-                  <View
-                    style={tw.style(
-                      badgeStyle,
-                      `border-[${colors.primary}] border`,
-                      colorScheme !== 'dark' && `bg-[#323a45]`,
-                      (reply.mod || reply.op) && `border-l-0 rounded-l-none`
-                    )}
-                  >
-                    <Text
-                      style={[
-                        badgeTextStyle,
-                        colorScheme === 'dark'
-                          ? tw`text-[rgba(255,255,255,0.8)]`
-                          : tw`text-white`,
-                      ]}
-                    >
-                      PRO
-                    </Text>
-                  </View>
-                )}
+                {reply.pro && <ProBadge joined={reply.mod || reply.op} />}
               </View>
             </View>
 

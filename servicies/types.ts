@@ -131,6 +131,7 @@ export interface Topic {
   likes: number
   thanks: number
   id: number
+  pro?: boolean
   pin_to_top?: boolean
   editable?: boolean
   appendable?: boolean

@@ -53,7 +53,7 @@ function MyNodesScreen() {
           onPress={() => {
             navigation.navigate('NodeTopics', { name: node.name })
           }}
-          style={tw`w-1/4 py-1 items-center justify-around h-[${ITEM_HEIGHT}px]`}
+          style={tw`flex-1 py-1 items-center justify-around h-[${ITEM_HEIGHT}px]`}
         >
           <StyledImage style={tw`w-12 h-12`} source={node.avatar_large} />
 
