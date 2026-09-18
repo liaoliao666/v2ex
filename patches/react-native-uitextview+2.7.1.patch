@@ -48,7 +48,7 @@ index 2f76e86..8cabf22 100644
  {
    if (!_state) {
 diff --git a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
-index 88843d8..0e099a1 100644
+index 88843d8..9594d81 100644
 --- a/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
 +++ b/node_modules/react-native-uitextview/ios/RNUITextViewShadowNode.cpp
 @@ -6,6 +6,7 @@
@@ -59,17 +59,15 @@ index 88843d8..0e099a1 100644
  
  namespace facebook::react {
  
-@@ -81,6 +82,10 @@ RNUITextViewContent RNUITextViewShadowNode::getContentWithMeasuredAttachments(
-   localLayoutConstraints.minimumSize = Size{0, 0};
+@@ -82,6 +83,8 @@ RNUITextViewContent RNUITextViewShadowNode::getContentWithMeasuredAttachments(
    auto &fragments = attributedString.getFragments();
  
-+  for (auto &fragment : fragments) {
-+    fragment.textAttributes.lineHeight = std::numeric_limits<Float>::quiet_NaN();
-+  }
-+
    for (const auto &attachment : attachments) {
++    fragments[attachment.fragmentIndex].textAttributes.lineHeight =
++        std::numeric_limits<Float>::quiet_NaN();
      const auto layoutableShadowNode =
          dynamic_cast<const LayoutableShadowNode *>(attachment.shadowNode);
+     if (layoutableShadowNode == nullptr) {
 diff --git a/node_modules/react-native-uitextview/lib/commonjs/index.js b/node_modules/react-native-uitextview/lib/commonjs/index.js
 index c0284ad..b5c9133 100644
 --- a/node_modules/react-native-uitextview/lib/commonjs/index.js

@@ -22,9 +22,10 @@ export function computeOptimalDispalySize(
   placeholderSize?: number
 ): ViewStyle {
   if (size === 'refetching' || size === 'error') {
+    const brokenImageSize = placeholderSize ?? BROKEN_IMAGE_SIZE
     return {
-      width: BROKEN_IMAGE_SIZE,
-      height: BROKEN_IMAGE_SIZE,
+      width: brokenImageSize,
+      height: brokenImageSize,
     }
   }
 

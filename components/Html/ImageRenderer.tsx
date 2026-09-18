@@ -9,7 +9,6 @@ import { useScreenWidth } from '@/utils/useScreenWidth'
 import StyledImage, { imageResults } from '../StyledImage'
 import { BROKEN_IMAGE_SIZE } from '../StyledImage/helper'
 import { HtmlContext } from './HtmlContext'
-import { INLINE_IMAGE_TAG } from './helper'
 
 const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
   const { onPreview, paddingX } = useContext(HtmlContext)
@@ -21,10 +20,6 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
 
   const screenWidth = useScreenWidth()
   const containerWidth = screenWidth - paddingX
-  const placeholderSize =
-    tnode.contentModel === HTMLContentModel.mixed
-      ? BROKEN_IMAGE_SIZE
-      : undefined
   const resolvedURL = url ? resolveURL(url) : undefined
   const cachedResult = resolvedURL ? imageResults.get(resolvedURL) : undefined
   const [imageSize, setImageSize] = useState<
@@ -35,20 +30,38 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
     [imageSize]
   )
   const isMiniImage =
-    !!imageSize && imageSize.width <= 100 && imageSize.height <= 100
-  const previousSibling = (tnode as any).parent?.children?.[
-    (tnode as any).nodeIndex - 1
-  ]
-  const hasContentBefore = !!previousSibling
-  const previousSiblingIsImage =
-    previousSibling?.tagName === 'img' ||
-    previousSibling?.tagName === INLINE_IMAGE_TAG ||
-    previousSibling?.domNode?.name === 'img' ||
-    previousSibling?.domNode?.name === INLINE_IMAGE_TAG
-  const imageStyle =
-    hasContentBefore && !previousSiblingIsImage
-      ? StyleSheet.flatten([style as any, { marginTop: 8 }])
+    !!imageSize && imageSize.width < 50 && imageSize.height < 50
+  const isMixedImage = tnode.contentModel === HTMLContentModel.mixed
+  const nativeTextFlow = (tnode as any).styles?.nativeTextFlow
+  const nativeStyle = StyleSheet.flatten(style as any) as {
+    fontSize?: number
+    lineHeight?: number
+  }
+  const fontSize = nativeTextFlow?.fontSize ?? nativeStyle?.fontSize
+  const lineHeight =
+    nativeTextFlow?.lineHeight || nativeStyle?.lineHeight || fontSize * 1.4
+  const placeholderSize = isMixedImage
+    ? typeof lineHeight === 'number' && lineHeight > 0
+      ? lineHeight
+      : BROKEN_IMAGE_SIZE
+    : undefined
+  const miniImageHeight = isMixedImage
+    ? Math.max(
+        typeof lineHeight === 'number' && lineHeight > 0 ? lineHeight * 0.8 : 0,
+        typeof fontSize === 'number' && fontSize > 0 ? fontSize : 0
+      ) || undefined
+    : undefined
+  const miniImageStyle =
+    isMiniImage && miniImageHeight
+      ? StyleSheet.flatten([
+          style as any,
+          {
+            width: (miniImageHeight * imageSize.width) / imageSize.height,
+            height: miniImageHeight,
+          },
+        ])
       : style
+  const imageStyle = miniImageStyle
 
   const handleLoad = (event: any) => {
     const { width, height } = event?.source || {}
@@ -75,7 +88,7 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
       containerWidth={containerWidth}
       placeholderSize={placeholderSize}
       priority="low"
-      autoplay={false}
+      autoplay={isMiniImage ? undefined : false}
       onLoad={handleLoad}
     />
   )

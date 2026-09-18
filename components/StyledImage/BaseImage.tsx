@@ -45,6 +45,10 @@ export function BaseImage({
     ? StyleSheet.flatten(style)
     : style
   const hasPassedSize = hasSize(normalizedStyle)
+  const displaySize = !hasPassedSize
+    ? computeOptimalDispalySize(containerWidth, result, placeholderSize)
+    : undefined
+  const imageStyle = tw.style(displaySize, normalizedStyle as ViewStyle)
   const imageProps: ImageProps = {
     ...props,
     source,
@@ -72,12 +76,7 @@ export function BaseImage({
     },
     placeholder: genPlaceholder(colors.neutral),
     placeholderContentFit: 'cover',
-    style: tw.style(
-      // Compute image size if style has no size
-      !hasPassedSize &&
-        computeOptimalDispalySize(containerWidth, result, placeholderSize),
-      normalizedStyle as ViewStyle
-    ),
+    style: imageStyle,
   }
 
   const refetch = useCallback(() => {
@@ -95,7 +94,7 @@ export function BaseImage({
     }
   }, [refetch, result, uri])
 
-  if (!uri) return <View style={normalizedStyle} {...props} />
+  if (!uri) return <View style={imageStyle} {...props} />
 
   if (result === 'error') {
     return (
@@ -107,7 +106,7 @@ export function BaseImage({
             refetch()
           }
         }}
-        style={normalizedStyle}
+        style={imageStyle}
       />
     )
   }
