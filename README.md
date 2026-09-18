@@ -23,21 +23,16 @@ iOS 开发需要 Xcode、Command Line Tools 和 CocoaPods。推荐使用 Homebre
 brew install cocoapods
 ```
 
-如果使用的是 macOS 自带 Ruby 2.6（`ruby -v` 显示 2.6），请安装兼容版本：
-
-```sh
-gem install ffi -v 1.15.5 --user-install --no-document
-gem install i18n -v 1.14.7 --user-install --no-document
-gem install zeitwerk -v 2.6.18 --user-install --no-document
-gem install activesupport -v 6.1.7.10 --user-install --no-document
-gem install concurrent-ruby -v 1.3.4 --user-install --no-document
-gem install cocoapods -v 1.15.2 --user-install --no-document
-```
-
-`yarn ios` 会自动加入用户 RubyGems 的可执行文件目录，并兼容 macOS Ruby 的 logger 加载问题。安装完成后直接运行：
+安装完成后，确认 `pod --version` 可以正常运行，然后启动：
 
 ```sh
 yarn ios
+```
+
+首次运行时，如果没有 `ios` 目录，Expo 会自动执行 prebuild。修改原生配置或添加需要原生配置的插件后，手动同步：
+
+```sh
+npx expo prebuild --platform ios
 ```
 
 ## URL Scheme

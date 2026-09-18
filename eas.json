@@ -22,6 +22,7 @@
       }
     },
     "production": {
+      "node": "22.19.0",
       "ios": {
         "image": "latest"
       }
