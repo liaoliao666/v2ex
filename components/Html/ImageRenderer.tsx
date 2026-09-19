@@ -11,7 +11,7 @@ import { BROKEN_IMAGE_SIZE } from '../StyledImage/helper'
 import { HtmlContext } from './HtmlContext'
 
 const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
-  const { onPreview, paddingX } = useContext(HtmlContext)
+  const { onPreview, paddingX, onInlineImageLoaded } = useContext(HtmlContext)
 
   const url =
     (tnode as any).attributes?.src ||
@@ -67,6 +67,9 @@ const ImageRenderer: CustomMixedRenderer = ({ tnode, style }) => {
     const { width, height } = event?.source || {}
     if (typeof width === 'number' && typeof height === 'number') {
       setImageSize({ width, height })
+      if (resolvedURL && width > 0 && height > 0 && width < 50 && height < 50) {
+        onInlineImageLoaded?.(resolvedURL)
+      }
     }
   }
 

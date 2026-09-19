@@ -26,7 +26,6 @@ import {
   useWindowDimensions,
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg'
 import { TabBar, TabView } from 'react-native-tab-view'
 import Toast from 'react-native-toast-message'
 import { inferFnData } from 'react-query-kit'
@@ -47,6 +46,7 @@ import StyledButton from '@/components/StyledButton'
 import StyledImage from '@/components/StyledImage'
 import StyledRefreshControl from '@/components/StyledRefreshControl'
 import BlockedTopicsNotice from '@/components/topic/BlockedTopicsNotice'
+import ProBadge from '@/components/topic/ProBadge'
 import TopicItem from '@/components/topic/TopicItem'
 import { blackListAtom } from '@/jotai/blackListAtom'
 import { store } from '@/jotai/store'
@@ -189,12 +189,15 @@ function MemberDetailScreen() {
             source={member.avatar}
           />
 
-          <Text
-            style={tw`text-white ${fontSize.large} font-semibold flex-1 mr-2`}
-            numberOfLines={1}
-          >
-            {member.username}
-          </Text>
+          <View style={tw`flex-row items-center gap-2 flex-1 mr-2`}>
+            <Text
+              style={tw`text-white ${fontSize.large} font-semibold flex-shrink`}
+              numberOfLines={1}
+            >
+              {member.username}
+            </Text>
+            {member.pro && <ProBadge />}
+          </View>
 
           {!isSelf(params.username) && <FollowMember {...member} />}
         </Animated.View>
@@ -346,6 +349,8 @@ const MemberHeader = memo(() => {
   })
 
   const { colors, fontSize } = useAtomValue(uiAtom)
+  const onlineFontSize =
+    (tw.style(fontSize.tiny) as { fontSize?: number }).fontSize ?? 9
 
   return (
     <Fragment>
@@ -357,7 +362,7 @@ const MemberHeader = memo(() => {
       <View style={tw`-mt-8 px-4 flex-row`}>
         <View
           pointerEvents="none"
-          style={tw`p-0.5 bg-[${colors.base100}] rounded-full`}
+          style={tw`self-start p-0.5 bg-[${colors.base100}] rounded-full`}
         >
           <StyledImage
             style={tw`w-[81.25px] h-[81.25px] rounded-full`}
@@ -375,37 +380,35 @@ const MemberHeader = memo(() => {
       </View>
 
       <View pointerEvents="none" style={tw`mt-3 px-4 gap-1`}>
-        <View style={tw`flex-row gap-2`}>
+        <View style={tw`flex-row items-center gap-2`}>
           <Text
-            style={tw`text-[${colors.foreground}] ${fontSize.xxxlarge} font-extrabold`}
+            style={tw`text-[${colors.foreground}] ${fontSize.xxxlarge} font-extrabold flex-shrink`}
             selectable
           >
             {member.username}
           </Text>
 
-          <View style={tw`flex-row gap-2`} pointerEvents="none">
-            <View
-              style={tw`rounded-full overflow-hidden justify-center items-center`}
-            >
-              <Svg height="100%" width="100%" style={tw`absolute inset-0`}>
-                <Defs>
-                  <LinearGradient id="grad" x1="0%" y1="0%" x2="0%" y2="100%">
-                    <Stop offset="0" stopColor={'#52bf1c'} />
-                    <Stop offset="1" stopColor={'#438906'} />
-                  </LinearGradient>
-                </Defs>
-                <Rect width="100%" height="100%" fill="url(#grad)" />
-              </Svg>
+          {member.pro && <ProBadge />}
 
+          {member.online && (
+            <View
+              style={tw`items-center justify-center px-[3px] py-px rounded-sm border border-[${colors.primary}] bg-[#438906]`}
+            >
               <Text
-                style={tw`px-1 text-white ${fontSize.small} font-medium text-center`}
+                numberOfLines={1}
+                style={tw.style(`text-white ${fontSize.tiny}`, {
+                  fontSize: onlineFontSize,
+                  lineHeight: onlineFontSize,
+                  textAlign: 'center',
+                  includeFontPadding: false,
+                })}
               >
                 ONLINE
               </Text>
             </View>
+          )}
 
-            <Money {...pick(member, ['gold', 'silver', 'bronze'])} />
-          </View>
+          {/*<Money {...pick(member, ['gold', 'silver', 'bronze'])} />*/}
         </View>
 
         {!!member.motto && (
@@ -446,9 +449,11 @@ const MemberHeader = memo(() => {
           {`V2EX 第 ${member.id} 号会员，加入于 ${member.created}`}
         </Text>
 
-        <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
-          {`今日活跃度排名 ${member.activity}`}
-        </Text>
+        {member.activity !== undefined && (
+          <Text style={tw`text-[${colors.default}] ${fontSize.medium}`}>
+            {`今日活跃度排名 ${member.activity}`}
+          </Text>
+        )}
 
         {!!member.overview && (
           <View
@@ -510,7 +515,7 @@ const MemberTopics = forwardRef<
   )
 
   const renderItem: ListRenderItem<Topic> = useCallback(
-    ({ item }) => <TopicItem key={item.id} topic={item} hideAvatar />,
+    ({ item }) => <TopicItem key={item.id} topic={item} hideAvatar hidePro />,
     []
   )
 

@@ -5,4 +5,5 @@ export const HtmlContext = createContext<{
   paddingX: number
   inModalScreen?: boolean
   selectable: boolean
+  onInlineImageLoaded?: (url: string) => void
 }>({ onPreview: () => {}, paddingX: 32, selectable: true })

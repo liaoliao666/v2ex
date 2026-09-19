@@ -284,8 +284,20 @@ export function parseMember($: CheerioAPI): Omit<Member, 'username'> {
     id: defaultTo(Number(infoText.match(/V2EX\s第\s(\d+)/)?.[1]), undefined),
     avatar: $profile.find('img').eq(0).attr('src'),
     created: infoText.match(/加入于\s(.+\+08:00)/)?.[1],
-    activity: defaultTo(+$profile.find('.gray a').eq(0).text(), undefined),
+    activity: defaultTo(
+      parseInt(
+        $profile
+          .children('.cell')
+          .first()
+          .find('a[href="/top/dau"]')
+          .first()
+          .text(),
+        10
+      ),
+      undefined
+    ),
     online: !!$('.online').length,
+    pro: !!$profile.children('.cell').first().find('.badges .badge.pro').length,
     motto: $('.bigger').text() || undefined,
     widgets: $('.widgets a')
       .map((i, a) => {

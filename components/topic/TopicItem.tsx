@@ -19,6 +19,7 @@ import ProBadge from './ProBadge'
 export interface TopicItemProps {
   topic: Topic
   hideAvatar?: boolean
+  hidePro?: boolean
   blockReason?: string
   onPress?: () => void
 }
@@ -29,6 +30,7 @@ export default memo(
     prev.topic.last_touched === next.topic.last_touched &&
     prev.topic.pro === next.topic.pro &&
     prev.hideAvatar === next.hideAvatar &&
+    prev.hidePro === next.hidePro &&
     prev.blockReason === next.blockReason &&
     prev.onPress === next.onPress
 )
@@ -36,6 +38,7 @@ export default memo(
 function TopicItem({
   topic,
   hideAvatar,
+  hidePro,
   blockReason,
   onPress,
 }: TopicItemProps) {
@@ -97,7 +100,7 @@ function TopicItem({
             {topic.member?.username}
           </Text>
 
-          {topic.pro && <ProBadge />}
+          {topic.pro && !hidePro && <ProBadge />}
 
           {!!topic.node?.title && (
             <StyledButton

@@ -7,7 +7,7 @@ import RenderHtml, {
 import { Image } from 'expo-image'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { compact, findIndex, isString, pick } from 'lodash-es'
-import { memo, useMemo } from 'react'
+import { memo, useCallback, useMemo, useState } from 'react'
 import { Alert, Platform, Image as RNImage, Text } from 'react-native'
 import { UITextViewChild } from 'react-native-uitextview'
 
@@ -64,7 +64,23 @@ function Html({
   paddingX?: number
   selectable?: boolean
 }) {
-  const defaultProps = getDefaultProps({ inModalScreen, selectable })
+  const [inlineImageUrls, setInlineImageUrls] = useState<Set<string>>(
+    () => new Set()
+  )
+  const onInlineImageLoaded = useCallback((url: string) => {
+    setInlineImageUrls(previous => {
+      if (previous.has(url)) return previous
+      return new Set([...previous, url])
+    })
+  }, [])
+  const defaultProps = useMemo(
+    () =>
+      getDefaultProps({
+        inModalScreen,
+        selectable,
+      }),
+    [inModalScreen, selectable, inlineImageUrls]
+  )
   const mergedProps = {
     ...defaultProps,
     ...renderHTMLProps,
@@ -168,8 +184,16 @@ function Html({
           },
           paddingX,
           selectable,
+          onInlineImageLoaded,
         }),
-        [imageUrls, setImageViewer, paddingX, inModalScreen, selectable]
+        [
+          imageUrls,
+          setImageViewer,
+          paddingX,
+          inModalScreen,
+          selectable,
+          onInlineImageLoaded,
+        ]
       )}
     >
       <RenderHtml

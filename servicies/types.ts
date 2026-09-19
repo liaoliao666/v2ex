@@ -35,6 +35,7 @@ export interface Member {
   created?: string
   activity?: number
   online?: boolean
+  pro?: boolean
   motto?: string
   widgets?: {
     uri: string

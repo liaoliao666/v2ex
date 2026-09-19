@@ -14,6 +14,8 @@ import { BASE64_PREFIX } from '@/servicies/helper'
 import tw from '@/utils/tw'
 import { openURL, resolveURL } from '@/utils/url'
 
+import { imageResults } from '../StyledImage/helper'
+
 export const INLINE_IMAGE_TAG = 'v2ex-inline-img'
 export const INLINE_BREAK_TAG = 'v2ex-inline-break'
 
@@ -22,8 +24,17 @@ const defaultProps: Omit<RenderHTMLProps, 'source'> = {
     onElement: (el: any) => {
       if (el.name === 'br') el.name = INLINE_BREAK_TAG
 
+      const imageSize = el.attribs?.src
+        ? imageResults.get(resolveURL(el.attribs.src))
+        : undefined
+
       if (
         el.name === 'img' &&
+        typeof imageSize === 'object' &&
+        imageSize.width > 0 &&
+        imageSize.height > 0 &&
+        imageSize.width < 50 &&
+        imageSize.height < 50 &&
         el.attribs?.loading?.toLowerCase() !== 'lazy' &&
         el.attribs?.class?.split(/\s+/).includes('embedded_image')
       ) {
@@ -86,6 +97,11 @@ export function getDefaultProps({
 }): Omit<RenderHTMLProps, 'source'> {
   return {
     ...defaultProps,
+    domVisitors: {
+      onElement: el => {
+        defaultProps.domVisitors?.onElement?.(el)
+      },
+    },
     defaultTextProps: {
       ...defaultProps.defaultTextProps,
       selectable,
